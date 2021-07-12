@@ -1,29 +1,23 @@
-# README #
+# README
 
-This README would normally document whatever steps are necessary to get your application up and running.
+Welcome to the CAROLINE Project source code repository.
 
-### What is this repository for? ###
+CAROLINE is a InSAR data processing system that automates data dowload, processing and product generation. It allows for continuous product generation where predefined products are created as new datasets are downloaded as wel as ad-hoc product creation.
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+## Contacts
 
-### How do I get set up? ###
+### Project Lead
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+- Freek van Leijen <F.J.vanLeijen@tudelft.nl>
 
-### Contribution guidelines ###
+### Developers
 
-* Writing tests
-* Code review
-* Other guidelines
+- Freek van Leijen <F.J.vanLeijen@tudelft.nl>
+- Manuel Garcia Alvarez <M.G.GarciaAlvarez@tudelft.nl>
+- Marc Bruna <M.F.D.Bruna@tudelft.nl>
+- Niels Jansen <N.H.Jansen@tudelft.nl>
 
-### Who do I talk to? ###
+### Repository admins
 
-* Repo owner or admin
-* Other community or team contact
+- Niels Jansen <N.H.Jansen@tudelft.nl>
+

@@ -12,14 +12,12 @@ RUN groupadd -r caroline && useradd -m --no-log-init -r -g caroline caroline
 
 RUN mkdir /home/caroline/caroline
 
-#COPY ../../ /home/caroline/caroline
-
 RUN chown -R caroline: /home/caroline/caroline
 
 WORKDIR /home/caroline
 
 USER caroline
 
-#VOLUME [ "/sys/fs/cgroup" ]
+VOLUME [ "/sys/fs/cgroup" ]
 
-CMD [ "/lib/systemd/systemd" ]
+CMD [ "/lib/systemd/systemd", "--user" ]

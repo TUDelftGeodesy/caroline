@@ -1,0 +1,11 @@
+version: '3'
+services:
+  caroline-dev:
+    container_name: caroline-dev
+    hostname: caroline-dev
+    build:
+      context: .
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - ./:/home/caroline/caroline

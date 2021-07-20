@@ -7,6 +7,9 @@
 node_modules/
 dist/
 
+# Data directories
+data/*
+
 # Compiled Java class files
 *.class
 

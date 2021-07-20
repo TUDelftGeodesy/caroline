@@ -5,6 +5,7 @@ services:
     hostname: caroline-dev
     build:
       context: .
+      dockerfile: dockers/caroline-dev/Dockerfile
     cap_add:
       - SYS_ADMIN
     volumes:

@@ -10,9 +10,9 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/*     /etc/systemd/system/
 
 RUN groupadd -r caroline && useradd -m --no-log-init -r -g caroline caroline
 
-RUN mkdir /home/caroline/caroline
+RUN mkdir -p /home/caroline/src/caroline
 
-RUN chown -R caroline: /home/caroline/caroline
+RUN chown -R caroline: /home/caroline/src/caroline
 
 WORKDIR /home/caroline
 

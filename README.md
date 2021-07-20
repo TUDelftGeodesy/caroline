@@ -8,22 +8,22 @@ CAROLINE is a InSAR data processing system that automates data dowload, processi
 
 For development purposes a container has been created with the latest stable Python version. All developed code must be able to run in this invironment.
 
-Start the container:
+## Start the container
 
 ```
-docker-compose up -d --build caroline-dev
+docker-compose up -d --build caroline
 ```
 
-Start a shell in the container:
+## Start a shell in the container
 
 ```
-docker exec -it caroline-dev bash
+docker exec -it caroline bash
 ```
 
-Run Python interactively in the container
+## Run Python interactively in the container
 
 ```
-docker exec -it caroline-dev python3
+docker exec -it caroline python3
 ```
 
 ## Contacts

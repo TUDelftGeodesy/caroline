@@ -1,11 +1,11 @@
 version: '3'
 services:
-  caroline-dev:
-    container_name: caroline-dev
-    hostname: caroline-dev
+  caroline:
+    container_name: caroline
+    hostname: caroline
     build:
       context: .
-      dockerfile: dockers/caroline-dev/Dockerfile
+      dockerfile: dockers/caroline/Dockerfile
     cap_add:
       - SYS_ADMIN
     volumes:

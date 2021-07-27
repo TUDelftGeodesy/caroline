@@ -4,6 +4,8 @@ services:
   caroline:
     container_name: caroline
     hostname: caroline
+    depends_on:
+      - caroline-db
     build:
       context: .
       dockerfile: dockers/caroline/Dockerfile
@@ -20,6 +22,8 @@ services:
   caroline-dev:
     container_name: caroline-dev
     hostname: caroline-dev
+    depends_on:
+      - caroline-db
     build:
       context: .
       dockerfile: dockers/caroline-dev/Dockerfile

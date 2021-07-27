@@ -1,7 +1,7 @@
 version: '3'
 services:
 
-  caroline:
+  caroline-dev:
     container_name: caroline-dev
     hostname: caroline-dev
     build:

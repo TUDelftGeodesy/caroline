@@ -26,17 +26,17 @@ RUN apt-get install -y lsb-release \
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY dockers/caroline/docker-entry-point.d /docker-entry-point.d
-COPY dockers/caroline/docker-entry-point.sh /docker-entry-point.sh
-
 # Setup caroline for development
 RUN groupadd -r caroline \
     && useradd -m --no-log-init -r -g caroline caroline \
     && mkdir -p /home/caroline/src/caroline \
     && chown -R caroline: /home/caroline/src/caroline
 
+COPY dockers/caroline/docker-entry-point.d /docker-entry-point.d
+COPY dockers/caroline/docker-entry-point.sh /docker-entry-point.sh
+ENTRYPOINT [ "/docker-entry-point.sh" ]
+
 WORKDIR /home/caroline
 
 VOLUME [ "/sys/fs/cgroup" ]
 
-ENTRYPOINT [ "/docker-entry-point.sh" ]

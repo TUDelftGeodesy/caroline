@@ -2,11 +2,11 @@ version: '3'
 services:
 
   caroline:
-    container_name: caroline
-    hostname: caroline
+    container_name: caroline-dev
+    hostname: caroline-dev
     build:
       context: .
-      dockerfile: dockers/caroline/Dockerfile
+      dockerfile: dockers/caroline-dev/Dockerfile
     environment:
       CAROLINE_DB_HOST: ${CAROLINE_DB_HOST}
       CAROLINE_DB_NAME: ${CAROLINE_DB_NAME}

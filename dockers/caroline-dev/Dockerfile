@@ -32,8 +32,8 @@ RUN groupadd -r caroline \
     && mkdir -p /home/caroline/src/caroline \
     && chown -R caroline: /home/caroline/src/caroline
 
-COPY dockers/caroline/docker-entry-point.d /docker-entry-point.d
-COPY dockers/caroline/docker-entry-point.sh /docker-entry-point.sh
+COPY dockers/caroline-dev/docker-entry-point.d /docker-entry-point.d
+COPY dockers/caroline-dev/docker-entry-point.sh /docker-entry-point.sh
 ENTRYPOINT [ "/docker-entry-point.sh" ]
 
 WORKDIR /home/caroline

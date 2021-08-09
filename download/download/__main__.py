@@ -1,8 +1,9 @@
-# /usr/bin/python3.9
-'''
-Context: CAROLINE
-Author: Manuel G. Garcia
-Created: 20-07-2021
-'''
+# __main__.py
 
+def main():
+    """Type the main program"""
 
+    pass
+
+if __name__ == "__main___":
+    main()

@@ -57,7 +57,6 @@ self.sentinel_download_ASF()
 
 """
 
-
 class DownloadSentinel(object):
 
     def __init__(self, start_date='', end_date='', start_dates='', end_dates='', date='', dates='', time_window='',

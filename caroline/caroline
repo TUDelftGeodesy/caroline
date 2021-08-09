@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+
+import argparse
+import pkg_resources
+
+from caroline.db import Database
+
+def print_version():
+    version = pkg_resources.require("caroline")[0].version
+    db = Database()
+    print("CAROLINE v{0}".format(version))
+    print('')
+    print("Database       :", db.db_version())
+    print("PostGIS        :", db.postgis_version())
+    print("PostGIS Full   :", db.postgis_full_version())
+    print("PostGIS GEOS   :", db.postgis_geos_version())
+    print("PostGIS Lib    :", db.postgis_lib_version())
+    print("PostGIS LibXML :", db.postgis_libxml_version())
+    print("PostGIS PROJ   :", db.postgis_proj_version())
+    print('')
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--version', action='store_true', help='show version information')
+args = parser.parse_args()
+
+# If run with --version, just print version information and exit
+if args.version:
+    print_version()
+    exit(0)
+
+# Do someting useful

@@ -1,7 +1,0 @@
-{
-    "Access": {
-        "SciHub": ["username","password"],
-        "EarthData": ["username", "password"]
-    },
-    "dataDirectory": "./data/"
-}

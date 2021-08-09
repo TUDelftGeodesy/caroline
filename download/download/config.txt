@@ -1,0 +1,10 @@
+[SciHub]
+UserName = username
+PassWord = password
+
+[EarthData]
+UserName = username
+PassWord = password
+
+[DataRepository]
+Directory = ./data/

@@ -1,14 +1,12 @@
-from concurrent.futures import ThreadPoolExecutor
 import requests
-from requests.auth import HTTPDigestAuth
-from requests_futures.sessions import FuturesSession
+from requests.utils import requote_uri
 
 class Connector:
     '''
-    A parent class for opening a connection to a datasource using a username,passworkd authentification
+    A parent class for connecting to a datasource using USERNAME/PASSWORD authentification
     '''
 
-    def __init__(self, username, password, root_url, max_connections=1) -> None:
+    def __init__(self, username, password, root_url) -> None:
         '''
         Creates and test a connection (Session) to a datasource (API) end point.
         Connections use digested credentials, and supports multiple simultaneous connections (requests).
@@ -21,28 +19,36 @@ class Connector:
             when communicating with the API. The API might impose its own restrctions to this.
 
         '''
-        
+
         self.username = username
         self.password = password
         self.root_url = root_url
-        self.max_connection=1
+        # self.max_connection= max_connections
+
+        self.session = requests.Session()
+        self.session.auth = (username, password)
         
-        # instanciate session for asynchronous requests
-        self.session = FuturesSession(executor=ThreadPoolExecutor(max_workers=max_connections),
-                                     session=requests.Session())
-        self.session.auth = HTTPDigestAuth(username, password)
-        response = self.session.get(root_url)
-        self.status = response.result().status_code
+        try:
+            response = self.session.get(root_url)
+        except:
+            ConnectionError("Connection failed. Check if the roor_url is set correctly and if the remote server is responsive")
+        
+        self.status = response.status_code
+
+        if self.status != 200:
+            raise RuntimeError
 
     def test_connection(self):
         '''
         Tests connection and update the "status" attribute upon success.
         '''
-
-        response  = self.session.get(self.root_url)
-        response.raise_for_status()
+        try:
+            response  = self.session.get(self.root_url)
+        except:
+            ConnectionError("Connection failed. Check if the roor_url is set correctly and if the remote server is responsive")
         self.status = response.status_code
-        print("Test successful! Status code:", self.status)
+
+        print("Test completed! Status code:", self.status)
 
     def close_connection(self):
         '''
@@ -51,4 +57,20 @@ class Connector:
 
         self.session.close()
         print("Session for this connector was closed by user")
+    
+    def get(self, request):
+        '''
+        Implements HTTP-GET method
+
+        Args:
+            request (str): a valid URL
+        
+        Returns: requests object
+        '''
+
+        # deling with spaces and special caracters in the request string
+        encode_request = requote_uri(request)
+        respone = self.session.get(encode_request)
+
+        return respone
 

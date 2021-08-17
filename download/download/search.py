@@ -3,7 +3,7 @@ Abstract class for implementing searc funcitionalidy of particular data sources
 """
 
 from abc import ABC, abstractmethod
-# from download.download.connector import Connector
+from connector import Connector
 from shapely.geometry import Polygon
 import datetime
 
@@ -34,7 +34,7 @@ class SciHub(DataApi):
     This class provides a common interface with search an download functionalities.
     '''
     
-    def __init__(self, connector=None ) -> None:
+    def __init__(self, connector) -> None:
         '''
         Initialise the SciHubAPI object
 
@@ -47,7 +47,7 @@ class SciHub(DataApi):
 
     # private method
     def build_query(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
-    sensor_mode='IW', product='SLC', instrument_name='Sentinel-1'):
+    sensor_mode='IW', product='SLC', instrument_name='Sentinel-1') -> None:
         '''
         Builds a query for the API using given the search creteria
         
@@ -65,8 +65,8 @@ class SciHub(DataApi):
 
         '''
 
-        # self.connector.root_url     
-        search_url = 'https://scihub.copernicus.eu/dhus/' + 'search?q=' # extending the root url to define the SearchAPI endpoint
+        search_url = self.connector.root_url + 'search?q=' # extending the root url to define the SearchAPI endpoint
+        # search_url = 'https://scihub.copernicus.eu/dhus/' + 'search?q=' # extending the root url to define the SearchAPI endpoint
 
         try:
             start = datetime.datetime.strptime(start_date, '%Y-%m-%d')
@@ -112,16 +112,39 @@ class SciHub(DataApi):
         return search_url + query
         
 
-    def search(self, aoi, start_date, end_date, track, polarisarion, orbit_direction):
+    def search(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
+        sensor_mode='IW', product='SLC', instrument_name='Sentinel-1'):
+        '''
+        Build query using the input search creteria and request the result to the API.
 
-        self.build_query(aoi, start_date, end_date, track, polarisarion, orbit_direction)
+        Args:
+            aoi (str): a polygon geometry formatted as well-known-text (A.K.A.: area of interest)
+            start_date (str): first day for search (YYYY-MM-DD)
+            end_date (str): last day for search as (YYYY-MM-DD), If None, the start_date will be also used as end_date
+            and the query will use a time-window of one day.
+            track (int): the number of the for the searching creteria
+            polarisation (str): type of polarsation as on SciHub documentation. E.g., HH
+            orbit_direction (srt): Direction of the orbit. E.g., Ascending, Descending 
+            sensor_mode (str): acquisition mode as in the SciHub documentation. E.g., IW
+            product (str): SciHub product level as in the SciHub documentation. E.g., SLC
+            instrument (str): name of the platform as in the SciHub documentation. E.g., Sentinel-1
 
-        # 1. build query
+        Returns: request results
+        '''
+
+        query = self.build_query(aoi, start_date, end_date, track, polarisation, orbit_direction, sensor_mode, product, instrument_name)
+
+        results = self.connector.get(query)
+
+        return results
         # 2. send request to API
-        # 3 collect results (dataset endpoints)
+        # 3 collect results (dataset endpoints) (list of products)
         
         #TODO: requirement time shall be propvided in different formats sucha as a single specific time, a list of specific times, an interval, or  list of intervals
         # though for the system only two formats might be necessary. A single time (considering the temporal resolution of the sensor), and an interval with a start and end
+
+
+
 
         #call build_query here
         return
@@ -134,12 +157,26 @@ class EarthData(DataApi):
     # estend for other APIs
 
 
+c=Connector('fjvanleijen', 'stevin01', 'https://scihub.copernicus.eu/dhus/')
 
-    
-api=SciHub()
+print(c.status)
+c.test_connection()
 
-q=api.build_query('POLYGON((-4.53 29.85, 26.75 29.85, 26.75 46.80,-4.53 46.80,-4.53 29.85))',
+api=SciHub(c)
+
+# query=api.build_query('POLYGON((-4.53 29.85, 26.75 29.85, 26.75 46.80,-4.53 46.80,-4.53 29.85))',
+#         '2021-08-14', '2021-08-16', track=81, polarisation='VV', orbit_direction='Ascending', 
+#         sensor_mode='IW', product='SLC', instrument_name='Sentinel-1')
+
+# print(type(query))
+# print(query)
+
+results=api.search('POLYGON((-4.53 29.85, 26.75 29.85, 26.75 46.80,-4.53 46.80,-4.53 29.85))',
         '2021-08-14', '2021-08-16', track=81, polarisation='VV', orbit_direction='Ascending', 
         sensor_mode='IW', product='SLC', instrument_name='Sentinel-1')
-print(q)
+
+print(results.content)
+
+# print('request query: ',q)
+
 

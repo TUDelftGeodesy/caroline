@@ -10,6 +10,7 @@ dist/
 # Data directories
 data/*
 
+
 # Compiled Java class files
 *.class
 
@@ -51,3 +52,6 @@ Thumbs.db
 *.mov
 *.wmv
 
+download/tests/test-server.py
+search-result.json
+example.py

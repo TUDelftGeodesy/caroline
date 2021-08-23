@@ -1,3 +1,5 @@
+# import requests
+from requests import Request, Session
 import requests
 from requests.utils import requote_uri
 
@@ -23,27 +25,26 @@ class Connector:
         self.username = username
         self.password = password
         self.root_url = root_url
-        # self.max_connection= max_connections
-
-        self.session = requests.Session()
+        
+        self.header={}
+        self.session = Session()
         self.session.auth = (username, password)
         
-        try:
-            response = self.session.get(root_url)
-        except:
-            ConnectionError("Connection failed. Check if the roor_url is set correctly and if the remote server is responsive")
-        
-        self.status = response.status_code
+        test_request= Request('GET', self.root_url, headers=self.header)
+        prepare = self.session.prepare_request(test_request)
+        response = self.session.send(prepare)
+        response.raise_for_status
 
-        if self.status != 200:
-            raise RuntimeError
+        self.status = response.status_code
 
     def test_connection(self):
         '''
         Tests connection and update the "status" attribute upon success.
         '''
         try:
-            response  = self.session.get(self.root_url)
+            test_request= Request('GET', self.root_url, headers=self.header)
+            prepare = self.session.prepare_request(test_request)
+            response = self.session.send(prepare)
         except:
             ConnectionError("Connection failed. Check if the roor_url is set correctly and if the remote server is responsive")
         self.status = response.status_code
@@ -58,19 +59,23 @@ class Connector:
         self.session.close()
         print("Session for this connector was closed by user")
     
-    def get(self, request):
+    def get(self, request, stream=False ):
         '''
         Implements HTTP-GET method
 
         Args:
             request (str): a valid URL
+            stream (bolean): set data streaming. Default is FALSE
         
         Returns: requests object
         '''
-
-        # deling with spaces and special caracters in the request string
         encode_request = requote_uri(request)
-        respone = self.session.get(encode_request)
+        get_request= Request('GET', encode_request, headers=self.header)
+        prepare = self.session.prepare_request(get_request)
+        response = self.session.send(prepare, verify=True, stream=stream, timeout=None) # timeout=None, wait forever for response
+        response.raise_for_status
 
-        return respone
+        return response
+
+
 

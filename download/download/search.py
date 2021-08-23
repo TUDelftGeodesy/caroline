@@ -14,7 +14,7 @@ import requests
 from requests.utils import requote_uri
 
 
-class DataApi(ABC):
+class DataSearch(ABC):
     '''
     Abstract class for specifying DataApi's (data sources)
     '''
@@ -32,7 +32,7 @@ class DataApi(ABC):
         pass
 
 
-class SciHub(DataApi):
+class SciHub(DataSearch):
     '''
     Implementation of DataAPI for the SciHub.
     SciHub provides two API's, one with search functionality and another with downloading functionality.
@@ -68,10 +68,11 @@ class SciHub(DataApi):
             product (str): SciHub product level as in the SciHub documentation. E.g., SLC
             instrument (str): name of the platform as in the SciHub documentation. E.g., Sentinel-1
 
+        Returns: query string for the first 100 results
+
         '''
 
         search_url = self.connector.root_url + 'search?q=' # extending the root url to define the SearchAPI endpoint
-        # search_url = 'https://scihub.copernicus.eu/dhus/' + 'search?q=' # extending the root url to define the SearchAPI endpoint
 
         try:
             start = datetime.datetime.strptime(start_date, '%Y-%m-%d')
@@ -114,7 +115,7 @@ class SciHub(DataApi):
                                                                               :-3] + 'Z]'
         query += ' AND ' + date_string
 
-        return search_url + query + '&format=json'
+        return search_url + query + '&format=json&rows=100'
         
 
     def search(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
@@ -134,7 +135,7 @@ class SciHub(DataApi):
             product (str): SciHub product level as in the SciHub documentation. E.g., SLC
             instrument (str): name of the platform as in the SciHub documentation. E.g., Sentinel-1
 
-        Returns: a listing found products
+        Returns: a listing found products. 
         '''
 
         # TODO: Define what metadata should be collected for each products/image
@@ -146,7 +147,6 @@ class SciHub(DataApi):
         self.ids = []
         self.dates = []
         self.polarisations = []
-        page = 0
 
         print("Searching for products....")
         query = self.build_query(aoi, start_date, end_date, track, polarisation, orbit_direction, sensor_mode, product, instrument_name)
@@ -182,53 +182,20 @@ class SciHub(DataApi):
         if os.path.exists(download_directory) == False:
             os.mkdir(download_directory)
         
-        print("Downloading Productcs....")
+        print("Downloading Products....")
+ 
         for product in products:
-            print(">>>>> ", product['title'])
+            response = self.connector.get(product['uri'], stream=True)
+            with open(download_directory + product['title'] + '.zip', 'wb' ) as f:
+                for chunk in response.iter_content(chunk_size=1024):
+                    f.write(chunk)
 
-            encoded_uri= requote_uri(product['uri'])
-            with requests.get(encoded_uri, auth=('fjvanleijen', 'stevin01'), stream=True) as r:
-                r.raise_for_status()
-
-                with open(download_directory + product['title'] + '.zip', 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=1024):
-                        f.write(chunk)
+                    # TODO: we required several re-tries to get the download started from SciHub
 
         return None
         
-
-class EarthData(DataApi):
+class EarthData(DataSearch):
     pass
     # esteds for other APIs
 
 
-
-
-
-
-
-#Exenmple
-
-c=Connector('fjvanleijen', 'stevin01', 'https://scihub.copernicus.eu/dhus/')
-
-print(c.status)
-# c.test_connection()
-
-api=SciHub(c)
-
-# query=api.build_query('POLYGON((-155.75 18.90, -155.75 20.2, -154.75 19.50, -155.75 18.90))',
-#         '2018-04-22', '2018-05-08', polarisation='VV', orbit_direction='Ascending', 
-#         sensor_mode='IW', product='SLC', instrument_name='Sentinel-1')
-
-c.close_connection()
-# # print(type(query))
-# print(query)
-
-search_results=api.search('POLYGON((-155.75 18.90, -155.75 20.2, -154.75 19.50, -155.75 18.90))',
-        '2021-08-14', '2021-08-16',  polarisation='VV', orbit_direction='Ascending', 
-        sensor_mode='IW', product='SLC', instrument_name='Sentinel-1')
-
-api.download(search_results, '/home/manuel/Documents/development/satellite-livestreams/caroline/data/')
-
-
-# print(search_results)

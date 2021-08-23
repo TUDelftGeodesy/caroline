@@ -1,13 +1,18 @@
 """
-Abstract class for implementing searc funcitionalidy of particular data sources
+Classes for implementing search funcitionalidy of particular data sources
 """
 
+# from _typeshed import Self
 from abc import ABC, abstractmethod
+
+from requests import auth
 from connector import Connector
 from shapely.geometry import Polygon
 import datetime
+import os
+import requests
+from requests.utils import requote_uri
 
-# TODO: Implement search and dowload as abstract classes.
 
 class DataApi(ABC):
     '''
@@ -109,7 +114,7 @@ class SciHub(DataApi):
                                                                               :-3] + 'Z]'
         query += ' AND ' + date_string
 
-        return search_url + query
+        return search_url + query + '&format=json'
         
 
     def search(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
@@ -129,54 +134,101 @@ class SciHub(DataApi):
             product (str): SciHub product level as in the SciHub documentation. E.g., SLC
             instrument (str): name of the platform as in the SciHub documentation. E.g., Sentinel-1
 
-        Returns: request results
+        Returns: a listing found products
         '''
 
+        # TODO: Define what metadata should be collected for each products/image
+
+        self.products = [] # collect title, id, and uri to download
+        self.footprints = []
+        self.tracks = []
+        self.orbit_directions = []
+        self.ids = []
+        self.dates = []
+        self.polarisations = []
+        page = 0
+
+        print("Searching for products....")
         query = self.build_query(aoi, start_date, end_date, track, polarisation, orbit_direction, sensor_mode, product, instrument_name)
 
-        results = self.connector.get(query)
+        search_results = self.connector.get(query)
+        result_json = search_results.json()
+        entries= result_json['feed']['entry'] # entries describe product/dataset  
 
-        return results
-        # 2. send request to API
-        # 3 collect results (dataset endpoints) (list of products)
+        print("Found ", result_json['feed']["opensearch:totalResults"], " products.")
+        if len(entries) !=0:
+            for entry in entries:
+                product = {'title': entry['title'], 'id': entry['id'], 'uri': entry['link'][0]['href']}
+                self.products.append(product)
+
+        else:
+            print("No products found for this creteria")
+
+        return self.products
         
         #TODO: requirement time shall be propvided in different formats sucha as a single specific time, a list of specific times, an interval, or  list of intervals
         # though for the system only two formats might be necessary. A single time (considering the temporal resolution of the sensor), and an interval with a start and end
 
+    def download(self, products, download_directory):
+        '''
+        Downloads data set given for the list of products
 
+        Args:
+            products (dic): list of products to download.
+            directory: path to directory to store files
 
+        '''
 
-        #call build_query here
-        return
+        if os.path.exists(download_directory) == False:
+            os.mkdir(download_directory)
+        
+        print("Downloading Productcs....")
+        for product in products:
+            print(">>>>> ", product['title'])
 
-    def download(selt, *argv):
-        pass
+            encoded_uri= requote_uri(product['uri'])
+            with requests.get(encoded_uri, auth=('fjvanleijen', 'stevin01'), stream=True) as r:
+                r.raise_for_status()
+
+                with open(download_directory + product['title'] + '.zip', 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=1024):
+                        f.write(chunk)
+
+        return None
+        
 
 class EarthData(DataApi):
     pass
-    # estend for other APIs
+    # esteds for other APIs
 
+
+
+
+
+
+
+#Exenmple
 
 c=Connector('fjvanleijen', 'stevin01', 'https://scihub.copernicus.eu/dhus/')
 
 print(c.status)
-c.test_connection()
+# c.test_connection()
 
 api=SciHub(c)
 
-# query=api.build_query('POLYGON((-4.53 29.85, 26.75 29.85, 26.75 46.80,-4.53 46.80,-4.53 29.85))',
-#         '2021-08-14', '2021-08-16', track=81, polarisation='VV', orbit_direction='Ascending', 
+# query=api.build_query('POLYGON((-155.75 18.90, -155.75 20.2, -154.75 19.50, -155.75 18.90))',
+#         '2018-04-22', '2018-05-08', polarisation='VV', orbit_direction='Ascending', 
 #         sensor_mode='IW', product='SLC', instrument_name='Sentinel-1')
 
-# print(type(query))
+c.close_connection()
+# # print(type(query))
 # print(query)
 
-results=api.search('POLYGON((-4.53 29.85, 26.75 29.85, 26.75 46.80,-4.53 46.80,-4.53 29.85))',
-        '2021-08-14', '2021-08-16', track=81, polarisation='VV', orbit_direction='Ascending', 
+search_results=api.search('POLYGON((-155.75 18.90, -155.75 20.2, -154.75 19.50, -155.75 18.90))',
+        '2021-08-14', '2021-08-16',  polarisation='VV', orbit_direction='Ascending', 
         sensor_mode='IW', product='SLC', instrument_name='Sentinel-1')
 
-print(results.content)
-
-# print('request query: ',q)
+api.download(search_results, '/home/manuel/Documents/development/satellite-livestreams/caroline/data/')
 
 
+# print(search_results)

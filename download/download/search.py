@@ -186,13 +186,14 @@ class SciHub(DataSearch):
                 for chunk in response.iter_content(chunk_size=1024):
                     f.write(chunk)
 
-                    # TODO: we required several re-tries to get the download started from SciHub
+        # TODO: we required several re-tries to get the download started from SciHub. Tests point out that this is an issue with their API
 
         return None
         
 
 class EarthData(DataSearch):
     pass
-    # esteds for other APIs
+    # implement for other APIs
+
 
 

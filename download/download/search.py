@@ -4,14 +4,9 @@ Classes for implementing search funcitionalidy of particular data sources
 
 # from _typeshed import Self
 from abc import ABC, abstractmethod
-
-from requests import auth
-from connector import Connector
 from shapely.geometry import Polygon
 import datetime
 import os
-import requests
-from requests.utils import requote_uri
 
 
 class DataSearch(ABC):
@@ -169,6 +164,7 @@ class SciHub(DataSearch):
         #TODO: requirement time shall be propvided in different formats sucha as a single specific time, a list of specific times, an interval, or  list of intervals
         # though for the system only two formats might be necessary. A single time (considering the temporal resolution of the sensor), and an interval with a start and end
 
+
     def download(self, products, download_directory):
         '''
         Downloads data set given for the list of products
@@ -194,6 +190,7 @@ class SciHub(DataSearch):
 
         return None
         
+
 class EarthData(DataSearch):
     pass
     # esteds for other APIs

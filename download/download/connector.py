@@ -37,6 +37,7 @@ class Connector:
 
         self.status = response.status_code
 
+
     def test_connection(self):
         '''
         Tests connection and update the "status" attribute upon success.
@@ -51,6 +52,7 @@ class Connector:
 
         print("Test completed! Status code:", self.status)
 
+
     def close_connection(self):
         '''
         Ends the connection and closes the connection session.
@@ -59,6 +61,7 @@ class Connector:
         self.session.close()
         print("Session for this connector was closed by user")
     
+
     def get(self, request, stream=False ):
         '''
         Implements HTTP-GET method
@@ -76,6 +79,3 @@ class Connector:
         response.raise_for_status
 
         return response
-
-
-

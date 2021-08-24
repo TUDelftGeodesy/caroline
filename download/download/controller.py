@@ -4,10 +4,14 @@ Download data from external data sources, given a url, into the local data direc
 
 
 class Controller:
+    '''
+    Provides a loop for setting recurrent data searching and downloading.
+    '''
 
     def __init__(self, frequency):
         
         self.frequency = frequency
+
 
     def start(self):
         pass

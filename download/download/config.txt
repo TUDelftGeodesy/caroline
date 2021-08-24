@@ -8,3 +8,6 @@ PassWord = password
 
 [DataRepository]
 Directory = ./data/
+
+[Controller]
+frequency = time (minutes)

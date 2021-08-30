@@ -75,7 +75,7 @@ class Connector:
         encode_request = requote_uri(request)
         get_request= Request('GET', encode_request, headers=self.header)
         prepare = self.session.prepare_request(get_request)
-        response = self.session.send(prepare, verify=True, stream=stream, timeout=None) # timeout=None, wait forever for response
+        response = self.session.send(prepare, verify=True, stream=stream, timeout=None) # timeout=None, wait forever for a response
         response.raise_for_status
 
         return response

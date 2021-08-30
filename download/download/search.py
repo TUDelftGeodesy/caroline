@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from shapely.geometry import Polygon
 import datetime
 import os
+import hashlib
 
 
 class DataSearch(ABC):
@@ -23,7 +24,11 @@ class DataSearch(ABC):
         pass
 
     @abstractmethod
-    def download(selt, *argv):
+    def download(self, *argv):
+        pass
+
+    @abstractmethod
+    def validate_download(self, *argv):
         pass
 
 
@@ -183,12 +188,58 @@ class SciHub(DataSearch):
         for product in products:
             response = self.connector.get(product['uri'], stream=True)
             with open(download_directory + product['title'] + '.zip', 'wb' ) as f:
-                for chunk in response.iter_content(chunk_size=1024):
+                for chunk in response.iter_content(chunk_size=100*1024): # bytes
                     f.write(chunk)
+            
+            # TODO: use data validation to check if download was successful
 
         # TODO: we required several re-tries to get the download started from SciHub. Tests point out that this is an issue with their API
 
         return None
+
+    # private method
+    def validate_download(self, product, file_path):
+        """
+        Validates the success of a dowload by performing a data integrity check using checksums.
+
+        Args:
+            product (dic): product description including a URI for data download
+            file_path (str): path to local copy of the product.
+        
+        Return: 
+            validity chek (bolean)
+
+        """
+
+        #checsum on remote (MD5)
+        dowload_uri = product['uri']
+        checksum_uri = dowload_uri.split('$')[0] + 'Checksum/Value/$value' 
+        remote_checksum = self.connector.get(checksum_uri).text
+        print (remote_checksum)
+
+        # Local checksum
+        with open (file_path, 'rb') as local_file:
+            file_hash = hashlib.md5()
+            while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
+                file_hash.update(chunk)
+        
+        local_checksum = file_hash.hexdigest()
+
+        if remote_checksum == local_checksum:
+            result = True
+        else:
+            result = False
+
+        return result 
+
+
+
+
+
+        
+
+
+        
         
 
 class EarthData(DataSearch):

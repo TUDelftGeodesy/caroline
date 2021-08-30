@@ -2,7 +2,7 @@
 Register downloaded datasets into the database
 """
 
-class Register:
+class RegisterDB:
 
     def __init__(self) -> None:
         pass

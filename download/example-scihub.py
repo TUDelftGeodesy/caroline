@@ -2,6 +2,7 @@
 This an example of how the current version of download engine
 is intende to be used. For now only an example on API connection,
 search and download.
+This example if for the SciHub API
 """
 
 from download import connector
@@ -9,7 +10,7 @@ from download import search
 
 
 # Create a connector to handle the autentification
-c = connector.Connector('fjvanleijen', 'stevin01', 'https://scihub.copernicus.eu/dhus/')
+c = connector.Connector('manuelgarciaalvarez', 'bYYpjJCc!K!jxxc5Hx5b', 'https://scihub.copernicus.eu/dhus/')
 
 c.test_connection()
 
@@ -26,4 +27,4 @@ c.close_connection() # only need for this example and user. Otherwhise connectio
 print(search_results)
 
 # Download datasets (a.k.a products found by search())
-search_api.download(search_results, './data/') # This might fail dure to restrition on the API server. An issue that we most consider for the case of SciHub
+search_api.download(search_results, './data/') # This might take a long time

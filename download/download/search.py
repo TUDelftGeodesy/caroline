@@ -170,13 +170,14 @@ class SciHub(DataSearch):
         # though for the system only two formats might be necessary. A single time (considering the temporal resolution of the sensor), and an interval with a start and end
 
 
-    def download(self, products, download_directory):
+    def download(self, products, download_directory, max_retries=3):
         '''
-        Downloads data set given for the list of products
+        Downloads data set given for the list of products.
 
         Args:
             products (dic): list of products to download.
-            directory: path to directory to store files
+            directory: path to directory to store files.
+            max_reties (int): maximum number of connection retries to download a product.
 
         '''
 
@@ -184,17 +185,32 @@ class SciHub(DataSearch):
             os.mkdir(download_directory)
         
         print("Downloading Products....")
- 
+
         for product in products:
-            response = self.connector.get(product['uri'], stream=True)
-            with open(download_directory + product['title'] + '.zip', 'wb' ) as f:
-                for chunk in response.iter_content(chunk_size=100*1024): # bytes
-                    f.write(chunk)
+            file_path = download_directory + product['title'] + '.zip'
+
+            # Avoid re-download valid products after sudden failure
+            if os.path.isfile(file_path) and self.validate_download(product, file_path):
+                continue
             
-            # TODO: use data validation to check if download was successful
+            validity = False
+            download_retries = 1 # we required several re-tries to get the download started from SciHub. Tests point out that this is an issue with their API
 
-        # TODO: we required several re-tries to get the download started from SciHub. Tests point out that this is an issue with their API
-
+            while validity == False:
+                if download_retries > max_retries:
+                    print("Download failed after", str(max_retries), "tries. Product: ", product['title'])
+                    break
+                else:
+                    response = self.connector.get(product['uri'], stream=True)
+                    with open(file_path, 'wb' ) as f:
+                        # f.write(b'file content')
+                        for chunk in response.iter_content(chunk_size=100*1024): # bytes
+                            f.write(chunk)
+                
+                    print('>>>> Trying', str(download_retries) )
+                    download_retries += 1
+                    validity = self.validate_download(product, file_path)
+                
         return None
 
     # private method
@@ -211,11 +227,10 @@ class SciHub(DataSearch):
 
         """
 
-        #checsum on remote (MD5)
+        #checksum on remote (MD5)
         dowload_uri = product['uri']
         checksum_uri = dowload_uri.split('$')[0] + 'Checksum/Value/$value' 
         remote_checksum = self.connector.get(checksum_uri).text
-        print (remote_checksum)
 
         # Local checksum
         with open (file_path, 'rb') as local_file:
@@ -233,18 +248,14 @@ class SciHub(DataSearch):
         return result 
 
 
-
-
-
-        
-
-
-        
-        
-
+    
 class EarthData(DataSearch):
-    pass
-    # implement for other APIs
+    '''
+    Implementation of DataAPI for the EarthData.
+    This class provides a common interface with search an download functionalities.
+    '''
+    
+
 
 
 

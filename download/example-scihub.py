@@ -1,8 +1,8 @@
 """
 This an example of how the current version of download engine
-is intende to be used. For now only an example on API connection,
+is intended to be used. For now, only an example on API connection,
 search and download.
-This example if for the SciHub API
+This example is for the SciHub API
 """
 
 from download import connector

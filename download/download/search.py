@@ -34,7 +34,7 @@ class DataSearch(ABC):
 
 class SciHub(DataSearch):
     '''
-    Implementation of DataAPI for the SciHub.
+    Implementation of DataSearch for the SciHub.
     SciHub provides two API's, one with search functionality and another with downloading functionality.
     This class provides a common interface with search an download functionalities.
     '''
@@ -111,8 +111,7 @@ class SciHub(DataSearch):
 
         date_string = 'beginposition:[' + start.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z TO ' + \
                       end.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z] AND endposition:[' + \
-                      start.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z TO ' + end.strftime('%Y-%m-%dT%H:%M:%S.%f')[
-                                                                              :-3] + 'Z]'
+                      start.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z TO ' + end.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z]'
         query += ' AND ' + date_string
 
         return search_url + query + '&format=json&rows=100'
@@ -248,12 +247,129 @@ class SciHub(DataSearch):
         return result 
 
 
-    
+
+class ASF(DataSearch):
+    '''
+    Implementation of SearchAPI for the Alaska Satellite Facility
+    This class provides a common interface with search an download functionalities.
+    API documentation: https://docs.asf.alaska.edu/api/basics/
+    '''
+
+    # base url: https://api.daac.asf.alaska.edu/
+
+    def __init__(self, connector) -> None:
+        '''
+        Initialise the ASF object
+
+        Args:
+            connector (obj): connector object
+        '''
+
+        self.connector = connector # requires a Connector as component
+        
+
+    # private method
+    def build_query(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
+    sensor_mode='IW', product='SLC', instrument_name='Sentinel-1') -> None:
+        '''
+        Builds a query for the API using given the search creteria
+        
+        Args:
+            aoi (str): a polygon geometry formatted as well-known-text (A.K.A.: area of interest)
+            start_date (str): first day for search (YYYY-MM-DD)
+            end_date (str): last day for search as (YYYY-MM-DD), If None, the start_date will be also used as end_date
+            and the query will use a time-window of one day.
+            track (int): the number of the for the searching creteria
+            polarisation (str): type of polarisation. A single value or a comma-separated list of values E.g., VV or VV,HH
+            orbit_direction (srt): Direction of the orbit. E.g., Ascending, Descending 
+            sensor_mode (str): beam mode as in the ASF documentation. E.g., IW
+            product (str): processing level as in the ASF documentation. E.g., SLC
+            instrument (str): name of the platform as in the ASF documentation. E.g., Sentinel-1
+
+        Returns: query string 
+
+        '''
+
+        search_url = self.connector.root_url + 'services/search/param?'
+
+        try:
+            start = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+        except ValueError:
+            print('Make sure that start_date is formatted as YEAR-MONTH-DAY')
+        if end_date is None: # for the case only a start date is given
+            end = start_date
+        else:
+            try: end = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+            except ValueError:
+                print('Make sure that end_date is formatted as YEAR-MONTH-DAY')
+        
+        # arguments left as None will be hadled as empty strings
+        if track is None:
+            track=''
+        if polarisation is None:
+            track=''
+        if orbit_direction is None:
+            orbit_direction=''
+        
+        query = ''
+        if instrument_name:
+            # using a leading '&' means parameters can be input in any order
+            query += '&platform=' + instrument_name
+        if sensor_mode:
+            query += '&beamMode=' + sensor_mode
+        if product:
+            query += '&processingLevel=' + product
+        if orbit_direction:
+            query += '&flightDirection=' + orbit_direction
+        if track:
+            query += '&relativeOrbit=' + str(track)
+        if polarisation:
+            query += '&polarization=' + polarisation
+        if aoi:
+            query += '&intersectsWith=' + aoi 
+        
+        date_string = '&start=' + start.strftime('%Y-%m-%dT%H:%M:%S') + 'UTC' + \
+                      '&end=' + end.strftime('%Y-%m-%dT%H:%M:%S') + 'UTC'
+
+        query += date_string + '&output=JSON'
+        query = query[1:] # remove leading '&' from query string 
+
+        print(search_url+ query)
+        return search_url + query
+            
+        
+    def search(self, *argv):
+        pass
+
+
+
+    def download(self, *argv):
+        pass
+
+    def validate_download(self, *argv):
+        pass
+
+
 class EarthData(DataSearch):
     '''
     Implementation of DataAPI for the EarthData.
     This class provides a common interface with search an download functionalities.
     '''
+
+    def build_query(self, *argv):
+        pass
+        
+
+    
+    def search(self, *argv):
+        pass
+
+
+    def download(self, *argv):
+        pass
+
+    def validate_download(self, *argv):
+        pass
     
 
 

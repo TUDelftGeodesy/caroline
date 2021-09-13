@@ -425,7 +425,7 @@ class ASF(DataSearch):
         Validates the success of a dowload by performing a data integrity check using checksums.
 
         Args:
-            product (dic): product description including a URI for data download
+            product (obj): instance of Product dataclass.
             file_path (str): path to local copy of the product.
         
         Return: 
@@ -434,7 +434,7 @@ class ASF(DataSearch):
         """
 
         # extract checksum on remote (MD5)
-        remote_checksum = product['checksum']
+        remote_checksum = product.checksum
 
         print('remote checksum:', remote_checksum )
 

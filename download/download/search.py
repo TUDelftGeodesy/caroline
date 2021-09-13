@@ -151,8 +151,8 @@ class SciHub(DataSearch):
         print("Found ", result_json['feed']["opensearch:totalResults"], " products.")
         if len(entries) !=0:
             for entry in entries:
-
-                product = {'title': entry['title'], 'id': entry['id'], 'uri': entry['link'][0]['href']}
+                product = data_product.Product(entry['title'], entry['id'], entry['link'][0]['href'])
+                # product = {'title': entry['title'], 'id': entry['id'], 'uri': entry['link'][0]['href']}
                 self.products.append(product)
 
         else:
@@ -181,7 +181,7 @@ class SciHub(DataSearch):
         print("Downloading Products....")
 
         for product in products:
-            file_path = download_directory + product['title'] + '.zip'
+            file_path = download_directory + product.title + '.zip'
 
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path) and self.validate_download(product, file_path):
@@ -192,12 +192,12 @@ class SciHub(DataSearch):
 
             while validity == False:
                 if download_retries > max_retries:
-                    print("Download failed after", str(max_retries), "tries. Product: ", product['title'])
+                    print("Download failed after", str(max_retries), "tries. Product: ", product.title)
                     break
                 else:
-                    response = self.connector.get(product['uri'], stream=True)
+                    response = self.connector.get(product.uri, stream=True)
                     with open(file_path, 'wb' ) as f:
-                        # f.write(b'file content')
+                        
                         for chunk in response.iter_content(chunk_size=100*1024): # bytes
                             f.write(chunk)
                 
@@ -222,15 +222,15 @@ class SciHub(DataSearch):
         """
 
         #checksum on remote (MD5)
-        dowload_uri = product['uri']
+        dowload_uri = product.uri
         checksum_uri = dowload_uri.split('$')[0] + 'Checksum/Value/$value' 
         remote_checksum = self.connector.get(checksum_uri).text
 
         # Local checksum
         with open (file_path, 'rb') as local_file:
             file_hash = hashlib.md5()
-            while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
-                file_hash.update(chunk)
+            # while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
+            #     file_hash.update(chunk)
         
         local_checksum = file_hash.hexdigest()
 
@@ -443,8 +443,8 @@ class ASF(DataSearch):
         # Local checksum
         with open (file_path, 'rb') as local_file:
             file_hash = hashlib.md5()
-            while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
-                file_hash.update(chunk)
+            # while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
+            #     file_hash.update(chunk)
         
         
         local_checksum = file_hash.hexdigest()

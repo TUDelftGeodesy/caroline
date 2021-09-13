@@ -13,9 +13,9 @@ class Product:
     title: str
     id: str
     uri: str
-    checksum: str = ''
-    footprints: str = ''
-    tracks: int = 0
-    orbit_directions: str = ''
-    date: str = ''
-    polarisation: str = ''
+    checksum: str = None
+    footprints: str = None
+    tracks: int = None
+    orbit_directions: str = None
+    date: str = None
+    polarisation: str = None

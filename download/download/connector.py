@@ -8,7 +8,7 @@ class Connector:
     A parent class for connecting to a datasource using USERNAME/PASSWORD authentification
     '''
 
-    def __init__(self, username, password, root_url) -> None:
+    def __init__(self, username, password, root_url, retain_auth=False) -> None:
         '''
         Creates and test a connection (Session) to a datasource (API) end point.
         Connections use digested credentials, and supports multiple simultaneous connections (requests).
@@ -17,8 +17,7 @@ class Connector:
             username (str): username of an active account
             password (srt): password for the account
             root_url (srt): root URL to the API
-            max_connections (int): maximum number of simultaneous connections used by the connector
-            when communicating with the API. The API might impose its own restrctions to this.
+            retain_auth (bol): retain authorisation headers when connect implements auto-rediction
 
         '''
 
@@ -27,9 +26,17 @@ class Connector:
         self.root_url = root_url
         
         self.header={}
-        self.session = Session()
-        self.session.auth = (username, password)
+
+        # controls overwrite redirect of authorisation headers 
+        if retain_auth:
+            self.session = RetainAuthSession()
+        else:
+            self.session = Session()
+
+        # TEST redictect of headers using the class above
         
+        self.session.auth = (username, password)
+    
         test_request= Request('GET', self.root_url, headers=self.header)
         prepare = self.session.prepare_request(test_request)
         response = self.session.send(prepare)
@@ -79,3 +86,12 @@ class Connector:
         response.raise_for_status
 
         return response
+
+class RetainAuthSession(Session):
+    """" """
+    def rebuild_auth(self, prepared_request, response):
+        """
+        No code here means requests will always preserve the Authorization
+        header when redirected.
+        Be careful not to leak your credentials to untrusted hosts!
+        """

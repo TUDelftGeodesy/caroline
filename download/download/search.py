@@ -355,6 +355,8 @@ class ASF(DataSearch):
 
         '''
 
+        self.products =[]
+
         print("Searching for products....")
         query = self.build_query(aoi, start_date, end_date, track, polarisation, orbit_direction, sensor_mode, product, instrument_name)
 
@@ -392,7 +394,7 @@ class ASF(DataSearch):
         print("Downloading Products....")
 
         for product in products:
-            file_path = download_directory + product['title'] + '.zip'
+            file_path = download_directory + product.title + '.zip'
 
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path) and self.validate_download(product, file_path):

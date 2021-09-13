@@ -7,6 +7,9 @@
 node_modules/
 dist/
 
+# Notes
+dev-notes/*
+
 # Data directories
 data/*
 

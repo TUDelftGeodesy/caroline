@@ -1,0 +1,15 @@
+[SciHub]
+UserName = username
+PassWord = password
+RootURL = url
+
+[EarthData]
+UserName = username
+PassWord = password
+RootURL = url
+
+[DataRepository]
+Directory = ./data/
+
+[Controller]
+frequency = time (minutes)

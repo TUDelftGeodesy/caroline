@@ -19,3 +19,4 @@ class Product:
     orbit_directions: str = None
     date: str = None
     polarisation: str = None
+    size_MB: int = None

@@ -17,3 +17,8 @@ class Controller:
         pass
 
         #TODO: loop for calling search and download using the frequency.
+    
+    def terminate(self):
+        pass
+
+        # TODO: terminate controller and stopped all downloads.

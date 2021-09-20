@@ -11,9 +11,9 @@ import hashlib
 from . import data_product
 
 class DataSearch(ABC):
-    '''
+    """
     Abstract class for specifying DataApi's (data sources)
-    '''
+    """
 
     @abstractmethod
     def build_query(self, *argv):
@@ -33,27 +33,27 @@ class DataSearch(ABC):
 
 
 class SciHub(DataSearch):
-    '''
+    """
     Implementation of DataSearch for the SciHub.
     SciHub provides two API's, one with search functionality and another with downloading functionality.
     This class provides a common interface with search an download functionalities.
-    '''
+    """
     
     def __init__(self, connector) -> None:
-        '''
+        """
         Initialise the SciHubAPI object
 
         Args:
             connector (obj): connector object
 
-        '''
+        """
 
         self.connector = connector # requires a Connector as component
 
     # private method
     def build_query(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
     sensor_mode='IW', product='SLC', instrument_name='Sentinel-1') -> None:
-        '''
+        """
         Builds a query for the API using given the search creteria
         
         Args:
@@ -70,7 +70,7 @@ class SciHub(DataSearch):
 
         Returns: query string for the first 100 results
 
-        '''
+        """
 
         search_url = self.connector.root_url + 'search?q=' # extending the root url to define the SearchAPI endpoint
 
@@ -119,7 +119,7 @@ class SciHub(DataSearch):
 
     def search(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
         sensor_mode='IW', product='SLC', instrument_name='Sentinel-1'):
-        '''
+        """
         Searches the SciHub API for datasets based on input creteria.
 
         Args:
@@ -135,9 +135,7 @@ class SciHub(DataSearch):
             instrument (str): name of the platform as in the SciHub documentation. E.g., Sentinel-1
 
         Returns: a list of products. 
-        '''
-
-        # TODO: Define what metadata should be collected for each products/image
+        """
 
         self.products = [] # collection of products
 
@@ -152,7 +150,6 @@ class SciHub(DataSearch):
         if len(entries) !=0:
             for entry in entries:
                 product = data_product.Product(entry['title'], entry['id'], entry['link'][0]['href'])
-                # product = {'title': entry['title'], 'id': entry['id'], 'uri': entry['link'][0]['href']}
                 self.products.append(product)
 
         else:
@@ -165,7 +162,7 @@ class SciHub(DataSearch):
 
 
     def download(self, products, download_directory, max_retries=3):
-        '''
+        """
         Downloads data set given for the list of products.
 
         Args:
@@ -173,7 +170,7 @@ class SciHub(DataSearch):
             directory: path to directory to store files.
             max_reties (int): maximum number of connection retries to download a product.
 
-        '''
+        """
 
         if os.path.exists(download_directory) == False:
             os.mkdir(download_directory)
@@ -186,7 +183,9 @@ class SciHub(DataSearch):
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path) and self.validate_download(product, file_path):
                 continue
-            
+            else:
+                print("Found local copy of", product.title, "\n But checksum validation failed! Restarting donwload...")
+
             validity = False
             download_retries = 1 # we required several re-tries to get the download started from SciHub. Tests point out that this is an issue with their API
 
@@ -229,8 +228,8 @@ class SciHub(DataSearch):
         # Local checksum
         with open (file_path, 'rb') as local_file:
             file_hash = hashlib.md5()
-            # while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
-            #     file_hash.update(chunk)
+            while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
+                file_hash.update(chunk)
         
         local_checksum = file_hash.hexdigest()
 
@@ -242,25 +241,22 @@ class SciHub(DataSearch):
         return result 
 
 
-
-
-
 class ASF(DataSearch):
-    '''
+    """
     Implementation of SearchAPI for the Alaska Satellite Facility
     This class provides a common interface with search an download functionalities.
     API documentation: https://docs.asf.alaska.edu/api/basics/
-    '''
+    """
 
     # base url: https://api.daac.asf.alaska.edu/
 
     def __init__(self, connector) -> None:
-        '''
+        """
         Initialise the ASF object
 
         Args:
             connector (obj): connector object
-        '''
+        """
 
         self.connector = connector # requires a Connector as component
         
@@ -268,7 +264,7 @@ class ASF(DataSearch):
     # private method
     def build_query(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
     sensor_mode='IW', product='SLC', instrument_name='Sentinel-1') -> None:
-        '''
+        """
         Builds a query for the API using given the search creteria
         
         Args:
@@ -285,7 +281,7 @@ class ASF(DataSearch):
 
         Returns: query string with JSON output type 
 
-        '''
+        """
 
         search_url = self.connector.root_url + 'services/search/param?'
 
@@ -310,7 +306,7 @@ class ASF(DataSearch):
         
         query = ''
         if instrument_name:
-            # using a leading '&' means parameters can be omitted at will
+            # using a leading '&' means parameters can be omitted at will 
             query += '&platform=' + instrument_name
         if sensor_mode:
             query += '&beamMode=' + sensor_mode
@@ -331,12 +327,11 @@ class ASF(DataSearch):
         query += date_string + '&output=JSON'
         query = query[1:] # remove leading '&' from query string 
 
-        print(search_url+ query)
         return search_url + query
             
     def search(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
     sensor_mode='IW', product='SLC', instrument_name='Sentinel-1') -> None:
-        '''
+        """
         Searches the ASF API for datasets based on input creteria.
         
         Args:
@@ -353,7 +348,7 @@ class ASF(DataSearch):
 
         Returns: a list of products.
 
-        '''
+        """
 
         self.products =[]
 
@@ -362,7 +357,6 @@ class ASF(DataSearch):
 
         search_results = self.connector.get(query)
         result_json = search_results.json() # returns array of objects
-        print(result_json)
         _objects = result_json[0]
 
         print("Found ", str(len(_objects)), " products.")
@@ -378,7 +372,7 @@ class ASF(DataSearch):
 
 
     def download(self, products, download_directory, max_retries=3):
-        '''
+        """
         Downloads dataset given for a list of products.
 
         Args:
@@ -386,7 +380,7 @@ class ASF(DataSearch):
             directory: path to directory to store files.
             max_reties (int): maximum number of connection retries to download a product.
 
-        '''
+        """
 
         if os.path.exists(download_directory) == False:
             os.mkdir(download_directory)
@@ -399,6 +393,8 @@ class ASF(DataSearch):
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path) and self.validate_download(product, file_path):
                 continue
+            else:
+                print("Found local copy of", product.title, "\n But checksum validation failed! Restarting donwload...")
             
             validity = False
             download_retries = 1 # counter
@@ -421,7 +417,6 @@ class ASF(DataSearch):
         return None
 
 
-    #TODO: needs to adapt to fetch the checksum
     def validate_download(self, product, file_path):
         """
         Validates the success of a dowload by performing a data integrity check using checksums.
@@ -438,17 +433,13 @@ class ASF(DataSearch):
         # extract checksum on remote (MD5)
         remote_checksum = product.checksum
 
-        print('remote checksum:', remote_checksum )
-
         # Local checksum
         with open (file_path, 'rb') as local_file:
             file_hash = hashlib.md5()
-            # while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
-            #     file_hash.update(chunk)
-        
+            while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
+                file_hash.update(chunk)
         
         local_checksum = file_hash.hexdigest()
-        print('local chechsum:', local_checksum)
 
         if remote_checksum == local_checksum:
             result = True
@@ -459,10 +450,10 @@ class ASF(DataSearch):
 
 
 class EarthData(DataSearch):
-    '''
+    """
     Implementation of DataAPI for the EarthData.
     This class provides a common interface with search an download functionalities.
-    '''
+    """
 
     def build_query(self, *argv):
         pass

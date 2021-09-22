@@ -6,18 +6,18 @@ This example is for the SciHub API
 """
 
 from download import connector
-from download import search
+from download.scihub import SciHub
 
 # WARNING: This example will attempt to download 2 datasets (>8GB)
 
 # Create a connector to handle the autentification
 # Need to set user credentials
-c = connector.Connector('USERNAME', 'PASSWORD', 'https://scihub.copernicus.eu/dhus/')
+c = connector.Connector("USERNAME", "PASSWORD", 'https://scihub.copernicus.eu/dhus/')
 
 c.test_connection()
 
 # instantiate API with the connector
-search_api = search.SciHub(c)
+search_api = SciHub(c)
 
 # search the API 
 search_results=search_api.search('POLYGON((-155.75 18.90, -155.75 20.2, -154.75 19.50, -155.75 18.90))',

@@ -7,18 +7,18 @@ Must provide your own account credentials
 """
 
 from download import connector
-from download import search
+from download.asf import ASF
 
 # WARNING: This example will download 4 datasets (>16GB)
 
 # Create a connector to handle the autentification
 
-c = connector.Connector('USERNAME', 'PASSWORD', 'https://api.daac.asf.alaska.edu/', retain_auth=True)
+c = connector.Connector("USERNAME", "PASSWORD", 'https://api.daac.asf.alaska.edu/', retain_auth=True)
 
 c.test_connection()
 
 # instantiate API with the connector
-search_api = search.ASF(c)
+search_api = ASF(c)
 
 # search the API 
 

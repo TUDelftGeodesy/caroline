@@ -19,7 +19,7 @@ from airflow.utils.dates import days_ago
 
 
 # define objects/functions used accross tasks
-con = connector.Connector("manuurs", "mEEhKTgSRhb3EHC#77yi", 'https://api.daac.asf.alaska.edu/', retain_auth=True)
+con = connector.Connector("USERNAME", "PASSWORD", 'https://api.daac.asf.alaska.edu/', retain_auth=True)
 con.test_connection()
 api = asf.ASF(con)
 

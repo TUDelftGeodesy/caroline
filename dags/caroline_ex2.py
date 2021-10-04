@@ -1,10 +1,12 @@
 """
-A DAG for the download of data from ASF.
+A DAG example for the download of data from ASF, using the Python Operator
 Must provide your own account credentials
 """
 
 from datetime import timedelta
 
+# Imports custom modules
+# Custom modules must be copied the 'code' volume
 import sys
 sys.path.insert(0, '/opt/airflow/code/download')
 import connector
@@ -12,12 +14,11 @@ import asf
 import data_product
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator, PythonVirtualenvOperator
+from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 
-
-# define objects functions reusable accross tasks
-con = connector.Connector("manuurs", "mEEhKTgSRhb3EHC#77yi", 'https://api.daac.asf.alaska.edu/', retain_auth=True)
+# define objects/functions used accross tasks
+con = connector.Connector("USERNAME", "PASSWORD", 'https://api.daac.asf.alaska.edu/', retain_auth=True)
 con.test_connection()
 api = asf.ASF(con)
 
@@ -37,7 +38,7 @@ def dict_to_product_list(dictionary, data_class=data_product.Product):
     """
     Converts nested dictionary (products) into list of dataclasses (products). Required by search.download()
     """
-    #TODO: need general and clean code for this function
+    #TODO: needs general and clean code for this function
     values = dictionary.values()
     products_list = []
 
@@ -74,13 +75,22 @@ default_args = {
 }
 
 with DAG(
-    'caroline_v1',
+    'caroline_ex2',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
-    start_date=days_ago(1),
+    start_date=days_ago(0),
     tags=['caroline'],
 ) as dag:
+
+    def test_API_connection():
+        """Test the connection to the API"""
+
+        connection = connector.Connector("USERNAME", "PASSWORD", 'https://api.daac.asf.alaska.edu/', retain_auth=True)
+        if connection.test_connection():
+            return True
+        else:
+            raise RuntimeError("Connection to the API failed")
     
     def search_api(ti):
 
@@ -91,21 +101,21 @@ with DAG(
         results = products_to_dict(search_results)
         ti.xcom_push(key='search_results', value=results)
 
-    # xcom post values to database, therefore objects might be terminated
-
     def dowload_data(ti):
+
         search_results = ti.xcom_pull(key='search_results', task_ids='search')
-        print('type of search_results', type(search_results))
-        print(search_results)
         results_list = dict_to_product_list(search_results)
-        print(results_list)
         api.download([ results_list[0] ], '/opt/airflow/data/') # limit download to 1 item
         
         print('download completed')
 
+    # XCom pass metadata between tasks.
     # Tasks
 
-    # XCom to pass metadata between tasks, default at push, but not with pull
+    test_connection = PythonOperator(
+        task_id = 'connection',
+        python_callable=test_API_connection,
+    )
 
     search_task = PythonOperator(
         task_id = 'search',
@@ -118,8 +128,9 @@ with DAG(
         python_callable=dowload_data,
     )
 
-    search_task >> download_task
+    # Dependencies
+    test_connection >> search_task >> download_task
+
+    # 
+    # [test_connection, search_task] >> download_task
         
-
-#TODO: test runing pipeline
-

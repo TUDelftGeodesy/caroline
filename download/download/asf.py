@@ -7,11 +7,11 @@ API documentation: https://docs.asf.alaska.edu/api/basics/
 import datetime
 import os
 import hashlib
-from . import data_product
-from .search import DataSearch
+import data_product
+import search
 
 
-class ASF(DataSearch):
+class ASF(search.DataSearch):
     """
     Implementattion of DataSearch for the ASF API
     """
@@ -206,8 +206,14 @@ class ASF(DataSearch):
         # Local checksum
         with open (file_path, 'rb') as local_file:
             file_hash = hashlib.md5()
-            while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
+            while True:
+                chunk = local_file.read(100*128)
+                if not chunk:
+                    break
                 file_hash.update(chunk)
+            
+            # while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
+                # file_hash.update(chunk)
         
         local_checksum = file_hash.hexdigest()
 

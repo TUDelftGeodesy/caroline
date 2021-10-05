@@ -48,7 +48,11 @@ class Connector:
     def test_connection(self):
         '''
         Tests connection and update the "status" attribute upon success.
+        
+        returns:
+            True on sucessful connection
         '''
+        
         try:
             test_request= Request('GET', self.root_url, headers=self.header)
             prepare = self.session.prepare_request(test_request)
@@ -58,6 +62,8 @@ class Connector:
         self.status = response.status_code
 
         print("Test completed! Status code:", self.status)
+        
+        return True
 
 
     def close_connection(self):

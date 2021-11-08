@@ -6,7 +6,7 @@ import download
 
 
 # setup
-install_requires = ['requests', 'hashlib', 'shapely', 'fiona', ]
+install_requires = ['requests', 'shapely', 'fiona', ]
 
 
 setup(

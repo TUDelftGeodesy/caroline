@@ -7,8 +7,13 @@ API documentation: https://docs.asf.alaska.edu/api/basics/
 import datetime
 import os
 import hashlib
-import data_product
-import search
+
+from . import search
+from . import data_product
+
+# for DAG
+# import search
+# import data_product
 
 
 class ASF(search.DataSearch):

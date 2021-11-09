@@ -108,7 +108,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
-download/tests/test-server.py
+download/tests/server.py
 
 # Translations
 *.mo

@@ -6,6 +6,11 @@
 # RIPPL
 rippl/
 
+# Airflow Compose
+dockers/airlfow/dags/
+dockers/airlfow/logs/
+dockers/airlfow/plugins/
+
 # Node artifact files
 node_modules/
 dist/

@@ -66,7 +66,7 @@ x-airflow-common:
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - ./data:/opt/airflow/data
-  user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
+  user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     postgres:
       condition: service_healthy
@@ -90,7 +90,7 @@ services:
     <<: *airflow-common
     command: webserver
     ports:
-      - 127.0.0.1:8080:8080
+      - 8080:8080
     healthcheck:
       test: ["CMD", "curl", "--fail", "${AIRFLOW__WEBSERVER__BASE_URL}/health"]
       interval: 10s

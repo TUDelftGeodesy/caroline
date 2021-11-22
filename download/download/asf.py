@@ -156,7 +156,7 @@ class ASF(search.DataSearch):
         return self.products
 
 
-    def download(self, products, download_directory, max_retries=3):
+    def download(self, products, max_retries=3):
         """
         Downloads dataset given for a list of products.
 
@@ -167,21 +167,21 @@ class ASF(search.DataSearch):
 
         """
 
-        if os.path.exists(download_directory) == False:
-            os.mkdir(download_directory)
-        
         print("Downloading Products....")
 
         for product in products:
-            file_path = download_directory + product.file_name + '.zip'
+            product.prepare_directory() 
+
+            file_path = product.download_directory + product.file_name + '.zip'
 
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path):
                 check_existing_file = self.validate_download(product, file_path)
                 if check_existing_file:
+                    print(f'-->> Product was already dowloaded: {product.file_name}')
                     continue
                 else:
-                    print("Found local copy of", product.title, "\n But checksum validation failed! Restarting donwload...")
+                    print("Found local copy of", product.filename, "\n But checksum validation failed! Restarting donwload...")
             
             validity = False
             download_retries = 1 # counter

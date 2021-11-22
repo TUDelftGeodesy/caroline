@@ -136,7 +136,19 @@ class ASF(search.DataSearch):
 
         if len(_objects) != 0:
             for _object in _objects:
-                product = data_product.Product(_object['productName'], _object['sceneId'], _object['downloadUrl'], checksum=_object['md5sum'])
+                product = data_product.Product(_object['productName'], 
+                                                _object['sceneId'], 
+                                                _object['downloadUrl'], 
+                                                _object['track'],
+                                                _object['beamMode'],
+                                                _object['processingLevel'],
+                                                _object['flightDirection'],
+                                                _object['polarization'],
+                                                _object['startTime'],
+                                                _object['md5sum'],
+                                                size_MB=_object['sizeMB']
+                )
+                                                
                 self.products.append(product)
         else:
             print("No products found for this creteria")
@@ -161,7 +173,7 @@ class ASF(search.DataSearch):
         print("Downloading Products....")
 
         for product in products:
-            file_path = download_directory + product.title + '.zip'
+            file_path = download_directory + product.file_name + '.zip'
 
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path):

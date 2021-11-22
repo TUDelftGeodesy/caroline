@@ -8,8 +8,8 @@ rippl/
 
 # Airflow Compose
 dockers/airlfow/dags/
-dockers/airlfow/logs/
 dockers/airlfow/plugins/
+dockers/airflow/logs/ 
 
 # Node artifact files
 node_modules/

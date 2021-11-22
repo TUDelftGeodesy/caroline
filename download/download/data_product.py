@@ -26,7 +26,7 @@ class Product:
     track_subdir: str = field(init=False)
     type_subdir: str = field(init=False)
     date_subdir: str = field(init=False)
-    directory: str=field(init=False)
+    download_directory: str=field(init=False)
     size_MB: int = None
 
     def __post_init__(self):
@@ -60,7 +60,7 @@ class Product:
         self.type_subdir = self.beam_mode + '_' + self.processing_level + '__' + class_n_polarization + '_' + self.polarisation.replace('+', '') + '/'     
         # date  sub direcotry
         self.date_subdir=self.date_(self.start_time) + '/'
-        self.directory = os.path.join(self.base_dir, self.track_subdir, self.type_subdir, self.date_subdir)
+        self.download_directory = os.path.join(self.base_dir, self.track_subdir, self.type_subdir, self.date_subdir)
 
 
     def date_(self, datetime_string):
@@ -120,11 +120,11 @@ if __name__ == '__main__':
     pp = Product(file_name=fileName, id=id, uri=uri, track=track, beam_mode=beamModeType, processing_level=processingLevel, polarisation=polarization, orbit_direction=flightDirection, start_time=startTime, size_MB=sizeMB)
             
     # p = Product(fileName, track, beamModeType, processingLevel, flightDirection, startTime, polarization, startTime, size_MB=sizeMB)
-    # print(pp)
+    print(pp.download_directory)
 
     # print(asdict(p))
 
-    pp.prepare_directory()
+    # pp.prepare_directory()
 
 
 

@@ -27,7 +27,7 @@ def products_to_dict(product_list):
 
 # Create a connector to handle the autentification
 
-c = connector.Connector("manuurs", "mEEhKTgSRhb3EHC#77yi", 'https://api.daac.asf.alaska.edu/', retain_auth=True)
+c = connector.Connector("<username>", "<password>", 'https://api.daac.asf.alaska.edu/', retain_auth=True)
 
 c.test_connection()
 
@@ -35,6 +35,7 @@ c.test_connection()
 search_api = ASF(c)
 
 # search the API 
+
 
 search_results=search_api.search('POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))',
         '2018-04-22', '2018-05-01', orbit_direction='Ascending',
@@ -49,11 +50,7 @@ search_results=search_api.search('POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19
 # Mention about SPIDER, plannig to do so:
 ## 
 
-results = products_to_dict(search_results)
-# print(results)
-# print(type(results))
 
-# print(results.values())
 
 # Download datasets (a.k.a products found by search())
 

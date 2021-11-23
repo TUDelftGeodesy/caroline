@@ -88,7 +88,6 @@ class Product:
 
         # check for track directory
         track_directory = self.base_dir + '/' + self.track_subdir
-        print(track_directory)
         if not os.path.exists(track_directory):
                 os.mkdir(track_directory)
         # check type directory

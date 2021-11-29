@@ -56,7 +56,7 @@ if args.file is not None:
         else:
             RuntimeError("The file must contain a single geometry")
     else:
-        raise RuntimeError("File extension not supported. Use '.shp' or '.kml' ")
+        raise TypeError("File extension not supported. Use '.shp' or '.kml' ")
 
 
 #Create connector

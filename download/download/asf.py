@@ -7,21 +7,15 @@ API documentation: https://docs.asf.alaska.edu/api/basics/
 import datetime
 import os
 import hashlib
-
+from .utils import compute_checksum
 from . import search
 from . import data_product
-
-# for DAG
-# import search
-# import data_product
 
 
 class ASF(search.DataSearch):
     """
     Implementattion of DataSearch for the ASF API
     """
-
-    # base url: https://api.daac.asf.alaska.edu/
 
     def __init__(self, connector) -> None:
         """
@@ -102,6 +96,7 @@ class ASF(search.DataSearch):
 
         return search_url + query
             
+
     def search(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
     sensor_mode='IW', product='SLC', instrument_name='Sentinel-1') -> None:
         """
@@ -219,20 +214,8 @@ class ASF(search.DataSearch):
 
         # extract checksum on remote (MD5)
         remote_checksum = product.checksum
-
-        # Local checksum
-        with open (file_path, 'rb') as local_file:
-            file_hash = hashlib.md5()
-            while True:
-                chunk = local_file.read(100*128)
-                if not chunk:
-                    break
-                file_hash.update(chunk)
-            
-            # while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
-                # file_hash.update(chunk)
         
-        local_checksum = file_hash.hexdigest()
+        local_checksum = compute_checksum(file_path)
 
         if remote_checksum == local_checksum:
             result = True

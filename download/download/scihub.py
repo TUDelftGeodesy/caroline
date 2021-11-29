@@ -8,7 +8,7 @@ API documentation: https://scihub.copernicus.eu/userguide/OpenSearchAPI
 
 import datetime
 import os
-import hashlib
+from .utils import compute_checksum
 from . import data_product
 from .search import DataSearch
 
@@ -209,22 +209,11 @@ class SciHub(DataSearch):
         checksum_uri = dowload_uri.split('$')[0] + 'Checksum/Value/$value' 
         remote_checksum = self.connector.get(checksum_uri).text
 
-        # Local checksum
-        with open (file_path, 'rb') as local_file:
-            file_hash = hashlib.md5()
-            while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
-                file_hash.update(chunk)
-        
-        local_checksum = file_hash.hexdigest()
+        local_checksum = compute_checksum(file_path)
 
         if remote_checksum == local_checksum:
             result = True
         else:
             result = False
-
+       
         return result 
-
-
-
-
-

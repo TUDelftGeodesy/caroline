@@ -1,14 +1,17 @@
 
 import argparse
 from hashlib import md5
+from os import path
 from download import connector
 from download.asf import ASF
+import pathlib
+from download import utils
 
 # Positonal Arguments
 parser = argparse.ArgumentParser(prog="Caroline Download Engine", description="Search and downloads Sentinel-1 datasets from the ASF DAAC facility")
 parser.add_argument("user", help="ASF DAAC account's username", type=str)
 parser.add_argument("password", help="ASF DAAC account's password", type=str)
-parser.add_argument("aoi", help="area of interest as WNT (enclose in double-quotes if necessary)", type=str)
+parser.add_argument("-a", "--aoi", help="area of interest as WKT (enclose in double-quotes if necessary)", type=str)
 parser.add_argument("start", help="start date for the search.", type=str)
 parser.add_argument("end", help="end date for the search.", type=str)
 # Optional
@@ -36,6 +39,25 @@ parser.add_argument("-t", "--retry",
 
 
 args = parser.parse_args()
+
+# -f or --file option
+if args.file is not None:
+    extension = pathlib.Path(args.file).suffix
+    if extension == ".shp":
+        geo_ = utils.read_shapefile(args.file)
+        if len(geo_) == 1:
+            args.aoi = geo_[0].wkt  
+        else:
+            RuntimeError("The file must contain a single geometry")
+    elif extension == ".kml":
+        geo_ = utils.read_kml(args.file)
+        if len(geo_) == 1:
+            args.aoi = geo_[0].wkt  
+        else:
+            RuntimeError("The file must contain a single geometry")
+    else:
+        raise RuntimeError("File extension not supported. Use '.shp' or '.kml' ")
+
 
 #Create connector
 c = connector.Connector(args.user, args.password, 'https://api.daac.asf.alaska.edu/', retain_auth=True)

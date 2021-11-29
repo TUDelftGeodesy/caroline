@@ -7,6 +7,7 @@ import shapely
 from shapely.wkt import load, loads
 from shapely.geometry import Polygon, MultiPolygon, mapping
 import json
+import hashlib
 
 
 def read_shapefile(file_path):
@@ -249,3 +250,16 @@ def simplify_shape(shape, resolution=0.1):
     simplified_shape = shape.simplify(resolution)
 
     return simplified_shape
+
+def compute_checksum(file_path):
+    """Computes the MD5 checksume of a file
+    Returns:
+        Hexadecimal hash
+    """
+
+    with open (file_path, 'rb') as local_file:
+        file_hash = hashlib.md5()
+        while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
+            file_hash.update(chunk)
+        
+    return file_hash.hexdigest()

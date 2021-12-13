@@ -10,6 +10,27 @@ import json
 import hashlib
 
 
+import datetime
+
+
+def convert_date_string(date_string):
+    """ Converts data string to a datetime object. 
+
+    Args:
+        date_string (sting): date formated as YEAR-MONTH-DAY.
+
+    Returns:
+        datetime object
+    """
+    try:
+        datetime_object = datetime.datetime.strptime(date_string, '%Y-%m-%d')
+    except ValueError:
+        print('Make sure that start_date is formatted as YEAR-MONTH-DAY')
+
+
+    return datetime_object
+
+
 def read_shapefile(file_path):
     """
     Read a .shp file and extracts one or more shapely polygons.

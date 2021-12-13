@@ -5,6 +5,10 @@ Data classes for the download engine
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+BASE_DIRECTORY=os.getenv('BASE_DATA_DIRECTORY')
 
 @dataclass
 class Product:
@@ -21,7 +25,7 @@ class Product:
     start_time: str # "2018-05-03T04:21:30.000000"
     checksum: str = None
     footprints: str = None
-    base_dir: str = '/home/manuel/Documents/development/satellite-livestreams/caroline/data/sentinel1'
+    base_dir: str = BASE_DIRECTORY
     #sub directories
     track_subdir: str = field(init=False)
     type_subdir: str = field(init=False)

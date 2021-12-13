@@ -171,12 +171,15 @@ class ASF(search.DataSearch):
 
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path):
+                print(f'-> Found product in data directory: {product.file_name}')
+                print('-->> Checking file integrity.....')
                 check_existing_file = self.validate_download(product, file_path)
                 if check_existing_file:
-                    print(f'-->> Product was already dowloaded: {product.file_name}')
+                    print('-->> Product is already downloaded')
                     continue
                 else:
-                    print("Found local copy of", product.filename, "\n But checksum validation failed! Restarting donwload...")
+                    print("Found a copy of", product.filename, "\n But integrity check failed!")
+                    print("-> Downloading a new copy...")
             
             validity = False
             download_retries = 1 # counter

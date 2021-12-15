@@ -1,6 +1,6 @@
 # '''A library of functions used across modules'''
 
-from osgeo import ogr
+
 import fiona
 from fiona import collection
 import shapely

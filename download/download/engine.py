@@ -48,7 +48,7 @@ parser_conf.add_argument("-t", "--retry",
                     type=int)
 
 # manual command
-parser_manual = subparsers.add_parser("manual", help="start process using username and password")
+parser_manual = subparsers.add_parser("man", help="manual mode. Start download using username and password")
 parser_manual.add_argument("user", help="ASF DAAC account's username", type=str)
 parser_manual.add_argument("password", help="ASF DAAC account's password", type=str)
 parser_manual.add_argument("start", help="start date for the search.", type=str)
@@ -119,5 +119,5 @@ search_results=search_api.search(args.aoi, args.start, args.end,
                                 product=args.prod, 
                                 instrument_name='Sentinel-1')
 
-# search_api.download(search_results, max_retries=args.retry)
+search_api.download(search_results, max_retries=args.retry)
 

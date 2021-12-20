@@ -81,10 +81,9 @@ class Product:
         Args: 
             dataset (DataSet): instance of DataSet clas
         """
-        # TODO: add 1SDV
         
         if not isinstance(self, Product):
-            raise TypeError("dataset most be an instance of DataSet")
+            raise TypeError("dataset most be an instance of Product")
 
         # check base directory exits:
         if not os.path.exists(self.base_dir):

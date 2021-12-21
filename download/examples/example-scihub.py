@@ -25,4 +25,4 @@ search_results=search_api.search('POLYGON((-155.75 18.90, -155.75 20.2, -154.75 
         sensor_mode='IW', product='SLC', instrument_name='Sentinel-1')
 
 # Download datasets (a.k.a products found by search())
-search_api.download(search_results, './data/') # This might take a long time
+search_api.download(search_results) # This might take a long time

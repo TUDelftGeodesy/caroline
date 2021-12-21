@@ -10,7 +10,7 @@ import hashlib
 from platform import platform
 from download.utils import compute_checksum, convert_date_string
 from download import search
-from download import data_product
+from download import data_orbit
 
 
 class S1OrbitProvider(search.DataSearch):
@@ -45,9 +45,8 @@ class S1OrbitProvider(search.DataSearch):
         # https://scihub.copernicus.eu/gnss/search/?q=producttype:AUX_POEORB platformname:
         # Sentinel-1 beginPosition:[2021-12-13T17:51:48Z TO 2021-12-13T17:51:48Z] 
         # endPosition:[2021-12-13T17:51:48Z TO 2021-12-13T17:51:48Z]&format=json
-
-        # root_url = https://scihub.copernicus.eu/gnss/search/
         
+        platform = 'Sentinel-1'
        
         # validate osvtype value
         if osvtype == 'POE':
@@ -68,13 +67,7 @@ class S1OrbitProvider(search.DataSearch):
                       end.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z] AND endposition:[' + \
                       start.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z TO ' + end.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z]'
     
-
         search_url = self.connector.root_url + 'search/?q='
-        # search_url = 'https://scihub.copernicus.eu/gnss/search/' + '?q='
-
-       
-        platform = 'Sentinel-1'
-
         query = 'producttype:'+ product_type + ' platformname:'+ platform + ' ' + date_string + '&format=json&rows=100'
 
         return search_url + query
@@ -93,25 +86,26 @@ class S1OrbitProvider(search.DataSearch):
         Returns: a list of products (orbits for Sentinel 1). 
         """
 
-        self.products = [] # collection of products
+        self.orbits = [] # collection of orbits
 
         print("Searching for products....")
         query = self.build_query(start_date, end_date=end_date, osvtype=osvtype)
 
         search_results = self.connector.get(query)
         result_json = search_results.json()
-        entries= result_json['feed']['entry'] # entries describe product/dataset  
-
-        print("Found ", result_json['feed']["opensearch:totalResults"], " products.")
-        if len(entries) !=0:
+    
+        total_results = int(result_json['feed']["opensearch:totalResults"])
+        print("Found", total_results , "products.")
+        if total_results !=0:
+            entries= result_json['feed']['entry'] # entries describe product/dataset
             for entry in entries:
-                product = data_product.Product(entry['title'], entry['id'], entry['link'][0]['href'])
-                self.products.append(product)
+                product = data_orbit.Orbit (entry['title'], entry['id'], entry['link'][0]['href'], entry['str'][7]['content'])
+                self.orbits.append(product)
 
         else:
             print("No products found for this creteria")
 
-        return self.products
+        return self.orbits
 
     def download(self, *argv):
         return super().download(*argv)

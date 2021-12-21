@@ -11,6 +11,7 @@ from platform import platform
 from download.utils import compute_checksum, convert_date_string
 from download import search
 from download import data_orbit
+from download.utils import validate_scihub_download
 
 
 class S1OrbitProvider(search.DataSearch):
@@ -34,7 +35,7 @@ class S1OrbitProvider(search.DataSearch):
 
         Args:
             start_date (str): first day for search (YYYY-MM-DD)
-            end_date (str): last day for search as (YYYY-MM-DD), If None, the start_date will be also used as end_date
+            end_date (str): last day for search as (YYYY-MM-DD), If None, the end_date will be set to the next day, 
             and the query will use a time-window of one day.
             osvtype (str): the type of orbit files; either 'POE'=Precise or 'RES'=restituted
         
@@ -58,9 +59,8 @@ class S1OrbitProvider(search.DataSearch):
         
         # Define search dates
         start = convert_date_string(start_date)
-        print(start)
-        if end_date is None: 
-            end = start
+        if end_date is None:  # When no end_date is provided, add 1 day to start date
+            end = start + datetime.timedelta(days=1)
         else:
             end = convert_date_string(end_date)
         date_string = 'beginposition:[' + start.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z TO ' + \
@@ -96,22 +96,85 @@ class S1OrbitProvider(search.DataSearch):
     
         total_results = int(result_json['feed']["opensearch:totalResults"])
         print("Found", total_results , "products.")
+        # print(result_json)
         if total_results !=0:
             entries= result_json['feed']['entry'] # entries describe product/dataset
+            if total_results == 1: # single results returns a dictionary
+                entries = [entries] # convert to list 
             for entry in entries:
                 product = data_orbit.Orbit (entry['title'], entry['id'], entry['link'][0]['href'], entry['str'][7]['content'])
                 self.orbits.append(product)
 
         else:
-            print("No products found for this creteria")
+            print("No products (orbit files) found for these creteria")
 
         return self.orbits
 
-    def download(self, *argv):
-        return super().download(*argv)
+    def download(self, orbits, download_directory, max_retries=3):
+        """
+        Downloads data set given a list of orbit files.
 
-    def validate_download(self, *argv):
-        return super().validate_download(*argv)
+        Args:
+            orbits (lists): list of products to download.
+            directory: path to directory to store files.
+            max_reties (int): maximum number of connection retries to download a product.
+
+        """
+        
+        if os.path.exists(download_directory) == False:
+            os.mkdir(download_directory)
+        
+        print("Downloading Products....")
+
+        for orbit in orbits:
+            file_path = download_directory + orbit.title + '.zip'
+
+            # Avoid re-download valid products after sudden failure
+            if os.path.isfile(file_path):
+                check_existing_file = self.validate_download(orbit, file_path)
+                if check_existing_file:
+                    continue
+                else:
+                    print("Found local copy of", orbit.title, "\n But checksum validation failed! Restarting donwload...")
+ 
+            validity = False
+            download_retries = 0 # we required several re-tries to get the download started from SciHub. 
+            # Tests suggest that this is an issue with the API
+
+            while validity == False:
+                if download_retries > max_retries:
+                    print("Download failed after", str(max_retries), "tries. Product: ", product.title)
+                    break
+                else:
+                    response = self.connector.get(orbit.uri, stream=True)
+                    with open(file_path, 'wb' ) as f:
+                        
+                        for chunk in response.iter_content(chunk_size=100*1024): # bytes
+                            f.write(chunk)
+
+                    if download_retries != 0:
+                        print('>>>> Trying', str(download_retries) )
+                    download_retries += 1
+                    validity = self.validate_download(orbit, file_path)
+                
+        return None
+
+
+    # TODO: remove this method from abstract class. Move code to utils.py
+    def validate_download(self, orbit, file_path):
+        """
+        Validates the success of a dowload by performing a data integrity check using checksums.
+
+        Args:
+            product (dic): product description including a URI for data download
+            file_path (str): path to local copy of the product.
+        
+        Return: 
+            validity chek (bolean)
+
+        """
+       
+        return validate_scihub_download(self.connector, orbit, file_path)
 
 
 if __name__ == '__main__':
@@ -124,13 +187,13 @@ if __name__ == '__main__':
     c.test_connection()
     print(c.status)
 
-    start = '2021-12-13'
-    end = '2021-12-14'
+    start = '2021-12-21'
+    end = '2021-12-22'
 
     g = S1OrbitProvider(c)
     
     print(g.build_query(start))
-    g.search(start, end_date=end)
+    g.search(start)
     
 # 
     

@@ -96,7 +96,7 @@ class S1OrbitProvider(search.DataSearch):
     
         total_results = int(result_json['feed']["opensearch:totalResults"])
         print("Found", total_results , "products.")
-        # print(result_json)
+       
         if total_results !=0:
             entries= result_json['feed']['entry'] # entries describe product/dataset
             if total_results == 1: # single results returns a dictionary
@@ -110,40 +110,44 @@ class S1OrbitProvider(search.DataSearch):
 
         return self.orbits
 
-    def download(self, orbits, download_directory, max_retries=3):
+    def download(self, orbits, max_retries=3):
         """
         Downloads data set given a list of orbit files.
 
         Args:
             orbits (lists): list of products to download.
-            directory: path to directory to store files.
             max_reties (int): maximum number of connection retries to download a product.
 
         """
         
-        if os.path.exists(download_directory) == False:
-            os.mkdir(download_directory)
+        # if os.path.exists(download_directory) == False:
+        #     os.mkdir(download_directory)
         
         print("Downloading Products....")
 
         for orbit in orbits:
-            file_path = download_directory + orbit.title + '.zip'
-
+            orbit.prepare_directory()
+            file_path = orbit.download_directory + orbit.file_name + '.EOF'
+            
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path):
+                print(f'-> Found orbit file in data directory: {orbit.file_name}')
+                print('-->> Checking file integrity.....')
                 check_existing_file = self.validate_download(orbit, file_path)
                 if check_existing_file:
+                    print('-->> Orbit file is already downloaded')
                     continue
                 else:
-                    print("Found local copy of", orbit.title, "\n But checksum validation failed! Restarting donwload...")
- 
+                    print("Found a copy of", orbit.file_name, "\n But integrity check failed!")
+                    print("-> Downloading a new copy...")
+
             validity = False
-            download_retries = 0 # we required several re-tries to get the download started from SciHub. 
+            download_retries = 1 # we required several re-tries to get the download started from SciHub. 
             # Tests suggest that this is an issue with the API
 
             while validity == False:
                 if download_retries > max_retries:
-                    print("Download failed after", str(max_retries), "tries. Product: ", product.title)
+                    print("Download failed after", str(max_retries), "tries. File: ", orbit.file_name)
                     break
                 else:
                     response = self.connector.get(orbit.uri, stream=True)
@@ -185,18 +189,14 @@ if __name__ == '__main__':
 
     c =connector.Connector("gnssguest", "gnssguest", 'https://scihub.copernicus.eu/gnss/')
     c.test_connection()
-    print(c.status)
 
     start = '2021-12-21'
     end = '2021-12-22'
 
+
     g = S1OrbitProvider(c)
     
-    print(g.build_query(start))
-    g.search(start)
-    
-# 
-    
-
-    #search date only update on daily basis 
-
+    # print(g.build_query(start))
+    results = g.search(start)
+    # print(results)
+    g.download(results)

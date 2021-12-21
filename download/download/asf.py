@@ -157,7 +157,6 @@ class ASF(search.DataSearch):
 
         Args:
             products (obj): list of products as defined by the Product dataclass.
-            directory: path to directory to store files.
             max_reties (int): maximum number of connection retries to download a product.
 
         """

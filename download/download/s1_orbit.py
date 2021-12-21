@@ -190,13 +190,12 @@ if __name__ == '__main__':
     c =connector.Connector("gnssguest", "gnssguest", 'https://scihub.copernicus.eu/gnss/')
     c.test_connection()
 
-    start = '2021-12-21'
-    end = '2021-12-22'
-
+    start = '2021-05-21'
+    end = '2021-05-22'
 
     g = S1OrbitProvider(c)
     
-    # print(g.build_query(start))
+    print(g.build_query(start))
     results = g.search(start)
     # print(results)
     g.download(results)

@@ -35,13 +35,14 @@ class Orbit:
 
         # format product type info:
         if self.product_type == 'AUX_RESORB':
-            self.type_subdir = 'restituted'
+            self.type_subdir = 'restituted' + '/'
         elif self.product_type == 'AUX_POEORB':
-            self.type_subdir = 'precise'
+            self.type_subdir = 'precise' + '/'
         else:
             print(self.product_type)
             raise NotImplemented('This type of orbit product is not supported')
         self.download_directory = os.path.join(self.base_dir, self.type_subdir)
+        # print(self.download_directory)
 
 
     def prepare_directory(self) -> None:

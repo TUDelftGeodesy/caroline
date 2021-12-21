@@ -27,8 +27,8 @@ def convert_date_string(date_string):
     except ValueError:
         print('Make sure that start_date is formatted as YEAR-MONTH-DAY')
 
-
     return datetime_object
+
 
 
 def read_shapefile(file_path):

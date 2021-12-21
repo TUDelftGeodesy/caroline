@@ -194,10 +194,11 @@ class ASF(search.DataSearch):
                         for chunk in response.iter_content(chunk_size=100*1024): # bytes
                             f.write(chunk)
                 
-                    print('>>>> Trying', str(download_retries) )
+                    if download_retries > 1:
+                        print('>>>> Trying', str(download_retries) )
                     download_retries += 1
                     validity = self.validate_download(product, file_path)
-                
+        print('Download complete')     
         return None
 
 

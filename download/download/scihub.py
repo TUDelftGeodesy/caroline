@@ -173,7 +173,7 @@ class SciHub(DataSearch):
                     print("Found local copy of", product.file_name, "\n But checksum validation failed! Restarting donwload...")
  
             validity = False
-            download_retries = 0 # we required several re-tries to get the download started from SciHub. 
+            download_retries = 1 # we required several re-tries to get the download started from SciHub. 
             # Tests point out that this is an issue with the API
 
             while validity == False:
@@ -187,11 +187,12 @@ class SciHub(DataSearch):
                         for chunk in response.iter_content(chunk_size=100*1024): # bytes
                             f.write(chunk)
 
-                    if download_retries != 0:
+                    if download_retries > 1:
                         print('>>>> Trying', str(download_retries) )
                     download_retries += 1
                     validity = self.validate_download(product, file_path)
-                
+
+        print('Download complete')      
         return None
 
     # private method

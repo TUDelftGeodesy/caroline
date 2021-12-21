@@ -126,8 +126,10 @@ class SciHub(DataSearch):
         result_json = search_results.json()
         entries= result_json['feed']['entry'] # entries describe product/dataset  
 
-        print("Found ", result_json['feed']["opensearch:totalResults"], " products.")
-        if len(entries) !=0:
+        total_results = int(result_json['feed']["opensearch:totalResults"])
+        print("Found", total_results , "products.")
+        if total_results !=0:
+            entries= result_json['feed']['entry'] # entries describe product/dataset
             for entry in entries:
                 product = data_product.Product(entry['title'], entry['id'], entry['link'][0]['href'])
                 self.products.append(product)

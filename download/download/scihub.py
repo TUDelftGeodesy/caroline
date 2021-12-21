@@ -162,7 +162,7 @@ class SciHub(DataSearch):
         print("Downloading Products....")
 
         for product in products:
-            file_path = download_directory + product.title + '.zip'
+            file_path = download_directory + product.file_name + '.zip'
 
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path):
@@ -170,7 +170,7 @@ class SciHub(DataSearch):
                 if check_existing_file:
                     continue
                 else:
-                    print("Found local copy of", product.title, "\n But checksum validation failed! Restarting donwload...")
+                    print("Found local copy of", product.file_name, "\n But checksum validation failed! Restarting donwload...")
  
             validity = False
             download_retries = 0 # we required several re-tries to get the download started from SciHub. 
@@ -178,7 +178,7 @@ class SciHub(DataSearch):
 
             while validity == False:
                 if download_retries > max_retries:
-                    print("Download failed after", str(max_retries), "tries. Product: ", product.title)
+                    print("Download failed after", str(max_retries), "tries. Product: ", product.file_name)
                     break
                 else:
                     response = self.connector.get(product.uri, stream=True)

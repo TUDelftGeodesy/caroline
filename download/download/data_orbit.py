@@ -20,9 +20,9 @@ class Orbit:
     file_name: str
     id: str
     uri: str
+    product_type: str 
     # start_time: str # "2018-05-03T04:21:30.000000"
     checksum: str = None
-    product_type: str = None
     footprints: str = None
     base_dir: str = BASE_DIRECTORY
      #sub directories

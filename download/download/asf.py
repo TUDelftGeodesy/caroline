@@ -7,16 +7,15 @@ API documentation: https://docs.asf.alaska.edu/api/basics/
 import datetime
 import os
 import hashlib
-import data_product
-import search
+from .utils import compute_checksum
+from . import search
+from . import data_product
 
 
 class ASF(search.DataSearch):
     """
     Implementattion of DataSearch for the ASF API
     """
-
-    # base url: https://api.daac.asf.alaska.edu/
 
     def __init__(self, connector) -> None:
         """
@@ -97,6 +96,7 @@ class ASF(search.DataSearch):
 
         return search_url + query
             
+
     def search(self, aoi, start_date, end_date=None, track=None, polarisation=None, orbit_direction=None, 
     sensor_mode='IW', product='SLC', instrument_name='Sentinel-1') -> None:
         """
@@ -131,7 +131,19 @@ class ASF(search.DataSearch):
 
         if len(_objects) != 0:
             for _object in _objects:
-                product = data_product.Product(_object['productName'], _object['sceneId'], _object['downloadUrl'], checksum=_object['md5sum'])
+                product = data_product.Product(_object['productName'], 
+                                                _object['sceneId'], 
+                                                _object['downloadUrl'], 
+                                                _object['track'],
+                                                _object['beamMode'],
+                                                _object['processingLevel'],
+                                                _object['flightDirection'],
+                                                _object['polarization'],
+                                                _object['startTime'],
+                                                _object['md5sum'],
+                                                size_MB=_object['sizeMB']
+                )
+                                                
                 self.products.append(product)
         else:
             print("No products found for this creteria")
@@ -139,32 +151,34 @@ class ASF(search.DataSearch):
         return self.products
 
 
-    def download(self, products, download_directory, max_retries=3):
+    def download(self, products, max_retries=3):
         """
         Downloads dataset given for a list of products.
 
         Args:
             products (obj): list of products as defined by the Product dataclass.
-            directory: path to directory to store files.
             max_reties (int): maximum number of connection retries to download a product.
 
         """
 
-        if os.path.exists(download_directory) == False:
-            os.mkdir(download_directory)
-        
         print("Downloading Products....")
 
         for product in products:
-            file_path = download_directory + product.title + '.zip'
+            product.prepare_directory() 
+
+            file_path = product.download_directory + product.file_name + '.zip'
 
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path):
+                print(f'-> Found product in data directory: {product.file_name}')
+                print('-->> Checking file integrity.....')
                 check_existing_file = self.validate_download(product, file_path)
                 if check_existing_file:
+                    print('-->> Product is already downloaded')
                     continue
                 else:
-                    print("Found local copy of", product.title, "\n But checksum validation failed! Restarting donwload...")
+                    print("Found a copy of", product.filename, "\n But integrity check failed!")
+                    print("-> Downloading a new copy...")
             
             validity = False
             download_retries = 1 # counter
@@ -202,20 +216,8 @@ class ASF(search.DataSearch):
 
         # extract checksum on remote (MD5)
         remote_checksum = product.checksum
-
-        # Local checksum
-        with open (file_path, 'rb') as local_file:
-            file_hash = hashlib.md5()
-            while True:
-                chunk = local_file.read(100*128)
-                if not chunk:
-                    break
-                file_hash.update(chunk)
-            
-            # while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
-                # file_hash.update(chunk)
         
-        local_checksum = file_hash.hexdigest()
+        local_checksum = compute_checksum(file_path)
 
         if remote_checksum == local_checksum:
             result = True

@@ -8,7 +8,7 @@ API documentation: https://scihub.copernicus.eu/userguide/OpenSearchAPI
 
 import datetime
 import os
-import hashlib
+from .utils import compute_checksum, validate_scihub_download
 from . import data_product
 from .search import DataSearch
 
@@ -126,14 +126,18 @@ class SciHub(DataSearch):
         result_json = search_results.json()
         entries= result_json['feed']['entry'] # entries describe product/dataset  
 
-        print("Found ", result_json['feed']["opensearch:totalResults"], " products.")
-        if len(entries) !=0:
+        total_results = int(result_json['feed']["opensearch:totalResults"])
+        print("Found", total_results , "products.")
+        if total_results !=0:
+            entries= result_json['feed']['entry'] # entries describe product/dataset
+            if total_results == 1: # single results returns a dictionary
+                entries = [entries] # convert to list 
             for entry in entries:
                 product = data_product.Product(entry['title'], entry['id'], entry['link'][0]['href'])
                 self.products.append(product)
 
         else:
-            print("No products found for this creteria")
+            print("No products found for these creteria")
 
         return self.products
         
@@ -146,7 +150,7 @@ class SciHub(DataSearch):
         Downloads data set given for the list of products.
 
         Args:
-            products (dic): list of products to download.
+            products (list): list of products to download.
             directory: path to directory to store files.
             max_reties (int): maximum number of connection retries to download a product.
 
@@ -158,7 +162,7 @@ class SciHub(DataSearch):
         print("Downloading Products....")
 
         for product in products:
-            file_path = download_directory + product.title + '.zip'
+            file_path = download_directory + product.file_name + '.zip'
 
             # Avoid re-download valid products after sudden failure
             if os.path.isfile(file_path):
@@ -166,14 +170,15 @@ class SciHub(DataSearch):
                 if check_existing_file:
                     continue
                 else:
-                    print("Found local copy of", product.title, "\n But checksum validation failed! Restarting donwload...")
+                    print("Found local copy of", product.file_name, "\n But checksum validation failed! Restarting donwload...")
  
             validity = False
-            download_retries = 1 # we required several re-tries to get the download started from SciHub. Tests point out that this is an issue with their API
+            download_retries = 0 # we required several re-tries to get the download started from SciHub. 
+            # Tests point out that this is an issue with the API
 
             while validity == False:
                 if download_retries > max_retries:
-                    print("Download failed after", str(max_retries), "tries. Product: ", product.title)
+                    print("Download failed after", str(max_retries), "tries. Product: ", product.file_name)
                     break
                 else:
                     response = self.connector.get(product.uri, stream=True)
@@ -181,8 +186,9 @@ class SciHub(DataSearch):
                         
                         for chunk in response.iter_content(chunk_size=100*1024): # bytes
                             f.write(chunk)
-                
-                    print('>>>> Trying', str(download_retries) )
+
+                    if download_retries != 0:
+                        print('>>>> Trying', str(download_retries) )
                     download_retries += 1
                     validity = self.validate_download(product, file_path)
                 
@@ -201,28 +207,5 @@ class SciHub(DataSearch):
             validity chek (bolean)
 
         """
-
-        #checksum on remote (MD5)
-        dowload_uri = product.uri
-        checksum_uri = dowload_uri.split('$')[0] + 'Checksum/Value/$value' 
-        remote_checksum = self.connector.get(checksum_uri).text
-
-        # Local checksum
-        with open (file_path, 'rb') as local_file:
-            file_hash = hashlib.md5()
-            while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
-                file_hash.update(chunk)
-        
-        local_checksum = file_hash.hexdigest()
-
-        if remote_checksum == local_checksum:
-            result = True
-        else:
-            result = False
-
-        return result 
-
-
-
-
-
+       
+        return validate_scihub_download(self.connector, product, file_path)

@@ -33,16 +33,8 @@ class Connector:
         else:
             self.session = Session()
 
-        # TEST redictect of headers using the class above
-        
         self.session.auth = (username, password)
-    
-        test_request= Request('GET', self.root_url, headers=self.header)
-        prepare = self.session.prepare_request(test_request)
-        response = self.session.send(prepare)
-        response.raise_for_status
-
-        self.status = response.status_code
+        self.status = "Use test_connection() before checking the connection status"
 
 
     def test_connection(self):
@@ -57,13 +49,12 @@ class Connector:
             test_request= Request('GET', self.root_url, headers=self.header)
             prepare = self.session.prepare_request(test_request)
             response = self.session.send(prepare)
-        except:
-            ConnectionError("Connection failed. Check if the roor_url is set correctly and if the remote server is responsive")
-        self.status = response.status_code
-
-        print("Test completed! Status code:", self.status)
-        
-        return True
+        except ConnectionError:
+            print("Connection failed. Check if the roor_url is set correctly and if the remote server is responsive")
+        else:
+            self.status = response.status_code
+            print("Test completed! Status code:", self.status)
+            return True
 
 
     def close_connection(self):
@@ -92,6 +83,7 @@ class Connector:
         response.raise_for_status
 
         return response
+
 
 class RetainAuthSession(Session):
     """" """

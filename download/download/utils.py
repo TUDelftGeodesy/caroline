@@ -1,12 +1,63 @@
-'''A library of functions used across modules'''
+# '''A library of functions used across modules'''
 
-from osgeo import ogr
+
 import fiona
 from fiona import collection
 import shapely
 from shapely.wkt import load, loads
 from shapely.geometry import Polygon, MultiPolygon, mapping
 import json
+import hashlib
+
+
+import datetime
+
+
+def convert_date_string(date_string):
+    """ Converts data string to a datetime object. 
+
+    Args:
+        date_string (sting): date formated as YEAR-MONTH-DAY.
+
+    Returns:
+        datetime object
+    """
+    try:
+        datetime_object = datetime.datetime.strptime(date_string, '%Y-%m-%d')
+    except ValueError:
+        print('Make sure that start_date is formatted as YEAR-MONTH-DAY')
+
+    return datetime_object
+
+
+def validate_scihub_download(connector, product, file_path):
+    """
+    Validates the success of a dowload from the SciHub APIA,
+    by performing a data integrity check using checksums.
+
+    Args:
+        connector (object): API connector
+        product (object): product description including a URI for data download
+        file_path (str): path to local copy of the product.
+    
+    Return: 
+        validity chek (bolean)
+
+    """
+
+    #checksum on remote (MD5)
+    dowload_uri = product.uri
+    checksum_uri = dowload_uri.split('$')[0] + 'Checksum/Value/$value' 
+    remote_checksum = connector.get(checksum_uri).text
+
+    local_checksum = compute_checksum(file_path)
+
+    if remote_checksum == local_checksum:
+        result = True
+    else:
+        result = False
+    
+    return result 
 
 
 def read_shapefile(file_path):
@@ -249,3 +300,23 @@ def simplify_shape(shape, resolution=0.1):
     simplified_shape = shape.simplify(resolution)
 
     return simplified_shape
+
+def compute_checksum(file_path):
+    """Computes the MD5 checksume of a file
+    Returns:
+        Hexadecimal hash
+    """
+
+    with open (file_path, 'rb') as local_file:
+        file_hash = hashlib.md5()
+        while chunk := local_file.read(100*128): # chunk size must be multiple of 128 bytes
+            file_hash.update(chunk)
+        
+    return file_hash.hexdigest()
+
+if __name__ == '__main__':
+
+    import shapely.wkt
+    p = shapely.wkt.loads("POLYGON((7.218017578125001 53.27178347923819,7.00927734375 53.45534913802113,6.932373046875 53.72921671251272,6.756591796875 53.68369534495075,6.1962890625 53.57293832648609,5.218505859375 53.50111704294316,4.713134765624999 53.20603255157844,4.5703125 52.80940281068805,4.2626953125 52.288322586002984,3.856201171875 51.88327296443745,3.3508300781249996 51.60437164681676,3.284912109375 51.41291212935532,2.39501953125 51.103521942404186,2.515869140625 50.78510168548186,3.18603515625 50.5064398321055,3.8452148437499996 50.127621728300475,4.493408203125 49.809631563563094,5.361328125 49.475263243037986,6.35009765625 49.36806633482156,6.602783203124999 49.6462914122132,6.536865234375 49.83798245308484,6.251220703125 50.085344397538876,6.448974609375 50.42251884281916,6.218261718749999 50.75035931136963,6.13037109375 51.034485632974125,6.2841796875 51.32374658474385,6.218261718749999 51.59754765771458,6.2841796875 51.754240074033525,6.767578125 51.896833883012484,7.086181640625 52.17393169256849,7.0751953125 52.482780222078226,6.844482421875 52.482780222078226,6.83349609375 52.5897007687178,7.0751953125 52.6030475337285,7.218017578125001 53.27178347923819))")
+    pl = [p]
+    write_shapefile(pl, '../../data/shape/benelux.shp')

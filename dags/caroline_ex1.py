@@ -81,11 +81,12 @@ with DAG(
     start_date=days_ago(1),
     tags=['caroline'],
 ) as dag:
+
     
     def search_api(ti):
 
         search_results=api.search('POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))',
-        '2018-04-22', '2018-05-08', orbit_direction='Ascending',
+        '2018-04-22', '2018-05-01', orbit_direction='Ascending',
         sensor_mode='IW', product='SLC', instrument_name='Sentinel-1')
 
         results = products_to_dict(search_results)

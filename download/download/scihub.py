@@ -8,7 +8,7 @@ API documentation: https://scihub.copernicus.eu/userguide/OpenSearchAPI
 
 import datetime
 import os
-from .utils import compute_checksum
+from .utils import compute_checksum, validate_scihub_download
 from . import data_product
 from .search import DataSearch
 
@@ -130,12 +130,14 @@ class SciHub(DataSearch):
         print("Found", total_results , "products.")
         if total_results !=0:
             entries= result_json['feed']['entry'] # entries describe product/dataset
+            if total_results == 1: # single results returns a dictionary
+                entries = [entries] # convert to list 
             for entry in entries:
                 product = data_product.Product(entry['title'], entry['id'], entry['link'][0]['href'])
                 self.products.append(product)
 
         else:
-            print("No products found for this creteria")
+            print("No products found for these creteria")
 
         return self.products
         
@@ -148,7 +150,7 @@ class SciHub(DataSearch):
         Downloads data set given for the list of products.
 
         Args:
-            products (dic): list of products to download.
+            products (list): list of products to download.
             directory: path to directory to store files.
             max_reties (int): maximum number of connection retries to download a product.
 
@@ -205,17 +207,5 @@ class SciHub(DataSearch):
             validity chek (bolean)
 
         """
-
-        #checksum on remote (MD5)
-        dowload_uri = product.uri
-        checksum_uri = dowload_uri.split('$')[0] + 'Checksum/Value/$value' 
-        remote_checksum = self.connector.get(checksum_uri).text
-
-        local_checksum = compute_checksum(file_path)
-
-        if remote_checksum == local_checksum:
-            result = True
-        else:
-            result = False
        
-        return result 
+        return validate_scihub_download(self.connector, product, file_path)

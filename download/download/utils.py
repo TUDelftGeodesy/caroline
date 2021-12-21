@@ -30,6 +30,35 @@ def convert_date_string(date_string):
     return datetime_object
 
 
+def validate_scihub_download(connector, product, file_path):
+    """
+    Validates the success of a dowload from the SciHub APIA,
+    by performing a data integrity check using checksums.
+
+    Args:
+        connector (object): API connector
+        product (object): product description including a URI for data download
+        file_path (str): path to local copy of the product.
+    
+    Return: 
+        validity chek (bolean)
+
+    """
+
+    #checksum on remote (MD5)
+    dowload_uri = product.uri
+    checksum_uri = dowload_uri.split('$')[0] + 'Checksum/Value/$value' 
+    remote_checksum = connector.get(checksum_uri).text
+
+    local_checksum = compute_checksum(file_path)
+
+    if remote_checksum == local_checksum:
+        result = True
+    else:
+        result = False
+    
+    return result 
+
 
 def read_shapefile(file_path):
     """

@@ -192,7 +192,7 @@ class SciHub(DataSearch):
                     download_retries += 1
                     validity = self.validate_download(product, file_path)
 
-        print('Donwload complete')      
+        print('Download complete')      
         return None
 
     # private method

@@ -161,7 +161,7 @@ class S1OrbitProvider(search.DataSearch):
                     download_retries += 1
                     validity = self.validate_download(orbit, file_path)
 
-        print('Donwload complete')
+        print('Download complete')
         return None
 
 

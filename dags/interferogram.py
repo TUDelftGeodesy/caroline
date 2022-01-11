@@ -1,3 +1,4 @@
+# A DAG for the creation of inteferograms on Spider 
 from datetime import timedelta, datetime
 
 import airflow
@@ -33,7 +34,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='download-data',
+    dag_id='interferogram',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
@@ -41,7 +42,33 @@ with DAG(
     tags=['caroline'],
 ) as dag:
 
-    today = datetime.date.today()
-    # TODO: Implement commands to navigate to the download engine and start the download
-    download_dataset_command =  """
+    # Bash commands
+    cmd_download_radar ="""
+    source /project/caroline/Software/bin/init.sh &&
+    source /project/caroline/Software/download/venv39/bin/activate &&
+    cd /project/caroline/Software/caroline/download/download/ &&
+    module load python/3.9.6 &&
+    python engine.py conf '2021-12-19' '2021-12-22' -a 'POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))'
     """
+
+    cmd_download_orbits ="""
+    source /project/caroline/Software/bin/init.sh &&
+    source /project/caroline/Software/download/venv39/bin/activate &&
+    cd /project/caroline/Software/caroline/download/download/ &&
+    module load python/3.9.6 &&
+    python orbits.py conf '2021-12-19' '2021-12-22'
+    """
+
+    dowload_radar = SSHOperator(
+    task_id='download_radar',
+    command=cmd_download_radar,
+    ssh_hook=sshHook,
+    dag=dag)
+
+    download_orbits = SSHOperator(
+    task_id='download_orbits',
+    command=cmd_download_orbits,
+    ssh_hook=sshHook,
+    dag=dag)
+
+    dowload_radar >> download_orbits

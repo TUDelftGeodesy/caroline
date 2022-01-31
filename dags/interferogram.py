@@ -33,6 +33,8 @@ default_args = {
     # 'trigger_rule': 'all_success'
 }
 
+
+
 with DAG(
     dag_id='interferogram',
     default_args=default_args,
@@ -42,14 +44,19 @@ with DAG(
     tags=['caroline'],
 ) as dag:
 
+    # PARAMETERS
+    # dag_run.conf["start_date"]
+    # dag_run.conf["end_date"]
+    # dag_run.conf["geometry"]
+
     # Bash commands
     cmd_download_radar ="""
     source /project/caroline/Software/bin/init.sh &&
     source /project/caroline/Software/download/venv39/bin/activate &&
     cd /project/caroline/Software/caroline/download/download/ &&
     module load python/3.9.6 &&
-    python engine.py conf '2021-12-19' '2021-12-22' -a 
-    'POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))'
+    python engine.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a 
+    '{{dag_run.conf["geometry"]}}'
     """
 
     cmd_download_orbits ="""
@@ -57,7 +64,7 @@ with DAG(
     source /project/caroline/Software/download/venv39/bin/activate &&
     cd /project/caroline/Software/caroline/download/download/ &&
     module load python/3.9.6 &&
-    python orbits.py conf '2021-12-19' '2021-12-22'
+    python orbits.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}'
     """
 
     cmd_processing="""

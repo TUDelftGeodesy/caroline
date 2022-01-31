@@ -48,7 +48,8 @@ with DAG(
     source /project/caroline/Software/download/venv39/bin/activate &&
     cd /project/caroline/Software/caroline/download/download/ &&
     module load python/3.9.6 &&
-    python engine.py conf '2021-12-19' '2021-12-22' -a 'POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))'
+    python engine.py conf '2021-12-19' '2021-12-22' -a 
+    'POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))'
     """
 
     cmd_download_orbits ="""
@@ -59,7 +60,15 @@ with DAG(
     python orbits.py conf '2021-12-19' '2021-12-22'
     """
 
-    dowload_radar = SSHOperator(
+    cmd_processing="""
+    source /project/caroline/Software/bin/init.sh &&
+    source /project/caroline/Software/download/venv39/bin/activate &&
+    cd /project/caroline/Software/caroline/download/download/ &&
+    module load python/3.9.6 
+    # call DORIS-RIPPL
+    """
+
+    download_radar = SSHOperator(
     task_id='download_radar',
     command=cmd_download_radar,
     ssh_hook=sshHook,
@@ -71,4 +80,4 @@ with DAG(
     ssh_hook=sshHook,
     dag=dag)
 
-    dowload_radar >> download_orbits
+    download_radar >> download_orbits

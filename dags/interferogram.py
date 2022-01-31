@@ -1,4 +1,16 @@
 # A DAG for the creation of inteferograms on Spider 
+# PARAMETERS
+    # dag_run.conf["start_date"]
+    # dag_run.conf["end_date"]
+    # dag_run.conf["geometry"]
+# USAGE: 
+# From Airflow CLI (2.2)
+# $ airflow dags trigger '<dag_id>' --conf '{"start_date":<date>, "end_date":<date>, "geometry":"<WKT>"}'
+
+# Example:
+# airflow dags trigger 'template' -r 'run-002' --conf '{"start_date":"2021-12-19", "end_date":"2021-12-22", "geometry":"POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))"}'
+
+
 from datetime import timedelta, datetime
 
 import airflow
@@ -36,7 +48,7 @@ default_args = {
 
 
 with DAG(
-    dag_id='interferogram',
+    dag_id='template',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
@@ -44,19 +56,13 @@ with DAG(
     tags=['caroline'],
 ) as dag:
 
-    # PARAMETERS
-    # dag_run.conf["start_date"]
-    # dag_run.conf["end_date"]
-    # dag_run.conf["geometry"]
-
     # Bash commands
     cmd_download_radar ="""
     source /project/caroline/Software/bin/init.sh &&
     source /project/caroline/Software/download/venv39/bin/activate &&
     cd /project/caroline/Software/caroline/download/download/ &&
     module load python/3.9.6 &&
-    python engine.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a 
-    '{{dag_run.conf["geometry"]}}'
+    python engine.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a '{{dag_run.conf["geometry"]}}'
     """
 
     cmd_download_orbits ="""

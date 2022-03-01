@@ -10,6 +10,10 @@
 # Example:
 # airflow dags trigger 'template' -r 'run-002' --conf '{"start_date":"2021-12-19", "end_date":"2021-12-22", "geometry":"POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))"}'
 
+# TODO: implement the case for the Benelux area.
+https://marclamberti.com/blog/airflow-sensors/
+https://airflow.apache.org/docs/apache-airflow/stable/_api/airflow/sensors/filesystem/index.html
+
 
 from datetime import timedelta, datetime
 
@@ -48,7 +52,7 @@ default_args = {
 
 
 with DAG(
-    dag_id='template',
+    dag_id='template_2',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
@@ -59,28 +63,36 @@ with DAG(
     # Bash commands
     cmd_download_radar ="""
     source /project/caroline/Software/bin/init.sh &&
-    source /project/caroline/Software/download/venv39/bin/activate &&
+    source /project/caroline/Software/download/python-gdal/bin/activate &&
     cd /project/caroline/Software/caroline/download/download/ &&
-    module load python/3.9.6 &&
+    module load python/3.9.6  gdal/3.4.1 &&
     python engine.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a '{{dag_run.conf["geometry"]}}'
     """
 
     cmd_download_orbits ="""
     source /project/caroline/Software/bin/init.sh &&
-    source /project/caroline/Software/download/venv39/bin/activate &&
+    source /project/caroline/Software/download/python-gdal/bin/activate &&
     cd /project/caroline/Software/caroline/download/download/ &&
-    module load python/3.9.6 &&
+    module load python/3.9.6 gdal/3.4.1 &&
     python orbits.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}'
     """
 
     cmd_processing="""
     source /project/caroline/Software/bin/init.sh &&
-    source /project/caroline/Software/download/venv39/bin/activate &&
+    source /project/caroline/Software/download/python-gdal/bin/activate &&
     cd /project/caroline/Software/caroline/download/download/ &&
-    module load python/3.9.6 
+    module load python/3.9.6 gdal/3.4.1 &&
     # call DORIS-RIPPL
     """
 
+    # what comes next:
+    # A. send notification by email
+    # B. write an operator with for slurm with pyslurm?
+    # c. consult sensors/operator creation with saverio, invite Niels.
+
+    # eScience project
+
+    
     download_radar = SSHOperator(
     task_id='download_radar',
     command=cmd_download_radar,

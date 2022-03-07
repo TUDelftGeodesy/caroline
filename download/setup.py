@@ -1,4 +1,5 @@
 # standard library
+import dotenv
 from setuptools import setup, find_packages
 
 # local library
@@ -6,7 +7,7 @@ import download
 
 
 # setup
-install_requires = ['requests', 'shapely', 'fiona', ]
+install_requires = ['requests', 'shapely', 'fiona', 'python-dotenv', ]
 
 
 setup(

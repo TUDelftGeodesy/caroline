@@ -1,6 +1,6 @@
 # from airflow.contrib.hooks.ssh_hook import SSHHook
 from click import command
-from airflow.models.baseopertor import BaseOperator
+# from airflow.models.baseopertor import BaseOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator 
 from typing import TYPE_CHECKING, Optional, Sequence, Union
 from airflow.exceptions import AirflowException
@@ -12,8 +12,7 @@ class SpiderSSHOperator(SSHOperator):
         
         super().__init__(**kwargs) # inherit properties from parent class
 
-        self.s_command = s_command # command to be appended 
-
+        self.command = s_command # command to be appended 
 
 ## from ssh operator
     # def execute(self, context=None) -> Union[bytes, str]:
@@ -34,12 +33,12 @@ class SpiderSSHOperator(SSHOperator):
     #         result = b64encode(result).decode('utf-8')
     #     return result
 
-
     def execute(self, context=None) -> Union[bytes, str]:
         result: Union[bytes, str]
         if self.command is None:
             raise AirflowException("SSH operator error: SSH command not specified. Aborting.")
 
+        ### TODO: this check is innecesary for this case becacue self.command is appended at the end
         # Forcing get_pty to True if the command begins with "sudo".
         self.get_pty = self.command.startswith('sudo') or self.get_pty
         
@@ -51,7 +50,7 @@ class SpiderSSHOperator(SSHOperator):
             module load python/3.9.6  gdal/3.4.1 &&
             """
 
-        command = prefix + self.s_command
+        command = prefix + self.command
 
         try:
             with self.get_ssh_client() as ssh_client:

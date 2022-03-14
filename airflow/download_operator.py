@@ -11,8 +11,9 @@ from base64 import b64encode
 
 class DownloadOperator(SSHOperator):
     def __init__(self, command: str, **kwargs) -> None:
-        """Activies virtual environment and loads modules for the Download Engine.
-           Inherits properties and methods from the SSHOperator
+        """Activates virtual environment and modules for the Download Engine.
+           Inherits properties and methods from the SSHOperator.
+           Requires an SSHHook.
         Args:
             command (str): command to be executed after modules and environment are loaded.
             """

@@ -9,7 +9,7 @@ from airflow.exceptions import AirflowException
 from airflow.configuration import conf
 from base64 import b64encode
 
-class DownloadSSHOperator(SSHOperator):
+class DownloadOperator(SSHOperator):
     def __init__(self, command: str, **kwargs) -> None:
         """Activies virtual environment and loads modules for the Download Engine.
            Inherits properties and methods from the SSHOperator
@@ -35,7 +35,7 @@ class DownloadSSHOperator(SSHOperator):
             cd /project/caroline/Software/caroline/download/download/ &&
             module load python/3.9.6  gdal/3.4.1 &&
             """
-            
+
         command = prefix + self.command
 
         try:

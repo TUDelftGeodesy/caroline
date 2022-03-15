@@ -1,30 +1,27 @@
-# A DAG for the creation of inteferograms on Spider 
-# PARAMETERS
-    # dag_run.conf["start_date"]
-    # dag_run.conf["end_date"]
-    # dag_run.conf["geometry"]
-# USAGE: 
-# From Airflow CLI (2.2)
-# $ airflow dags trigger '<dag_id>' --conf '{"start_date":<date>, "end_date":<date>, "geometry":"<WKT>"}'
+#################################################################################
+# DAG for the production of Inteferograms using Doris-RIPPL                     #
+#################################################################################
+# This DAG search, and download radar datasets and orbit files for a time 
+# interval, and geographic area. Downloade datsets are use to produce an 
+# interferogram.
+# 
+# Templated fields:
+#
+# dag_run.conf["start_date"]: 
+# dag_run.conf["end_date"]:
+# dag_run.conf["geometry"]:
+#################################################################################
 
-# Example:
-# airflow dags trigger 'template' -r 'run-002' --conf '{"start_date":"2021-12-19", "end_date":"2021-12-22", "geometry":"POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))"}'
-
-# TODO: implement the case for the Benelux area.
-https://marclamberti.com/blog/airflow-sensors/
-https://airflow.apache.org/docs/apache-airflow/stable/_api/airflow/sensors/filesystem/index.html
-# the slurm-JOBID.out is produced when job is done
-https://git.astron.nl/eosc/slurmexecutorplugin
-
-
+from concurrent.futures import process
 from datetime import timedelta, datetime
-
-import airflow
 from airflow import DAG
-from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.dates import days_ago
-sshHook = SSHHook(ssh_conn_id='spider_mgarcia')
+# import custom operators
+from download_operator import DownloadOperator
+from slurm_operator import SlurmOperator
+# hook to Spider
+sshHook = SSHHook(ssh_conn_id='spider_mgarcia') 
 
 # These args will get passed on to each operator
 # You can override them on a per-task basis during operator initialization
@@ -51,62 +48,50 @@ default_args = {
     # 'trigger_rule': 'all_success'
 }
 
-
-
 with DAG(
-    dag_id='template_2',
+    dag_id='interferogram',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
     start_date=days_ago(0),
-    tags=['caroline'],
+    tags=['caroline', 'template'],
 ) as dag:
 
-    # Bash commands
+    # Commands
     cmd_download_radar ="""
-    source /project/caroline/Software/bin/init.sh &&
-    source /project/caroline/Software/download/python-gdal/bin/activate &&
-    cd /project/caroline/Software/caroline/download/download/ &&
-    module load python/3.9.6  gdal/3.4.1 &&
     python engine.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a '{{dag_run.conf["geometry"]}}'
     """
 
     cmd_download_orbits ="""
-    source /project/caroline/Software/bin/init.sh &&
-    source /project/caroline/Software/download/python-gdal/bin/activate &&
-    cd /project/caroline/Software/caroline/download/download/ &&
-    module load python/3.9.6 gdal/3.4.1 &&
     python orbits.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}'
     """
 
-    cmd_processing="""
-    source /project/caroline/Software/bin/init.sh &&
-    source /project/caroline/Software/download/python-gdal/bin/activate &&
-    cd /project/caroline/Software/caroline/download/download/ &&
-    module load python/3.9.6 gdal/3.4.1 &&
-    # call DORIS-RIPPL
+    cmd_interferogram = """
+    sbatch /project/caroline/Software/slurm/welcome-to-spider.sh
     """
 
-    # what comes next:
-    # A. send notification by email
-    # B. write an operator with for slurm with pyslurm?
-    # c. consult sensors/operator creation with saverio, invite Niels.
-    # eScience project
-
-
-    
-
-    
-    download_radar = SSHOperator(
-    task_id='download_radar',
+    # Tasks:
+    download_radar = DownloadOperator(
+    task_id='download_radar_datasets',
     command=cmd_download_radar,
     ssh_hook=sshHook,
     dag=dag)
-
-    download_orbits = SSHOperator(
+    
+    download_orbits = DownloadOperator(
     task_id='download_orbits',
     command=cmd_download_orbits,
     ssh_hook=sshHook,
     dag=dag)
 
-    download_radar >> download_orbits
+    create_interferogram = SlurmOperator(
+    task_id='create_interferogram',
+    sbatch_command=cmd_interferogram,
+    monitor_time = '20s',
+    output_file= "/project/caroline/Software/slurm/",
+    ssh_hook=sshHook,
+    dag=dag)
+    
+    # dependencies
+    [download_radar, download_orbits] >> create_interferogram
+
+    # TODO: implement slurm job with doris-rippl

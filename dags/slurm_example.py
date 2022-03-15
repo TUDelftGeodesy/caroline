@@ -1,4 +1,4 @@
-# A DAG for the creation of inteferograms on Spider 
+# A DAG for testing the Slurm Operator on Spider 
 from datetime import timedelta, datetime
 from time import sleep
 
@@ -7,6 +7,7 @@ from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.dates import days_ago
 # custom operator
 from slurm_operator import SlurmOperator
+# hook to Spider
 sshHook = SSHHook(ssh_conn_id='spider_mgarcia')
 
 # These args will get passed on to each operator
@@ -34,11 +35,6 @@ default_args = {
     # 'trigger_rule': 'all_success'
 }
 
-# TODO: fix running dag fails with error:
-# File "/home/airflow/.local/lib/python3.8/site-packages/jinja2/loaders.py", line 214, in get_source
-    # raise TemplateNotFound(template)
-# jinja2.exceptions.TemplateNotFound: sbatch welcome-to-spider.sh
-
 with DAG(
     dag_id='slurm_example',
     default_args=default_args,
@@ -48,22 +44,17 @@ with DAG(
     tags=['caroline', 'test'],
 ) as dag:
 
-    # PARAMETERS
-    # dag_run.conf["start_date"]
-    # dag_run.conf["end_date"]
-    # dag_run.conf["geometry"]
-
-    s_command = """sbatch welcome-to-spider.sh"""
+    batch_command = """
+    sbatch /project/caroline/Software/slurm/welcome-to-spider.sh
+    """
+    dir_output_file = "/project/caroline/Software/slurm/"
 
     run_slurm_job = SlurmOperator(
     task_id='slurm_job',
-    sbatch_command=s_command,
+    sbatch_command=batch_command,
     sleep_time = '20s',
+    output_file= dir_output_file,
     ssh_hook=sshHook,
-    do_xcom_push=True,
     dag=dag)
 
     run_slurm_job
-
-
-

@@ -1,12 +1,11 @@
-# A DAG for the creation of inteferograms on Spider 
+# A DAG for testing the Download Operator in Spider
 from datetime import timedelta, datetime
-
-
 from airflow import DAG
 from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.dates import days_ago
 # custom operator
 from spider_operator import DownloadOperator
+# hook for Spider
 sshHook = SSHHook(ssh_conn_id='spider_mgarcia')
 
 # These args will get passed on to each operator
@@ -48,12 +47,12 @@ with DAG(
     # dag_run.conf["end_date"]
     # dag_run.conf["geometry"]
 
-
-    # Bash commands
+    # command for Download Engine
     cmd_download_radar ="""
     python engine.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a '{{dag_run.conf["geometry"]}}'
     """
 
+    # task
     download_radar = DownloadOperator(
     task_id='download_radar',
     s_command=cmd_download_radar,

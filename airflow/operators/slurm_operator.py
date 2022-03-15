@@ -18,8 +18,8 @@ class SlurmOperator(SSHOperator):
            Requires an SSHHook.
         Args:
             sbatch_command (str): command to submit a slurm script. E.g., sbatch <path to script.sh>
-            monitor_time: time interval at which the status of a job will be checked. Default is 1 minute.
-            output_file: path to directory for the slurm output file. If None, output file will be in
+            monitor_time (str): time interval at which the status of a job will be checked. Default is 1 minute.
+            output_file (str): path to directory for the slurm output file. If None, output file will be in
                          home directory.
             """
     

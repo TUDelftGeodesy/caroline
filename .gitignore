@@ -6,7 +6,7 @@
 # RIPPL
 rippl/
 
-# Airflow Compose
+# Doker Compose
 dockers/airlfow/dags/
 dockers/airlfow/plugins/
 dockers/airflow/logs/ 

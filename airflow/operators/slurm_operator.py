@@ -21,7 +21,7 @@ class SlurmOperator(SSHOperator):
             monitor_time (str): time interval at which the status of a job will be checked. Default is 1 minute.
             output_file (str): path to directory for the slurm output file. If None, output file will be in
                          home directory.
-            """
+        """
     
         super().__init__(**kwargs) # inherit properties from parent class
         self.command = sbatch_command 
@@ -61,7 +61,7 @@ class SlurmOperator(SSHOperator):
         done
         echo $ST
         """
-
+        
         command = submit + monitor
 
         try:

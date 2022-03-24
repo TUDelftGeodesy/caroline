@@ -47,7 +47,7 @@ parser_conf.add_argument("-t", "--retry",
                     default=3,
                     type=int)
 
-# manual command
+# man (manual) command
 parser_manual = subparsers.add_parser("man", help="manual mode. Start download using username and password")
 parser_manual.add_argument("user", help="ASF DAAC account's username", type=str)
 parser_manual.add_argument("password", help="ASF DAAC account's password", type=str)

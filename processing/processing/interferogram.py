@@ -59,6 +59,12 @@ if __name__ == '__main__':
                     default='',
                     type=str)
 
+    parser.add_argument("-R", "--resolution",
+                    help="Pixel resolution of the output dataset.", 
+                    default='',
+                    type=int)
+    
+
     parser.add_argument("-md", "--master_date",
                     help="Master date for the processing data track as yyyymmdd. Choose a date with the lowest coverage to create an image with ONLY the overlapping parts", 
                     default='',
@@ -110,6 +116,7 @@ if __name__ == '__main__':
     mode = args.mode
     product_type = args.prod
     polarisation = [args.pol]
+    pixel_resolution = args.resolution
 
     track_no = args.track  # manu: track == strips of data, A track make a selection of datasets that belongs to a AoI. Images are stack, and process should keep products separated by tracks. User provides the track number.
     stack_name = args.name # 'Benelux_track_37'
@@ -326,7 +333,7 @@ if __name__ == '__main__':
         s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
         # We split the different polarisation to limit the number of files in the temporary folder.
         for p in pol: # manu: define polariation. TODO: user should control type of polarization
-            for dx, dy in zip([50, 100, 200, 500, 1000, 2000], [50, 100, 200, 500, 1000, 2000]): ## manu: different resolutions TODO: resolution should be control by user. As options, or config file.
+            for dx, dy in zip([pixel_resolution], [pixel_resolution]): 
                 # The actual creation of the calibrated amplitude images
                 s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
                                                     rounding=0)
@@ -362,43 +369,7 @@ if __name__ == '__main__':
                     if os.path.exists(ml_grid_tmp_directory):
                         shutil.rmtree(ml_grid_tmp_directory)
                         os.mkdir(ml_grid_tmp_directory)
-            """
-            for dx, dy in zip([50, 100, 200, 500, 1000, 2000], [50, 100, 200, 500, 1000, 2000]):
-                # The actual creation of the calibrated amplitude images
-                s1_processing.create_ml_coordinates(standard_type='UTM', dx=dx, dy=dy, buffer=0, rounding=0)
-                s1_processing.prepare_multilooking_grid(p)
-                s1_processing.create_calibrated_amplitude_multilooked(p,
-                                                                      coreg_tmp_directory=ml_grid_tmp_directory,
-                                                                      tmp_directory=tmp_directory)
-                s1_processing.create_output_tiffs_amplitude()
 
-                s1_processing.create_ifg_network(temporal_baseline=temporal_baseline)
-                s1_processing.create_interferogram_multilooked(p,
-                                                               coreg_tmp_directory=ml_grid_tmp_directory,
-                                                               tmp_directory=tmp_directory)
-                s1_processing.create_coherence_multilooked(p, coreg_tmp_directory=ml_grid_tmp_directory,
-                                                           tmp_directory=tmp_directory)
-
-                # Create output geotiffs
-                s1_processing.create_output_tiffs_coherence_ifg()
-
-                # Create lat/lon/incidence angle/DEM for multilooked grid.
-                s1_processing.create_geometry_mulitlooked(baselines=True, height_to_phase=True)
-                s1_processing.create_output_tiffs_geometry()
-
-                # Do unwrapping
-                if dx in [200, 500, 1000, 2000]:
-                    s1_processing.create_unwrapped_images(p)
-                    s1_processing.create_output_tiffs_unwrap()
-
-                # The coreg temp directory will only contain the loaded input lines/pixels to do the multilooking. These
-                # files will be called by every process so it can be usefull to load them in memory the whole time.
-                # If not given, these files will be loaded in the regular tmp folder.
-                if ml_grid_tmp_directory:
-                    if os.path.exists(ml_grid_tmp_directory):
-                        shutil.rmtree(ml_grid_tmp_directory)
-                        os.mkdir(ml_grid_tmp_directory)
-	    """
             for dlat, dlon in zip([0.0005, 0.001, 0.002, 0.005, 0.01, 0.02],
                                   [0.0005, 0.001, 0.002, 0.005, 0.01, 0.02]):
                 # The actual creation of the calibrated amplitude images

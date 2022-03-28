@@ -8,6 +8,7 @@ from shapely.wkt import load, loads
 from shapely.geometry import Polygon, MultiPolygon, mapping
 import json
 import hashlib
+from osgeo import ogr
 
 
 import datetime

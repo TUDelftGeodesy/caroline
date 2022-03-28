@@ -1,12 +1,14 @@
+""" Program to compute inteferograms using Doris-RIPPL"""
 
-import datetime
-import string
-import sys
-import shutil
-import numpy as np
 import os
 import argparse
 import pathlib
+import datetime
+# import string
+# import sys
+import shutil
+import numpy as np
+
 # packages installed to conda using pip are not picked my Pylace
 from download import utils
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
@@ -52,6 +54,7 @@ if __name__ == '__main__':
                     type=str)
     parser.add_argument("-tk", "--track",
                     help="Processing track number", 
+                    default= 37,
                     type=int)
     # Output options:
     parser.add_argument("-n", "--name",
@@ -63,10 +66,9 @@ if __name__ == '__main__':
                     help="Pixel resolution of the output dataset.", 
                     type=int)
     
-
     parser.add_argument("-md", "--master_date",
                     help="Master date for the processing data track as yyyymmdd. Choose a date with the lowest coverage to create an image with ONLY the overlapping parts", 
-                    default='',
+                    default= '20200328',
                     type=str)
 
     args = parser.parse_args()
@@ -91,6 +93,7 @@ if __name__ == '__main__':
         else:
             raise TypeError("File extension not supported. Use '.shp' or '.kml' ")
 
+    # 
     processing_boundary = ReadWriteShapes()  # takes SHP, KML, or WKT
     if args.aoi is None:
         # This expects the file to be in the doris-rippl data directory
@@ -261,16 +264,17 @@ if __name__ == '__main__':
         end_dates = [end_date]
         start_dates = [start_date]
 
-    if not isinstance(polarisation, list):
-        pol = [polarisation]
-    else:
-        pol = polarisation
+    # TODO: remove if agree on 1 single polarization per process
+    # if not isinstance(polarisation, list):
+    #     pol = [polarisation]
+    # else:
+    #     pol = polarisation
 
     for start_date, end_date in zip(start_dates, end_dates):
         # manu: stack all images (includind diffent dates)
         s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
         # We split the different polarisation to limit the number of files in the temporary folder.
-        for p in pol: # manu: define polariation. TODO: user should control type of polarization
+        for p in polarisation: # manu: define polarization. TODO: user should control type of polarization
             for dx, dy in zip([pixel_resolution], [pixel_resolution]): 
                 # The actual creation of the calibrated amplitude images
                 s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
@@ -295,7 +299,8 @@ if __name__ == '__main__':
                 s1_processing.create_geometry_mulitlooked(baselines=True, height_to_phase=True)
                 s1_processing.create_output_tiffs_geometry()
 
-                # Do unwrapping
+                #TODO: Is this necessary in every case?
+                # Do unwrapping 
                 if dx in [200, 500, 1000, 2000]:
                     s1_processing.create_unwrapped_images(p)
                     s1_processing.create_output_tiffs_unwrap()
@@ -308,7 +313,7 @@ if __name__ == '__main__':
                         shutil.rmtree(ml_grid_tmp_directory)
                         os.mkdir(ml_grid_tmp_directory)
 
-            # TODO: Do wee need to compute a range here?
+            # TODO: Do we need to compute a range here?
             for dlat, dlon in zip([0.0005, 0.001, 0.002, 0.005, 0.01, 0.02],
                                   [0.0005, 0.001, 0.002, 0.005, 0.01, 0.02]):
                 # The actual creation of the calibrated amplitude images

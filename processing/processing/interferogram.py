@@ -29,7 +29,9 @@ if __name__ == '__main__':
     parser.add_argument("-e", "--end_date", help="End date of processing as yyyymmdd")
     parser.add_argument("-c", "--cores", help="Number of processing cores")
     parser.add_argument("-t", "--temp", help="Temp directory location", default='')
+    # optional
     parser.add_argument("-r", "--resampling_temp", help="Temp directory used for master image coordinates for resampling", default='')
+    # optional
     parser.add_argument("-ml", "--multilooking_temp", help="Temp directory used for master image coordinates for multilooking", default='')
     # Processing boundaries Options:
     geometry_group = parser.add_mutually_exclusive_group()
@@ -160,6 +162,7 @@ if __name__ == '__main__':
 
     s1_processing = GeneralPipelines(processes=no_processes)
 
+    # TODO: look into conflict of triggering downloading of datafiles here and in previous steps in DAG
     # TODO: what does the creat_sentinel_stack function does?
     s1_processing.create_sentinel_stack(start_date=start_date, end_date=end_date, master_date=master_date, cores=no_processes,
                                              track=track_no,stack_name=stack_name, polarisation=polarisation,
@@ -242,11 +245,11 @@ if __name__ == '__main__':
     """
 
     # Load the images in blocks to temporary disk (or not if only coreg data is loaded to temp disk)
-    temporal_baseline = 60
+    temporal_baseline = 60 # manu: add as argument.. number in days (a threshold)
     min_timespan = temporal_baseline * 2
     # Every process can only run 1 multilooking job. Therefore, in the case of amplitude calculation the number of processes
     # is limited too the number of images loaded.
-    amp_processing_efficiency = 1
+    amp_processing_efficiency = 1  # manu: Freek will go back on this
     effective_timespan = np.maximum(no_processes * 6 * amp_processing_efficiency, min_timespan)
 
     no_days = datetime.timedelta(days=int(effective_timespan / 2))
@@ -265,6 +268,7 @@ if __name__ == '__main__':
         start_dates = [start_date]
 
     # TODO: remove if agree on 1 single polarization per process
+    # manu: keep polarization as al list, becuase image aligment 
     # if not isinstance(polarisation, list):
     #     pol = [polarisation]
     # else:
@@ -275,7 +279,7 @@ if __name__ == '__main__':
         s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
         # We split the different polarisation to limit the number of files in the temporary folder.
         for p in polarisation: # manu: define polarization. TODO: user should control type of polarization
-            for dx, dy in zip([pixel_resolution], [pixel_resolution]): 
+            for dx, dy in zip([pixel_resolution], [pixel_resolution]): # manu: allow a short list of pixel values. Instruct user to be carefull here
                 # The actual creation of the calibrated amplitude images
                 s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
                                                     rounding=0)
@@ -301,7 +305,7 @@ if __name__ == '__main__':
 
                 #TODO: Is this necessary in every case?
                 # Do unwrapping 
-                if dx in [200, 500, 1000, 2000]:
+                if dx in [200, 500, 1000, 2000]: # manu: Freek will look into this
                     s1_processing.create_unwrapped_images(p)
                     s1_processing.create_output_tiffs_unwrap()
 
@@ -314,8 +318,8 @@ if __name__ == '__main__':
                         os.mkdir(ml_grid_tmp_directory)
 
             # TODO: Do we need to compute a range here?
-            for dlat, dlon in zip([0.0005, 0.001, 0.002, 0.005, 0.01, 0.02],
-                                  [0.0005, 0.001, 0.002, 0.005, 0.01, 0.02]):
+            for dlat, dlon in zip([0.0005, 0.001, 0.002, 0.005, 0.01, 0.02], # manu: use a value of 0.01 (resolution in degrees)
+                                  [0.0005, 0.001, 0.002, 0.005, 0.01, 0.02]): # manu: keep range, defined by the user. For MVP only one value is needed.
                 # The actual creation of the calibrated amplitude images
                 s1_processing.create_ml_coordinates(dlat=dlat, dlon=dlon, coor_type='geographic', buffer=0,
                                                     rounding=0)
@@ -339,7 +343,7 @@ if __name__ == '__main__':
                 s1_processing.create_geometry_mulitlooked(baselines=True, height_to_phase=True)
                 s1_processing.create_output_tiffs_geometry()
 
-                if dlat in [0.002, 0.005, 0.01, 0.02]:
+                if dlat in [0.002, 0.005, 0.01, 0.02]: # manu: not required in MVP
                     s1_processing.create_unwrapped_images(p)
                     s1_processing.create_output_tiffs_unwrap()
 

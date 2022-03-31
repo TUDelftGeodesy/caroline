@@ -335,8 +335,8 @@ if __name__ == '__main__':
                         os.mkdir(ml_grid_tmp_directory)
 
             
-            for dlat, dlon in zip([0.0005, 0.001, 0.002, 0.005, 0.01, 0.02], # manu: use a value of 0.01 (resolution in degrees)
-                                  [0.0005, 0.001, 0.002, 0.005, 0.01, 0.02]): # manu: keep range, defined by the user. For MVP only one value is needed.
+            for dlat, dlon in zip([0.01], # manu: use a value of 0.01 (resolution in degrees)
+                                  [0.01]): # manu: keep range, defined by the user. For MVP only one value is needed.
                 # The actual creation of the calibrated amplitude images
                 s1_processing.create_ml_coordinates(dlat=dlat, dlon=dlon, coor_type='geographic', buffer=0,
                                                     rounding=0)

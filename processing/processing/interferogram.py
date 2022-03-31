@@ -8,7 +8,6 @@ import datetime
 # import sys
 import shutil
 from unittest import result
-from xmlrpc.client import Boolean
 import numpy as np
 
 # packages installed to conda using pip are not picked my Pylace
@@ -23,7 +22,7 @@ from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 # from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 # from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 
-def list_of_data_type(_input:list, data_type=str) -> Boolean:
+def list_of_data_type(_input:list, data_type=str) -> bool:
     """Test if input is a list of items of type 'data_type'
     Args:
         _input (list): list to be tested
@@ -37,7 +36,7 @@ def list_of_data_type(_input:list, data_type=str) -> Boolean:
     for item in _input:
         test = isinstance(item, data_type)
         result = result and test
-    
+
     return result
 
 

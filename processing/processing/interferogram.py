@@ -1,4 +1,4 @@
-""" Program to compute inteferograms using Doris-RIPPL"""
+""" Program to compute interferograms using Doris-RIPPL"""
 
 import os
 import argparse

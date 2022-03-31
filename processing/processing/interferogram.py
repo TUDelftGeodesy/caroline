@@ -4,23 +4,11 @@ import os
 import argparse
 import pathlib
 import datetime
-# import string
-# import sys
 import shutil
-from unittest import result
 import numpy as np
-
-# packages installed to conda using pip are not picked my Pylace
 from download import utils
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
-
-
-# Path to Doris RIPPL installation directory
-# sys.path.extend(['/home/manuel/Documents/devel/satellite-livestreams/caroline/rippl'])
-#
-# from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
-# from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 
 def list_of_data_type(_input:list, data_type=str) -> bool:
     """Test if input is a list of items of type 'data_type'
@@ -83,7 +71,7 @@ if __name__ == '__main__':
                     type=str)
 
     parser.add_argument("-R", "--resolution",
-                    help="Pixel resolution of the output dataset. A single value or a list of values (integers). E.g., 500, or [500, 1000] ", 
+                    help="Pixel resolutions for the output datasets. A single value or a list of values (integers). E.g., 500, or [500, 1000] ", 
                     type=int)
     
     parser.add_argument("-md", "--master_date",

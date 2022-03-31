@@ -7,6 +7,8 @@ import datetime
 # import string
 # import sys
 import shutil
+from unittest import result
+from xmlrpc.client import Boolean
 import numpy as np
 
 # packages installed to conda using pip are not picked my Pylace
@@ -20,6 +22,23 @@ from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 #
 # from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 # from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
+
+def list_of_data_type(_input:list, data_type=str) -> Boolean:
+    """Test if input is a list of items of type 'data_type'
+    Args:
+        _input (list): list to be tested
+        data_type: the python datatype that items in the list must be
+    Returns true if inputs is a list of strings
+    """
+    if len(_input) <= 0:
+        raise TypeError("Empty list")
+
+    result = True
+    for item in _input:
+        test = isinstance(item, data_type)
+        result = result and test
+    
+    return result
 
 
 if __name__ == '__main__':
@@ -51,9 +70,9 @@ if __name__ == '__main__':
                     default="SLC",
                     type=str)
     parser.add_argument("-pl", "--pol",
-                    help="Polarization of Sentinel-1 Data. Default: 'VV'", 
+                    help="Polarizations of Sentinel-1 Data. A string with a single polarization value or a list of strings. E.g. 'VV' or ['VV', 'HV'] ", 
                     default='VV',
-                    type=str)
+                    type=list)
     parser.add_argument("-tk", "--track",
                     help="Processing track number", 
                     default= 37,
@@ -65,7 +84,7 @@ if __name__ == '__main__':
                     type=str)
 
     parser.add_argument("-R", "--resolution",
-                    help="Pixel resolution of the output dataset.", 
+                    help="Pixel resolution of the output dataset. A single value or a list of values (integers). E.g., 500, or [500, 1000] ", 
                     type=int)
     
     parser.add_argument("-md", "--master_date",
@@ -93,9 +112,25 @@ if __name__ == '__main__':
             else:
                 RuntimeError("The file must contain a single geometry")
         else:
-            raise TypeError("File extension not supported. Use '.shp' or '.kml' ")
+            raise TypeError("File extension not supported. Must be '.shp' or '.kml' ")
 
-    # 
+    # =====================================================================
+    # Check validity of list arguments: 
+    # =====================================================================
+
+    if isinstance(args.pol, list):
+        if list_of_data_type(args.pol, data_type=str) is False:
+            raise TypeError (f"Value for --pol argument must be a list of strings. Is {args.pol}")
+    else:
+        polarisation = [args.pol] # internally values for this argument will always be treated as a list
+
+    if isinstance(args.resolution, list):
+        if list_of_data_type(args.resolution, data_type=int) is False:
+            raise TypeError (f"Value for --resolution argument must be a list of integers. Is {args.resolution}")
+
+    else: pixel_resolution = [args.resolution] # internally values for this argument will always be treated as a list
+
+     
     processing_boundary = ReadWriteShapes()  # takes SHP, KML, or WKT
     if args.aoi is None:
         # This expects the file to be in the doris-rippl data directory
@@ -120,15 +155,10 @@ if __name__ == '__main__':
 
     mode = args.mode
     product_type = args.prod
-    polarisation = [args.pol]
-    pixel_resolution = args.resolution
-
-    track_no = args.track  # manu: track == strips of data, A track make a selection of datasets that belongs to a AoI. Images are stack, and process should keep products separated by tracks. User provides the track number.
+    track_no = args.track  # A track makes a selection of datasets that belongs to an AoI. Stacks products should be kept separated by track. User provides the track number.
     stack_name = args.name # 'Benelux_track_37'
 
     # For every track we have to select a master date. This is based on the search results earlier.
-    # Choose the date with the lowest coverage to create an image with only the overlapping parts.
-    # master_date = datetime.datetime(year=2020, month=3, day=28) # manu:  should be define by the user
     # =====================================================================
     # Temporary directories
     # =====================================================================
@@ -153,17 +183,13 @@ if __name__ == '__main__':
     if not os.path.exists(ml_grid_tmp_directory):
         os.mkdir(ml_grid_tmp_directory)
 
-    # Create the list of the 4 different stacks.
     # track_no = 37  # manu: track == strips of data, A track make a selection of datasets that belongs to a AoI. Images are stack, and process should keep products separated by tracks. User provides the track number.
 
     # Number of processes for parallel processing. Make sure that for every process at least 2GB of RAM is available
-    # no_processes = 4
-
 
     s1_processing = GeneralPipelines(processes=no_processes)
 
     # TODO: look into conflict of triggering downloading of datafiles here and in previous steps in DAG
-    # TODO: what does the creat_sentinel_stack function does?
     s1_processing.create_sentinel_stack(start_date=start_date, end_date=end_date, master_date=master_date, cores=no_processes,
                                              track=track_no,stack_name=stack_name, polarisation=polarisation,
                                              shapefile=study_area_shape, mode=mode, product_type=product_type)
@@ -189,7 +215,6 @@ if __name__ == '__main__':
     s1_processing.create_radar_coordinates()
     s1_processing.create_dem_coordinates(dem_type=dem_type)
 
-    # TODO: The API for downloading doesn't work. This needs to be fix
     # Download external DEM
     s1_processing.download_external_dem(dem_type=dem_type, buffer=dem_buffer, rounding=dem_rounding,
                                         n_processes=no_processes)
@@ -249,7 +274,7 @@ if __name__ == '__main__':
     min_timespan = temporal_baseline * 2
     # Every process can only run 1 multilooking job. Therefore, in the case of amplitude calculation the number of processes
     # is limited too the number of images loaded.
-    amp_processing_efficiency = 1  # manu: Freek will go back on this
+    amp_processing_efficiency = 1  
     effective_timespan = np.maximum(no_processes * 6 * amp_processing_efficiency, min_timespan)
 
     no_days = datetime.timedelta(days=int(effective_timespan / 2))
@@ -267,18 +292,12 @@ if __name__ == '__main__':
         end_dates = [end_date]
         start_dates = [start_date]
 
-    # TODO: remove if agree on 1 single polarization per process
-    # manu: keep polarization as al list, becuase image aligment 
-    # if not isinstance(polarisation, list):
-    #     pol = [polarisation]
-    # else:
-    #     pol = polarisation
 
     for start_date, end_date in zip(start_dates, end_dates):
-        # manu: stack all images (includind diffent dates)
+        
         s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
         # We split the different polarisation to limit the number of files in the temporary folder.
-        for p in polarisation: # manu: define polarization. TODO: user should control type of polarization
+        for p in polarisation: 
             for dx, dy in zip([pixel_resolution], [pixel_resolution]): # manu: allow a short list of pixel values. Instruct user to be carefull here
                 # The actual creation of the calibrated amplitude images
                 s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
@@ -303,8 +322,6 @@ if __name__ == '__main__':
                 s1_processing.create_geometry_mulitlooked(baselines=True, height_to_phase=True)
                 s1_processing.create_output_tiffs_geometry()
 
-                #TODO: Is this necessary in every case?
-                # Do unwrapping 
                 if dx in [200, 500, 1000, 2000]: # manu: Freek will look into this
                     s1_processing.create_unwrapped_images(p)
                     s1_processing.create_output_tiffs_unwrap()
@@ -317,7 +334,7 @@ if __name__ == '__main__':
                         shutil.rmtree(ml_grid_tmp_directory)
                         os.mkdir(ml_grid_tmp_directory)
 
-            # TODO: Do we need to compute a range here?
+            
             for dlat, dlon in zip([0.0005, 0.001, 0.002, 0.005, 0.01, 0.02], # manu: use a value of 0.01 (resolution in degrees)
                                   [0.0005, 0.001, 0.002, 0.005, 0.01, 0.02]): # manu: keep range, defined by the user. For MVP only one value is needed.
                 # The actual creation of the calibrated amplitude images

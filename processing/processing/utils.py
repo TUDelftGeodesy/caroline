@@ -9,6 +9,9 @@ def list_of_data_type(_input:list, data_type=str) -> bool:
         data_type: the python datatype that items in the list must be
     Returns true if inputs is a list of strings
     """
+    if not isinstance(_input, list):
+        raise TypeError("Input is not a list")
+        
     if len(_input) <= 0:
         raise TypeError("Empty list")
 

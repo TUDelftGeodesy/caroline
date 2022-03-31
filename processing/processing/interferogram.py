@@ -40,9 +40,10 @@ if __name__ == '__main__':
                     default="SLC",
                     type=str)
     parser.add_argument("-pl", "--pol",
-                    help="Polarizations of Sentinel-1 Data. A string with a single polarization value or a list of strings. E.g. 'VV' or ['VV', 'HV'] ", 
+                    help="Polarizations of Sentinel-1 Data. A list of strings. E.g. 'VV' or 'VV' 'HV'", 
+                    nargs='+',
                     default='VV',
-                    type=list)
+                    type=str)
     parser.add_argument("-tk", "--track",
                     help="Processing track number", 
                     default= 37,
@@ -54,7 +55,8 @@ if __name__ == '__main__':
                     type=str)
 
     parser.add_argument("-R", "--resolution",
-                    help="Pixel resolutions for the output datasets. A single value or a list of values (integers). E.g., 500, or [500, 1000] ", 
+                    help="Pixel resolutions for the output datasets. A list of values (integers). E.g., 500 or 500 1000 2000 ", 
+                    nargs='+',
                     type=int)
     
     parser.add_argument("-md", "--master_date",
@@ -63,50 +65,51 @@ if __name__ == '__main__':
                     type=str)
 
     args = parser.parse_args()
+    print(args.pol)
+    print(args.resolution)
 
     # =====================================================================
     # Check validity of processing boundary when using -f or --file option
     # =====================================================================
-    if args.file is not None:
-        extension = pathlib.Path(args.file).suffix
-        if extension == ".shp":
-            geo_ = utils.read_shapefile(args.file)
-            if len(geo_) == 1:
-                args.aoi = geo_[0].wkt  
-            else:
-                RuntimeError("The file must contain a single geometry")
-        elif extension == ".kml":
-            geo_ = utils.read_kml(args.file)
-            if len(geo_) == 1:
-                args.aoi = geo_[0].wkt  
-            else:
-                RuntimeError("The file must contain a single geometry")
-        else:
-            raise TypeError("File extension not supported. Must be '.shp' or '.kml' ")
+    # TODO: [CAR-44] Modify check file extension of AoI to avoid FileExistsError
+    # if args.file is not None:
+    #     extension = pathlib.Path(args.file).suffix
+    #     if extension == ".shp":
+    #         geo_ = utils.read_shapefile(args.file)
+    #         if len(geo_) == 1:
+    #             args.aoi = geo_[0].wkt  
+    #         else:
+    #             RuntimeError("The file must contain a single geometry")
+    #     elif extension == ".kml":
+    #         geo_ = utils.read_kml(args.file)
+    #         if len(geo_) == 1:
+    #             args.aoi = geo_[0].wkt  
+    #         else:
+    #             RuntimeError("The file must contain a single geometry")
+    #     else:
+    #         raise TypeError("File extension not supported. Must be '.shp' or '.kml' ")
 
     # =====================================================================
     # Check validity of list arguments: 
     # =====================================================================
 
-    if isinstance(args.pol, list):
-        if list_of_data_type(args.pol, data_type=str) is False:
-            raise TypeError (f"Value for --pol argument must be a list of strings. Is {args.pol}")
+    # TODO: [CAR-45] Review validity checks for resolution and polatization values
+    if list_of_data_type(args.pol, data_type=str) is False:
+        raise TypeError (f"Value for --pol argument must be a list of strings. Is {args.pol}")
     else:
-        polarisation = [args.pol] # internally values for this argument will always be treated as a list
+        polarisation = args.pol
 
-    if isinstance(args.resolution, list):
-        if list_of_data_type(args.resolution, data_type=int) is False:
-            raise TypeError (f"Value for --resolution argument must be a list of integers. Is {args.resolution}")
-
-    else: pixel_resolution = [args.resolution] # internally values for this argument will always be treated as a list
-
+    if list_of_data_type(args.resolution, data_type=int) is False:
+        raise TypeError (f"Value for --resolution argument must be a list of integers. Is {args.resolution}")
+    else: 
+        pixel_resolution = [args.resolution] # internally values for this argument will always be treated as a list
      
     processing_boundary = ReadWriteShapes()  # takes SHP, KML, or WKT
     if args.aoi is None:
         # This expects the file to be in the doris-rippl data directory
         processing_boundary(args.file)
     else:
-        processing_boundary(args.aoi)
+        processing_boundary(args.aoi) # For Rippl this must be a list of coordinates.
      
     study_area_shape = processing_boundary.shape.buffer(args.buffer)
 

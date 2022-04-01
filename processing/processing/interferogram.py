@@ -92,18 +92,7 @@ if __name__ == '__main__':
     # =====================================================================
     # Check validity of list arguments: 
     # =====================================================================
-
-    # TODO: [CAR-45] Review validity checks for resolution and polatization values
-    if list_of_data_type(args.pol, data_type=str) is False:
-        raise TypeError (f"Value for --pol argument must be a list of strings. Is {args.pol}")
-    else:
-        polarisation = args.pol
-
-    if list_of_data_type(args.resolution, data_type=int) is False:
-        raise TypeError (f"Value for --resolution argument must be a list of integers. Is {args.resolution}")
-    else: 
-        pixel_resolution = [args.resolution] # internally values for this argument will always be treated as a list
-     
+    
     processing_boundary = ReadWriteShapes()  # takes SHP, KML, or WKT
     if args.aoi is None:
         # This expects the file to be in the doris-rippl data directory
@@ -125,6 +114,9 @@ if __name__ == '__main__':
 
     no_processes = int(args.cores)
     print('running code with ' + str(no_processes) + ' cores.')
+    
+    polarisations = args.pol
+    pixel_resolution = args.resolution 
 
     mode = args.mode
     product_type = args.prod
@@ -270,7 +262,7 @@ if __name__ == '__main__':
         
         s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
         # We split the different polarisation to limit the number of files in the temporary folder.
-        for p in polarisation: 
+        for p in polarisations: 
             for dx, dy in zip([pixel_resolution], [pixel_resolution]): # manu: allow a short list of pixel values. Instruct user to be carefull here
                 # The actual creation of the calibrated amplitude images
                 s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,

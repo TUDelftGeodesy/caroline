@@ -9,10 +9,9 @@ import numpy as np
 from download import utils
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
-from utils import list_of_data_type
 
 if __name__ == '__main__':
-    # First we read the input start and end date for the processing
+    
     parser = argparse.ArgumentParser(prog="Process Sentinel-1", description="Creates inteferograms using Sentinel-1 datasets using Doris-RIPPL." )
     parser.add_argument("-s", "--start_date", help="Start date of processing as yyyymmdd")
     parser.add_argument("-e", "--end_date", help="End date of processing as yyyymmdd")
@@ -71,35 +70,25 @@ if __name__ == '__main__':
     # =====================================================================
     # Check validity of processing boundary when using -f or --file option
     # =====================================================================
-    # TODO: [CAR-44] Modify check file extension of AoI to avoid FileExistsError
-    # if args.file is not None:
-    #     extension = pathlib.Path(args.file).suffix
-    #     if extension == ".shp":
-    #         geo_ = utils.read_shapefile(args.file)
-    #         if len(geo_) == 1:
-    #             args.aoi = geo_[0].wkt  
-    #         else:
-    #             RuntimeError("The file must contain a single geometry")
-    #     elif extension == ".kml":
-    #         geo_ = utils.read_kml(args.file)
-    #         if len(geo_) == 1:
-    #             args.aoi = geo_[0].wkt  
-    #         else:
-    #             RuntimeError("The file must contain a single geometry")
-    #     else:
-    #         raise TypeError("File extension not supported. Must be '.shp' or '.kml' ")
 
-    # =====================================================================
-    # Check validity of list arguments: 
-    # =====================================================================
-    
     processing_boundary = ReadWriteShapes()  # takes SHP, KML, or WKT
     if args.aoi is None:
         # This expects the file to be in the doris-rippl data directory
-        processing_boundary(args.file)
+        # Check for valid data formats.
+        extension = pathlib.Path(args.file).suffix
+        if extension == ".shp" or extension == ".kml":
+            geo_ = utils.read_shapefile(args.file)
+            if len(geo_) != 1:
+               RuntimeError("The file must contain a single geometry")
+            else:
+                processing_boundary(args.file)
+        else:
+            raise TypeError("File extension not supported. Must be '.shp' or '.kml' ")
     else:
-        processing_boundary(args.aoi) # For Rippl this must be a list of coordinates.
-     
+        # TODO: [CAR-46] Convert WKT to list of coordinate for RIPPL. 
+        # ReadsWriteShapes() accepts an arra of coordinates, e.g., [[x, y], [x, y]]
+        processing_boundary(args.aoi) 
+
     study_area_shape = processing_boundary.shape.buffer(args.buffer)
 
     # =====================================================================

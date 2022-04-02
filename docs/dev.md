@@ -41,3 +41,21 @@ The --conf flag passes a JSON string with all values for the parameters (templat
 
     ```
 4. run job
+
+
+## Install GDAL on virtual environment
+
+1. Install GDAL/OGR as indicated here: https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html#install-gdal-ogr
+2. Install DGAL development libraries `sudo apt-get install libgdal-dev`
+3. Create virtual environment
+4. Activate virtual environment
+5. Export variables for the compiler:
+
+```shell
+export CPLUS_INCLUDE_PATH=/usr/include/gdal
+export C_INCLUDE_PATH=/usr/include/gdal
+```
+6. Find GDAl/OGR version with `ogrinfo --version`
+
+7. Install Python GDAL to virtual environment with `pip install GDAL== <VERSION from ogrinfo>`
+

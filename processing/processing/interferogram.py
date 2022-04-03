@@ -76,10 +76,16 @@ if __name__ == '__main__':
         # This expects the file to be in the doris-rippl data directory
         # Check for valid data formats.
         extension = pathlib.Path(args.file).suffix
-        if extension == ".shp" or extension == ".kml":
+        if extension == ".shp":
             geo_ = utils.read_shapefile(args.file)
             if len(geo_) != 1:
-               RuntimeError("The file must contain a single geometry")
+               RuntimeError("Shapefile must contain a single geometry")
+            else:
+                processing_boundary(args.file)
+        elif extension == ".kml":
+            geo_ = utils.read_kml(args.file)
+            if len(geo_) != 1:
+               RuntimeError("KMLfile must contain a single geometry")
             else:
                 processing_boundary(args.file)
         else:

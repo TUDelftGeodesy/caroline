@@ -7,6 +7,7 @@ import datetime
 import shutil
 import numpy as np
 from download import utils
+from processing.utils import wkt_to_list
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 
@@ -64,14 +65,12 @@ if __name__ == '__main__':
                     type=str)
 
     args = parser.parse_args()
-    print(args.pol)
-    print(args.resolution)
 
     # =====================================================================
     # Check validity of processing boundary when using -f or --file option
     # =====================================================================
 
-    processing_boundary = ReadWriteShapes()  # takes SHP, KML, or WKT
+    processing_boundary = ReadWriteShapes()  # takes SHP, KML, or doris-rippl-coordinate-pairs array
     if args.aoi is None:
         # This expects the file to be in the doris-rippl data directory
         # Check for valid data formats.
@@ -85,11 +84,12 @@ if __name__ == '__main__':
         else:
             raise TypeError("File extension not supported. Must be '.shp' or '.kml' ")
     else:
-        # TODO: [CAR-46] Convert WKT to list of coordinate for RIPPL. 
-        # ReadsWriteShapes() accepts an arra of coordinates, e.g., [[x, y], [x, y]]
-        processing_boundary(args.aoi) 
+        # convert WKT to doris-rippl-coordinate-pairs
+        rippl_aoi = wkt_to_list(args.aoi)
+        processing_boundary(rippl_aoi) 
 
-    study_area_shape = processing_boundary.shape.buffer(args.buffer)
+    # apply buffer to processing boundary
+    study_area = processing_boundary.shape.buffer(args.buffer)
 
     # =====================================================================
     # Processing inputs and outputs
@@ -144,9 +144,10 @@ if __name__ == '__main__':
     s1_processing = GeneralPipelines(processes=no_processes)
 
     # TODO: look into conflict of triggering downloading of datafiles here and in previous steps in DAG
+    # TODO: [CAR-47] Can create_sentinel_stack() handle multiple polarisation values?
     s1_processing.create_sentinel_stack(start_date=start_date, end_date=end_date, master_date=master_date, cores=no_processes,
-                                             track=track_no,stack_name=stack_name, polarisation=polarisation,
-                                             shapefile=study_area_shape, mode=mode, product_type=product_type)
+                                             track=track_no,stack_name=stack_name, polarisation=polarisations,
+                                             shapefile=study_area, mode=mode, product_type=product_type)
 
     # Finally load the stack itself. If you want to skip the download step later, run this line before other steps!
     s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
@@ -207,7 +208,8 @@ if __name__ == '__main__':
 
     # Because with the geometric coregistrtation we load the X,Y,Z files of the main image for every calculation it can
     # be beneficial to load them to a fast temporary disk. (If enough space you should load them to memory disk)
-    s1_processing.geometric_coregistration_resampling(polarisation=polarisation, output_phase_correction=True,
+    # TODO: [CAR-49] Can geometric_coregistration_resampling() handle multiple polarisation values?
+    s1_processing.geometric_coregistration_resampling(polarisation=polarisations, output_phase_correction=True,
                                                       coreg_tmp_directory=resampling_tmp_directory,
                                                       tmp_directory=tmp_directory, baselines=False,
                                                       height_to_phase=True)

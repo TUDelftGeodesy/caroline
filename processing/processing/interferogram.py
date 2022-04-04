@@ -10,7 +10,6 @@ from download import utils
 from processing.utils import wkt_to_list
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
-from datetime import datetime
 
 
 if __name__ == '__main__':
@@ -153,12 +152,12 @@ if __name__ == '__main__':
 
     # TODO: look into conflict of triggering downloading of datafiles here and in previous steps in DAG
     # TODO: [CAR-47] Can create_sentinel_stack() handle multiple polarisation values?
-    print(f'creating data stack {datetime.now()}')
+    print(f'creating data stack {datetime.datetime.now()}')
     s1_processing.create_sentinel_stack(start_date=start_date, end_date=end_date, master_date=master_date, cores=no_processes,
                                              track=track_no,stack_name=stack_name, polarisation=polarisations,
                                              shapefile=study_area, mode=mode, product_type=product_type)
 
-    print(f'reading data stack {datetime.now()}')
+    print(f'reading data stack {datetime.datetime.now()}')
     # Finally load the stack itself. If you want to skip the download step later, run this line before other steps!
     s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
 
@@ -181,7 +180,7 @@ if __name__ == '__main__':
     s1_processing.create_dem_coordinates(dem_type=dem_type)
 
     # Download external DEM
-    print(f'downloading external dem {datetime.now()}')
+    print(f'downloading external dem {datetime.datetime.now()}')
     s1_processing.download_external_dem(dem_type=dem_type, buffer=dem_buffer, rounding=dem_rounding,
                                         n_processes=no_processes)
     """
@@ -191,7 +190,7 @@ if __name__ == '__main__':
     """
 
     # Geocoding of image
-    print(f'geocoding... {datetime.now()}')
+    print(f'geocoding... {datetime.datetime.now()}')
     s1_processing.geocoding()
 
     """
@@ -221,7 +220,7 @@ if __name__ == '__main__':
     # Because with the geometric coregistrtation we load the X,Y,Z files of the main image for every calculation it can
     # be beneficial to load them to a fast temporary disk. (If enough space you should load them to memory disk)
     # TODO: [CAR-49] Can geometric_coregistration_resampling() handle multiple polarisation values?
-    print(f'coregistration and resampling {datetime.now()}')
+    print(f'coregistration and resampling {datetime.datetime.now()}')
     s1_processing.geometric_coregistration_resampling(polarisation=polarisations, output_phase_correction=True,
                                                       coreg_tmp_directory=resampling_tmp_directory,
                                                       tmp_directory=tmp_directory, baselines=False,
@@ -261,14 +260,14 @@ if __name__ == '__main__':
         end_dates = [end_date]
         start_dates = [start_date]
 
-    print(f'start loop over dates {datetime.now()}')
+    print(f'start loop over dates {datetime.datetime.now()}')
     for start_date, end_date in zip(start_dates, end_dates):
         
         s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
         # We split the different polarisation to limit the number of files in the temporary folder.
-        print(f'start loop over polarizations {datetime.now()}')
+        print(f'start loop over polarizations {datetime.datetime.now()}')
         for p in polarisations: 
-            print(f'start loop over resolutions {datetime.now()}')
+            print(f'start loop over resolutions {datetime.datetime.now()}')
             for dx, dy in zip([pixel_resolution], [pixel_resolution]): # manu: allow a short list of pixel values. Instruct user to be carefull here
                 # The actual creation of the calibrated amplitude images
                 s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
@@ -304,9 +303,9 @@ if __name__ == '__main__':
                     if os.path.exists(ml_grid_tmp_directory):
                         shutil.rmtree(ml_grid_tmp_directory)
                         os.mkdir(ml_grid_tmp_directory)
-            print(f'end loop over resolutions {datetime.now()}')
+            print(f'end loop over resolutions {datetime.datetime.now()}')
             
-            print(f'start loop over dlat, dlon {datetime.now()}')
+            print(f'start loop over dlat, dlon {datetime.datetime.now()}')
             for dlat, dlon in zip([0.01], # manu: use a value of 0.01 (resolution in degrees)
                                   [0.01]): # manu: keep range, defined by the user. For MVP only one value is needed.
                 # The actual creation of the calibrated amplitude images
@@ -344,14 +343,14 @@ if __name__ == '__main__':
                         shutil.rmtree(ml_grid_tmp_directory)
                         os.mkdir(ml_grid_tmp_directory)
 
-            print(f'start loop over dlat, dlon {datetime.now()}')
+            print(f'start loop over dlat, dlon {datetime.datetime.now()}')
 
             if tmp_directory:
                 if os.path.exists(tmp_directory):
                     shutil.rmtree(tmp_directory)
                     os.mkdir(tmp_directory)
 
-        print(f'end loop over polarization {datetime.now()}')
+        print(f'end loop over polarization {datetime.datetime.now()}')
 
-    print(f'end program {datetime.now()}')
+    print(f'end program {datetime.datetime.now()}')
 

@@ -7,6 +7,7 @@
 #SBATCH -t 5:00:00		# maximum run time in [HH:MM:SS] or [MM:SS] or [minutes]
 #SBATCH -p normal		# partition (queue); job can run up to 5 days
 #SBATCH --qos=long		
+#SBATCH --ntasks=1		
 
 echo "Start"; date
 TEMP_DIR="/project/caroline/Share/users/caroline-mgarcia/tmp"

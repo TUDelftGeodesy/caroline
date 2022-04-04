@@ -113,6 +113,7 @@ if __name__ == '__main__':
     
     polarisations = args.pol
     pixel_resolution = args.resolution 
+    print(f'polarizations: {polarisations}, resolutions: {pixel_resolution}')
 
     mode = args.mode
     product_type = args.prod
@@ -268,7 +269,7 @@ if __name__ == '__main__':
         print(f'start loop over polarizations {datetime.datetime.now()}')
         for p in polarisations: 
             print(f'start loop over resolutions {datetime.datetime.now()}')
-            for dx, dy in zip([pixel_resolution], [pixel_resolution]): # manu: allow a short list of pixel values. Instruct user to be carefull here
+            for dx, dy in zip(pixel_resolution, pixel_resolution): # manu: allow a short list of pixel values. Instruct user to be carefull here
                 # The actual creation of the calibrated amplitude images
                 s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
                                                     rounding=0)

@@ -1,5 +1,5 @@
 #################################################################################
-# DAG for the production of Inteferograms using Doris-RIPPL                     #
+# DAG for creating Inteferograms using Doris-RIPPL                              #
 #################################################################################
 # This DAG search, and download radar datasets and orbit files for a time 
 # interval, and geographic area. Downloade datsets are use to produce an 

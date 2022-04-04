@@ -29,7 +29,7 @@ if __name__ == '__main__':
     geometry_group.add_argument("-f", "--file",
                     help="Shapefile of the area of interest",
                     type=str)
-    parser.add_argument("-bf", "--buffer", help="Distance fo the buffer zone.", type=float, default=0.2)
+    parser.add_argument("-bf", "--buffer", help="Distance fo the buffer zone. Default is zero.", type=float, default=0.0)
    
     # Sentinel-1 data options:
     parser.add_argument("-m", "--mode",

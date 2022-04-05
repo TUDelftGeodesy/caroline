@@ -73,10 +73,6 @@ def create_calibrated_amplitude_images(pipeline, resolution, temporal_base: int,
         return None
 
 
-
-
-
-
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(prog="Process Sentinel-1", description="Creates inteferograms using Sentinel-1 datasets using Doris-RIPPL." )
@@ -197,41 +193,41 @@ if __name__ == '__main__':
     # =====================================================================
 
     # Define temporary directories
-    temp_dir = args.temp
+    tmp_directory = args.temp
     resampling_tmp_directory = args.resampling_temp
     if resampling_tmp_directory == '':
-        resampling_tmp_directory = temp_dir
-    grid_dir = args.multilooking_temp
-    if grid_dir == '':
-        grid_dir = temp_dir
+        resampling_tmp_directory = tmp_directory
+    ml_grid_tmp_directory = args.multilooking_temp
+    if ml_grid_tmp_directory == '':
+        ml_grid_tmp_directory = tmp_directory
 
-    print('Main temp directory is ' + temp_dir)
+    print('Main temp directory is ' + tmp_directory)
     print('Temp directory for resampling is ' + resampling_tmp_directory)
-    print('Temp directory for multilooking is ' + grid_dir)
+    print('Temp directory for multilooking is ' + ml_grid_tmp_directory)
 
-    if not os.path.exists(temp_dir):
-        os.mkdir(temp_dir)
+    if not os.path.exists(tmp_directory):
+        os.mkdir(tmp_directory)
     if not os.path.exists(resampling_tmp_directory):
         os.mkdir(resampling_tmp_directory)
-    if not os.path.exists(grid_dir):
-        os.mkdir(grid_dir)
+    if not os.path.exists(ml_grid_tmp_directory):
+        os.mkdir(ml_grid_tmp_directory)
 
     # track_no = 37  # manu: track == strips of data, A track make a selection of datasets that belongs to a AoI. Images are stack, and process should keep products separated by tracks. User provides the track number.
 
     # Number of processes for parallel processing. Make sure that for every process at least 2GB of RAM is available
 
-    pipeline = GeneralPipelines(processes=no_processes)
+    s1_processing = GeneralPipelines(processes=no_processes)
 
     # TODO: look into conflict of triggering downloading of datafiles here and in previous steps in DAG
     # TODO: [CAR-47] Can create_sentinel_stack() handle multiple polarisation values?
     print(f'creating data stack {datetime.datetime.now()}')
-    pipeline.create_sentinel_stack(start_date=start_date, end_date=end_date, master_date=master_date, cores=no_processes,
+    s1_processing.create_sentinel_stack(start_date=start_date, end_date=end_date, master_date=master_date, cores=no_processes,
                                              track=track_no,stack_name=stack_name, polarisation=polarisations,
                                              shapefile=study_area, mode=mode, product_type=product_type)
 
     print(f'reading data stack {datetime.datetime.now()}')
     # Finally load the stack itself. If you want to skip the download step later, run this line before other steps!
-    pipeline.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
+    s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
 
     """
     To define the location of the radar pixels on the ground we need the terrain elevation. Although it is possible to 
@@ -248,12 +244,12 @@ if __name__ == '__main__':
     dem_type = 'SRTM1'  # DEM type of data we download (SRTM1, SRTM3 and TanDEM-X are supported)
 
     # Define both the coordinate system of the full radar image and imported DEM
-    pipeline.create_radar_coordinates()
-    pipeline.create_dem_coordinates(dem_type=dem_type)
+    s1_processing.create_radar_coordinates()
+    s1_processing.create_dem_coordinates(dem_type=dem_type)
 
     # Download external DEM
     print(f'downloading external dem {datetime.datetime.now()}')
-    pipeline.download_external_dem(dem_type=dem_type, buffer=dem_buffer, rounding=dem_rounding,
+    s1_processing.download_external_dem(dem_type=dem_type, buffer=dem_buffer, rounding=dem_rounding,
                                         n_processes=no_processes)
     """
     Using the obtained elevation model the exact location of the radar pixels in cartesian (X,Y,Z) and geographic (Lat/Lon)
@@ -263,7 +259,7 @@ if __name__ == '__main__':
 
     # Geocoding of image
     print(f'geocoding... {datetime.datetime.now()}')
-    pipeline.geocoding()
+    s1_processing.geocoding()
 
     """
     The information from the geocoding can directly be used to find the location of the master grid pixels in the slave
@@ -293,22 +289,23 @@ if __name__ == '__main__':
     # be beneficial to load them to a fast temporary disk. (If enough space you should load them to memory disk)
     # TODO: [CAR-49] Can geometric_coregistration_resampling() handle multiple polarisation values?
     print(f'coregistration and resampling {datetime.datetime.now()}')
-    pipeline.geometric_coregistration_resampling(polarisation=polarisations, output_phase_correction=True,
+    s1_processing.geometric_coregistration_resampling(polarisation=polarisations, output_phase_correction=True,
                                                       coreg_tmp_directory=resampling_tmp_directory,
-                                                      tmp_directory=temp_dir, baselines=False,
+                                                      tmp_directory=tmp_directory, baselines=False,
                                                       height_to_phase=True)
     
     if os.path.exists(resampling_tmp_directory):
         shutil.rmtree(resampling_tmp_directory)
     os.mkdir(resampling_tmp_directory)
-    if os.path.exists(temp_dir):
-        shutil.rmtree(temp_dir)
-    os.mkdir(temp_dir)
+    if os.path.exists(tmp_directory):
+        shutil.rmtree(tmp_directory)
+    os.mkdir(tmp_directory)
 
     """
     Now we can create calibrated amplitudes, interferograms and coherences.
     """
-    # TODO: force creation of  poducts/sentinel-1/test-stack/
+
+    # TODO:force creation of  poducts/sentinel-1/test-stack/
 
     # Load the images in blocks to temporary disk (or not if only coreg data is loaded to temp disk)
     temporal_baseline = 60 # manu: add as argument.. number in days (a threshold)
@@ -336,76 +333,24 @@ if __name__ == '__main__':
     print(f'start loop over dates {datetime.datetime.now()}')
     for start_date, end_date in zip(start_dates, end_dates):
         
-        pipeline.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
+        s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
         # We split the different polarisation to limit the number of files in the temporary folder.
         print(f'start loop over polarizations {datetime.datetime.now()}')
         for p in polarisations: 
             print(f'start loop over resolutions {datetime.datetime.now()}')
 
+            # produce images based on resolution types (planar or arngular units)
+            if args.resplanar is None and args.resarc is None:
+                raise ValueError('Must provide a value for --resplanar or resarc. Currently None')
             if args.resplanar is not None:
-                pipeline.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
-                                                        rounding=0)
+                create_calibrated_amplitude_images(s1_processing, resolution=pixel_resolution, temporal_base=temporal_baseline, polarisation=p, crs_type='oblique_mercator', temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
+            else:
+                create_calibrated_amplitude_images(s1_processing, resolution=pixel_resolution, temporal_base=temporal_baseline, polarisation=p, crs_type='geographic', temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
 
-                
-            elif args.resarc is not None:
-
-            # TODO: User input resolution in linear and angular units (down lat, lon)
-                for dx, dy in zip(pixel_resolution, pixel_resolution): # manu: allow a short list of pixel values. Instruct user to be carefull here
-                    # The actual creation of the calibrated amplitude images
-
-
-                    pipeline.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
-                                                        rounding=0)
-
-
-
-                    pipeline.prepare_multilooking_grid(p)
-                    pipeline.create_calibrated_amplitude_multilooked(p,
-                                                                        coreg_tmp_directory=grid_dir,
-                                                                        tmp_directory=temp_dir)
-                    pipeline.create_output_tiffs_amplitude()
-
-                    pipeline.create_ifg_network(temporal_baseline=temporal_baseline)
-                    pipeline.create_interferogram_multilooked(p,
-                                                                coreg_tmp_directory=grid_dir,
-                                                                tmp_directory=temp_dir)
-                    pipeline.create_coherence_multilooked(p, coreg_tmp_directory=grid_dir,
-                                                            tmp_directory=temp_dir)
-
-                    # Create output geotiffs
-                    # TODO: This caused an error, missing directory or file CAR-37
-                    # Target directory is not created. 
-                    pipeline.create_output_tiffs_coherence_ifg()
-
-                    # Create lat/lon/incidence angle/DEM for multilooked grid.
-                    pipeline.create_geometry_mulitlooked(baselines=True, height_to_phase=True)
-                    pipeline.create_output_tiffs_geometry()
-
-                    # if dx in [200, 500, 1000, 2000]: # manu: Freek will look into this
-                    #     s1_processing.create_unwrapped_images(p)
-                    #     s1_processing.create_output_tiffs_unwrap()
-
-                    # The coreg temp directory will only contain the loaded input lines/pixels to do the multilooking. These
-                    # files will be called by every process so it can be usefull to load them in memory the whole time.
-                    # If not given, these files will be loaded in the regular tmp folder.
-                    if grid_dir:
-                        if os.path.exists(grid_dir):
-                            shutil.rmtree(grid_dir)
-                            os.mkdir(grid_dir)
-                print(f'end loop over resolutions {datetime.datetime.now()}')
-            
-            print(f'start loop over dlat, dlon {datetime.datetime.now()}')
-
-
-
-
-
-            print(f'start loop over dlat, dlon {datetime.datetime.now()}')
-
-            if temp_dir:
-                if os.path.exists(temp_dir):
-                    shutil.rmtree(temp_dir)
-                    os.mkdir(temp_dir)
+            if tmp_directory:
+                if os.path.exists(tmp_directory):
+                    shutil.rmtree(tmp_directory)
+                    os.mkdir(tmp_directory)
 
         print(f'end loop over polarization {datetime.datetime.now()}')
 

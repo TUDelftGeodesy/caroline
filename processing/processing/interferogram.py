@@ -31,6 +31,17 @@ if __name__ == '__main__':
                     type=str)
     parser.add_argument("-bf", "--buffer", help="Distance fo the buffer zone. Default is zero.", type=float, default=0.0)
    
+    # Output resolution options:
+    resolution_group = parser.add_mutually_exclusive_group()
+    resolution_group.add_argument("-Rp", "--resplanar",
+                    help="Pixel resolutions for the output datasets in planar units. A list of values (integers). E.g., 500 or 500 1000 2000. Output will use an Oblique Mercator projection.", 
+                    nargs='+',
+                    type=int)
+    resolution_group.add_argument("-Ra", "--resarc",
+                    help="Pixel resolutions for the output datasets in angular units. A list of values (integers). E.g., 1.0 or 0.1, 0.05 0.03 Output will use a Geodetic coodinate system.", 
+                    nargs='+',
+                    type=float)
+
     # Sentinel-1 data options:
     parser.add_argument("-m", "--mode",
                     help="sensor mode. Default: 'IW'", 
@@ -41,7 +52,7 @@ if __name__ == '__main__':
                     default="SLC",
                     type=str)
     parser.add_argument("-pl", "--pol",
-                    help="Polarizations of Sentinel-1 Data. A list of strings. E.g. 'VV' or 'VV' 'HV'", 
+                    help="Polarization of Sentinel-1 Data. E.g. 'VV' or 'HV'", 
                     nargs='+',
                     default='VV',
                     type=str)
@@ -54,11 +65,6 @@ if __name__ == '__main__':
                     help="Name for the output data stack", 
                     default='',
                     type=str)
-
-    parser.add_argument("-R", "--resolution",
-                    help="Pixel resolutions for the output datasets. A list of values (integers). E.g., 500 or 500 1000 2000 ", 
-                    nargs='+',
-                    type=int)
     
     parser.add_argument("-md", "--master_date",
                     help="Master date for the processing data track as yyyymmdd. Choose a date with the lowest coverage to create an image with ONLY the overlapping parts", 
@@ -237,6 +243,7 @@ if __name__ == '__main__':
     """
     Now we can create calibrated amplitudes, interferograms and coherences.
     """
+    # TODO: force creation of  poducts/sentinel-1/test-stack/
 
     # Load the images in blocks to temporary disk (or not if only coreg data is loaded to temp disk)
     temporal_baseline = 60 # manu: add as argument.. number in days (a threshold)
@@ -269,49 +276,81 @@ if __name__ == '__main__':
         print(f'start loop over polarizations {datetime.datetime.now()}')
         for p in polarisations: 
             print(f'start loop over resolutions {datetime.datetime.now()}')
-            for dx, dy in zip(pixel_resolution, pixel_resolution): # manu: allow a short list of pixel values. Instruct user to be carefull here
-                # The actual creation of the calibrated amplitude images
+
+            if args.resplanar is not None:
                 s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
-                                                    rounding=0)
-                s1_processing.prepare_multilooking_grid(p)
-                s1_processing.create_calibrated_amplitude_multilooked(p,
-                                                                      coreg_tmp_directory=ml_grid_tmp_directory,
-                                                                      tmp_directory=tmp_directory)
-                s1_processing.create_output_tiffs_amplitude()
+                                                        rounding=0)
 
-                s1_processing.create_ifg_network(temporal_baseline=temporal_baseline)
-                s1_processing.create_interferogram_multilooked(p,
-                                                               coreg_tmp_directory=ml_grid_tmp_directory,
-                                                               tmp_directory=tmp_directory)
-                s1_processing.create_coherence_multilooked(p, coreg_tmp_directory=ml_grid_tmp_directory,
-                                                           tmp_directory=tmp_directory)
+                
+            elif args.resarc is not None:
 
-                # Create output geotiffs
-                s1_processing.create_output_tiffs_coherence_ifg()
+            # TODO: User input resolution in linear and angular units (down lat, lon)
+                for dx, dy in zip(pixel_resolution, pixel_resolution): # manu: allow a short list of pixel values. Instruct user to be carefull here
+                    # The actual creation of the calibrated amplitude images
 
-                # Create lat/lon/incidence angle/DEM for multilooked grid.
-                s1_processing.create_geometry_mulitlooked(baselines=True, height_to_phase=True)
-                s1_processing.create_output_tiffs_geometry()
 
-                # if dx in [200, 500, 1000, 2000]: # manu: Freek will look into this
-                #     s1_processing.create_unwrapped_images(p)
-                #     s1_processing.create_output_tiffs_unwrap()
+                    s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
+                                                        rounding=0)
 
-                # The coreg temp directory will only contain the loaded input lines/pixels to do the multilooking. These
-                # files will be called by every process so it can be usefull to load them in memory the whole time.
-                # If not given, these files will be loaded in the regular tmp folder.
-                if ml_grid_tmp_directory:
-                    if os.path.exists(ml_grid_tmp_directory):
-                        shutil.rmtree(ml_grid_tmp_directory)
-                        os.mkdir(ml_grid_tmp_directory)
-            print(f'end loop over resolutions {datetime.datetime.now()}')
+
+
+                    s1_processing.prepare_multilooking_grid(p)
+                    s1_processing.create_calibrated_amplitude_multilooked(p,
+                                                                        coreg_tmp_directory=ml_grid_tmp_directory,
+                                                                        tmp_directory=tmp_directory)
+                    s1_processing.create_output_tiffs_amplitude()
+
+                    s1_processing.create_ifg_network(temporal_baseline=temporal_baseline)
+                    s1_processing.create_interferogram_multilooked(p,
+                                                                coreg_tmp_directory=ml_grid_tmp_directory,
+                                                                tmp_directory=tmp_directory)
+                    s1_processing.create_coherence_multilooked(p, coreg_tmp_directory=ml_grid_tmp_directory,
+                                                            tmp_directory=tmp_directory)
+
+                    # Create output geotiffs
+                    # TODO: This caused an error, missing directory or file CAR-37
+                    # Target directory is not created. 
+                    s1_processing.create_output_tiffs_coherence_ifg()
+
+                    # Create lat/lon/incidence angle/DEM for multilooked grid.
+                    s1_processing.create_geometry_mulitlooked(baselines=True, height_to_phase=True)
+                    s1_processing.create_output_tiffs_geometry()
+
+                    # if dx in [200, 500, 1000, 2000]: # manu: Freek will look into this
+                    #     s1_processing.create_unwrapped_images(p)
+                    #     s1_processing.create_output_tiffs_unwrap()
+
+                    # The coreg temp directory will only contain the loaded input lines/pixels to do the multilooking. These
+                    # files will be called by every process so it can be usefull to load them in memory the whole time.
+                    # If not given, these files will be loaded in the regular tmp folder.
+                    if ml_grid_tmp_directory:
+                        if os.path.exists(ml_grid_tmp_directory):
+                            shutil.rmtree(ml_grid_tmp_directory)
+                            os.mkdir(ml_grid_tmp_directory)
+                print(f'end loop over resolutions {datetime.datetime.now()}')
             
             print(f'start loop over dlat, dlon {datetime.datetime.now()}')
-            for dlat, dlon in zip([0.01], # manu: use a value of 0.01 (resolution in degrees)
-                                  [0.01]): # manu: keep range, defined by the user. For MVP only one value is needed.
+
+
+        def create_calibrated_amplitude_images(resolution, crs_type:str) -> None:
+            """ Creates calibrated amplitud images from Sentinel-1 datasets
+            Args:
+                resolution (number): resolution for the output images.
+                crs_type (str): type of coordinate reference system. Accepted values 'geographic', 'oblique_mercator'      
+            """
+
+            for dlat, dlon in zip(resolution, # manu: use a value of 0.01 (resolution in degrees)
+                                  resolution): # manu: keep range, defined by the user. For MVP only one value is needed.
+                 
                 # The actual creation of the calibrated amplitude images
-                s1_processing.create_ml_coordinates(dlat=dlat, dlon=dlon, coor_type='geographic', buffer=0,
+                if crs_type == 'oblique_mercator':
+                    s1_processing.create_ml_coordinates(standard_type='oblique_mercator', dx=dx, dy=dy, buffer=0,
+                                                        rounding=0)
+                elif crs_type == 'geographic':
+                    s1_processing.create_ml_coordinates(dlat=dlat, dlon=dlon, coor_type='geographic', buffer=0,
                                                     rounding=0)
+                
+                
                 s1_processing.prepare_multilooking_grid(p)
                 s1_processing.create_calibrated_amplitude_multilooked(p,
                                                                       coreg_tmp_directory=ml_grid_tmp_directory,

@@ -10,8 +10,8 @@ import pathlib
 import datetime
 import shutil
 import numpy as np
+import processing.interferogram.routines as routines
 from processing import utils
-from processing import interferogram
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 
@@ -244,11 +244,11 @@ if __name__ == '__main__':
         if args.resplanar is None and args.resarc is None:
             raise ValueError('Must provide a value for --resplanar or resarc. Currently None')
         if args.resplanar is not None:
-            interferogram.routines.run_amplitude_interferogram_coherance(s1_processing, resolution=args.resplanar, 
+            routines.run_amplitude_interferogram_coherance(s1_processing, resolution=args.resplanar, 
                 temporal_base=temporal_baseline, polarisation=polarisation, crs_type='oblique_mercator', 
                 temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
         else: # when resarc is not None
-            interferogram.routines.run_amplitude_interferogram_coherance(s1_processing, resolution=args.resarc, 
+            routines.run_amplitude_interferogram_coherance(s1_processing, resolution=args.resarc, 
                 temporal_base=temporal_baseline, polarisation=polarisation, crs_type='geographic', 
                 temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
 

@@ -127,6 +127,8 @@ if __name__ == '__main__':
     track_no = args.track  # A track makes a selection of datasets that belongs to an AoI. Stacks products should be kept separated by track. User provides the track number.
     stack_name = args.name # 'Benelux_track_37'
 
+    # TODO: Enable system level configuration variables. Create products directory
+
     # For every track we have to select a master date. This is based on the search results earlier.
     # =====================================================================
     # Temporary directories

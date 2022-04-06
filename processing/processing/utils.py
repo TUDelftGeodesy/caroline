@@ -1,3 +1,8 @@
+#!/usr/bin/env python3 
+# -*- coding: utf-8 -*- 
+# Created By  : Manuel G. Garcia
+# Created Date: 06-04-2022
+
 """
 A library of functions used accross modules
 """

@@ -1,3 +1,7 @@
+#!/usr/bin/env python3 
+# -*- coding: utf-8 -*- 
+# Created By  : Freek van Leijen, Manuel G. Garcia
+# Created Date: 06-03-2022
 """ Program to compute interferograms using Doris-RIPPL"""
 
 import os

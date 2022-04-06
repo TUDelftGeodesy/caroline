@@ -117,8 +117,6 @@ if __name__ == '__main__':
     print('running code with ' + str(no_processes) + ' cores.')
     
     polarisation = args.pol
-    pixel_resolution = args.resolution 
-    print(f'polarizations: {polarisation}, resolutions: {pixel_resolution}')
 
     mode = args.mode
     product_type = args.prod
@@ -242,11 +240,11 @@ if __name__ == '__main__':
         if args.resplanar is None and args.resarc is None:
             raise ValueError('Must provide a value for --resplanar or resarc. Currently None')
         if args.resplanar is not None:
-            interferogram.routines.run_amplitude_interferogram_coherance(s1_processing, resolution=pixel_resolution, 
+            interferogram.routines.run_amplitude_interferogram_coherance(s1_processing, resolution=args.resplanar, 
                 temporal_base=temporal_baseline, polarisation=polarisation, crs_type='oblique_mercator', 
                 temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
-        else:
-            interferogram.routines.run_amplitude_interferogram_coherance(s1_processing, resolution=pixel_resolution, 
+        else: # when resarc is not None
+            interferogram.routines.run_amplitude_interferogram_coherance(s1_processing, resolution=args.resarc, 
                 temporal_base=temporal_baseline, polarisation=polarisation, crs_type='geographic', 
                 temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
 

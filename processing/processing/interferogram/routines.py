@@ -7,8 +7,8 @@ import shutil
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 
 
-def create_calibrated_amplitude_images(pipeline, resolution, temporal_base: int, polarisation:str, crs_type:str,  temp_dir:str, grid_dir:str ) -> None:
-    """ Creates calibrated amplitude images from Sentinel-1 datasets.
+def run_amplitude_interferogram_coherance(pipeline, resolution, temporal_base: int, polarisation:str, crs_type:str,  temp_dir:str, grid_dir:str ) -> None:
+    """ Creates calibrated amplitude, interferogram and coherance images from Sentinel-1 datasets.
     Args:
         pipeline (GeneralPipelines): intance of GeneralPipeline with preprocessed steps.
         resolution (number): resolution for the output images.

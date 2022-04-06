@@ -26,6 +26,6 @@ trap 'clean_up' EXIT
 source /project/caroline/Software/caroline/caroline-venv/bin/activate
 cd /project/caroline/Share/users/caroline-mgarcia
 
-python interferogram.py -s 20160101 -e 20160120 -c 5 -n test_stack -f amsterdam.kml -R 2000 -pl VV -t $TEMP_DIR -md 20160107 
+python main.py -s 20160101 -e 20160120 -c 5 -n test_stack -f amsterdam.kml -R 2000 -pl VV -t $TEMP_DIR -md 20160107 
 
 echo "Done"; date

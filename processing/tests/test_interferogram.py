@@ -2,7 +2,7 @@
 
 import unittest
 import os
-import processing.interferogram
+import processing.interferogram.interferogram
 
 PATH = '../processing/interferogram.py'
 SHAPEFILE = "test-data/test.shp"

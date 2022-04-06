@@ -7,6 +7,7 @@ import datetime
 import shutil
 import numpy as np
 from processing import utils
+from processing import interferogram
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 
@@ -51,8 +52,7 @@ if __name__ == '__main__':
                     default="SLC",
                     type=str)
     parser.add_argument("-pl", "--pol",
-                    help="Polarization of Sentinel-1 Data. E.g. 'VV' or 'HV'", 
-                    nargs='+',
+                    help="Polarization of Sentinel-1 Data. E.g. 'VV' or 'HV'. Default 'VV'", 
                     default='VV',
                     type=str)
     parser.add_argument("-tk", "--track",
@@ -116,9 +116,9 @@ if __name__ == '__main__':
     no_processes = int(args.cores)
     print('running code with ' + str(no_processes) + ' cores.')
     
-    polarisations = args.pol
+    polarisation = args.pol
     pixel_resolution = args.resolution 
-    print(f'polarizations: {polarisations}, resolutions: {pixel_resolution}')
+    print(f'polarizations: {polarisation}, resolutions: {pixel_resolution}')
 
     mode = args.mode
     product_type = args.prod
@@ -154,10 +154,13 @@ if __name__ == '__main__':
 
     # Number of processes for parallel processing. Make sure that for every process at least 2GB of RAM is available
 
+    # =====================================================================
+    # Processing Pipeline
+    # =====================================================================
     s1_processing = GeneralPipelines(processes=no_processes)
 
     # TODO: look into conflict of triggering downloading of datafiles here and in previous steps in DAG
-    # TODO: [CAR-47] Can create_sentinel_stack() handle multiple polarisation values?
+ 
     print(f'creating data stack {datetime.datetime.now()}')
     s1_processing.create_sentinel_stack(start_date=start_date, end_date=end_date, master_date=master_date, cores=no_processes,
                                              track=track_no,stack_name=stack_name, polarisation=polarisations,
@@ -167,16 +170,7 @@ if __name__ == '__main__':
     # Finally load the stack itself. If you want to skip the download step later, run this line before other steps!
     s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
 
-    """
-    To define the location of the radar pixels on the ground we need the terrain elevation. Although it is possible to 
-    derive terrain elevation from InSAR data, our used Sentinel-1 dataset is not suitable for this purpose. Therefore, we
-    download data from an external source to create a digital elevation model (DEM). In our case we use SRTM data. 
-
-    However, to find the elevation of the SAR data grid, we have to resample the data to the radar grid first to make it
-    usable. This is done in the next steps.
-    """
-
-    # Some basic settings for DEM creation.
+    # Settings for DEM creation.
     dem_buffer = 0.01  # Buffer around radar image where DEM data is downloaded
     dem_rounding = 0.01  # Rounding of DEM size in degrees
     dem_type = 'SRTM1'  # DEM type of data we download (SRTM1, SRTM3 and TanDEM-X are supported)
@@ -189,43 +183,16 @@ if __name__ == '__main__':
     print(f'downloading external dem {datetime.datetime.now()}')
     s1_processing.download_external_dem(dem_type=dem_type, buffer=dem_buffer, rounding=dem_rounding,
                                         n_processes=no_processes)
-    """
-    Using the obtained elevation model the exact location of the radar pixels in cartesian (X,Y,Z) and geographic (Lat/Lon)
-    can be derived. This is only done for the master or reference image. This process is referred to as geocoding.
-
-    """
 
     # Geocoding of image
     print(f'geocoding... {datetime.datetime.now()}')
     s1_processing.geocoding()
 
-    """
-    The information from the geocoding can directly be used to find the location of the master grid pixels in the slave
-    grid images. This process is called coregistration. Because the orbits are not exactly the same with every satellite 
-    overpass but differ hundreds to a few thousand meters every overpass, the grids are slightly shifted with respect to 
-    each other. These shift are referred to as the spatial baseline of the images. To correctly overlay the master and slave
-    images the software coregisters and resamples to the master grid.
-
-    To do so the following steps are done:
-    1. Coregistration of slave to master image
-    2. Deramping the doppler effects due to TOPs mode of Sentinel-1 satellite
-    3. Resampling of slave image
-    4. Reramping resampled slave image.
-
-    Due to the different orbits of the master and slave image, the phase of the radar signal is also shifted. We do not 
-    know the exact shift of the two image, but using the geometry of the two images we can estimate the shift of the phase
-    between different pixels. Often this shift is split in two contributions:
-    1. The flat earth phase. This phase is the shift in the case the earth was a perfect ellipsoid
-    2. The topographic phase. This is the phase shift due to the topography on the ground.
-    In our processing these two corrections are done in one go.
-    """
-
-    # Next step applies resampling and phase correction in one step.
     # Polarisation
-
     # Because with the geometric coregistrtation we load the X,Y,Z files of the main image for every calculation it can
     # be beneficial to load them to a fast temporary disk. (If enough space you should load them to memory disk)
-    # TODO: [CAR-49] Can geometric_coregistration_resampling() handle multiple polarisation values?
+ 
+    # Resampling and Phase correction
     print(f'coregistration and resampling {datetime.datetime.now()}')
     s1_processing.geometric_coregistration_resampling(polarisation=polarisations, output_phase_correction=True,
                                                       coreg_tmp_directory=resampling_tmp_directory,
@@ -239,13 +206,9 @@ if __name__ == '__main__':
         shutil.rmtree(tmp_directory)
     os.mkdir(tmp_directory)
 
-    """
-    Now we can create calibrated amplitudes, interferograms and coherences.
-    """
-
-    # TODO:force creation of  poducts/sentinel-1/test-stack/
-
-    # Load the images in blocks to temporary disk (or not if only coreg data is loaded to temp disk)
+    
+    # create calibrated amplitudes, interferograms and coherences.
+    # =============================================================
     temporal_baseline = 60 # manu: add as argument.. number in days (a threshold)
     min_timespan = temporal_baseline * 2
     # Every process can only run 1 multilooking job. Therefore, in the case of amplitude calculation the number of processes
@@ -273,24 +236,25 @@ if __name__ == '__main__':
         
         s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
         # We split the different polarisation to limit the number of files in the temporary folder.
-        print(f'start loop over polarizations {datetime.datetime.now()}')
-        for p in polarisations: 
-            print(f'start loop over resolutions {datetime.datetime.now()}')
+  
+        # produce images based on resolution types (planar or arngular units)
+        if args.resplanar is None and args.resarc is None:
+            raise ValueError('Must provide a value for --resplanar or resarc. Currently None')
+        if args.resplanar is not None:
+            interferogram.routines.run_amplitude_interferogram_coherance(s1_processing, resolution=pixel_resolution, 
+                temporal_base=temporal_baseline, polarisation=polarisation, crs_type='oblique_mercator', 
+                temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
+        else:
+            interferogram.routines.run_amplitude_interferogram_coherance(s1_processing, resolution=pixel_resolution, 
+                temporal_base=temporal_baseline, polarisation=polarisation, crs_type='geographic', 
+                temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
 
-            # produce images based on resolution types (planar or arngular units)
-            if args.resplanar is None and args.resarc is None:
-                raise ValueError('Must provide a value for --resplanar or resarc. Currently None')
-            if args.resplanar is not None:
-                create_calibrated_amplitude_images(s1_processing, resolution=pixel_resolution, temporal_base=temporal_baseline, polarisation=p, crs_type='oblique_mercator', temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
-            else:
-                create_calibrated_amplitude_images(s1_processing, resolution=pixel_resolution, temporal_base=temporal_baseline, polarisation=p, crs_type='geographic', temp_dir=tmp_directory, grid_dir=ml_grid_tmp_directory)
+        if tmp_directory:
+            if os.path.exists(tmp_directory):
+                shutil.rmtree(tmp_directory)
+                os.mkdir(tmp_directory)
 
-            if tmp_directory:
-                if os.path.exists(tmp_directory):
-                    shutil.rmtree(tmp_directory)
-                    os.mkdir(tmp_directory)
-
-        print(f'end loop over polarization {datetime.datetime.now()}')
+    print(f'end loop over dates {datetime.datetime.now()}')
 
     print(f'end program {datetime.datetime.now()}')
 

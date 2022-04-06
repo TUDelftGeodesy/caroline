@@ -152,21 +152,22 @@ if __name__ == '__main__':
 
     # track_no = 37  # manu: track == strips of data, A track make a selection of datasets that belongs to a AoI. Images are stack, and process should keep products separated by tracks. User provides the track number.
 
-    # Number of processes for parallel processing. Make sure that for every process at least 2GB of RAM is available
 
     # =====================================================================
     # Processing Pipeline
     # =====================================================================
+        # Number of processes for parallel processing. Make sure that for every process at least 2GB of RAM is available
     s1_processing = GeneralPipelines(processes=no_processes)
 
     # TODO: look into conflict of triggering downloading of datafiles here and in previous steps in DAG
  
     print(f'creating data stack {datetime.datetime.now()}')
     s1_processing.create_sentinel_stack(start_date=start_date, end_date=end_date, master_date=master_date, cores=no_processes,
-                                             track=track_no,stack_name=stack_name, polarisation=polarisations,
+                                             track=track_no,stack_name=stack_name, polarisation=polarisation,
                                              shapefile=study_area, mode=mode, product_type=product_type)
 
     print(f'reading data stack {datetime.datetime.now()}')
+
     # Finally load the stack itself. If you want to skip the download step later, run this line before other steps!
     s1_processing.read_stack(start_date=start_date, end_date=end_date, stack_name=stack_name)
 
@@ -194,7 +195,7 @@ if __name__ == '__main__':
  
     # Resampling and Phase correction
     print(f'coregistration and resampling {datetime.datetime.now()}')
-    s1_processing.geometric_coregistration_resampling(polarisation=polarisations, output_phase_correction=True,
+    s1_processing.geometric_coregistration_resampling(polarisation=polarisation, output_phase_correction=True,
                                                       coreg_tmp_directory=resampling_tmp_directory,
                                                       tmp_directory=tmp_directory, baselines=False,
                                                       height_to_phase=True)

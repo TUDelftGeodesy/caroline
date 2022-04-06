@@ -7,7 +7,6 @@ import datetime
 import shutil
 import numpy as np
 from processing import utils
-# from processing.utils import wkt_to_list
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 

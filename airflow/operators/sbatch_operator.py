@@ -3,7 +3,6 @@
 ## Manuel G. Garcia
 ## 7-04-2022
 
-from sys import prefix
 from time import sleep
 from airflow.contrib.operators.ssh_operator import SSHOperator 
 from typing import Optional, Sequence, Union

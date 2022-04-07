@@ -29,11 +29,6 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--start_date", help="Start date of processing as yyyymmdd")
     parser.add_argument("-e", "--end_date", help="End date of processing as yyyymmdd")
     parser.add_argument("-c", "--cores", help="Number of processing cores")
-    parser.add_argument("-t", "--temp", help="Temp directory location", default='')
-    # optional
-    parser.add_argument("-r", "--resampling_temp", help="Temp directory used for master image coordinates for resampling", default='')
-    # optional
-    parser.add_argument("-ml", "--multilooking_temp", help="Temp directory used for master image coordinates for multilooking", default='')
     # Processing boundaries Options:
     geometry_group = parser.add_mutually_exclusive_group()
     geometry_group.add_argument("-a", "--aoi", help="area of interest as WKT (enclose in double-quotes if necessary)", type=str)
@@ -58,7 +53,7 @@ if __name__ == '__main__':
                     help="sensor mode. Default: 'IW'", 
                     default="IW",
                     type=str)
-    parser.add_argument("-p", "--prod",
+    parser.add_argument("-p", "--proc",
                     help="product's processing level. Default: 'SLC'", 
                     default="SLC",
                     type=str)
@@ -130,7 +125,7 @@ if __name__ == '__main__':
     polarisation = args.pol
 
     mode = args.mode
-    product_type = args.prod
+    product_type = args.proc
     track_no = args.track  # A track makes a selection of datasets that belongs to an AoI. Stacks products should be kept separated by track. User provides the track number.
     stack_name = args.name # 'Benelux_track_37'
 
@@ -142,11 +137,11 @@ if __name__ == '__main__':
     # =====================================================================
 
     # Define temporary directories
-    tmp_directory = args.temp
-    resampling_tmp_directory = args.resampling_temp
+    tmp_directory = TMP_DIR
+    resampling_tmp_directory = RESAMPLING_TMP
     if resampling_tmp_directory == '':
         resampling_tmp_directory = tmp_directory
-    ml_grid_tmp_directory = args.multilooking_temp
+    ml_grid_tmp_directory = MULTILOOK_TMP
     if ml_grid_tmp_directory == '':
         ml_grid_tmp_directory = tmp_directory
 

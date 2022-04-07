@@ -29,7 +29,7 @@ from airflow import DAG
 from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.dates import days_ago
 # import custom operator
-from spider_operator import DownloadOperator
+from download_operator import DownloadOperator
 # hook to Spider
 sshHook = SSHHook(ssh_conn_id='spider_mgarcia')
 
@@ -80,7 +80,7 @@ with DAG(
     # task with DownloadOperator
     download_radar = DownloadOperator(
     task_id='download_radar',
-    s_command=cmd_download_radar,
+    command=cmd_download_radar,
     ssh_hook=sshHook,
     dag=dag)
     

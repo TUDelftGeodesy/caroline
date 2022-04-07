@@ -74,7 +74,7 @@ with DAG(
     run_slurm_job = SlurmOperator(
     task_id='slurm_job',
     sbatch_command=batch_command,
-    sleep_time = '20s',
+    monitor_time = '20s',
     output_file= dir_output_file,
     ssh_hook=sshHook,
     dag=dag)

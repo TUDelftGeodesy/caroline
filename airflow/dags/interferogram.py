@@ -2,8 +2,8 @@
 # DAG for creating Inteferograms using Doris-RIPPL                              #
 #################################################################################
 # This DAG search, and download radar datasets and orbit files for a time 
-# interval, and geographic area. Downloade datsets are use to produce an 
-# interferogram.
+# interval, and geographic area. Downloaded datsets are used to produce several 
+# products including an interferogram.
 # 
 # Templated fields:
 #

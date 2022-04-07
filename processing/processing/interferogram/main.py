@@ -13,6 +13,7 @@ import numpy as np
 import processing.interferogram.routines as routines
 from processing import utils
 from dotenv import load_dotenv
+from pathlib import Path
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 
@@ -36,7 +37,6 @@ if __name__ == '__main__':
                     help="Shapefile of the area of interest",
                     type=str)
     parser.add_argument("-bf", "--buffer", help="Distance fo the buffer zone. Default is zero.", type=float, default=0.0)
-   
     # Output resolution options:
     resolution_group = parser.add_mutually_exclusive_group()
     resolution_group.add_argument("-Rp", "--resplanar",
@@ -129,7 +129,12 @@ if __name__ == '__main__':
     track_no = args.track  # A track makes a selection of datasets that belongs to an AoI. Stacks products should be kept separated by track. User provides the track number.
     stack_name = args.name # 'Benelux_track_37'
 
-    # TODO: Enable system level configuration variables. Create products directory
+    # Enable system level configuration variables. Create products directory
+    
+    # Force creation of output directory. 
+    # Doris-rippl doesn't do that for some an unknown reason.
+
+    Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)   
 
     # For every track we have to select a master date. This is based on the search results earlier.
     # =====================================================================

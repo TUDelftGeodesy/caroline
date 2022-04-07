@@ -12,11 +12,18 @@ import shutil
 import numpy as np
 import processing.interferogram.routines as routines
 from processing import utils
+from dotenv import load_dotenv
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 
 
 if __name__ == '__main__':
+
+    load_dotenv()
+    OUTPUT_PATH = os.getenv('PRODUCTS_PATH')
+    TMP_DIR = os.getenv('TMP_DIR')
+    MULTILOOK_TMP = os.getenv('MULTILOOK_TMP')
+    RESAMPLING_TMP = os.getenv('RESAMPLING_TMP')
     
     parser = argparse.ArgumentParser(prog="Process Sentinel-1", description="Creates inteferograms using Sentinel-1 datasets using Doris-RIPPL." )
     parser.add_argument("-s", "--start_date", help="Start date of processing as yyyymmdd")

@@ -79,7 +79,7 @@ with DAG(
     ls /project/$PROJECT
 
     echo ""
-    echo "Create some random numbers in file 'randomlist':"
+    echo "Create some random numbers in fil:qe 'randomlist':"
     for i in {1..10}
     do
         echo $RANDOM >> randomlist
@@ -91,18 +91,18 @@ with DAG(
     sleep 30s
     """
 
-    sbatch_file = "/project/caroline/Share/users/caroline-mgarcia/sbatch/welcome-spider.sh"
+    name = "sbatch_test.sh"
     # Define directory for job-ID.out file
-    dir_output_file = "/project/caroline/Share/users/caroline-mgarcia/sbatch"
+    dir_output_file = "/project/caroline/Share/users/caroline-mgarcia/sbatch/"
 
     # Define Task with SlurmOperator
     run_slurm_job = SBATCHOperator(
         task_id = 'sbatch_job',
         sbatch_commands = sbatch_body,
-        script_file = sbatch_file,
+        script_name = name,
         max_time = '15:00',
         frequency = '15s',
-        job_output = dir_output_file,
+        output_dir = dir_output_file,
         ssh_hook = sshHook,
         dag=dag
     )

@@ -74,8 +74,11 @@ with DAG(
 
     # command for Download Engine
     cmd_download_radar ="""
-    python engine.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a '{{dag_run.conf["geometry"]}}'
+    python main.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a '{{dag_run.conf["geometry"]}}'
     """
+
+    ## Fow downloading Orbits
+    # Do: python orbits.py
 
     # task with DownloadOperator
     download_radar = DownloadOperator(

@@ -1,5 +1,5 @@
 #################################################################################
-# DAG for the production of Inteferograms using Doris-RIPPL                     #
+# DAG for creating Inteferograms using Doris-RIPPL                              #
 #################################################################################
 # This DAG search, and download radar datasets and orbit files for a time 
 # interval, and geographic area. Downloade datsets are use to produce an 
@@ -48,8 +48,9 @@ default_args = {
     # 'trigger_rule': 'all_success'
 }
 
+# TODO: Continue with DAG development
 with DAG(
-    dag_id='interferogram',
+    dag_id='amsterdam-interferogram',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
@@ -67,7 +68,7 @@ with DAG(
     """
 
     cmd_interferogram = """
-    sbatch /project/caroline/Software/slurm/welcome-to-spider.sh
+    sbatch /project/caroline/Software/
     """
 
     # Tasks:

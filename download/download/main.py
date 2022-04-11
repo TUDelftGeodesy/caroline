@@ -23,8 +23,8 @@ parser = argparse.ArgumentParser(prog="Caroline Download Engine", description="S
 subparsers = parser.add_subparsers(help="Program mode. Options are the same for all modes. -a is always required.")
 # conf command
 parser_conf = subparsers.add_parser("conf", help="start process using credential in an .env file")
-parser_conf.add_argument("start", help="start date for the search.", type=str)
-parser_conf.add_argument("end", help="end date for the search.", type=str)
+parser_conf.add_argument("start", help="start date for the search. Formatted as YYYYMMDD.", type=str)
+parser_conf.add_argument("end", help="end date for the search. Formatted as YYYYMMDD.", type=str)
 # Options
 geometry_group = parser_conf.add_mutually_exclusive_group()
 geometry_group.add_argument("-a", "--aoi", help="area of interest as WKT (enclose in double-quotes if necessary)", type=str)
@@ -117,7 +117,13 @@ c.test_connection()
 # instantiate API 
 search_api = ASF(c)
 
-search_results=search_api.search(args.aoi, args.start, args.end, 
+# convert date format to YYYYMMDD
+# This is required when used in combination with
+# Doris-Rippl
+start_date = utils.convert_date_dashed_nodashed(args.start)
+end_date = utils.convert_date_dashed_nodashed(args.end)
+
+search_results=search_api.search(args.aoi, start_date, end_date, 
                                 orbit_direction=args.orbit,
                                 sensor_mode=args.mode, 
                                 product=args.prod, 

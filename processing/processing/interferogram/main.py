@@ -17,6 +17,7 @@ from pathlib import Path
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 
+# Engine General Settings:
 load_dotenv("processing/.env")
 OUTPUT_PATH = os.getenv('PRODUCTS_DIR')
 TMP_DIR = os.getenv('TMP_DIR')

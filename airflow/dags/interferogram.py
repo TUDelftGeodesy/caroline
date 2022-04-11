@@ -57,9 +57,10 @@ with DAG(
     tags=['caroline', 'template'],
 ) as dag:
 
+    # TODO: match setting in download engine with settings in rippl, so that rippl finds the data.
     # Commands
     cmd_download_radar ="""
-    python main.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a '{{dag_run.conf["geometry"]}}'
+    python main.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -f '{{dag_run.conf["geometry"]}}'
     """
 
     cmd_download_orbits ="""
@@ -91,11 +92,12 @@ with DAG(
 
     create_interferogram = SBATCHOperator(
     task_id='create_interferogram',
-    sbatch_command=sbatch_body,
+    sbatch_commands=sbatch_body,
+    script_name="test_sbatch.sh",
     max_time='59:59',
     frequency = '10s',
-    output_file= "/project/caroline/Share/users/caroline-mgarcia",
-    cores=4,
+    output_dir= "/project/caroline/Share/users/caroline-mgarcia/sbatch",
+    cores=2,
     ssh_hook=sshHook,
     dag=dag)
     

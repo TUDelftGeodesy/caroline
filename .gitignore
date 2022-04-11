@@ -3,6 +3,14 @@
 # Learn more about .gitignore:
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
+# RIPPL
+rippl/
+
+# Doker Compose
+dockers/airlfow/dags/
+dockers/airlfow/plugins/
+dockers/airflow/logs/ 
+
 # Node artifact files
 node_modules/
 dist/
@@ -105,7 +113,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
-download/tests/test-server.py
+download/tests/server.py
 
 # Translations
 *.mo

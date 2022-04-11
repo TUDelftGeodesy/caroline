@@ -66,8 +66,15 @@ with DAG(
     python orbits.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}'
     """
 
-    cmd_create_interferogram = """
-    echo """
+    sbatch_command = """
+    # Activate virtual environment 
+    source /project/caroline/Software/caroline/caroline-venv/bin/activate
+    cd /project/caroline/Share/users/caroline-mgarcia
+
+    # path to processing eninge
+    PROGRAM="/project/caroline/Software/caroline/processing/processing/interferogram/main.py"
+    time python $PROGRAM -s '{{dag_run.conf["start_date"]}}' -e '{{dag_run.conf["end_date"]}}' -c 6 -n test_stack -f amsterdam.kml -Rp 500 -pl VV -md 20160107
+    """
 
     # Tasks:
     download_radar = DownloadOperator(

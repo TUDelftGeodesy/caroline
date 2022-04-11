@@ -3,7 +3,7 @@
 #################################################################################
 # This DAG search, and download radar datasets and orbit files for a time 
 # interval, and geographic area. Downloaded datsets are used to produce several 
-# products including an interferogram.
+# products including an interferogram using Doris RIPPL
 # 
 # Templated fields:
 #
@@ -60,15 +60,15 @@ with DAG(
 
     # Commands
     cmd_download_radar ="""
-    python engine.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a '{{dag_run.conf["geometry"]}}'
+    python main.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -a '{{dag_run.conf["geometry"]}}'
     """
 
     cmd_download_orbits ="""
     python orbits.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}'
     """
 
-    cmd_interferogram = """
-    sbatch /project/caroline/Software/
+    cmd_create_interferogram = """
+    echo ""
     """
 
     # Tasks:

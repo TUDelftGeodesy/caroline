@@ -1,5 +1,9 @@
-# '''A library of functions used across modules'''
+#!/usr/bin/env python3 
+# -*- coding: utf-8 -*- 
+# Created By  : Manuel G. Garcia
+# Created Date: 06-12-2021
 
+"""A library of functions used across modules"""
 
 import fiona
 from fiona import collection

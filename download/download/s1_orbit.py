@@ -1,3 +1,8 @@
+#!/usr/bin/env python3 
+# -*- coding: utf-8 -*- 
+# Created By  : Manuel G. Garcia
+# Created Date: 06-12-2021
+
 """
 Implementation of SearchAPI for the GNNS Scihub API
 This class provides a common interface with search an download functionalities.

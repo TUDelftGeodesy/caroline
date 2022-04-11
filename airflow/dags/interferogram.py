@@ -1,5 +1,5 @@
 #################################################################################
-# DAG for the production of Inteferograms using Doris-RIPPL                     #
+# DAG for creating Inteferograms using Doris-RIPPL                              #
 #################################################################################
 # This DAG search, and download radar datasets and orbit files for a time 
 # interval, and geographic area. Downloaded datsets are used to produce several 
@@ -19,7 +19,7 @@ from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.dates import days_ago
 # import custom operators
 from download_operator import DownloadOperator
-from slurm_operator import SlurmOperator
+from sbatch_operator import SBATCHOperator
 # hook to Spider
 sshHook = SSHHook(ssh_conn_id='spider_mgarcia') 
 
@@ -49,7 +49,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='interferogram',
+    dag_id='amsterdam-interferogram',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
@@ -66,8 +66,15 @@ with DAG(
     python orbits.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}'
     """
 
-    cmd_create_interferogram = """
-    echo """
+    sbatch_body = """
+    # Activate virtual environment 
+    source /project/caroline/Software/caroline/caroline-venv/bin/activate
+    cd /project/caroline/Share/users/caroline-mgarcia
+
+    # path to processing eninge
+    PROGRAM="/project/caroline/Software/caroline/processing/processing/interferogram/main.py"
+    time python $PROGRAM -s '{{dag_run.conf["start_date"]}}' -e '{{dag_run.conf["end_date"]}}' -c 5 -n test_stack -f amsterdam.kml -Rp 500 -pl VV -md 20160107
+    """
 
     # Tasks:
     download_radar = DownloadOperator(
@@ -82,15 +89,16 @@ with DAG(
     ssh_hook=sshHook,
     dag=dag)
 
-    create_interferogram = SlurmOperator(
+    create_interferogram = SBATCHOperator(
     task_id='create_interferogram',
-    sbatch_command=cmd_interferogram,
-    monitor_time = '20s',
-    output_file= "/project/caroline/Software/slurm/",
+    sbatch_command=sbatch_body,
+    max_time='59:59',
+    frequency = '10s',
+    output_file= "/project/caroline/Share/users/caroline-mgarcia",
+    cores=4,
     ssh_hook=sshHook,
     dag=dag)
     
     # dependencies
     [download_radar, download_orbits] >> create_interferogram
 
-    # TODO: implement slurm job with doris-rippl

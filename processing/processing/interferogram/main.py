@@ -17,16 +17,14 @@ from pathlib import Path
 from rippl.processing_templates.general_sentinel_1 import GeneralPipelines
 from rippl.orbit_geometry.read_write_shapes import ReadWriteShapes
 
+# Engine General Settings:
+load_dotenv("processing/.env")
+OUTPUT_PATH = os.getenv('PRODUCTS_DIR')
+TMP_DIR = os.getenv('TMP_DIR')
+MULTILOOK_TMP = os.getenv('MULTILOOK_TMP')
+RESAMPLING_TMP = os.getenv('RESAMPLING_TMP')
 
 if __name__ == '__main__':
-
-    load_dotenv("processing/.env")
-    OUTPUT_PATH = os.getenv('PRODUCTS_DIR')
-    TMP_DIR = os.getenv('TMP_DIR')
-    MULTILOOK_TMP = os.getenv('MULTILOOK_TMP')
-    RESAMPLING_TMP = os.getenv('RESAMPLING_TMP')
-    print(OUTPUT_PATH)
-    
     parser = argparse.ArgumentParser(prog="Process Sentinel-1", description="Creates inteferograms using Sentinel-1 datasets using Doris-RIPPL." )
     parser.add_argument("-s", "--start_date", help="Start date of processing as yyyymmdd")
     parser.add_argument("-e", "--end_date", help="End date of processing as yyyymmdd")

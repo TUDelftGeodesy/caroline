@@ -1,4 +1,4 @@
-## Custome Operartor for preparing submiting and monitoring a job using the SBATCH command
+## Custom Operartor for preparing, submiting and monitoring a job using the SBATCH command
 ## This operator inherits methods and properties of the SSHOperator
 ## Manuel G. Garcia
 ## 7-04-2022
@@ -21,7 +21,7 @@ class SBATCHOperator(SSHOperator):
             script_name (str): name for the sbash script. A '.sh' file
             max_time (str): maximum run time for the slurm job, [HH:MM:SS] or [MM:SS] or [minutes]
             frequency (str): time interval at which the status of a job will be checked. Default is 1 minute.
-            job_output (str): path to directory for the  sbatch script and theslurm output file. If None, output file will be in
+            output_dir (str): path to directory for the  sbatch script and the slurm output file. If None, output file will be in
                 home directory.
             cores: number of cores to request to the cluster.
             tasks: number of tasks to request to the cluster.

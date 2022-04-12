@@ -49,7 +49,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='amsterdam-interferogram',
+    dag_id='interferogram-test',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
@@ -60,21 +60,25 @@ with DAG(
     # TODO: match setting in download engine with settings in rippl, so that rippl finds the data.
     # Commands
     cmd_download_radar ="""
-    python main.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}' -f '{{dag_run.conf["geometry"]}}'
+    python main.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} -f {{dag_run.conf["geometry"]}} -o {{dag_run.conf["orbit_direction"]}}
     """
 
     cmd_download_orbits ="""
-    python orbits.py conf '{{dag_run.conf["start_date"]}}' '{{dag_run.conf["end_date"]}}'
+    python orbits.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}}
     """
 
+    print('TEMPLATED: ','{{dag_run.conf["start_date"]}}')
+
     sbatch_body = """
+    # load dependencies
+    source /project/caroline/Software/bin/init.sh &&
+    module load python/3.9.6  gdal/3.4.1 proj/8.2.1
     # Activate virtual environment 
     source /project/caroline/Software/caroline/caroline-venv/bin/activate
     cd /project/caroline/Share/users/caroline-mgarcia
-
     # path to processing eninge
     PROGRAM="/project/caroline/Software/caroline/processing/processing/interferogram/main.py"
-    time python $PROGRAM -s '{{dag_run.conf["start_date"]}}' -e '{{dag_run.conf["end_date"]}}' -c 5 -n test_stack -f amsterdam.kml -Rp 500 -pl VV -md 20160107
+    time python $PROGRAM -s """+ "{{dag_run.conf['start_date']}}" + " -e {{dag_run.conf['end_date']}}"+""" -c 5 -n test_stack -f amsterdam.kml -Rp 500 -pl VV -md 20160107
     """
 
     # Tasks:
@@ -102,5 +106,5 @@ with DAG(
     dag=dag)
     
     # dependencies
-    [download_radar, download_orbits] >> create_interferogram
+    download_radar >> download_orbits >> create_interferogram
 

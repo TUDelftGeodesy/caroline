@@ -12,7 +12,7 @@ from airflow.configuration import conf
 from base64 import b64encode
 
 class SlurmOperator(SSHOperator):
-    def __init__(self, sbatch_command: str, monitor_time="1m", output_file=None, **kwargs) -> None:
+    def __init__(self, command: str, monitor_time="1m", output_file=None, **kwargs) -> None:
         """Submits a job using sbacth to Spider. The job statatus is monitored until completed or failed.
            Inherits properties and methods from the SSHOperator.
            Requires an SSHHook.
@@ -24,7 +24,7 @@ class SlurmOperator(SSHOperator):
         """
     
         super().__init__(**kwargs) # inherit properties from parent class
-        self.command = sbatch_command 
+        self.command = command 
         self.monitor_time  = monitor_time
         self.output_file = output_file
 

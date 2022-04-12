@@ -31,8 +31,8 @@ def convert_to_dashed_date(date_string):
         datetime_object = datetime.datetime.strptime(date_string, '%Y%m%d')
     except ValueError:
         print('Make sure that start_date is formatted as YEARMONTHDAY with no dashes or other separators. E.g. 20220411')
-
-    dashed_date = datetime.datetime.strftime(datetime_object, '%Y-%m-%d')
+    else:
+        dashed_date = datetime.datetime.strftime(datetime_object, '%Y-%m-%d')
 
     return dashed_date
 
@@ -345,8 +345,8 @@ if __name__ == '__main__':
     # pl = [p]
     # write_shapefile(pl, '../../data/shape/benelux.shp')
 
-    d = "20220411"
+    d = "20220421"
 
-    r =convert_date_dashed_nodashed(d)
+    r =convert_to_dashed_date(d)
     print(r)
     

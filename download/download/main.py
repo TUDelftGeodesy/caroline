@@ -120,8 +120,8 @@ search_api = ASF(c)
 # convert date format to YYYYMMDD
 # This is required when used in combination with
 # Doris-Rippl
-start_date = utils.convert_date_dashed_nodashed(args.start)
-end_date = utils.convert_date_dashed_nodashed(args.end)
+start_date = utils.convert_to_dashed_date(args.start)
+end_date = utils.convert_to_dashed_date(args.end)
 
 search_results=search_api.search(args.aoi, start_date, end_date, 
                                 orbit_direction=args.orbit,

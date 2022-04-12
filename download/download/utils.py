@@ -18,7 +18,7 @@ from osgeo import ogr
 import datetime
 
 
-def convert_date_dashed_nodashed(date_string):
+def convert_to_dashed_date(date_string):
     """ Converts date string of format YEARMONTHDAY to YEAR-MONTH-DAY. 
 
     Args:

@@ -1,20 +1,25 @@
 ##############################################################
-# Slurm Operator Example                                     #
+# Sbatch Operator Example                                     #
 ##############################################################
-# This example shows how to use the custom SlurmOperator in 
+# This example shows how to use the custom SBATCHOperator in 
 # a DAG. 
 # We assume that the operator is available via the plugings
 # directory at the airflow root directory.
 # A sshHook to an instance of Slurm is required.
 #
-# The SlurmOperator inherits from the SSHOperator and
+# The SBATCHOperator inherits from the SSHOperator and
 # was extended with the following arguments:
-#   sbatch_command (str): command to submit a slurm script. 
-#       E.g., sbatch <path to script.sh>
-#   monitor_time (str): time interval at which the status of 
-#       a job will be checked. Default is 1 minute.
-#   output_file (str): path to directory for the slurm output 
-#       file. If None, output file will be in home directory.
+    # sbatch_command (str): commands for the body of the sbatch script.
+    # script_name (str): name for the sbash script. A '.sh' file
+    # max_time (str): maximum run time for the slurm job, [HH:MM:SS] or [MM:SS] or [minutes]
+    # frequency (str): time interval at which the status of a job will be checked. Default is 1 minute.
+    # output_dir (str): path to directory for the  sbatch script and the slurm output file. If None, output file will be in
+    #     home directory.
+    # cores: number of cores to request to the cluster.
+    # tasks: number of tasks to request to the cluster.
+    # nodes: number of node to request to the cluster.
+    # partition: partition type.
+    # qos: quality of service to request to the cluster.
 ##############################################################
 
 from asyncio import tasks

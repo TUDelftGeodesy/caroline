@@ -59,7 +59,13 @@ c.test_connection()
 # instantiate API 
 search_api = S1OrbitProvider(c)
 
-search_results=search_api.search(args.start, end_date=args.end)
+# convert date format to YYYYMMDD
+# This is required when used in combination with
+# Doris-Rippl
+start_date = utils.convert_date_dashed_nodashed(args.start)
+end_date = utils.convert_date_dashed_nodashed(args.end)
+
+search_results=search_api.search(start_date=start_date, end_date=end_date)
 
 search_api.download(search_results, max_retries=args.retry)
 

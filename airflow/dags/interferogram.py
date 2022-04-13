@@ -60,7 +60,7 @@ with DAG(
     # TODO: match setting in download engine with settings in rippl, so that rippl finds the data.
     # Commands
     cmd_download_radar ="""
-    python main.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} -f {{dag_run.conf["geometry"]}} -o {{dag_run.conf["orbit_direction"]}}
+    python main.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} -f {{dag_run.conf["geometry"]}} -o {{dag_run.conf["orbit_direction"]}} 
     """
 
     cmd_download_orbits ="""
@@ -78,7 +78,7 @@ with DAG(
     cd /project/caroline/Share/users/caroline-mgarcia
     # path to processing eninge
     PROGRAM="/project/caroline/Software/caroline/processing/processing/interferogram/main.py"
-    time python $PROGRAM -s """+ "{{dag_run.conf['start_date']}}" + " -e {{dag_run.conf['end_date']}}"+""" -c 5 -n test_stack -f amsterdam.kml -Rp 500 -pl VV -md 20160107
+    time python $PROGRAM -s """+ "{{dag_run.conf['start_date']}}" + " -e {{dag_run.conf['end_date']}}"+""" -c 5 -n test_stack -f amsterdam.kml -Rp 500 -pl VV -md 20160107 || exit 91
     """
 
     # Tasks:

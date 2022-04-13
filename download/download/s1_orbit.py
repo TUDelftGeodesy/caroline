@@ -45,7 +45,7 @@ class S1OrbitProvider(search.DataSearch):
             osvtype (str): the type of orbit files; either 'POE'=Precise or 'RES'=restituted
         
         Returns:
-            query string for the first 500 results
+            query string for the first 1000 results
         """
         # example valid request:
         # https://scihub.copernicus.eu/gnss/search/?q=producttype:AUX_POEORB platformname:
@@ -73,7 +73,7 @@ class S1OrbitProvider(search.DataSearch):
                       start.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z TO ' + end.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z]'
     
         search_url = self.connector.root_url + 'search/?q='
-        query = 'producttype:'+ product_type + ' platformname:'+ platform + ' ' + date_string + '&format=json&rows=500'
+        query = 'producttype:'+ product_type + ' platformname:'+ platform + ' ' + date_string + '&format=json&rows=1000'
 
         return search_url + query
 

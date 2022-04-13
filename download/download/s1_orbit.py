@@ -77,9 +77,7 @@ class S1OrbitProvider(search.DataSearch):
                       start.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z TO ' + end.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z]'
     
         search_url = self.connector.root_url + 'search/?q='
-        # TODO: Doc that the api set a limit for ROWS, 100 rows is the max an the default. This causes a problem when the range of dates requires to download more than 100 orbit files.
-        # in rippl this will failed when creating the master slides.
-        query = 'producttype:'+ product_type + ' platformname:'+ platform + ' ' + date_string + f'&start={start_index}&format=json&rows=10'
+        query = 'producttype:'+ product_type + ' platformname:'+ platform + ' ' + date_string + f'&start={start_index}&format=json&rows=100'
 
         return search_url + query
 
@@ -121,7 +119,7 @@ class S1OrbitProvider(search.DataSearch):
                 page_json = page_results.json()
                 page_entries = page_json['feed']['entry'] 
                 entries = entries + page_entries
-                
+
         for entry in entries:
             product = data_orbit.Orbit (entry['title'], entry['id'], entry['link'][0]['href'], entry['str'][7]['content'])
             self.orbits.append(product)
@@ -204,8 +202,6 @@ if __name__ == '__main__':
 
     from download import connector
 
-    # "manuelgarciaalvarez", "bYYpjJCc!K!jxxc5Hx5b"
-
     c =connector.Connector("gnssguest", "gnssguest", 'https://scihub.copernicus.eu/gnss/')
     c.test_connection()
 
@@ -217,4 +213,4 @@ if __name__ == '__main__':
     print(g.build_query(start, end))
     results = g.search(start)# page over results when more than 100 products are found
     # print(results)
-    g.download(results)
+    # g.download(results)

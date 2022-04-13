@@ -10,9 +10,12 @@ API documentation: https://docs.asf.alaska.edu/api/basics/
 """
 
 import datetime
+from logging import warning
 import os
+import warnings
 import hashlib
 from platform import platform
+
 from download.utils import compute_checksum, convert_date_string
 from download import search
 from download import data_orbit
@@ -34,7 +37,7 @@ class S1OrbitProvider(search.DataSearch):
         self.connector = connector
 
 
-    def build_query(self, start_date, end_date=None, osvtype='RES'):
+    def build_query(self, start_date, end_date=None, osvtype='RES', start_index=0):
         """
         Builds a query for the API using given the search creteria.
 
@@ -43,9 +46,10 @@ class S1OrbitProvider(search.DataSearch):
             end_date (str): last day for search as (YYYY-MM-DD), If None, the end_date will be set to the next day, 
             and the query will use a time-window of one day.
             osvtype (str): the type of orbit files; either 'POE'=Precise or 'RES'=restituted
+            start_index (int): starting index for the page results. Useful for dealing with pagination. 
         
         Returns:
-            query string for the first 1000 results
+            query string for the first 100 results.
         """
         # example valid request:
         # https://scihub.copernicus.eu/gnss/search/?q=producttype:AUX_POEORB platformname:
@@ -73,7 +77,9 @@ class S1OrbitProvider(search.DataSearch):
                       start.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z TO ' + end.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z]'
     
         search_url = self.connector.root_url + 'search/?q='
-        query = 'producttype:'+ product_type + ' platformname:'+ platform + ' ' + date_string + '&format=json&rows=1000'
+        # TODO: Doc that the api set a limit for ROWS, 100 rows is the max an the default. This causes a problem when the range of dates requires to download more than 100 orbit files.
+        # in rippl this will failed when creating the master slides.
+        query = 'producttype:'+ product_type + ' platformname:'+ platform + ' ' + date_string + f'&start={start_index}&format=json&rows=10'
 
         return search_url + query
 
@@ -102,17 +108,24 @@ class S1OrbitProvider(search.DataSearch):
         total_results = int(result_json['feed']["opensearch:totalResults"])
         print("Found", total_results , "products.")
        
-        if total_results !=0:
-            entries= result_json['feed']['entry'] # entries describe product/dataset
-            if total_results == 1: # single results returns a dictionary
-                entries = [entries] # convert to list 
-            for entry in entries:
-                product = data_orbit.Orbit (entry['title'], entry['id'], entry['link'][0]['href'], entry['str'][7]['content'])
-                self.orbits.append(product)
-
-        else:
-            print("No products (orbit files) found for these creteria")
-
+        if total_results == 0:
+            warnings.warn("No products (orbit files) found for these creteria")
+            return self.orbits
+        elif total_results == 1:
+            entries = [entries] # convert to list
+        else: 
+            entries = result_json['feed']['entry'] # entries describe product/dataset
+            while len(entries) < total_results: # page over results when more than 100 products are found
+                page_query = self.build_query(start_date, end_date, osvtype=osvtype, start_index=len(entries))
+                page_results = self.connector.get(page_query)
+                page_json = page_results.json()
+                page_entries = page_json['feed']['entry'] 
+                entries = entries + page_entries
+                
+        for entry in entries:
+            product = data_orbit.Orbit (entry['title'], entry['id'], entry['link'][0]['href'], entry['str'][7]['content'])
+            self.orbits.append(product)
+            
         return self.orbits
 
     def download(self, orbits, max_retries=3):
@@ -196,12 +209,12 @@ if __name__ == '__main__':
     c =connector.Connector("gnssguest", "gnssguest", 'https://scihub.copernicus.eu/gnss/')
     c.test_connection()
 
-    start = '2021-05-21'
-    end = '2021-05-22'
+    start = '2022-04-01'
+    end = '2022-04-10'
 
     g = S1OrbitProvider(c)
     
-    print(g.build_query(start))
-    results = g.search(start)
+    print(g.build_query(start, end))
+    results = g.search(start)# page over results when more than 100 products are found
     # print(results)
     g.download(results)

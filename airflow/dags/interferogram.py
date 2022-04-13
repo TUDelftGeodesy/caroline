@@ -64,7 +64,7 @@ with DAG(
     """
 
     cmd_download_orbits ="""
-    python orbits.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}}
+    python orbits.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} --type RES
     """
 
     print('TEMPLATED: ','{{dag_run.conf["start_date"]}}')
@@ -78,7 +78,7 @@ with DAG(
     cd /project/caroline/Share/users/caroline-mgarcia
     # path to processing eninge
     PROGRAM="/project/caroline/Software/caroline/processing/processing/interferogram/main.py"
-    time python $PROGRAM -s """+ "{{dag_run.conf['start_date']}}" + " -e {{dag_run.conf['end_date']}}"+""" -c 5 -n test_stack -f amsterdam.kml -Rp 500 -pl VV -md 20160107 || exit 91
+    python $PROGRAM -s """+ "{{dag_run.conf['start_date']}}" + " -e {{dag_run.conf['end_date']}}"+""" -c 5 -n test_stack -f amsterdam.kml -Rp 500 -pl VV -md 20160107 || exit 91
     """
 
     # Tasks:

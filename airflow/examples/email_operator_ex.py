@@ -25,10 +25,7 @@
 #################################################################################
 
 from datetime import timedelta, datetime
-
-from pyparsing import html_comment
 from airflow import DAG
-from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.dates import days_ago
 # import custom operator
 from airflow.operators.python_operator import PythonOperator

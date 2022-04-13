@@ -45,7 +45,7 @@ parser_manual.add_argument("start", help="start date for the search.", type=str)
 parser_manual.add_argument("end", help="end date for the search.", type=str)
 
 # Options
-parser_manual.add_argument("ot", "--type", 
+parser_manual.add_argument("-ot", "--type", 
                     help="orbit type. E.g., RES = restituted, POE = precise. Default: RES ", 
                     default='RES', 
                     type=str)

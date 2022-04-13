@@ -31,7 +31,7 @@ class SBATCHOperator(SSHOperator):
         """
     
         super().__init__(**kwargs) # inherit properties from parent class
-        self.commands = sbatch_commands 
+        self.command = sbatch_commands 
         self.monitoring_frequency  = frequency
         self.output_dir = output_dir
         self.script_name = script_name
@@ -44,7 +44,7 @@ class SBATCHOperator(SSHOperator):
 
     def execute(self, context=None) -> Union[bytes, str]:
         result: Union[bytes, str]
-        if self.commands is None:
+        if self.command is None:
             raise AirflowException("SBATCH operator error: command for the body of script not specified. Aborting.")
 
         # Set default directory for slurm output files
@@ -52,11 +52,11 @@ class SBATCHOperator(SSHOperator):
             self.output_dir = "~/"
 
         # Forcing get_pty to True if the command begins with "sudo".
-        self.get_pty = self.commands.startswith('sudo') or self.get_pty
+        self.get_pty = self.command.startswith('sudo') or self.get_pty
 
         # prepare sbatch script
         sbatch_body = self.create_sbatch_body( 
-                            self.commands, 
+                            self.command, 
                             self.max_time, 
                             self.cores, 
                             self.tasks, 
@@ -73,6 +73,7 @@ class SBATCHOperator(SSHOperator):
         echo  $JID
         sleep 10s 
         """
+        # the issue might be using tipple strip """"
 
         monitoring = f"""
         ST="PENDING"

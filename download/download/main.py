@@ -40,8 +40,12 @@ parser_conf.add_argument("-m", "--mode",
                     help="sensor mode. Default: 'IW'", 
                     default="IW",
                     type=str)
-                
-parser_conf.add_argument("-p", "--prod",
+parser_conf.add_argument("-p", "--pol",
+                    help="Polarization of Sentinel-1 Data. E.g. 'VV' or list of type: 'VV,HH'. Default 'VV'",
+                    default="VV",
+                    type=str)
+
+parser_conf.add_argument("-l", "--level",
                     help="product's processing level. Default: 'SLC'", 
                     default="SLC",
                     type=str)
@@ -84,7 +88,6 @@ parser_manual.add_argument("-t", "--retry",
                     default=3,
                     type=int)
 
-
 args = parser.parse_args()
 
 # -f or --file option
@@ -104,7 +107,6 @@ if args.file is not None:
             RuntimeError("The file must contain a single geometry")
     else:
         raise TypeError("File extension not supported. Use '.shp' or '.kml' ")
-
 
 #Create connector
 if USERNAME is not None and PASSWORD is not None:
@@ -126,7 +128,8 @@ end_date = utils.convert_to_dashed_date(args.end)
 search_results=search_api.search(args.aoi, start_date, end_date, 
                                 orbit_direction=args.orbit,
                                 sensor_mode=args.mode, 
-                                product=args.prod, 
+                                product=args.level, 
+                                polarisation=args.pol,
                                 instrument_name='Sentinel-1')
 
 search_api.download(search_results, max_retries=args.retry)

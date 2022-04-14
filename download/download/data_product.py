@@ -6,10 +6,10 @@
 """
 Data classes for the download engine
 """
-
+import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -57,7 +57,7 @@ class Product:
             pass
         else:
             print(self.orbit_direction)
-            raise NotImplemented('Theres not conversion for this type or orbit direction')
+            raise NotImplemented("There's no conversion for this type or orbit direction")
         
         # track sub directory
         self.track_subdir = 's1_' + \
@@ -69,7 +69,7 @@ class Product:
         self.type_subdir = self.beam_mode + '_' + self.processing_level + '__' + class_n_polarization + '_' + self.polarisation.replace('+', '') + '/'     
         # date  sub direcotry
         self.date_subdir=self.date_(self.start_time) + '/'
-        self.download_directory = os.path.join(self.base_dir, self.track_subdir, self.type_subdir, self.date_subdir)
+        self.download_directory = os.path.join(self.base_dir, 'sentinel1', self.track_subdir, self.type_subdir, self.date_subdir)
 
 
     def date_(self, datetime_string):
@@ -88,16 +88,15 @@ class Product:
         """
         
         if not isinstance(self, Product):
-            raise TypeError("dataset most be an instance of Product")
+            raise TypeError("dataset must be an instance of Product")
 
         # check base directory exits:
         if not os.path.exists(self.base_dir):
             raise FileNotFoundError(f'Base directory must exists:{self.base_dir}')
 
         # check for track directory
-        track_directory = self.base_dir + '/' + self.track_subdir
-        if not os.path.exists(track_directory):
-                os.mkdir(track_directory)
+        track_directory = self.base_dir + '/sentinel1/' + self.track_subdir
+        Path(track_directory).mkdir(parents=True, exist_ok=True)
         # check type directory
         type_directory = track_directory + self.type_subdir
         if not os.path.exists(type_directory):
@@ -131,7 +130,7 @@ if __name__ == '__main__':
 
     # print(asdict(p))
 
-    # pp.prepare_directory()
+    pp.prepare_directory()
 
 
 

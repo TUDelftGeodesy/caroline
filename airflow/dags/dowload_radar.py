@@ -59,7 +59,7 @@ with DAG(
 
     # Commands
     cmd_download_radar ="""
-    python main.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} -f {{dag_run.conf["geometry"]}} -o {{dag_run.conf["orbit_direction"]}} 
+    python main.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} --file {{dag_run.conf["geometry"]}} --orbit {{dag_run.conf["orbit_direction"]}}  --mode {{dag_run.conf["sensor_mode"]}}
     """
 
     # Tasks:

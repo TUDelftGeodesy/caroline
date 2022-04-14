@@ -37,12 +37,10 @@ parser_conf.add_argument("-o", "--orbit",
                     default="Ascending",
                     type=str)
 parser_conf.add_argument("-m", "--mode",
-                    help="sensor mode. Default: 'IW'", 
-                    default="IW",
+                    help="sensor mode", 
                     type=str)
 parser_conf.add_argument("-p", "--pol",
-                    help="Polarization of Sentinel-1 Data. E.g. 'VV' or list of type: 'VV,HH'. Default 'VV'",
-                    default="VV",
+                    help="Polarization of Sentinel-1 Data. E.g. 'VV' or list of type: 'VV,HH'",
                     type=str)
 
 parser_conf.add_argument("-l", "--level",

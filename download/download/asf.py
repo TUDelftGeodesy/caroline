@@ -129,7 +129,6 @@ class ASF(search.DataSearch):
         print("Searching for products....")
         query = self.build_query(aoi, start_date, end_date, track, polarisation, orbit_direction, sensor_mode, product, instrument_name)
 
-        print(query)
         search_results = self.connector.get(query)
         result_json = search_results.json() # returns array of objects
         _objects = result_json[0]

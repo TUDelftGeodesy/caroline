@@ -59,7 +59,7 @@ class S1OrbitProvider(search.DataSearch):
         platform = 'Sentinel-1'
        
         # validate osvtype value
-        if osvtype == 'POE':
+        if osvtype == 'POE': 
             product_type= 'AUX_POEORB'
         elif osvtype == 'RES':
                 product_type = 'AUX_RESORB'
@@ -135,9 +135,6 @@ class S1OrbitProvider(search.DataSearch):
             max_reties (int): maximum number of connection retries to download a product.
 
         """
-        
-        # if os.path.exists(download_directory) == False:
-        #     os.mkdir(download_directory)
         
         print("Downloading Products....")
 

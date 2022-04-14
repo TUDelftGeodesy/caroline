@@ -47,8 +47,8 @@ parser_conf.add_argument("-p", "--prod",
                     type=str)
 
 parser_conf.add_argument("-t", "--retry",
-                    help="maximun number of retries on download failures. Default: 3", 
-                    default=3,
+                    help="maximun number of retries on download failures. Default: 1", 
+                    default=1,
                     type=int)
 
 # man (manual) command

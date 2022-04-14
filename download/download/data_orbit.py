@@ -45,7 +45,7 @@ class Orbit:
             self.type_subdir = 'precise' + '/'
         else:
             print(self.product_type)
-            raise NotImplemented('This type of orbit product is not supported')
+            raise NotImplemented(f'Type of orbit: {self.product_type} is not supported')
         self.download_directory = os.path.join(self.base_dir, self.type_subdir)
         # print(self.download_directory)
 

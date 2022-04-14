@@ -12,9 +12,9 @@ API documentation: https://docs.asf.alaska.edu/api/basics/
 import datetime
 import os
 import hashlib
-from .utils import compute_checksum
-from . import search
-from . import data_product
+from download.utils import compute_checksum
+from download import search
+from download import data_product
 
 
 class ASF(search.DataSearch):
@@ -45,7 +45,8 @@ class ASF(search.DataSearch):
             end_date (str): last day for search as (YYYY-MM-DD), If None, the start_date will be also used as end_date
             and the query will use a time-window of one day.
             track (int): the number of the for the searching creteria
-            polarisation (str): type of polarisation. A single value or a comma-separated list of values E.g., VV or VV,HH
+            polarisation (str): type of polarisation. A single value or a comma-separated list of values E.g., VV or VV,HH.
+                 Posible values VV; VV,HH, VV+VH,Dual+VV
             orbit_direction (srt): Direction of the orbit. E.g., Ascending, Descending 
             sensor_mode (str): beam mode as in the ASF documentation. E.g., IW
             product (str): processing level as in the ASF documentation. E.g., SLC
@@ -128,6 +129,7 @@ class ASF(search.DataSearch):
         print("Searching for products....")
         query = self.build_query(aoi, start_date, end_date, track, polarisation, orbit_direction, sensor_mode, product, instrument_name)
 
+        print(query)
         search_results = self.connector.get(query)
         result_json = search_results.json() # returns array of objects
         _objects = result_json[0]
@@ -154,7 +156,6 @@ class ASF(search.DataSearch):
             print("No products found for this creteria")
         
         return self.products
-
 
     def download(self, products, max_retries=3):
         """
@@ -231,3 +232,6 @@ class ASF(search.DataSearch):
             result = False
 
         return result 
+
+if __name__ == '__main__':
+    pass    

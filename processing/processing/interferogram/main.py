@@ -29,6 +29,10 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--start_date", help="Start date of processing as yyyymmdd")
     parser.add_argument("-e", "--end_date", help="End date of processing as yyyymmdd")
     parser.add_argument("-c", "--process", help="Number of processes to use during product creation")
+    parser.add_argument("-md", "--mdate",
+                help="Master date for the processing data track as yyyymmdd. Choose a date with the lowest coverage to create an image with ONLY the overlapping parts", 
+                default= '20200328',
+                type=str)
     # Processing boundaries Options:
     geometry_group = parser.add_mutually_exclusive_group()
     geometry_group.add_argument("-a", "--aoi", help="area of interest as WKT (enclose in double-quotes if necessary)", type=str)
@@ -70,10 +74,6 @@ if __name__ == '__main__':
                     default='',
                     type=str)
     
-    parser.add_argument("-md", "--mdate",
-                    help="Master date for the processing data track as yyyymmdd. Choose a date with the lowest coverage to create an image with ONLY the overlapping parts", 
-                    default= '20200328',
-                    type=str)
 
     args = parser.parse_args()
 

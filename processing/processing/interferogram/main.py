@@ -25,7 +25,7 @@ MULTILOOK_TMP = os.getenv('MULTILOOK_TMP')
 RESAMPLING_TMP = os.getenv('RESAMPLING_TMP')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog="Process Sentinel-1", description="Creates inteferograms using Sentinel-1 datasets using Doris-RIPPL." )
+    parser = argparse.ArgumentParser(prog="Process Interferogram", description="Creates inteferograms using Sentinel-1 datasets using Doris-RIPPL." )
     parser.add_argument("-s", "--start_date", help="Start date of processing as yyyymmdd")
     parser.add_argument("-e", "--end_date", help="End date of processing as yyyymmdd")
     parser.add_argument("-c", "--process", help="Number of processes to use during product creation")
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     print('start date is ' + str(end_date.date()))
     master_date = datetime.datetime.strptime(args.mdate, '%Y%m%d')
 
-    no_processes = int(args.cores)
+    no_processes = int(args.process)
     print('running code with ' + str(no_processes) + ' cores.')
     
     polarisation = args.pol

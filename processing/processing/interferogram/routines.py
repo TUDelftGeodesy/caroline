@@ -59,7 +59,7 @@ def run_amplitude_interferogram_coherance(pipeline, resolution, temporal_base: i
         pipeline.create_output_tiffs_geometry()
 
         # Create interferogram visualization plot
-        pipeline.create_plots_ifg(overwrite=True)
+        # pipeline.create_plots_ifg(overwrite=True)
 
         # if dlat in [0.002, 0.005, 0.01, 0.02]: # manu: not required in MVP
         #     s1_processing.create_unwrapped_images(p)

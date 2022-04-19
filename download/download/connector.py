@@ -5,7 +5,6 @@
 
 # import requests
 from requests import Request, Session
-import requests
 from requests.utils import requote_uri
 
 class Connector:

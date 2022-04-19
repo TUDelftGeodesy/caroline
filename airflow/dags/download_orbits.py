@@ -12,8 +12,8 @@
 # dag_run.conf["geometry"]:
 #################################################################################
 
-
-from datetime import timedelta
+from concurrent.futures import process
+from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.dates import days_ago
@@ -28,7 +28,7 @@ sshHook = SSHHook(ssh_conn_id='spider_mgarcia')
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['username@domain.com'],
+    'email': ['usernam@domain.com'],
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 1,
@@ -49,28 +49,29 @@ default_args = {
 }
 
 with DAG(
-    dag_id='download-data',
+    dag_id='dowload-orbits',
     default_args=default_args,
-    description='Test DAG download',
+    description='Test dowload of obits',
     schedule_interval=timedelta(days=1),
     start_date=days_ago(0),
     tags=['caroline', 'test', 'template'],
 ) as dag:
 
-    # Commands
-    cmd_download_radar ="""
-    python main.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} --file {{dag_run.conf["geometry"]}} --orbit {{dag_run.conf["orbit_direction"]}}  
-    """
-    # Other posible paramters.
-    # --mode {{dag_run.conf["sensor_mode"]}} --pol {{dag_run.conf["polarisation"]}}
 
-    # Tasks:
-    download_radar = DownloadOperator(
-    task_id='download_radar_datasets',
-    command=cmd_download_radar,
+    cmd_download_orbits ="""
+    python orbits.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} --type {{dag_run.conf["orbit_type"]}}
+    """
+
+    
+    download_orbits = DownloadOperator(
+    task_id='download_orbits',
+    command=cmd_download_orbits,
     ssh_hook=sshHook,
     dag=dag)
-    
 
+
+
+    
     # dependencies
-    download_radar 
+    download_orbits 
+

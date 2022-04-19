@@ -6,7 +6,7 @@ import download
 
 
 # setup
-install_requires = ['python-dotenv','requests', 'shapely', 'fiona', 'python-dotenv', ]
+install_requires = ['python-dotenv','requests', 'shapely', 'fiona', 'gdal' ]
 
 
 setup(

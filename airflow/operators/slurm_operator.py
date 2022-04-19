@@ -13,11 +13,11 @@ from base64 import b64encode
 
 class SlurmOperator(SSHOperator):
     def __init__(self, command: str, monitor_time="1m", output_file=None, **kwargs) -> None:
-        """Submits a job using sbacth to Spider. The job statatus is monitored until completed or failed.
+        """Submits a Slurm job to Spider. The job statatus is monitored until completed or failed.
            Inherits properties and methods from the SSHOperator.
            Requires an SSHHook.
         Args:
-            sbatch_command (str): command to submit a slurm script. E.g., sbatch <path to script.sh>
+            command (str): command to submit a slurm script. E.g., sbatch <path to script.sh>
             monitor_time (str): time interval at which the status of a job will be checked. Default is 1 minute.
             output_file (str): path to directory for the slurm output file. If None, output file will be in
                          home directory.

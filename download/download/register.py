@@ -4,7 +4,7 @@
 # Created Date: 06-12-2021
 
 """
-Register downloaded datasets into the database
+Register downloaded datasets into the database or catalogue
 """
 
 class RegisterDB:

@@ -75,7 +75,7 @@ with DAG(
         python_callable=start_task,
         dag=dag)
 
-    # task with DownloadOperator
+   
     send_email = EmailOperator(
     task_id='send_email',
     to='m.g.garciaalvarez@tudelft.nl',

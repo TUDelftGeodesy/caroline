@@ -12,7 +12,7 @@ The diagram below presents a high-level overview of the components of the Caroli
 
 Processing of datasets takes place in an HPC facility due to the heavy computation required for the production of data products. A workflow manager controls and automates the process of downloading, processing and displaying data.
 
-![Components overview](img/components.png)
+![Components overview](assets/img/components.png)
 
 ## Implementation
 
@@ -26,4 +26,6 @@ Currently, the components of the system are deployed as follows:
 * The workflow manager (Apache Airflow) is running in a virtual machine (VM) provided by TU Delft. The VM has limited resources (1 CPU: `Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz`, and 2 GB RAM), but they can be extended within certain limitations.
 * Data (raw datasets and data products) are downloaded and stored directly to the data storage available to the research group in Spider.
 
-![Deployment](img/deployment.png)
+For more details see the [deployment documentation](deployment.md)
+
+![Deployment](assets/img/deployment.png)

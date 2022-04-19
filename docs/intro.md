@@ -18,7 +18,6 @@ Processing of datasets takes place in an HPC facility due to the heavy computati
 
 The implementation is a work in progress. The [Download](download-engine.md)  and [Processing](processing-engine.md) Engines are implemented as Python packages with CLI interfaces. Workflows are also implemented in Python using [Apache Airflow](airflow.md). For details, consult documentation specific to each component.
 
-
 ## Deployment
 
 Currently, the components of the system are deployed as follows:

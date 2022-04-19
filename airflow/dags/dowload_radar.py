@@ -54,7 +54,7 @@ with DAG(
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
     start_date=days_ago(0),
-    tags=['caroline', 'template'],
+    tags=['caroline', 'test', 'template'],
 ) as dag:
 
     # Commands

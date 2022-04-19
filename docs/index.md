@@ -5,7 +5,8 @@
 2. [Deployment](deployment.md)
 3. [Download Engine](download-engine.md)
 4. [Processing Engine](processing-engine.md)
-5. [Airflow](airflow.md)
+5. [Workflow Manager: Airflow](airflow.md)
     * [Custom Operators](custom-operators.md)
+    * [Connections](connections.md)
 6. [DAGs](dags.md)
    

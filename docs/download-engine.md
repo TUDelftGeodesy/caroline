@@ -37,16 +37,16 @@ The Download Engine is a Python packages taht provides functionality to connect 
 
 Package level configurations are managed using an `.env` file which is expected to be in the package root directory. For the examples shown here the following is required:
 
-```python
-ASF_USERNAME="<ASF account username>"
-ASF_PASSWORD="<ASF account password>"
-ASF_BASE_URL="https://api.daac.asf.alaska.edu/"
-ORB_USERNAME="gnssguest"
-ORB_PASSWORD="gnssguest"
-ORB_BASE_URL="https://scihub.copernicus.eu/gnss/"
-BASE_DATA_DIRECTORY="<path/to/directory/to-store/SAR-data>"
-BASE_ORBIT_DIRECTORY="<path/to/directory/to-store/orbit-files>"
-```
+    ```shell
+    ASF_USERNAME="<ASF account username>"
+    ASF_PASSWORD="<ASF account password>"
+    ASF_BASE_URL="https://api.daac.asf.alaska.edu/"
+    ORB_USERNAME="gnssguest"
+    ORB_PASSWORD="gnssguest"
+    ORB_BASE_URL="https://scihub.copernicus.eu/gnss/"
+    BASE_DATA_DIRECTORY="<path/to/directory/to-store/SAR-data>"
+    BASE_ORBIT_DIRECTORY="<path/to/directory/to-store/orbit-files>"
+    ```
 
 ## Examples
 

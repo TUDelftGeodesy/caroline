@@ -22,6 +22,7 @@ The Processing Engine is a Python package that provides a CLI around RIPPL for d
     $ source my-venv/bin/activate
    ```
 4. Install Rippl: https://bitbucket.org/grsradartudelft/rippl/src/master/rippl/ 
+   
 5. Go to the package (**processing**) root directory (where the `setup.py` is located).
 6. Install the package using `PIP`:
     ```shell

@@ -12,7 +12,7 @@ from base64 import b64encode
 class DownloadOperator(SSHOperator):
     ui_color = '#98D6DB'
     def __init__(self, command: str, **kwargs) -> None:
-        """Activates virtual environment and modules for the Download Engine.
+        """Executes commands on the Donwload Engine. Activates virtual environment and modules for the Download Engine.
            Inherits properties and methods from the SSHOperator.
            Requires an SSHHook.
         Args:

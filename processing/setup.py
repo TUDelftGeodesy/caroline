@@ -11,7 +11,8 @@ setup(
     author="Caroline Developer Team, TU Delft",
     author_email="",
     packages=find_packages(include=['processing', 'processing.*']),
-    install_requires=   ['python-dotenv', 
+    install_requires=   ['python-dotenv',
+                        'fiona', 
                         'shapely', 
                         'gdal'
                         ],

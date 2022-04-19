@@ -13,7 +13,7 @@ from base64 import b64encode
 
 class SBATCHOperator(SSHOperator):
     def __init__(self, sbatch_commands: str, script_name: str, max_time:str, frequency="1m", output_dir=None,  cores=1, tasks=1,  nodes=1, partition='normal', qos='long', **kwargs) -> None:
-        """Submits a job using an sbacth script to Spider. The job status is monitored until complete or failure.
+        """Prepares and submits slrum jobs to Spider using the sbatch command. The job status is monitored until complete or failure.
            Inherits properties and methods from the SSHOperator.
            Requires an SSHHook.
         Args:

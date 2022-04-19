@@ -14,16 +14,16 @@ When running apache airflow for the very firts time, do the following:
 4. Create an `.env` file with the user id: `echo -e "AIRFLOW_UID=$(id -u)" > .env`
 5. Define and set the values for the following variable in `.env`:
    
-   ```shell
+    ```shell
     AIRFLOW_UID=552041
-    AIRFLOW__WEBSERVER__BASE_URL=http://caroline.citg.tudelft.nl:8080
-    AIRFLOW__SMTP__SMTP_HOST=<require only for the Email Operator>
-    AIRFLOW__SMTP__SMTP_USER=<require only for the Email Operator>
-    AIRFLOW__SMTP__SMTP_PASSWORD=<require only for the Email Operator>
-    AIRFLOW__SMTP__SMTP_PORT=<require only for the Email Operator>
-    AIRFLOW__SMTP__SMTP_MAIL_FROM=<require only for the Email Operator>
-    _AIRFLOW_WWW_USERNAME=<initial admin username>
-    _AIRFLOW_WWW_PASSWORD=<initial admin password>
+    AIRFLOW__WEBSERVER__BASE_URL=http://caroline.citg.tudelft.nl:8080 
+    AIRFLOW__SMTP__SMTP_HOST=<require only for the Email Operator> 
+    AIRFLOW__SMTP__SMTP_USER=<require only for the Email Operator> 
+    AIRFLOW__SMTP__SMTP_PASSWORD=<require only for the Email Operator> 
+    AIRFLOW__SMTP__SMTP_PORT=<require only for the Email Operator> 
+    AIRFLOW__SMTP__SMTP_MAIL_FROM=<require only for the Email Operator> 
+    _AIRFLOW_WWW_USERNAME=<initial admin username> 
+    _AIRFLOW_WWW_PASSWORD=<initial admin password> 
     ```
 
 6. Initialize the services with `docker-compose up airflow-init`

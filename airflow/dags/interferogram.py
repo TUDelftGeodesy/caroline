@@ -49,15 +49,14 @@ default_args = {
 }
 
 with DAG(
-    dag_id='interferogram-test',
+    dag_id='interferogram-full-test',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=1),
     start_date=days_ago(0),
-    tags=['caroline', 'template'],
+    tags=['caroline', 'template', 'test'],
 ) as dag:
 
-    # TODO: match setting in download engine with settings in rippl, so that rippl finds the data.
     # Commands
     cmd_download_radar ="""
     python main.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} -f {{dag_run.conf["geometry"]}} -o {{dag_run.conf["orbit_direction"]}} 
@@ -76,7 +75,7 @@ with DAG(
     cd /project/caroline/Share/users/caroline-mgarcia
     # path to processing eninge
     PROGRAM="/project/caroline/Software/caroline/processing/processing/interferogram/main.py"
-    python $PROGRAM -s """+ "{{dag_run.conf['start_date']}}" + " -e {{dag_run.conf['end_date']}}"+""" -c 5 -n test_stack -f amsterdam.kml -Rp 500 -pl VV -md {{dag_run.conf['mater_date']}} || exit 91
+    python $PROGRAM --start_date {{dag_run.conf['start_date']}} --end_date {{dag_run.conf['end_date']}} --mdate {{dag_run.conf["master_date"]}} --processes {{dag_run.conf["processes"]}} --name {{dag_run.conf["stack_name"]}} --file {{dag_run.conf["geometry"]}} --resplanar {{dag_run.conf["planar_resolution"]}} --pol {{dag_run.conf["polarisation"]}}  || exit 91
     """
 
     # Tasks:

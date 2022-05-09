@@ -1,5 +1,5 @@
 """
-This is an example of how tu use the Download Enigne 
+This is an example of how to use the Download Enigne 
 within Python.
 This example uses the  ASF API. 
 Account credentials and destination for dataset must
@@ -13,18 +13,19 @@ from download.asf import ASF
 from dotenv import load_dotenv
 load_dotenv()
 
+# Configurations should be provided in a .env file
 USERNAME = os.getenv('ASF_USERNAME')
 PASSWORD = os.getenv('ASF_PASSWORD')
 ASF_BASE_URL = os.getenv('ASF_BASE_URL')
 
 if __name__ == '__main__':
     # Create a connector to handle the autentification
-    connetion = connector.Connector(USERNAME, PASSWORD, ASF_BASE_URL, retain_auth=True)
+    connection = connector.Connector(USERNAME, PASSWORD, ASF_BASE_URL, retain_auth=True)
 
-    connetion.test_connection()
+    connection.test_connection()
 
     # instantiate API with the connector
-    search_api = ASF(connetion)
+    search_api = ASF(connection)
 
     # search the API 
     search_results=search_api.search('POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))',

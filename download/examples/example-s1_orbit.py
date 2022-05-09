@@ -1,5 +1,5 @@
 """
-This example is for the download of orbit files form the SciHub API
+This example is of downloading of orbit files form the SciHub API
 Must provide your own account credentials
 WARNING: This example will download many datasets
 NOTICE: The location for donwloaded files must be set in the .env 

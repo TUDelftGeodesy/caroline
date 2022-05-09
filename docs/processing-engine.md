@@ -1,4 +1,4 @@
-# Download Engine
+# Processing Engine
 
 The Processing Engine is a Python package that provides a CLI around RIPPL for data processing. Specifically for the production of interferograms.
 

@@ -7,12 +7,10 @@
 Data classes for the download engine
 """
 
-from dataclasses import asdict, dataclass, field
-import dataclasses
-from datetime import datetime
+from dataclasses import  dataclass, field
 import os
 from dotenv import load_dotenv
-from abc import ABC
+from pathlib import Path
 
 load_dotenv()
 BASE_DIRECTORY=os.getenv('BASE_ORBIT_DIRECTORY')
@@ -64,15 +62,13 @@ class Orbit:
         if not os.path.exists(self.base_dir):
             raise FileNotFoundError(f'Base directory must exists:{self.base_dir}')
 
-        # check download directory
-        if not os.path.exists(self.download_directory):
-                os.mkdir(self.download_directory)
-
-
+        # check and create dowload directory:
+        directory = Path(self.download_directory)
+        directory.mkdir(parents=True, exist_ok=True)
 
 if __name__ == '__main__':
 
-    from dataclasses import asdict
+  
     beamModeType = "IW"
     id = "S1B_IW_SLC__1SDV_20180503T042130_20180503T042158_010752_013A4C_BB7B"
     uri = 'https://some.uri.com'
@@ -86,14 +82,9 @@ if __name__ == '__main__':
     
     ob = Orbit(file_name=fileName, id= id, uri=uri,product_type=product_type, size_MB=sizeMB)
     
-    # pp = Product(file_name=fileName, id=id, uri=uri, track=track, size_MB=sizeMB)
-            
-    # p = Product(fileName, track, beamModeType, processingLevel, flightDirection, startTime, polarization, startTime, size_MB=sizeMB)
     print(ob.download_directory)
 
-    # print(asdict(p))
-
-    # pp.prepare_directory()
+    # ob.prepare_directory()
 
 
 

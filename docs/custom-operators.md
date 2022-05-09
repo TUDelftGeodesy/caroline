@@ -234,4 +234,4 @@ with DAG(
     create_interferogram
 ```
 
-> IMPORTANT: When using this operator, the  `|| exit <error code>` must be added at the end of any critical or major command. This is because the final status of the slurm job is determined by the success or failure of the last statement in the sbatch script. In other words, `|| exit 91` will enforce that the job is reported a failed if the `python $PROGRAM` fails.
+> IMPORTANT: When using this operator, the  `|| exit <error code>` must be added at the end of any critical or major command. This is because the final status of the slurm job is determined by the success or failure of the last statement in the sbatch script. In other words, `|| exit 91` will enforce that the job to exit and throw an error if the `python $PROGRAM` fails.

@@ -9,13 +9,13 @@ from download.utils import convert_date_string
 
 class TestUitls(unittest.TestCase):
     
-    def test_convert_date_sting_datatype(self):
+    def test_convert_date_string_datatype(self):
         """Test output is of type datetime object"""
 
         _string = '2021-12-01'
         self.assertIsInstance(convert_date_string(_string), datetime.datetime )
 
-    def test_convert_date_sting_exeption(self):
+    def test_convert_date_string_exception(self):
         """Test exception on malform input"""
 
         with self.assertRaises(Exception):

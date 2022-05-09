@@ -83,8 +83,6 @@ class Product:
         Checks if the directory where a DataSet will be stored exits. 
         If it doesn't exist it will create all necessary directories.
         Example: sentinel1/s1_dsc_t037/IW_SLC__1SDV_VVVH/20210703
-        Args: 
-            dataset (DataSet): instance of DataSet clas
         """
         
         if not isinstance(self, Product):

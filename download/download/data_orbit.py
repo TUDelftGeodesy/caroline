@@ -46,19 +46,17 @@ class Orbit:
         else:
             print(self.product_type)
             raise NotImplemented(f'Type of orbit: {self.product_type} is not supported')
-        self.download_directory = os.path.join(self.base_dir, self.type_subdir)
+        self.download_directory = os.path.join(self.base_dir, 'sentinel1', self.type_subdir)
         # print(self.download_directory)
 
 
     def prepare_directory(self) -> None:
         """
-        Checks if the directory where a DataSet will be stored exits. 
-        If it doesn't exist it will create all necessary directories.
-        Example: sentinel1/s1_dsc_t037/IW_SLC__1SDV_VVVH/20210703
-        Args: 
-            dataset (DataSet): instance of DataSet clas
+        Checks if the directory where a orbit file will be stored exits. 
+        If it doesn't exist, it will create all necessary directories.
+        Example: sentinel1/precise/
         """
-        
+
         if not isinstance(self, Orbit):
             raise TypeError("dataset most be an instance of Orbit")
 

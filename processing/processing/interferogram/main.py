@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="Process Interferogram", description="Creates inteferograms using Sentinel-1 datasets using Doris-RIPPL." )
     parser.add_argument("-s", "--start_date", help="Start date of processing as yyyymmdd")
     parser.add_argument("-e", "--end_date", help="End date of processing as yyyymmdd")
-    parser.add_argument("-c", "--process", help="Number of processes to use during product creation")
+    parser.add_argument("-c", "--processes", help="Number of processes to use during product creation")
     parser.add_argument("-md", "--mdate",
                 help="Master date for the processing data track as yyyymmdd. Choose a date with the lowest coverage to create an image with ONLY the overlapping parts", 
                 default= '20200328',

@@ -58,13 +58,6 @@ def run_amplitude_interferogram_coherance(pipeline, resolution, temporal_base: i
         pipeline.create_geometry_mulitlooked(baselines=True, height_to_phase=True)
         pipeline.create_output_tiffs_geometry()
 
-        # Create interferogram visualization plot
-        # pipeline.create_plots_ifg(overwrite=True)
-
-        # if dlat in [0.002, 0.005, 0.01, 0.02]: # manu: not required in MVP
-        #     s1_processing.create_unwrapped_images(p)
-        #     s1_processing.create_output_tiffs_unwrap()
-
         # The coreg temp directory will only contain the loaded input lines/pixels to do the multilooking. These
         # files will be called by every process so it can be usefull to load them in memory the whole time.
         # If not given, these files will be loaded in the regular tmp folder.

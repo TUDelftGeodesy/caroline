@@ -16,6 +16,7 @@ from concurrent.futures import process
 from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.contrib.hooks.ssh_hook import SSHHook
+from airflow.operators.python import ShortCircuitOperator
 from airflow.utils.dates import days_ago
 # import custom operators
 from download_operator import DownloadOperator
@@ -102,6 +103,12 @@ with DAG(
     ssh_hook=sshHook,
     dag=dag)
     
+    # Conditions
+    cond_precise_orbits = ShortCircuitOperator(
+    task_id = 'precise_orbits_exist',
+    python_callable = lambda: False)
+
+
     # dependencies
-    download_radar >> download_precise_orbits >> create_interferogram
+    download_radar >> download_precise_orbits >> cond_precise_orbits >> create_interferogram
 

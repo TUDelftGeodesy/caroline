@@ -126,13 +126,10 @@ if __name__ == '__main__':
     mode = args.mode
     product_type = args.proc
     track_no = args.track  # A track makes a selection of datasets that belongs to an AoI. Stacks products should be kept separated by track. User provides the track number.
-    stack_name = args.name # 'Benelux_track_37'
+    stack_name = args.name 
 
-    # Enable system level configuration variables. Create products directory
-    
     # Force creation of output directory. 
     # Doris-rippl doesn't do that for some an unknown reason.
-
     Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)   
 
     # For every track we have to select a master date. This is based on the search results earlier.
@@ -159,9 +156,6 @@ if __name__ == '__main__':
         os.mkdir(resampling_tmp_directory)
     if not os.path.exists(ml_grid_tmp_directory):
         os.mkdir(ml_grid_tmp_directory)
-
-    # track_no = 37  # manu: track == strips of data, A track make a selection of datasets that belongs to a AoI. Images are stack, and process should keep products separated by tracks. User provides the track number.
-
 
     # =====================================================================
     # Processing Pipeline
@@ -201,7 +195,7 @@ if __name__ == '__main__':
 
     # Polarisation
     # Because with the geometric coregistrtation we load the X,Y,Z files of the main image for every calculation it can
-    # be beneficial to load them to a fast temporary disk. (If enough space you should load them to memory disk)
+    # be beneficial to load them to a fast temporary disk. (If enough space you should load them to memory)
  
     # Resampling and Phase correction
     print(f'coregistration and resampling {datetime.datetime.now()}')

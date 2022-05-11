@@ -62,10 +62,6 @@ with DAG(
     python main.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} -f {{dag_run.conf["geometry"]}} -o {{dag_run.conf["orbit_direction"]}} 
     """
 
-    cmd_download_restituted_orbits ="""
-    python orbits.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} --type RES
-    """
-
     cmd_download_precise_orbits ="""
     python orbits.py conf {{dag_run.conf["start_date"]}} {{dag_run.conf["end_date"]}} --type POE
     """
@@ -88,12 +84,6 @@ with DAG(
     command=cmd_download_radar,
     ssh_hook=sshHook,
     dag=dag)
-    
-    download_restituted_orbits = DownloadOperator(
-    task_id='download_restituted_orbits',
-    command=cmd_download_restituted_orbits,
-    ssh_hook=sshHook,
-    dag=dag)
 
     download_precise_orbits = DownloadOperator(
     task_id='download_precise_orbits',
@@ -113,5 +103,5 @@ with DAG(
     dag=dag)
     
     # dependencies
-    download_radar >> [download_restituted_orbits,  download_precise_orbits] >> create_interferogram
+    download_radar >> download_precise_orbits >> create_interferogram
 

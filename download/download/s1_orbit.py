@@ -20,6 +20,7 @@ from download.utils import compute_checksum, convert_date_string
 from download import search
 from download import data_orbit
 from download.utils import validate_scihub_download
+from download.exceptions import DataUnavailableError
 
 
 class S1OrbitProvider(search.DataSearch):
@@ -108,7 +109,7 @@ class S1OrbitProvider(search.DataSearch):
        
         if total_results == 0:
             warnings.warn("No products (orbit files) found for these creteria")
-            return self.orbits
+            raise DataUnavailableError("Search find zero orbits that match the search creteria.")
         elif total_results == 1:
             entries = [entries] # convert to list
         else: 
@@ -161,7 +162,7 @@ class S1OrbitProvider(search.DataSearch):
             while validity == False:
                 if download_retries > max_retries:
                     print("Download failed after", str(max_retries), "tries. File: ", orbit.file_name)
-                    break
+                    raise RuntimeError("Download attemps reached the maximum of retries. Check the API for orbits is up and running, and internet connection is stable.")
                 else:
                     response = self.connector.get(orbit.uri, stream=True)
                     with open(file_path, 'wb' ) as f:

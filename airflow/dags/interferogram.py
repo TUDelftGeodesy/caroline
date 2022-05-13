@@ -16,7 +16,6 @@ from concurrent.futures import process
 from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.contrib.hooks.ssh_hook import SSHHook
-from airflow.operators.python import ShortCircuitOperator
 from airflow.utils.dates import days_ago
 # import custom operators
 from download_operator import DownloadOperator
@@ -29,7 +28,7 @@ sshHook = SSHHook(ssh_conn_id='spider_mgarcia')
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['m.g.garciaalvarez@tudelft.nl'],
+    'email': ['name@tudelft.nl'],
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 1,
@@ -50,12 +49,12 @@ default_args = {
 }
 
 with DAG(
-    dag_id='interferogram-full-test',
+    dag_id='interferogram',
     default_args=default_args,
     description='Test DAG download',
-    schedule_interval=timedelta(days=1),
+    schedule_interval=timedelta(days=6),
     start_date=days_ago(0),
-    tags=['caroline', 'template', 'test'],
+    tags=['caroline', 'template'],
 ) as dag:
 
     # Commands
@@ -102,13 +101,10 @@ with DAG(
     cores=2,
     ssh_hook=sshHook,
     dag=dag)
-    
-    # Conditions
-    cond_precise_orbits = ShortCircuitOperator(
-    task_id = 'precise_orbits_exist',
-    python_callable = lambda: False)
 
+    # TODO: implement tasks  copying product to Airflow VM
+    # TODO: implement tasks for sending email with product as attachment
 
     # dependencies
-    download_radar >> download_precise_orbits >> cond_precise_orbits >> create_interferogram
+    download_radar >> download_precise_orbits >> create_interferogram
 

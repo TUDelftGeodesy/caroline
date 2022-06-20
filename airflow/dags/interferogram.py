@@ -87,7 +87,7 @@ with DAG(
     copy_prduct = """
     # Path to products directory for sentinel1. Depends on RIPPL configuration
     PRODUCT_PATH="/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/"{{dag_run.conf['stack_name']}}
-    ZIP_FILE = "interferogram-"+={{dag-run.conf['stack_name']}}+=".zip"
+    ZIP_FILE = "interferogram-"+={{dag_run.conf['stack_name']}}+=".zip"
     zip -r ${PRODUCT_PATH}/${ZIP_FILE} ${PRODUCT_PATH}/interferogram
     scp ${PRODUCT_PATH}/${ZIP_FILE}  caroline-mgarcia@spider.surfsara.nl:/temp
     """

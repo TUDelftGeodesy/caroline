@@ -14,14 +14,15 @@ The Processing Engine is a Python package that provides a CLI around RIPPL for d
 ## Installation
 
 1. Make sure that GDAL and Python-GDAL are installed.
-2. Clone the repository: `https://manuGilbert@bitbucket.org/grsradartudelft/caroline.git`
+2. Clone the repository: `https://bitbucket.org/grsradartudelft/caroline/src/main/`
 3. Create and activate a virtual environment:
    
    ```shell
     $ virtualenv my-venv
     $ source my-venv/bin/activate
    ```
-4. Install Rippl: https://bitbucket.org/grsradartudelft/rippl/src/master/rippl/ 
+   
+4. Install Rippl: https://bitbucket.org/grsradartudelft/rippl/src/main/
    
 5. Go to the package (**processing**) root directory (where the `setup.py` is located).
 6. Install the package using `PIP`:

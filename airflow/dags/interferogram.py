@@ -27,7 +27,6 @@ from sbatch_operator import SBATCHOperator
 sshHook = SSHHook(ssh_conn_id='spider_mgarcia') 
 
 
-uuid.UUID
 # These args will get passed on to each operator
 # You can override them on a per-task basis during operator initialization
 default_args = {
@@ -89,7 +88,7 @@ with DAG(
     PRODUCT_PATH="/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/"{{dag_run.conf['stack_name']}}
     ZIP_FILE = "interferogram-"+={{dag_run.conf['stack_name']}}+=".zip"
     zip -r ${PRODUCT_PATH}/${ZIP_FILE} ${PRODUCT_PATH}/interferogram
-    scp ${PRODUCT_PATH}/${ZIP_FILE}  caroline-mgarcia@spider.surfsara.nl:/temp
+    scp ${PRODUCT_PATH}/${ZIP_FILE}  mgarciaalvarez@spider.surfsara.nl:/temp
     """
 
     # Tasks:

@@ -8,29 +8,10 @@ A library of functions used accross modules
 """
 
 import fiona
-import rasterio
 import json
 from shapely.wkt import  loads
 from shapely.geometry import Polygon, mapping
 from osgeo import ogr
-from rasterio.plot import show
-from matplotlib  import pyplot as plt
-
-
-def tiff_to_png(tiff_file:str, output_file:str) -> None:
-    """
-    Saves a visualization of a GeoTIFF file as PNG
-
-    Args:
-        tiff_file : path to Geotiff file
-        output_file : name for PNG file
-    """
-
-    tiff_image = rasterio.open(tiff_file)
-    #TODO: find a way to save image to png file
-    plt.savefig(output_file)
-    return None
-
 
 
 def list_of_data_type(_input:list, data_type=str) -> bool:

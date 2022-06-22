@@ -118,7 +118,7 @@ if __name__ == '__main__':
     print('start date is ' + str(end_date.date()))
     master_date = datetime.datetime.strptime(args.mdate, '%Y%m%d')
 
-    no_processes = int(args.process)
+    no_processes = int(args.processes)
     print('running code with ' + str(no_processes) + ' cores.')
     
     polarisation = args.pol

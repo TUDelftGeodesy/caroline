@@ -15,6 +15,7 @@ import os
 from .utils import compute_checksum, validate_scihub_download
 from . import data_product
 from .search import DataSearch
+from download.exceptions import DataUnavailableError
 
 class SciHub(DataSearch):
     """
@@ -142,6 +143,7 @@ class SciHub(DataSearch):
 
         else:
             print("No products found for these creteria")
+            raise DataUnavailableError("Search find zero orbits that match the search creteria.")
 
         return self.products
         
@@ -183,7 +185,7 @@ class SciHub(DataSearch):
             while validity == False:
                 if download_retries > max_retries:
                     print("Download failed after", str(max_retries), "tries. Product: ", product.file_name)
-                    break
+                    raise RuntimeError("Download attemps reached the maximum of retries. Check the API for orbits is up and running, and internet connection is stable.")
                 else:
                     response = self.connector.get(product.uri, stream=True)
                     with open(file_path, 'wb' ) as f:

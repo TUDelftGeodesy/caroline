@@ -9,7 +9,7 @@ from requests.utils import requote_uri
 
 class Connector:
     '''
-    A parent class for connecting to a datasource using USERNAME/PASSWORD authentification
+    A class for connecting to a datasource using USERNAME/PASSWORD authentification
     '''
 
     def __init__(self, username, password, root_url, retain_auth=False) -> None:

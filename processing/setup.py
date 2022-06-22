@@ -14,7 +14,8 @@ setup(
     install_requires=   ['python-dotenv',
                         'fiona', 
                         'shapely', 
-                        'gdal'
+                        'gdal',
+                        'raterio'
                         ],
     description="Data processing component for the Caroline System",
     classifiers=["Programming Language :: Python :: 3",

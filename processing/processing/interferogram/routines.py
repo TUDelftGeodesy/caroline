@@ -59,8 +59,8 @@ def run_amplitude_interferogram_coherance(pipeline, resolution, temporal_base: i
         pipeline.create_output_tiffs_geometry()
 
         ## Plotting data from tutorial (uses cartopy)
-        
-        pipeline.create_plots_ifg(margins=-0.25, overwrite=True, remove_sea=True, dB_lim=-20, coh_lim=0)
+
+        pipeline.create_plots_ifg(overwrite=True)
 
         # The coreg temp directory will only contain the loaded input lines/pixels to do the multilooking. These
         # files will be called by every process so it can be usefull to load them in memory the whole time.

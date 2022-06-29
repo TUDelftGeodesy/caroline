@@ -83,7 +83,7 @@ with DAG(
     # WARNING: -o StrictHostKeyChecking=no will automatically accepts connections from any host. 
     # This reduces security. Ideally host verification is handled in a different way.
     cmd_transfer_file ="""
-    scp -i /opt/airflow/ssh/caroline_rsa -o StrictHostKeyChecking=no caroline-mgarcia@spider.surfsara.nl:/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /opt/airflow/data/interf-{{dag_run.conf["stack_name"]}}.zip
+    scp -i /opt/airflow/ssh/caroline_rsa -o StrictHostKeyChecking=no caroline-mgarcia@spider.surfsara.nl:/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /opt/airflow/data/temp/interf-{{dag_run.conf["stack_name"]}}.zip
     """
 
     cmd_clean_up="""

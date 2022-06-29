@@ -1,28 +1,26 @@
 #################################################################################
-# File Tansfer Example                                                     #
+# File Transfer Example                                                     #
 #################################################################################
-# This example shows how to use the transfer files between Spider 
-# and the Aiflow VM in a DAG using Jinja templates
-# for command parameters.
-# directory at the airflow root directory.
+# This example shows how to transfer files from Spider
+# to the Aiflow VM using SCP.
 # A sshHook to Spider is required.
 #
-#
+# TEMPLATED PARAMETERS:
+# stack_name
+
 # Running the DAG:
 # =================
 # Values for templated parameters must be passed as Json.
 # E.g.
-# {"stack_name":"test_stack" }
+# {"stack_name": "demo_stack"}
 #################################################################################
 
-from datetime import timedelta, datetime
+from datetime import timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.utils.dates import days_ago
-# import custom operator
-from download_operator import DownloadOperator
 # hook to spider.surfsara.nl
 sshHook = SSHHook(ssh_conn_id='spider_mgarcia')
 
@@ -31,7 +29,7 @@ sshHook = SSHHook(ssh_conn_id='spider_mgarcia')
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['m.g.garciaalvarez@tudelft.nl'],
+    'email': ['net_id@tudelft.nl'],
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 1,
@@ -65,16 +63,16 @@ with DAG(
     """
 
     # WARNING: -o StrictHostKeyChecking=no will automatically accepts connections from any host. 
-    # This reduces security. Ideally host verification is handled in a different way.
+    # This reduce security. Ideally host verification is handled in a different way.
     cmd_transfer_file ="""
-    scp -i /opt/airflow/ssh/caroline_rsa -o StrictHostKeyChecking=no caroline-mgarcia@spider.surfsara.nl:/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /opt/airflow/data/temp/interf-{{dag_run.conf["stack_name"]}}.zip
+    scp -i /opt/airflow/ssh/caroline_rsa -o StrictHostKeyChecking=no caroline-mgarcia@spider.surfsara.nl:/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /opt/airflow/data/interf-{{dag_run.conf["stack_name"]}}.zip
     """
 
-    # Prevents piling up data by deleting the zip file created by 'file compression'
     cmd_clean_up="""
     rm /project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip
     """
-    
+
+
     compress_file = SSHOperator(
     task_id='compress_output',
     command=cmd_file_compression,
@@ -88,6 +86,7 @@ with DAG(
     dag=dag
     )
 
+    # Delete compressed files from Spider
     clean_up = SSHOperator(
     task_id='clean_up',
     command=cmd_clean_up,

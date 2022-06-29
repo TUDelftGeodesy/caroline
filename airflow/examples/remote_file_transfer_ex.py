@@ -1,27 +1,18 @@
 #################################################################################
-# Download Operator Example                                                     #
+# File Tansfer Example                                                     #
 #################################################################################
-# This example shows how to use the custom DownloadOperator
-# in a DAG using Jinja templates for command parameters. 
-# We assume that the operator is available via the plugings
+# This example shows how to use the transfer files between Spider 
+# and the Aiflow VM in a DAG using Jinja templates
+# for command parameters.
 # directory at the airflow root directory.
-# A sshHook to an instance of Slurm is required.
+# A sshHook to Spider is required.
 #
-# The DowloadOperator inherits from the SSHOperator and
-# loads Spider depependencies before executing Python
-# commands on Download Engine.
-# To this end, the SSHOperator was extended with the 
-# following arguments:
-#   command (str): command to be executed after modules and 
-#       environment are loaded.
 #
 # Running the DAG:
 # =================
 # Values for templated parameters must be passed as Json.
 # E.g.
-# {"start_date":"2021-12-19", 
-# "end_date":"2021-12-22", 
-# "geometry":"POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))"}
+# {"stack_name":"test_stack" }
 #################################################################################
 
 from datetime import timedelta, datetime
@@ -69,13 +60,6 @@ with DAG(
     tags=['caroline', 'example'],
 ) as dag:
 
-    # PARAMETERS
-    # dag_run.conf["start_date"]
-    # dag_run.conf["end_date"]
-    # dag_run.conf["geometry"]
-
-    # command for Download Engine
-
     cmd_file_compression="""
     zip -r /project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram 
     """
@@ -86,13 +70,11 @@ with DAG(
     scp -i /opt/airflow/ssh/caroline_rsa -o StrictHostKeyChecking=no caroline-mgarcia@spider.surfsara.nl:/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /opt/airflow/data/temp/interf-{{dag_run.conf["stack_name"]}}.zip
     """
 
+    # Prevents piling up data by deleting the zip file created by 'file compression'
     cmd_clean_up="""
     rm /project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip
     """
     
-    ## Fow downloading Orbits
-    # Do: python orbits.py
-
     compress_file = SSHOperator(
     task_id='compress_output',
     command=cmd_file_compression,

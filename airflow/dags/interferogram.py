@@ -95,6 +95,13 @@ with DAG(
     rm /project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip
     """
 
+    email_message= """
+    <p>Hello,</p> 
+    <p>A new interferogram has been produced for <b>{{dag_run.conf["stack_name"]}}</b>. See attachment.</p> 
+    <p>Greetings,</p>
+    <p><em>Caroline Development Team</em></p>
+    """
+
     # Tasks:
     download_radar = DownloadOperator(
     task_id='download_radar_datasets',
@@ -119,19 +126,22 @@ with DAG(
     ssh_hook=sshHook,
     dag=dag)
 
+    # Prepares and compresses interferogram file for tranfer
     compress_file = SSHOperator(
-    task_id='compress_output',
+    task_id='compress_product',
     command=cmd_file_compression,
     ssh_hook=sshHook,
     dag=dag
     )
 
+    # Moves interferogram to Airflow Host
     transfer_file = BashOperator(
-    task_id='transfer_file',
+    task_id='transfer_product',
     bash_command=cmd_transfer_file,
     dag=dag
     )
 
+    # Deletes compressed file at Spider
     clean_up = SSHOperator(
     task_id='clean_up',
     command=cmd_clean_up,
@@ -144,7 +154,7 @@ with DAG(
     to=['m.g.garciaalvarez@tudelft.nl'],
     #'n.h.jansen@tudelft.nl', 'F.J.vanLeijen@tudelft.nl'],
     subject='New Sentinel-1 Product',
-    html_content = 'Hello, \n A new interferogram has been produced. See attachment. \n \n Caroline Development Team',
+    html_content = email_message,
     files=['/opt/airflow/data/interf-{{dag_run.conf["stack_name"]}}.zip'],
     dag=dag
     )

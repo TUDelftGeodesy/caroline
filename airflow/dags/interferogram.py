@@ -1,59 +1,58 @@
 #################################################################################
-# DAG for creating Inteferograms using Doris-RIPPL                              #
+# DAG for creating Inteferograms using Doris-RIPPL                              
 #################################################################################
-# This DAG search, and download radar datasets and orbit files for a time 
-# interval, and geographic area. Downloaded datsets are used to produce several 
+# This DAG searches and download Sentinel-1 datasets and orbit files based on
+# time and geographic area. Downloaded datsets are used to produce several 
 # products including an interferogram using Doris RIPPL
-# 
-# Templated fields:
-#
-# dag_run.conf["start_date"]: 
-# dag_run.conf["end_date"]:
-# dag_run.conf["geometry"]:
+
+# TEMPLATED PARAMETERS:
+# start_date
+# end_date
+# master_date
+# orbit_direction
+# geometry
+# orbit_type
+# planar_resolution
+# polarisation
+# processes
+# stack_name
+
+# Running the DAG:
+# =================
+# Values for templated parameters must be passed as Json.
+# E.g.
+# {"start_date":"20220410", 
+# "end_date":"20220410", 
+# "geometry":"POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))"}
+
 #################################################################################
-import uuid
 from datetime import timedelta
 
-from click import command
 from airflow import DAG
+from airflow.operators.bash import BashOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.operators.email import EmailOperator
-from airflow.contrib.operators.ssh_operator import SSHOperator 
+from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.utils.dates import days_ago
 # import custom operators
 from download_operator import DownloadOperator
 from sbatch_operator import SBATCHOperator
 # hook to Spider
-sshHook = SSHHook(ssh_conn_id='spider_mgarcia') 
+sshHook = SSHHook(ssh_conn_id='spider_mgarcia')
 
 
-# These args will get passed on to each operator
-# You can override them on a per-task basis during operator initialization
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['name@tudelft.nl'],
+    'email': ['net_id@tudelft.nl'],
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
-    # 'queue': 'bash_queue', 
-    # 'pool': 'backfill',
-    # 'priority_weight': 10,
-    # 'end_date': datetime(2016, 1, 1),
-    # 'wait_for_downstream': False,
-    # 'dag': dag,
-    # 'sla': timedelta(hours=2),
-    # 'execution_timeout': timedelta(seconds=300),
-    # 'on_failure_callback': some_function,
-    # 'on_success_callback': some_other_function,
-    # 'on_retry_callback': another_function,
-    # 'sla_miss_callback': yet_another_function,
-    # 'trigger_rule': 'all_success'
 }
 
 with DAG(
-    dag_id='interferogram2',
+    dag_id='interferogram',
     default_args=default_args,
     description='Test DAG download',
     schedule_interval=timedelta(days=6),
@@ -82,13 +81,18 @@ with DAG(
     python $PROGRAM --start_date {{dag_run.conf['start_date']}} --end_date {{dag_run.conf['end_date']}} --mdate {{dag_run.conf["master_date"]}} --processes {{dag_run.conf["processes"]}} --name {{dag_run.conf["stack_name"]}} --file {{dag_run.conf["geometry"]}} --resplanar {{dag_run.conf["planar_resolution"]}} --pol {{dag_run.conf["polarisation"]}}  || exit 91
     """
 
-    # TODO: templated code is not rendering. Check templated fields in SSHOperator and string concatenation.
-    copy_prduct = """
-    # Path to products directory for sentinel1. Depends on RIPPL configuration
-    PRODUCT_PATH="/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/"{{dag_run.conf['stack_name']}}
-    ZIP_FILE = "interferogram-"+={{dag_run.conf['stack_name']}}+=".zip"
-    zip -r ${PRODUCT_PATH}/${ZIP_FILE} ${PRODUCT_PATH}/interferogram
-    scp ${PRODUCT_PATH}/${ZIP_FILE}  mgarciaalvarez@spider.surfsara.nl:/temp
+    cmd_file_compression="""
+    zip -r /project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram 
+    """
+
+    # WARNING: -o StrictHostKeyChecking=no will automatically accepts connections from any host. 
+    # This reduces security. Ideally host verification is handled in a different way.
+    cmd_transfer_file ="""
+    scp -i /opt/airflow/ssh/caroline_rsa -o StrictHostKeyChecking=no caroline-mgarcia@spider.surfsara.nl:/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /opt/airflow/data/interf-{{dag_run.conf["stack_name"]}}.zip
+    """
+
+    cmd_clean_up="""
+    rm /project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip
     """
 
     # Tasks:
@@ -115,28 +119,35 @@ with DAG(
     ssh_hook=sshHook,
     dag=dag)
 
-    zip_product = SSHOperator(
-    task_id='zip_product',
-    command= copy_prduct,
+    compress_file = SSHOperator(
+    task_id='compress_output',
+    command=cmd_file_compression,
     ssh_hook=sshHook,
     dag=dag
     )
 
+    transfer_file = BashOperator(
+    task_id='transfer_file',
+    bash_command=cmd_transfer_file,
+    dag=dag
+    )
 
-    # TODO: implement tasks  copying product to Airflow VM
-    # TODO: implement tasks for sending email with product as attachment
-
+    clean_up = SSHOperator(
+    task_id='clean_up',
+    command=cmd_clean_up,
+    ssh_hook=sshHook,
+    dag=dag
+    )
 
     send_email = EmailOperator(
-    task_id='send_png',
+    task_id='email_notification',
     to=['m.g.garciaalvarez@tudelft.nl'],
-    subject='New Product: Interfereogram',
-    html_content = 'A new interferogram is ready. Find a visualization in the attachment',
-    dag=dag)
-
-
+    #'n.h.jansen@tudelft.nl', 'F.J.vanLeijen@tudelft.nl'],
+    subject='New Sentinel-1 Product',
+    html_content = 'Hello, \n A new interferogram has been produced. See attachment. \n \n Caroline Development Team',
+    files=['/opt/airflow/data/interf-{{dag_run.conf["stack_name"]}}.zip'],
+    dag=dag
+    )
 
     # dependencies
-    # download_radar >> download_precise_orbits >> create_interferogram >> 
-    zip_product >> send_email
-
+    [ download_radar, download_precise_orbits ] >> create_interferogram >> compress_file >> transfer_file >> [send_email, clean_up]

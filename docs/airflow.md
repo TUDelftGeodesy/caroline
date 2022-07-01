@@ -2,13 +2,13 @@
 
 Airflow provides a way to automate the processing workflow required for the productio of data pruducts in Caroline.
 
-We are running version *2.2.4*  of Apache Airflow using Docker. 
+We are running version *2.2.4* of Apache Airflow using Docker. 
 
 ## Installing Apache Airflow
 
 When running apache airflow for the very firts time, do the following:
 
-1. Copy the the [docker-compose.yalm](assets/scripts/docker-compose.yalm) file to the directory that will serve as root directory.
+1. Copy the [docker-compose.yalm](assets/scripts/docker-compose.yalm) file to the directory that will serve as root directory.
 2. Create the following directories: `dags, logs, plugins, ssh`
 3. Change the permisions of directories with `chmod -R 777 dags/ logs/ plugins/ ssh/`
 4. Create an `.env` file with the user id: `echo -e "AIRFLOW_UID=$(id -u)" > .env`

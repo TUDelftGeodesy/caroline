@@ -1,6 +1,6 @@
 # Download Engine
 
-The Download Engine is a Python packages taht provides functionality to connect to different SAR data providers, donwload datasets based on geographic location, observation time and several sensor's properties (e.g., polarisation or orbit direction).
+The Download Engine is a Python packages that provides functionality to connect to different SAR data providers. It Downloads datasets based on geographic location, observation time and several sensor's properties (e.g., polarisation or orbit direction).
 
 ## Requirements
 
@@ -50,100 +50,103 @@ Package level configurations are managed using an `.env` file which is expected 
 
 ## Examples
 
-### Donwload SAR data using the package within Python:
+### Python Interface
 
-```python
-"""
-This is an example of how tu use the Download Enigne 
-within Python.
-This example uses the  ASF API. 
-Account credentials and destination for dataset must
-be provided via an .env file.
-WARNING: This example will download 1 datasets (~4GB)
-"""
+1. **Download SAR data**
 
-import os
-from download  import connector
-from download.asf import ASF
-from dotenv import load_dotenv
-load_dotenv()
+    ```python
+    """
+    This is an example of how to use the Download Enigne 
+    within Python.
+    This example uses the  ASF API. 
+    Account credentials and destination for dataset must
+    be provided via an .env file.
+    WARNING: This example will download 1 dataset (~4GB)
+    """
 
-USERNAME = os.getenv('ASF_USERNAME')
-PASSWORD = os.getenv('ASF_PASSWORD')
-ASF_BASE_URL = os.getenv('ASF_BASE_URL')
+    import os
+    from download  import connector
+    from download.asf import ASF
+    from dotenv import load_dotenv
+    load_dotenv()
 
-if __name__ == '__main__':
+    USERNAME = os.getenv('ASF_USERNAME')
+    PASSWORD = os.getenv('ASF_PASSWORD')
+    ASF_BASE_URL = os.getenv('ASF_BASE_URL')
+
+    if __name__ == '__main__':
+        # Create a connector to handle the autentification
+        connetion = connector.Connector(USERNAME, PASSWORD, ASF_BASE_URL, retain_auth=True)
+
+        connetion.test_connection()
+
+        # instantiate API with the connector
+        search_api = ASF(connetion)
+
+        # search the API 
+        search_results=search_api.search('POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))',
+                '2018-04-22', '2018-05-01', orbit_direction='Ascending',
+                sensor_mode='IW', product='SLC', instrument_name='Sentinel-1', polarisation='HH,VV')
+
+        # Download datasets ( a.k.a products found by search() )
+        search_api.download(search_results) # This might take a long time
+
+    ```
+
+2. **Download Orbits**
+
+    ```python
+    """
+    This example is for the download of orbit files form the SciHub API
+    Must provide your own account credentials
+    WARNING: This example will download many datasets
+    NOTICE: The location for downloaded files must be set in the .env 
+    configuratin file
+    """
+
+    from download.s1_orbit import S1OrbitProvider
+    from download  import connector
+
     # Create a connector to handle the autentification
-    connetion = connector.Connector(USERNAME, PASSWORD, ASF_BASE_URL, retain_auth=True)
+    connection = connector.Connector("gnssguest", "gnssguest", 'https://scihub.copernicus.eu/gnss/')
 
-    connetion.test_connection()
+    connection.test_connection()
 
     # instantiate API with the connector
-    search_api = ASF(connetion)
+    search_api = S1OrbitProvider(connection)
 
     # search the API 
-    search_results=search_api.search('POLYGON((-155.75 18.90,-155.75 20.2,-154.75 19.50,-155.75 18.90))',
-            '2018-04-22', '2018-05-01', orbit_direction='Ascending',
-            sensor_mode='IW', product='SLC', instrument_name='Sentinel-1', polarisation='HH,VV')
+    # the GNSS API doesn't provide orbit files for the entirity of the mission.
+    search_results=search_api.search('2021-12-21', '2021-12-22')
 
+    # print(search_results)
     # Download datasets (a.k.a products found by search())
     search_api.download(search_results) # This might take a long time
 
-```
+    ```
 
-### Donwload orbits using the package within Python:
+## Command Line Interface:
 
-```python
-"""
-This example is for the download of orbit files form the SciHub API
-Must provide your own account credentials
-WARNING: This example will download many datasets
-NOTICE: The location for donwloaded files must be set in the .env 
-configuratin file
-"""
+1. **Download SAR data**
 
-from download.s1_orbit import S1OrbitProvider
-from download  import connector
+    The CLI interface is available by calling the `main.py` program. It has two modes (accessible via subcommands). The `conf` subcommand or *configuration* mode expects credentials for the data provider API to be available via the `.env` configuration file. The `manual` subcommand expects credentials to be passed to the program as arguments. Use `python main.py -h` for more information.
 
-# Create a connector to handle the autentification
-connection = connector.Connector("gnssguest", "gnssguest", 'https://scihub.copernicus.eu/gnss/')
+    ```shell
+    python main.py conf <start_date> <end_date> --file <path/to/KML-or-SHP/file> --orbit <orbit direction> 
+    ```
 
-connection.test_connection()
+1. **Download orbits**
 
-# instantiate API with the connector
-search_api = S1OrbitProvider(connection)
+    The CLI interface is available by calling the `orbits.py` program. It has two modes (accessible via subcommands). The `conf` subcommand or *configuration* mode expects credentials for the data provider API to be available via the `.env` configuration file. The `manual` command expects credentials to be passed to the program as arguments. Use `python orbits.py -h` for more information.
 
-# search the API 
-# the GNSS API doesn't provide orbit files for the entirity of the mission.
-search_results=search_api.search('2021-12-21', '2021-12-22')
-
-# print(search_results)
-# Download datasets (a.k.a products found by search())
-search_api.download(search_results) # This might take a long time
-
-```
-
-
-###  Donwload SAR data using the CLI interface:
-
-The CLI interface is available by calling the `main.py` program. It has two modes (accessible via subcommands). The `conf` subcommand or *configuration* mode expects credentials for the data provider API to be available via the `.env` configuration file. The `manual` subcommand expects credentials to be passed to the program as arguments. Use `python main.py -h` for more information.
-
-```shell
-python main.py conf <start_date> <end_date> --file <path/to/KML-or-SHP/file> --orbit <orbit direction> 
-```
-
-### Donwload orbits using the package within Python:
-
-The CLI interface is available by calling the `orbits.py` program. It has two modes (accessible via subcommands). The `conf` subcommand or *configuration* mode expects credentials for the data provider API to be available via the `.env` configuration file. The `manual` command expects credentials to be passed to the program as arguments. Use `python orbits.py -h` for more information.
-
-```shell
-python orbits.py conf <start_date> <end_date> --type <type of orbits>
-```
+    ```shell
+    python orbits.py conf <start_date> <end_date> --type <type of orbits>
+    ```
 
 ## Extending the Funtionality 
 
 The package provides an abstract class `DataSearch` as a common interface for querying and downloading datasets from REST APIs.
-To extend the package to use other data providers (assuming they implement authentification using username and password), inherit from the `DataSerach` and implement the methods to match the API specification of the data provider.
+To extend the package to use other data providers (assuming they implement authentification using username and password), inherit from the `DataSerach` and implement the methods below to match the API specification of the data provider.
 
 ```python
 from download.search import DataSearch

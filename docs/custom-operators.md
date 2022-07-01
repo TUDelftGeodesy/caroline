@@ -17,7 +17,7 @@ It prepares and submits slrum jobs to Spider using the slurm commands, e.g. `sba
 |--------|-------------|
 |**command** |slum command or run or sumbit a job E.g., `sbatch <path to script.sh>`|
 |**monitor_time** | frequency at which the status of a job will be checked. Default is 1 minute.|
-|**output_file** | path to the directory for the slurm output file. If `None`, output file will be in home directory.|
+|**output_file** | path to the directory for the slurm output file. If `None`, output file will be in the user's home directory.|
 |**ssh_hook** | SSHHook |
 
 ## Download Operator
@@ -31,7 +31,7 @@ It executes commands on the Download Engine. It activates virtual environment an
 
 ## SBATCH Operator
 
-It prepares and submits slrum jobs on Spider using the sbatch command. The job status is monitored until complete or fails. It inherits properties and methods from the SSHOperator and requires an SSHHook.
+It prepares and submits slurm jobs on Spider using the sbatch command. The job status is monitored until complete or fail. It inherits properties and methods from the SSHOperator and requires an SSHHook.
 
 |Argument| Description|
 |--------|-------------|
@@ -39,7 +39,7 @@ It prepares and submits slrum jobs on Spider using the sbatch command. The job s
 | **script_name** | name for the sbash script. A '.sh' file|
 | **max_time** | maximum run time for the slurm job, [HH:MM:SS] or [MM:SS] or [minutes] |
 | **frequency** | time interval at which the status of a job will be checked. Default is 1 minute|
-| **output_dir** | path to the directory for the  sbatch script and the slurm output file. If None, the output file will be in home directory|
+| **output_dir** | path to the directory for the  sbatch script and the slurm output file. If None, the output file will be in the user's home directory|
 | **cores** | number of cores to request to the cluster |
 |    **tasks** | number of tasks to request to the cluster|
 |   **nodes** | number of nodes to request to the cluster|
@@ -234,4 +234,4 @@ with DAG(
     create_interferogram
 ```
 
-> IMPORTANT: When using this operator, the  `|| exit <error code>` must be added at the end of any critical or major command. This is because the final status of the slurm job is determined by the success or failure of the last statement in the sbatch script. In other words, `|| exit 91` will enforce that the job to exit and throw an error if the `python $PROGRAM` fails.
+> IMPORTANT: When using the SBATCHOperator, the  `|| exit <error code>` must be added at the end of any critical or major command. This is because the final status of the slurm job is determined by the success or failure of the **last statement** in the sbatch script. In other words, in this example, `|| exit 91` will make sure that the job exits and throws a terminal error that Airflow can catch if the `python $PROGRAM` fails.

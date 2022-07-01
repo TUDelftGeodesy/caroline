@@ -88,7 +88,7 @@ with DAG(
     # WARNING: -o StrictHostKeyChecking=no will automatically accepts connections from any host. 
     # This reduces security. Ideally host verification is handled in a different way.
     cmd_transfer_file ="""
-    scp -i /opt/airflow/ssh/caroline_rsa -o StrictHostKeyChecking=no caroline-mgarcia@spider.surfsara.nl:/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /opt/airflow/data/interf-{{dag_run.conf["stack_name"]}}.zip
+    scp -i /opt/airflow/ssh/caroline_rsa -o StrictHostKeyChecking=no caroline-mgarcia@spider.surfsara.nl:/project/caroline/Share/users/caroline-mgarcia/products/sentinel1/{{dag_run.conf["stack_name"]}}/interferogram.zip /opt/airflow/data/temp/interf-{{dag_run.conf["stack_name"]}}.zip
     """
 
     cmd_clean_up="""
@@ -134,7 +134,7 @@ with DAG(
     dag=dag
     )
 
-    # Moves interferogram to Airflow Host
+    # Copies interferogram files to Airflow Host
     transfer_file = BashOperator(
     task_id='transfer_product',
     bash_command=cmd_transfer_file,
@@ -155,7 +155,7 @@ with DAG(
     #'n.h.jansen@tudelft.nl', 'F.J.vanLeijen@tudelft.nl'],
     subject='New Sentinel-1 Product',
     html_content = email_message,
-    files=['/opt/airflow/data/interf-{{dag_run.conf["stack_name"]}}.zip'],
+    files=['/opt/airflow/data/temp/interf-{{dag_run.conf["stack_name"]}}.zip'],
     dag=dag
     )
 

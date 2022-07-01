@@ -2,11 +2,12 @@
 
 ## Table of Contents
 1. [Overview](overview.md)
-2. [Deployment](deployment.md)
-3. [Download Engine](download-engine.md)
-4. [Processing Engine](processing-engine.md)
-5. [Workflow Manager: Airflow](airflow.md)
+1. [Deployment](deployment.md)
+1. [Download Engine](download-engine.md)
+1. [Processing Engine](processing-engine.md)
+1. [Workflow Manager: Airflow](airflow.md)
     * [Custom Operators](custom-operators.md)
     * [Connections](connections.md)
-6. [DAGs](dags.md)
+1. [DAGs](dags.md)
+   * [Interferogram Template](template-interferogram.md)
    

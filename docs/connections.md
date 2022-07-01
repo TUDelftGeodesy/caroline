@@ -1,6 +1,6 @@
 # Connections
 
-Custom operators required a sshHook and, therefore, an SSH connection. Connections are defined via the Apache UI. 
+Custom operators required a sshHook and, therefore, an SSH connection. Connections are defined via the Apache Airflow UI. 
 
 ## SSH Connection
 
@@ -21,7 +21,7 @@ Below we describe how to set up an SSH connection to Spider.
 ```json
 {"key_file": "/opt/airflow/ssh/<private-key>", "conn_timeout": "10", "compress": "false", "look_for_keys": "false", "allow_host_key_change": "true"}
 ```
-4. Log in to the VM and place a copy of the private key in the `/opt/airflow/ssh/` directory.
+4. Log in to the Airflow VM and place a copy of the private key in the `/opt/airflow/ssh/` directory.
 
 ## Using a connection
 

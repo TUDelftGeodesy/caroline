@@ -66,7 +66,6 @@ radar_data_products: /path/to/directory/for/data-products
 ...
 ```
   
-
 ## Examples
 
 ### Creating interferogram using the CLI
@@ -74,7 +73,7 @@ radar_data_products: /path/to/directory/for/data-products
 To create an interferogram, call the `main.py` program in the `processing/processing/interferogram` directory.
 
 ```shell
-python processing/interferogram/main.py --start_date <start_date> --end_date <end_date> --mdate <master_date> --process <number-of-processes> --name <name-output-datastack> --file <path/to/KML-or-SHP/file> --resplanar <output-resolution> --pol <polarisation-type>
+python processing/interferogram/main.py --start_date <start_date> --end_date <end_date> --mdate <master_date> --processes <number-of-processes> --name <name-output-datastack> --file <path/to/KML-or-SHP/file> --resplanar <output-resolution> --pol <polarisation-type>
 ```
 
 The outputs will be saved to the directory specified by `radar_data_products` in the `user_settings.txt` of the rippl's installation.

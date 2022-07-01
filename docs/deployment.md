@@ -32,4 +32,6 @@ Apache Airflow was deployed using `docker-compose` in the Virtual Machine. The r
 
 - DAGs are deployed in `/opt/airflow/dags`
 - Custom operator are deployed in `/opt/airflow/plugins`
+- SSH key are deployed in `/opt/airflow/ssh/`
+- Other files that need to be accessed by the Airlfow are be deployed in `/opt/airflow/data/`
   

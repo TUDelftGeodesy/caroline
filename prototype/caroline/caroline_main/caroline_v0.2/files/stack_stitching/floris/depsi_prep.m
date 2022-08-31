@@ -52,7 +52,7 @@ grid_p=repmat(linspace(fp,lp,50),50,1)';
 grid_list(1:2:4999,1:3)=[grid_l(:) grid_p(:) zeros(2500,1)];
 grid_list(2:2:5000,1:3)=[grid_l(:) grid_p(:) repmat(1000,2500,1)];
 
-[la,bp,h2ph] = la_bp(grid_list(:,1),grid_list(:,2),grid_list(:,3),master_date,dates,resfiles);
+[~,bp,~,h2ph] = la_bp(grid_list(:,1),grid_list(:,2),grid_list(:,3),master_date,dates,resfiles);
 bp_avg = mean(bp,1);
 
 %% interpolate h2ph to full resolution

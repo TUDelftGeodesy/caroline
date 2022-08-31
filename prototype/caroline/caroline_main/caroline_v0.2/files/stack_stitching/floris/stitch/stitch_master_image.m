@@ -11,7 +11,6 @@ function [bb] = stitch_master_image(folder,new_folder,id,bounds)
         ' -o -name ''phi.raw'' -o -name ''lam.raw'' -o -name ''dem_radar.raw'' > image_path_',folder(7:end),'.txt']);
     fimg = fopen(['image_path_',folder(7:end),'.txt']);
     temp = textscan(fimg,'%s'); img = sort(temp{1,1});
-    
     fclose(fimg);
     delete(['image_path_',folder(7:end),'.txt']);
     
@@ -88,9 +87,8 @@ function [bb] = stitch_master_image(folder,new_folder,id,bounds)
     
     %% Crop image
     if ischar(bounds)
-        S = shaperead(bounds);  
-		myBox = S.BoundingBox
-        x_p = myBox(:,1); y_p = myBox(:,2);
+        S = shaperead(bounds);                
+        x_p = S.BoundingBox(:,1); y_p = S.BoundingBox(:,2);
         bb = bounding_box(lam_stitch,phi_stitch,x_p,y_p);
     elseif isnumeric(bounds) && ~isempty(bounds)
         x_p = bounds(:,1);

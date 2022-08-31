@@ -1,4 +1,4 @@
-function [la,bp,h2ph] = la_bp(l,p,h,master_date,dates,res_files)
+function [la,bp,inc,h2ph] = la_bp(l,p,h,master_date,dates,res_files)
 % This script calculates the look angle, perpendicular baselines and height
 % to phase factor (h2ph) using DORIS result files
 %

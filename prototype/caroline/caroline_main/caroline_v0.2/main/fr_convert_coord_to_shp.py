@@ -5,7 +5,7 @@ pf = open("{}/{}".format(cpath, param_file))
 parameters = pf.read().split("\n")
 pf.close()
 
-search_parameters = ['center_AoI', 'AoI_width', 'AoI_length','shape_directory']
+search_parameters = ['center_AoI', 'AoI_width', 'AoI_length','shape_directory','shape_file']
 out_parameters = []
 
 for param in search_parameters:
@@ -24,53 +24,61 @@ crop_length = eval(out_parameters[2])
 crop_width = eval(out_parameters[1])
 export_shp = "{}/{}_shape.shp".format(out_parameters[3], AoIname)
 
-import osgeo
-from osgeo import ogr, osr
-from math import sin, cos, pi, radians
+if len(out_parameters[4]) != 0:  # shape file is given
+    if out_parameters[4][-4:] != '.shp':
+       raise ValueError("Given shapefile does not end in .shp!")
+    import os
+    for appendix in ["shp", "prj", "shx", "dbf"]:
+        os.system('ln -s {}.{} {}.{}'.format(out_parameters[4][:-4], appendix, export_shp[:-4], appendix))
 
-R = 6378136  # m
+else:
+    import osgeo
+    from osgeo import ogr, osr
+    from math import sin, cos, pi, radians
 
-spatialReference = osr.SpatialReference()
-spatialReference.ImportFromEPSG(4326)  # WGS84
-driver = ogr.GetDriverByName('ESRI Shapefile')
-shapeData = driver.CreateDataSource(export_shp)
-layer = shapeData.CreateLayer('layer', spatialReference, ogr.wkbPolygon)
-layer_defn = layer.GetLayerDefn()
+    R = 6378136  # m
 
-Dlat_m = 2*pi*R/360  # m per degree of latitude
+    spatialReference = osr.SpatialReference()
+    spatialReference.ImportFromEPSG(4326)  # WGS84
+    driver = ogr.GetDriverByName('ESRI Shapefile')
+    shapeData = driver.CreateDataSource(export_shp) 
+    layer = shapeData.CreateLayer('layer', spatialReference, ogr.wkbPolygon)
+    layer_defn = layer.GetLayerDefn()
 
-N_limit = central_coord[0]+crop_length*1000/2/Dlat_m
-S_limit = central_coord[0]-crop_length*1000/2/Dlat_m
+    Dlat_m = 2*pi*R/360  # m per degree of latitude
 
-W_limit = min(central_coord[1]-crop_width*1000/2/(Dlat_m*cos(radians(N_limit))),
-	      central_coord[1]-crop_width*1000/2/(Dlat_m*cos(radians(S_limit))))
-E_limit = max(central_coord[1]+crop_width*1000/2/(Dlat_m*cos(radians(N_limit))),
-              central_coord[1]+crop_width*1000/2/(Dlat_m*cos(radians(S_limit))))
+    N_limit = central_coord[0]+crop_length*1000/2/Dlat_m
+    S_limit = central_coord[0]-crop_length*1000/2/Dlat_m
 
-print(N_limit,S_limit,W_limit,E_limit)
+    W_limit = min(central_coord[1]-crop_width*1000/2/(Dlat_m*cos(radians(N_limit))),
+                  central_coord[1]-crop_width*1000/2/(Dlat_m*cos(radians(S_limit))))
+    E_limit = max(central_coord[1]+crop_width*1000/2/(Dlat_m*cos(radians(N_limit))),
+                  central_coord[1]+crop_width*1000/2/(Dlat_m*cos(radians(S_limit))))
 
-coords = [[N_limit, W_limit], [N_limit, E_limit], [S_limit, E_limit], [S_limit, W_limit], [N_limit, W_limit]]
+    print(N_limit,S_limit,W_limit,E_limit)
 
-index = 0
+    coords = [[N_limit, W_limit], [N_limit, E_limit], [S_limit, E_limit], [S_limit, W_limit], [N_limit, W_limit]]
 
-lines = ogr.Geometry(ogr.wkbLinearRing)
+    index = 0
 
-for coord in coords:
-    #point = ogr.Geometry(ogr.wkbPoint)
-    lines.AddPoint(coord[1], coord[0])
-    #feature = ogr.Feature(layer_defn)
-    #feature.SetGeometry(point)
-    #feature.SetFID(index)
-    #layer.CreateFeature(feature)
+    lines = ogr.Geometry(ogr.wkbLinearRing)
 
-poly = ogr.Geometry(ogr.wkbPolygon)
-poly.AddGeometry(lines)
-feature = ogr.Feature(layer_defn)
-feature.SetGeometry(poly)
-feature.SetFID(index)
-layer.CreateFeature(feature)
+    for coord in coords:
+        #point = ogr.Geometry(ogr.wkbPoint)
+        lines.AddPoint(coord[1], coord[0])
+        #feature = ogr.Feature(layer_defn)
+        #feature.SetGeometry(point)
+        #feature.SetFID(index)
+        #layer.CreateFeature(feature)
 
-shapeData.Destroy()
+    poly = ogr.Geometry(ogr.wkbPolygon)
+    poly.AddGeometry(lines)
+    feature = ogr.Feature(layer_defn)
+    feature.SetGeometry(poly)
+    feature.SetFID(index)
+    layer.CreateFeature(feature)
+
+    shapeData.Destroy()
 
 
 

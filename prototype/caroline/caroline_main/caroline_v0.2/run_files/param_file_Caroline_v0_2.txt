@@ -17,6 +17,8 @@ stitch_directory = '/project/caroline/Share/users/caroline-svandiepen/projects/d
 depsi_directory  = '/project/caroline/Share/users/caroline-svandiepen/projects/dummy/depsi'
 shape_directory  = '/project/caroline/Share/users/caroline-svandiepen/projects/dummy/shape'
 
+shape_file = '/project/caroline/Share/users/caroline-svandiepen/tests/full_netherlands/shapes/aoi_holland/aoi_holland.shp'
+# above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
 center_AoI = [52.137764, 4.838481]  # Latitude, longitude
 AoI_width  = 10 # km, east-west AoI size
 AoI_length = 10 # km, north-south AoI size
@@ -140,3 +142,4 @@ zc0         = []
 r0          = []
 r10         = []
 epoch       = []
+

@@ -14,7 +14,6 @@
 # if find-new-insar-files.sh; then
 #     echo "Start processing"
 # fi
-#
 
 SCAN_DIR='/project/caroline/Data/radar_data/sentinel1'
 ORBIT_DIR='/project/caroline/Data/orbits/sentinel1/restituted'
@@ -22,6 +21,41 @@ TIMESTAMP_FILE="/project/caroline/Share/users/${USER}/run/find-new-insar-files-t
 
 main () {
 	local NEW_DOWNLOADS=()
+	local OPTIONS=''
+	local NEW_TIMESTAMP=''
+
+	# Parse commandline arguments with getopt
+	OPTIONS=$(getopt -o hr: --long help,reset-timestamp: -- "$@")
+	[ $? -eq 0 ] || {
+		print_usage
+		exit 1
+	}
+	eval set -- "${OPTIONS}"
+	while true; do
+		case "$1" in
+			-h|--help)
+				print_usage
+				exit
+				;;
+			-r|--reset-timestamp)
+				shift;
+				NEW_TIMESTAMP="${1}"
+				;;
+			--)
+				shift
+				break
+		esac
+		shift
+	done
+
+	#
+	# Process options
+	#
+	# Reset timestamp if --reset-timestamp option is given
+	if [ ! -z "${NEW_TIMESTAMP}" ]; then
+		reset_timestamp "${NEW_TIMESTAMP}"
+		exit
+	fi
 
 	# Create a timestamp file if it is not there yet
 	if [ ! -f "${TIMESTAMP_FILE}" ]; then
@@ -196,6 +230,56 @@ orbits_downloaded () {
 	# Previous test has passed, so we have enough orbit data to start 
 	# processing
 	return 0
+}
+
+print_usage () {
+	cat <<-EOF
+	usage: find-new-insar-files.sh [-h | --help] [-r | --reset-timestamp]
+
+	This script is meant to run periodically. It checks if new InSAR files have
+	been downloaded in SCAN_DIR since the last time new files were found.
+
+	When new files are found they are listed and exit code 0 is returned. When
+	no files have been found, this is reported and exit code 1 is returned. This
+	way this script can be used as a test like so:
+
+	if find-new-insar-files.sh; then
+	    echo "Start processing"
+	fi
+
+	options:
+	  -h, --help             show this help message and exit
+	  -r TIMESTAMP, --reset-timestamp=TIMESTAMP
+	                         reset time timestamp file and exit
+
+	TIMESTAMP
+	  A time stamp in a format that is acceptible for the touch(1) command,
+	  e.g.: "2022-09-01 14:00:00" will reset the timestamp file to a date
+	  of September 1st 2022 at 14:00 hrs.
+
+	EXAMPLES
+	  Find new images:
+	    find-new-insar-files.sh
+
+	  Show help:
+	    find-new-insar-files.sh -h
+
+	  Reset timestamp:
+	    find-new-insar-files.sh --reset-timestamp="2022-09-01 14:00:00"
+
+	EOF
+}
+
+reset_timestamp () {
+	local TIMESTAMP="${1}"
+	echo "Setting timestamp to '${TIMESTAMP}'"
+	if touch --date="${TIMESTAMP}" "${TIMESTAMP_FILE}"; then
+		echo "Timestamp updated:"
+		ls -l "${TIMESTAMP_FILE}"
+	else
+		echo "Failed to update timestamp"
+		exit 1
+	fi
 }
 
 # Convert a timestamp to time in epoch

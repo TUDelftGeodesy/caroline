@@ -23,9 +23,10 @@ main () {
 	local NEW_DOWNLOADS=()
 	local OPTIONS=''
 	local NEW_TIMESTAMP=''
+	local TRACK=''
 
 	# Parse commandline arguments with getopt
-	OPTIONS=$(getopt -o hr: --long help,reset-timestamp: -- "$@")
+	OPTIONS=$(getopt -o hr:t: --long help,list-tracks,reset-timestamp:,track: -- "$@")
 	[ $? -eq 0 ] || {
 		print_usage
 		exit 1
@@ -37,9 +38,17 @@ main () {
 				print_usage
 				exit
 				;;
+			--list-tracks)
+				list_tracks
+				exit
+				;;
 			-r|--reset-timestamp)
 				shift;
 				NEW_TIMESTAMP="${1}"
+				;;
+			-t|--track)
+				shift;
+				TRACK="${1}"
 				;;
 			--)
 				shift
@@ -56,13 +65,26 @@ main () {
 		reset_timestamp "${NEW_TIMESTAMP}"
 		exit
 	fi
+	#
+	# Add track dir to download dir if -t or --track option
+	# was specified on the commandline
+	if [ ! -z "${TRACK}" ]; then
+
+		if ! is_valid_track "${TRACK}"; then
+			echo "ERROR: Track ${TRACK} is NOT a valid track" >&2
+			echo "Use the --list-tracks option to show available tracks" >&2
+			exit 1
+		else
+			SCAN_DIR="${SCAN_DIR}/${TRACK}"
+		fi
+	fi
 
 	# Create a timestamp file if it is not there yet
 	if [ ! -f "${TIMESTAMP_FILE}" ]; then
 		mkdir -p $(dirname ${TIMESTAMP_FILE})
 		touch "${TIMESTAMP_FILE}"
 	fi
-	
+
 	# - Find download directories in the SCAN_DIR with xml files that are 
 	#   newer than the timestamp file.
 	# - Check if all files have been downloaded
@@ -166,6 +188,15 @@ get_satellite_id () {
 	echo "${SATELLITE_ID}"
 }
 
+# Show a list of available tracks
+#
+# Available means tracks that we have downloads for
+list_tracks () {
+	for TRACK_DIR in "${SCAN_DIR}"/s* ; do
+		echo ${TRACK_DIR##*/}
+	done
+}
+
 # Check if a download is complete
 #
 # Check we have a zip file for each xml file found
@@ -195,6 +226,19 @@ is_download_complete () {
 	# If we end up here we have a xml file for every zip file so return 
 	# true
 	return 0
+}
+
+# Check if track is a valid track
+is_valid_track () {
+	local TRACK="${1}"
+
+	for AVAILABLE_TRACK in $(list_tracks); do
+		if [ "${TRACK}" = "${AVAILABLE_TRACK}" ]; then
+			return 0
+		fi
+	done
+
+	return 1
 }
 
 # Check if orbitfiles have been downloaded for products in a download
@@ -249,13 +293,25 @@ print_usage () {
 
 	options:
 	  -h, --help             show this help message and exit
+	  --list-tracks          list available tracks and exit
 	  -r TIMESTAMP, --reset-timestamp=TIMESTAMP
 	                         reset time timestamp file and exit
+	  -t TRACK, --track=TRACK
+	                         only show downloads for TRACK
 
 	TIMESTAMP
 	  A time stamp in a format that is acceptible for the touch(1) command,
 	  e.g.: "2022-09-01 14:00:00" will reset the timestamp file to a date
 	  of September 1st 2022 at 14:00 hrs.
+
+	TRACK
+	  The name of the track in the follwing format: 
+
+	  <satellite_id>_<orbit_direction>_t<track_number>
+
+	  E.g.: s1_dsc_t110
+
+	  Use the --list-tracks option to show available (valid) track names.
 
 	EXAMPLES
 	  Find new images:
@@ -266,6 +322,12 @@ print_usage () {
 
 	  Reset timestamp:
 	    find-new-insar-files.sh --reset-timestamp="2022-09-01 14:00:00"
+
+	  List tracks:
+	    find-new-insar-files.sh --list-tracks
+
+	  Show downloads for a specific track:
+	    find-new-insar-files.sh --track=s1_dsc_t110
 
 	EOF
 }

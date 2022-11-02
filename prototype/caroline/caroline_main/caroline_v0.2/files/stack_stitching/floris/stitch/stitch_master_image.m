@@ -108,10 +108,10 @@ function [bb] = stitch_master_image(folder,new_folder,bounds)
     %% Write new files
 
     
-    fwritebk(slc_crp,[save_path,'/',folder(7:end),'/slc_srd_.raw'],'cpxfloat32');
+    fwritebk(slc_crp,[save_path,'/',folder(7:end),'/slc_srd.raw'],'cpxfloat32');
     fwritebk(dem_radar_crp,[save_path,'/',folder(7:end),'/dem_radar.raw'],'float32');
-    fwritebk(phi_crp,[save_path,'/',folder(7:end),'/phi_.raw'],'float32');
-    fwritebk(lam_crp,[save_path,'/',folder(7:end),'/lam_.raw'],'float32');   
+    fwritebk(phi_crp,[save_path,'/',folder(7:end),'/phi.raw'],'float32');
+    fwritebk(lam_crp,[save_path,'/',folder(7:end),'/lam.raw'],'float32');   
     
     fid = fopen([save_path,'/','nlines_crp.txt'],'w');
     fprintf(fid,'%i\n',bb(3) - bb(1) +1);

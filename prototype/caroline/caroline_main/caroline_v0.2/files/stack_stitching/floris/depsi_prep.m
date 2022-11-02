@@ -1,4 +1,4 @@
-function depsi_prep(folder,id)
+function depsi_prep(folder)
 % Script to make a DePSI input file and create h2ph files. 
 %
 % Required scripts:
@@ -16,10 +16,6 @@ fclose(finput);
 
 master_date = doris_input{17}(14:end - 14); master_date(5) = []; master_date(7) = [];
 master_date = str2double(master_date);
-
-if ~(exist(fullfile(pwd,['DePSI_',folder]),'dir') == 7)
-    mkdir(['DePSI_',folder])
-end
 
 %% files with links to files:
 % open slcs
@@ -79,7 +75,7 @@ for i = 1:Nifg
 
     finfo = dir(ifgs{i});
     fpath = finfo.folder;
-    h2ph_name = [fpath,'/h2ph_',id,'.raw'];
+    h2ph_name = [fpath,'/h2ph.raw'];
     h2ph_list{i} = h2ph_name;
     output_list{i} = [fpath,'/'];
     fwritebk(h2ph_full,h2ph_name);    
@@ -115,10 +111,6 @@ lp_list = repmat(fnpixels(3),Nifg+1,1);
 
 prnt = [date string(date_str) string(slc_list) string(ifg_list) string(h2ph_list)... 
     string(output_list) Bp_list Bt_list Bdop_list fl_list ll_list fp_list lp_list];
-
-fid = fopen(['DePSI_',folder,'/depsi_input.txt'],'w');
-fprintf(fid,'%s %s %s %s %s %s %s %s %s %s %s %s %s\n',prnt');
-fclose(fid);
 
 
 end

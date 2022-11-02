@@ -1,4 +1,4 @@
-function create_slcs(folder,id)
+function create_slcs(folder)
 % Make SLCs from interferograms. 
 % ifg = master.*conj(slave);
 % slave = master.*conj(ifg)./abs(master.^2);
@@ -30,14 +30,14 @@ ifg_inds = [repmat(m_ind,nifgs,1) s_ind'];
 
 fifg = fopen([folder,'/path_ifgs.txt'],'w');
 fslc = fopen([folder,'/path_slcs.txt'],'w');
-master = freadbk([pwd,'/',folder,'/',num2str(master_date),'/slc_srd_',id,'.raw'],1,'cpxfloat32'); % PC: Where does this come from?
+master = freadbk([pwd,'/',folder,'/',num2str(master_date),'/slc_srd.raw'],1,'cpxfloat32');
 for i = 1:length(dates)
-    slc_name = [pwd,'/',folder,'/',num2str(dates(i)),'/slc_srd_',id,'.raw'];
-    cint_name = [pwd,'/',folder,'/',num2str(dates(i)),'/cint_srd_',id,'.raw'];
+    slc_name = [pwd,'/',folder,'/',num2str(dates(i)),'/slc_srd.raw'];
+    cint_name = [pwd,'/',folder,'/',num2str(dates(i)),'/cint_srd.raw'];
     
     % PC: Generate a new SLC from the given interferogram
     if exist(slc_name,'file') == 0 && i ~= m_ind
-        ifg = freadbk(ifgs{i},1,'cpxfloat32');
+        ifg = freadbk(cint_name,1,'cpxfloat32');
         slc = master.*conj(ifg)./(abs(master).^2);
         slc(isnan(slc))=complex(0,0);
         fwritebk(slc,slc_name,'cpxfloat32');        

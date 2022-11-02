@@ -2,7 +2,7 @@
 %% RUN THIS IN YOUR DORIS PROCESSING FOLDER
 
 % name of new folder
-folder = '{AoI_name}_cropped_stack';
+folder = 'cropped_stack';
 
 % id is used in filenaming
 id = '{AoI_name}';
@@ -15,11 +15,11 @@ croptype = 'poly'; % boundingbox, full or poly
 cropparam = '{shape_dir}/{AoI_name}_shape.shp';    
 
 %% stitch images
-stitch_S1_stack(folder,id,croptype,cropparam);
+stitch_S1_stack(folder,croptype,cropparam);
 
 %% make slcs
-create_slcs(folder,id);
+create_slcs(folder);
 
 %% depsi_prep
-depsi_prep(folder,id);
+depsi_prep(folder);
 

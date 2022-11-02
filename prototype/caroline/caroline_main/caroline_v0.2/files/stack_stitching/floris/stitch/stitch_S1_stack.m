@@ -1,10 +1,9 @@
-function stitch_S1_stack(folder,id,croptype,cropparam)
+function stitch_S1_stack(folder,croptype,cropparam)
 % Stitch together Sentinel 1 bursts processed using DORIS 5.0. If
 % specified, images will be cropped.
 % 
 % INPUT:
 % folder:       Name of folder where stitched images will be saved
-% id:           ID used in filenaming, i.e. cint_srd_id.raw
 % croptype:     Specify boundingbox, full or poly
 % cropparam:    croptype = boundingbox: specify bounding box (for example lon_bb = [4.22;4.66], lat_bb = [51.89;52.02])
 %               croptype = poly: give full path to shapefile, if none is
@@ -60,21 +59,21 @@ if strcmp(croptype,'full')
 end
 
 master_ix = find(strcmp(master_date,dir));
-bb = stitch_master_image(['stack/',dir{master_ix}],folder,id,crop_in);
+bb = stitch_master_image(['stack/',dir{master_ix}],folder,crop_in);
 fprintf('Finished folder %s. \n',['stack/',dir{master_ix}])
 
 dir(master_ix) = [];
 
 for d = 1:length(dir)    
-    stitch_slave_image(['stack/',dir{d}],folder,id,bb);    
+    stitch_slave_image(['stack/',dir{d}],folder,bb);    
     fprintf('Finished folder %s. \n',['stack/',dir{d}])    
 end
 
 system(['find "$(pwd -P)/',folder,'"/*  -name ''*srd*.raw'' > ',folder,'/path_images.txt']);
 system(['find "$(pwd -P)/',folder,'"/*  -name ''*.res'' > ',folder,'/path_res_files.txt']);
-system(['find "$(pwd -P)/',folder,'"/*  -name ''phi_',id,'.raw'' > ',folder,'/path_coords.txt']);
-system(['find "$(pwd -P)/',folder,'"/*  -name ''lam_',id,'.raw'' >> ',folder,'/path_coords.txt']);
-system(['find "$(pwd -P)/',folder,'"/*  -name ''dem_radar_',id,'.raw'' >> ',folder,'/path_coords.txt']);
+system(['find "$(pwd -P)/',folder,'"/*  -name ''phi','.raw'' > ',folder,'/path_coords.txt']);
+system(['find "$(pwd -P)/',folder,'"/*  -name ''lam','.raw'' >> ',folder,'/path_coords.txt']);
+system(['find "$(pwd -P)/',folder,'"/*  -name ''dem_radar','.raw'' >> ',folder,'/path_coords.txt']);
 system(['cp stack/dir.txt ',folder,'/dates.txt']);
 end
 

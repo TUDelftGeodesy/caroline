@@ -1,4 +1,4 @@
-function [bb] = stitch_master_image(folder,new_folder,id,bounds)
+function [bb] = stitch_master_image(folder,new_folder,bounds)
 % Stitch together the master image, as well as the coordinate and DEM
 % files. The bounding box is also calculated. The bounding box is used in
 % stitch_slave_image.m
@@ -39,7 +39,7 @@ function [bb] = stitch_master_image(folder,new_folder,id,bounds)
     
     if ~(exist([save_path,'/',folder(7:end)],'dir')==7)
         mkdir([save_path,'/',folder(7:end)])
-    elseif ~(exist([save_path,'/',folder(7:end),'/slc_srd_',id,'.raw'],'file') == 0)
+    elseif ~(exist([save_path,'/',folder(7:end),'/slc_srd.raw'],'file') == 0)
         out = load([save_path,'/','nlines_crp.txt']); 
         bb(1) = out(2); bb(3) = out(3);
         out = load([save_path,'/','npixels_crp.txt']);
@@ -108,10 +108,10 @@ function [bb] = stitch_master_image(folder,new_folder,id,bounds)
     %% Write new files
 
     
-    fwritebk(slc_crp,[save_path,'/',folder(7:end),'/slc_srd_',id,'.raw'],'cpxfloat32');
-    fwritebk(dem_radar_crp,[save_path,'/',folder(7:end),'/dem_radar_',id,'.raw'],'float32');
-    fwritebk(phi_crp,[save_path,'/',folder(7:end),'/phi_',id,'.raw'],'float32');
-    fwritebk(lam_crp,[save_path,'/',folder(7:end),'/lam_',id,'.raw'],'float32');   
+    fwritebk(slc_crp,[save_path,'/',folder(7:end),'/slc_srd.raw'],'cpxfloat32');
+    fwritebk(dem_radar_crp,[save_path,'/',folder(7:end),'/dem_radar.raw'],'float32');
+    fwritebk(phi_crp,[save_path,'/',folder(7:end),'/phi.raw'],'float32');
+    fwritebk(lam_crp,[save_path,'/',folder(7:end),'/lam.raw'],'float32');   
     
     fid = fopen([save_path,'/','nlines_crp.txt'],'w');
     fprintf(fid,'%i\n',bb(3) - bb(1) +1);

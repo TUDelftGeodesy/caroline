@@ -1,5 +1,5 @@
-function stitch_slave_image(folder,new_folder,id,bb)
-%UNTITLED3 Summary of this function goes here
+function stitch_slave_image(folder,new_folder,bb)
+%   Summary of this function goes here
 %   Detailed explanation goes here
 
     %% Reading of slave files
@@ -34,7 +34,7 @@ function stitch_slave_image(folder,new_folder,id,bb)
     
     if ~(exist([save_path,'/',folder(7:end)],'dir')==7)
         mkdir([save_path,'/',folder(7:end)])
-    elseif ~(exist([save_path,'/',folder(7:end),'/cint_srd_',id,'.raw'],'file') == 0)
+    elseif ~(exist([save_path,'/',folder(7:end),'/cint_srd.raw'],'file') == 0)
        return       
     end
     
@@ -71,7 +71,7 @@ function stitch_slave_image(folder,new_folder,id,bb)
 
     
     ifg_crp = ifg_stitch(bb(1):bb(3),bb(2):bb(4));    
-    fwritebk(ifg_crp,[save_path,'/',folder(7:end),'/cint_srd_',id,'.raw'],'cpxfloat32');
+    fwritebk(ifg_crp,[save_path,'/',folder(7:end),'/cint_srd.raw'],'cpxfloat32');
     
     system(['find "$(pwd -P)/',folder,'" -maxdepth 2 -name ''*slave.res'' -exec cp {} ',save_path,'/',folder(7:end),'/ \;']);
    

@@ -18,6 +18,8 @@ for param in search_parameters:
             out_parameters.append(do)
             break
 
+if len(out_parameters) == 4:  # backwards compatibility, shape_file path is not present
+    out_parameters.append('')  # empty shape_file path to lead to square AOI generation
 
 central_coord = eval(out_parameters[0])
 crop_length = eval(out_parameters[2])

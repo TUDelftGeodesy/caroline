@@ -30,10 +30,10 @@ ifg_inds = [repmat(m_ind,nifgs,1) s_ind'];
 
 fifg = fopen([folder,'/path_ifgs.txt'],'w');
 fslc = fopen([folder,'/path_slcs.txt'],'w');
-master = freadbk(ifgs{m_ind},1,'cpxfloat32'); % PC: Where does this come from?
-
+master = freadbk([pwd,'/',folder,'/',num2str(master_date),'/slc_srd_',id,'.raw'],1,'cpxfloat32'); % PC: Where does this come from?
 for i = 1:length(dates)
     slc_name = [pwd,'/',folder,'/',num2str(dates(i)),'/slc_srd_',id,'.raw'];
+    cint_name = [pwd,'/',folder,'/',num2str(dates(i)),'/cint_srd_',id,'.raw'];
     
     % PC: Generate a new SLC from the given interferogram
     if exist(slc_name,'file') == 0 && i ~= m_ind
@@ -45,7 +45,7 @@ for i = 1:length(dates)
     
     % PC: write all ifg paths to a text file: master_date slave_date path
     if i~=m_ind
-        fprintf(fifg,'%i %i %s\n',master_date,dates(i),ifgs{i}); 
+        fprintf(fifg,'%i %i %s\n',master_date,dates(i),cint_name); 
     end
     
     % PC: write all slc paths to a text file: slc_date path

@@ -40,15 +40,11 @@ master_date = doris_input{17}(14:end - 14); master_date(5) = []; master_date(7) 
 
 
 if strcmp(croptype,'poly')
-    if nargin < 4 || isempty(cropparam)
-        crop_in = shp_file_path;
-    else
-        crop_in = cropparam;
-    end
+    crop_in = cropparam;
 end
 
 if strcmp(croptype,'boundingbox')
-    if nargin < 4
+    if nargin < 3
         error('No boudingbox specified')
     end
     crop_in = cropparam;

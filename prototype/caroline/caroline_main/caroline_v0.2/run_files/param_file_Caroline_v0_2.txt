@@ -12,22 +12,22 @@ do_stack_stitching = 1
 do_depsi           = 1
 do_depsi_post      = 1
 
-doris_directory  = '/project/caroline/Share/users/caroline-svandiepen/projects/dummy/stack'
-stitch_directory = '/project/caroline/Share/users/caroline-svandiepen/projects/dummy/stitch'
-depsi_directory  = '/project/caroline/Share/users/caroline-svandiepen/projects/dummy/depsi'
-shape_directory  = '/project/caroline/Share/users/caroline-svandiepen/projects/dummy/shape'
+doris_directory  = '/project/caroline/Share/users/caroline-svandiepen/dummy/stack'
+stitch_directory = '/project/caroline/Share/users/caroline-svandiepen/dummy/stitch'
+depsi_directory  = '/project/caroline/Share/users/caroline-svandiepen/dummy/depsi'
+shape_directory  = '/project/caroline/Share/users/caroline-svandiepen/dummy/shape'
 
-shape_file = '/project/caroline/Share/users/caroline-svandiepen/tests/full_netherlands/shapes/aoi_holland/aoi_holland.shp'
+shape_file = ''
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
-center_AoI = [52.137764, 4.838481]  # Latitude, longitude
-AoI_width  = 10 # km, east-west AoI size
-AoI_length = 10 # km, north-south AoI size
-AoI_name   = 'nl_greenheart_small'
+center_AoI = [52.371436, 4.897088]  # Latitude, longitude
+AoI_width  = 1 # km, east-west AoI size
+AoI_length = 1 # km, north-south AoI size
+AoI_name   = 'nl_amsterdam'
 
-track = [37,88,110,161]  # Can be multiple tracks!
-asc_dsc = ['dsc','asc','dsc','asc']
-start_date = '1000-01-01' # will search for first image after this date that exists
-end_date   = '9999-01-01' # will search for last image before this date that exists
+track = [37]  # Can be multiple tracks!
+asc_dsc = ['dsc']
+start_date = '2020-03-01' # will search for first image after this date that exists
+end_date   = '2020-06-01' # will search for last image before this date that exists
 master_date= '2020-03-25' # will search for first image after this date that exists
 
 #############################################
@@ -36,6 +36,7 @@ master_date= '2020-03-25' # will search for first image after this date that exi
 # Usually does not require changing anything
 # Uses doris v5
 
+dem_directory             = '/project/caroline/Share/dem/netherlands_simon'
 do_coarse_orbits          = 1
 do_deramp                 = 1
 do_reramp                 = 1
@@ -62,6 +63,10 @@ do_unwrap                 = 0
 ############## DEPSI PARAMETERS ############
 ############################################
 # Usually does not require to change anything
+
+depsi_code_dir    = '/project/caroline/Share/users/caroline-svandiepen/software/caroline_bin/depsi_v2.2.1.1'
+rdnaptrans_dir    = '/project/caroline/Share/users/caroline-svandiepen/software/caroline_bin/rdnaptrans'
+geocoding_dir     = '/project/caroline/Share/users/caroline-svandiepen/software/caroline_bin/geocoding_v0.9'
 
 max_mem_buffer    = 50e7
 visible_plots     = 'n'
@@ -143,3 +148,11 @@ r0          = []
 r10         = []
 epoch       = []
 
+
+############################################
+########### DEPSI POST PARAMETERS ##########
+############################################
+# Usually does not require to change anything
+
+depsi_post_dir    = '/project/caroline/Share/users/caroline-svandiepen/software/caroline_bin/depsi_post_v2.1.2.0'
+cpxfiddle_dir     = '/project/caroline/Share/users/caroline-svandiepen/software/caroline_bin/cpxfiddle'

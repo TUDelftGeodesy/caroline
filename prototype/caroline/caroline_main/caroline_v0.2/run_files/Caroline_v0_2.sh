@@ -2,9 +2,9 @@
 
 param_file='param_file_Caroline_v0_2.txt'
 step_file_version='0.2'
-caroline_dir="/project/caroline/Share/users/caroline-svandiepen/software/caroline/caroline_main"
+caroline_dir="/project/caroline/Share/software/caroline/prototype/caroline/caroline_main"
 
-echo "Starting full DePSI run..."
+echo "Starting full Caroline run..."
 
 cpath=`pwd`
 
@@ -27,7 +27,12 @@ depsi_dir=`cat auxiliary_files/depsi_directory.txt`
 shape_dir=`cat auxiliary_files/shape_directory.txt`
 AoI_name=`cat auxiliary_files/AoI_name.txt`
 version=`cat auxiliary_files/Caroline_version.txt`
-
+dem_directory=`cat auxiliary_files/dem_directory.txt`
+depsi_directory=`cat auxiliary_files/depsi_code_dir.txt`
+geocoding_directory=`cat auxiliary_files/geocoding_dir.txt`
+rdnaptrans_directory=`cat auxiliary_files/rdnaptrans_dir.txt`
+depsi_post_directory=`cat auxiliary_files/depsi_post_dir.txt`
+cpxfiddle_directory=`cat auxiliary_files/cpxfiddle_dir.txt`
 if [ ! -d ${shape_dir} ]
 then
 mkdir -p ${shape_dir}
@@ -63,7 +68,7 @@ cd ${doris_dir}
 for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
 do
 cd ${dir}
-ln -s ${caroline_dir}/caroline_v${version}/files/doris_v5/dem .
+ln -s ${dem_directory} dem
 cp -r ${caroline_dir}/caroline_v${version}/files/doris_v5/input_files .
 cd good_images
 link=`cat link_directory.txt`
@@ -175,7 +180,7 @@ do
 cd ${dir}/psi
 link=`cat master_directory.txt`
 ln -s ${link}/master.res slave.res
-ln -s ${link}/dem_radar_${AoI_name}.raw dem_radar.raw
+ln -s ${link}/dem_radar*.raw dem_radar.raw
 cd ${depsi_dir}
 done
 cd ${cpath}
@@ -183,9 +188,12 @@ cd ${cpath}
 echo "Copying boxes..."
 cd ${depsi_dir}
 for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
-do  
+do
 cd ${dir}/boxes
-ln -s ${caroline_dir}/caroline_v${version}/files/depsi/boxes/* .
+#ln -s ${caroline_dir}/caroline_v${version}/files/depsi/boxes/* .
+ln -s ${rdnaptrans_directory} .
+ln -s ${geocoding_directory} .
+ln -s ${depsi_directory} .
 cd ${depsi_dir}
 done
 cd ${cpath}
@@ -220,7 +228,7 @@ cd ${depsi_dir}
 for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
 do
 cd ${dir}/boxes
-ln -s ${caroline_dir}/caroline_v${version}/files/depsi_post/depsi_post_v* .
+ln -s ${depsi_post_directory} .
 cd ${depsi_dir}
 done
 cd ${cpath}
@@ -235,7 +243,7 @@ do
 cd ${dir}/psi
 nlines=`cat nlines_crop.txt`
 project_id=`cat project_id.txt`
-${caroline_dir}/caroline_v${version}/files/depsi_post/create_mrm_ras_rxaz_header.sh ${project_id} ${nlines} 1 1
+${caroline_dir}/caroline_v${version}/files/depsi_post/create_mrm_ras_rxaz_header.sh ${project_id} ${nlines} 1 1 ${cpxfiddle_directory}
 cd ${depsi_dir}
 done
 cd ${cpath}

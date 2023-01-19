@@ -19,7 +19,7 @@ for param in search_parameters:
             out_parameters.append(do)
             break
 
-base_stack = open("{}/Caroline_v{}/files/depsi_post/read_mrm.sh".format(caroline_dir, version))
+base_stack = open("{}/caroline_v{}/files/depsi_post/read_mrm.sh".format(caroline_dir, version))
 stack = base_stack.read()
 base_stack.close()
 

@@ -6,7 +6,8 @@ parameters = pf.read().split("\n")
 pf.close()
 
 search_parameters = ['do_doris', 'do_stack_stitching', 'do_depsi', 'do_depsi_post',
-		     'doris_directory', 'stitch_directory', 'depsi_directory', 'shape_directory', 'AoI_name', 'Caroline_version']
+		     'doris_directory', 'stitch_directory', 'depsi_directory', 'shape_directory', 'AoI_name', 'Caroline_version', 'dem_directory',
+                     'depsi_code_dir', 'rdnaptrans_dir', 'geocoding_dir', 'depsi_post_dir', 'cpxfiddle_dir']
 
 for parameter in search_parameters:
     for param in parameters:

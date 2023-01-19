@@ -36,7 +36,7 @@ stc_min_max = eval(out_parameters[26])
 std_param = eval(out_parameters[56])
 
 for track in range(len(tracks)):
-    basedir = "{}/{}_s1_{}_t{:0>3d}/{}_cropped_stack/".format(out_parameters[0], AoI_name, asc_dsc[track], tracks[track], AoI_name)
+    basedir = "{}/{}_s1_{}_t{:0>3d}/*cropped_stack/".format(out_parameters[0], AoI_name, asc_dsc[track], tracks[track], AoI_name)
     files = glob.glob("{}*".format(basedir))
     dirs = [f for f in files if os.path.isdir(f)]
     masterdir = ""
@@ -47,9 +47,11 @@ for track in range(len(tracks)):
         master = [f for f in files if f == "master.res"]
         if len(master) == 1:
             masterdir = eval(dir.split("/")[-1])
-        h2ph = [f for f in files if "h2ph" in f]
-        if len(h2ph) == 1:
-            good_dirs.append(eval(dir.split("/")[-1]))
+            good_dirs.append(masterdir)
+        else:
+            h2ph = [f for f in files if "h2ph" in f]
+            if len(h2ph) == 1:
+                good_dirs.append(eval(dir.split("/")[-1]))
     startdate = min(good_dirs)
     end_date = max(good_dirs)
 

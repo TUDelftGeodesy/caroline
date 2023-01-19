@@ -29,8 +29,10 @@
 # Uncomment these lines when your job requires this software
 # Uncomment these lines when your job requires this software
 
-module use /opt/insy/modulefiles
-module load matlab/R2020a
+#module use /opt/insy/modulefiles
+#module load matlab/R2020a
 
-matlab -nodisplay -nosplash -nodesktop -r "run('{depsi_dir}/{AoI_name}_s1_{asc_dsc}_t{track}/psi/read_mrm_{AoI_name}_s1_{asc_dsc}_t{track}.m');exit;"
+module --ignore-cache load matlab/R2021b
+
+srun matlab -nodisplay -nosplash -nodesktop -r "run('{depsi_dir}/{AoI_name}_s1_{asc_dsc}_t{track}/psi/read_mrm_{AoI_name}_s1_{asc_dsc}_t{track}.m');exit;"
 

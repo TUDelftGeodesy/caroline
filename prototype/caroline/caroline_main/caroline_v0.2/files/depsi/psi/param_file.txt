@@ -16,7 +16,7 @@ run_mode = '{run_mode}'
 
 project_id = '{AoI_name}_s1_{asc_dsc}_t{fill_track}'
 input_file = []
-processDir = '{stitch_dir}/{AoI_name}_s1_{asc_dsc}_t{fill_track}/{AoI_name}_cropped_stack'
+processDir = '{stitch_dir}/{AoI_name}_s1_{asc_dsc}_t{fill_track}/cropped_stack'
 startDate = '{start_date}'
 stopDate = '{stop_date}'
 excludeDate = '{exclude_date}'

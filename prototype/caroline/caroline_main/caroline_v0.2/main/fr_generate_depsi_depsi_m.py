@@ -6,7 +6,7 @@ fp = open("{}/{}".format(cpath, param_file))
 parameters = fp.read().split("\n")
 fp.close()
 
-search_parameters = ['depsi_directory', 'track','asc_dsc','depsi_version','geocoding_version']
+search_parameters = ['depsi_directory', 'track','asc_dsc','depsi_code_dir','geocoding_dir']
 out_parameters = []
 
 for param in search_parameters:
@@ -28,8 +28,8 @@ asc_dsc = eval(out_parameters[2])
 
 for track in range(len(tracks)):
 
-    main = stack.format(AoI_name=AoI_name, fill_track="{:0>3d}".format(tracks[track]), asc_dsc=asc_dsc[track], depsi_version=out_parameters[3],
-geocoding_version=out_parameters[4])
+    main = stack.format(AoI_name=AoI_name, fill_track="{:0>3d}".format(tracks[track]), asc_dsc=asc_dsc[track], depsi_version=out_parameters[3].split("/")[-1].rstrip(),
+geocoding_version=out_parameters[4].split("/")[-1].rstrip())
 
     fw = open("{}/{}_s1_{}_t{:0>3d}/psi/depsi_{}_{}_t{:0>3d}.m".format(out_parameters[0], AoI_name, asc_dsc[track], tracks[track], AoI_name, asc_dsc[track], tracks[track]), 'w')
     fw.write(main)

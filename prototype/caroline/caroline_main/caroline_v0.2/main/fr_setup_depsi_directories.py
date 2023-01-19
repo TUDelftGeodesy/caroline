@@ -37,7 +37,7 @@ for track in range(len(tracks)):
         mkdir("{}/{}_s1_{}_t{:0>3d}/boxes".format(out_parameters[3], AoI_name, asc_dsc[track], tracks[track]))
     except OSError:
         pass  # Directory already exists
-    basedir = "{}/{}_s1_{}_t{:0>3d}/{}_cropped_stack/".format(out_parameters[0], AoI_name, asc_dsc[track], tracks[track], AoI_name)
+    basedir = "{}/{}_s1_{}_t{:0>3d}/*cropped_stack/".format(out_parameters[0], AoI_name, asc_dsc[track], tracks[track])
     files = glob.glob("{}*".format(basedir))
     dirs = [f for f in files if os.path.isdir(f)]
     masterdir = ""

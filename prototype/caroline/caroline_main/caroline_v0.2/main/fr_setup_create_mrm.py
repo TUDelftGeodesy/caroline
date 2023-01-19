@@ -23,7 +23,7 @@ tracks = eval(out_parameters[1])
 asc_dsc = eval(out_parameters[2])
 
 for track in range(len(tracks)):	
-    fr = open("{stitch_dir}/{AoI_name}_s1_{asc_dsc}_t{fill_track}/{AoI_name}_cropped_stack/nlines_crp.txt".format(stitch_dir=out_parameters[0], AoI_name=AoI_name, asc_dsc=asc_dsc[track],fill_track="{:0>3d}".format(tracks[track])))
+    fr = open("{stitch_dir}/{AoI_name}_s1_{asc_dsc}_t{fill_track}/cropped_stack/nlines_crp.txt".format(stitch_dir=out_parameters[0], AoI_name=AoI_name, asc_dsc=asc_dsc[track],fill_track="{:0>3d}".format(tracks[track])))
     data = fr.read().split("\n")
     fr.close()
 

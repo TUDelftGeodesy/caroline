@@ -7,7 +7,7 @@ pf.close()
 
 search_parameters = ['do_doris', 'do_stack_stitching', 'do_depsi', 'do_depsi_post',
 		     'doris_directory', 'stitch_directory', 'depsi_directory', 'shape_directory', 'AoI_name', 'Caroline_version', 'dem_directory',
-                     'depsi_code_dir', 'rdnaptrans_dir', 'geocoding_dir', 'depsi_post_dir', 'cpxfiddle_dir']
+                     'depsi_code_dir', 'rdnaptrans_dir', 'geocoding_dir', 'depsi_post_dir', 'cpxfiddle_dir', 'depsi_post_mode']
 
 for parameter in search_parameters:
     for param in parameters:
@@ -17,7 +17,15 @@ for parameter in search_parameters:
                 do = do.split("#")[0]
             do = do.strip().strip("'").strip('"')
             f = open("{}/auxiliary_files/{}.txt".format(cpath, parameter), "w")
-            f.write(do)
+            if parameter == 'depsi_post_mode':
+                if do == 'csv':
+                    f.write('0')
+                elif do == 'tarball':
+                    f.write('1')
+                else:
+                    raise ValueError("Unknown depsi post mode {}, known are 'csv' and 'tarball'".format(do))
+            else:
+                f.write(do)
             f.close()
             break
 

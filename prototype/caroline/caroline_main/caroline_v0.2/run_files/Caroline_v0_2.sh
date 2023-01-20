@@ -33,6 +33,8 @@ geocoding_directory=`cat auxiliary_files/geocoding_dir.txt`
 rdnaptrans_directory=`cat auxiliary_files/rdnaptrans_dir.txt`
 depsi_post_directory=`cat auxiliary_files/depsi_post_dir.txt`
 cpxfiddle_directory=`cat auxiliary_files/cpxfiddle_dir.txt`
+do_tarball=`cat auxiliary_files/depsi_post_mode.txt`
+
 if [ ! -d ${shape_dir} ]
 then
 mkdir -p ${shape_dir}
@@ -283,9 +285,11 @@ sbatch depsi_post.sh > job_id.txt
 cd ${depsi_dir}
 done
 cd ${cpath}
-  
+
 python3 ${caroline_dir}/caroline_v${version}/main/fr_wait_for_depsi_post.py ${param_file} ${cpath} ${AoI_name}
 
+if [ ${do_tarball} -eq 1 ]
+then
 
 echo "Creating tarball..."
 cd ${depsi_dir}
@@ -298,5 +302,7 @@ ${caroline_dir}/caroline_v${version}/files/depsi_post/create_post_project_tar.sh
 cd ${depsi_dir}
 done
 cd ${cpath}
+
+fi
 
 fi

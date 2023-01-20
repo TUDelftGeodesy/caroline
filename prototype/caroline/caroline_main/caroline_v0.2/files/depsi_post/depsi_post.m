@@ -3,7 +3,7 @@ close all
 
 addpath(genpath('../boxes/depsi_post_v2.1.2.0'));
 addpath(genpath('../boxes/geocoding_v0.9'));
-addpath(genpath('~/matlab/rdnaptrans'));
+addpath(genpath('../boxes/rdnaptrans'));
 
 %dbstop if error
 
@@ -12,72 +12,72 @@ param_file = 'param_file_{AoI_name}_{asc_dsc}_t{fill_track}.txt';
 do_read = 1;
 do_hist_orig = 0;
 do_plots_orig = 0;
-do_param_filtering = 0;
+do_param_filtering = {do_csv};
 do_hist_filt = 0;
 do_plots_filt = 0;
 do_interactive = 0;
-do_create_final_dataset = 0;
+do_create_final_dataset = {do_csv};
 do_plots_final = 0;
-do_write_shape_csv = 0;
+do_write_shape_csv = {do_csv};
 
-dlat = 0;
-dlon = 0;
-drdx = 0;
-drdy = 0;
+dlat = {dlat};
+dlon = {dlon};
+drdx = {drdx};
+drdy = {drdy};
 id_annot = 'S1{asc_dsc}{fill_track}';
 file_out = '{AoI_name}_{asc_dsc}_{fill_track}';
 %proj = 'wgs84';
-proj = 'rd';
-ref_dheight = 0;
-posteriori_scale_factor = 1;
+proj = '{proj}';
+ref_dheight = {ref_dheight};
+posteriori_scale_factor = {posteriori_scale_factor};
 %crop_manual = [24461,40460,235,3434];
 
 track = [{track}];
-pred_model = [1,3,5];
-plot_mode = 'raster';
+pred_model = {pred_model};
+plot_mode = '{plot_mode}';
 %plot_mode = 'vector';
 %do_plots_example = {lb}'defo','height','m_atmo','ens_coh','ens_coh_local','stc','perio_amp','perio_tshift','ens_coh_filt','stc_filt','amp_disp','coef'{rb};
-do_plots = {lb}'defo','height','ens_coh','ens_coh_local','stc','amp_disp'{rb};
+do_plots = {lb}{do_plots}{rb};
 %do_plots = {lb}'defo','height'{rb};
-fontsize = 16;
-markersize = 1;
-do_print = 1;
-output_format = 1;
-az0 = [];
-azN = [];
-r0 = [];
-rN = [];
-result = 1;
-psc_selection = 1;
+fontsize = {fontsize};
+markersize = {markersize};
+do_print = {do_print};
+output_format = {output_format};
+az0 = {az0};
+azN = {azN};
+r0 = {r0};
+rN = {rN};
+result = {result};
+psc_selection = {psc_selection};
 %ml_az = 2;
 %ml_r = 2;
 ml_az = 1;
 ml_r = 1;
-do_remove_filtered = 0;
-which_sl_mask = 'apriori';
-shift_to_mean = 1;
-new_ref_cn = [];
-map_to_vert = 1;
+do_remove_filtered = {do_remove_filtered};
+which_sl_mask = '{which_sl_mask}';
+shift_to_mean = {shift_to_mean};
+new_ref_cn = {new_ref_cn};
+map_to_vert = {map_to_vert};
 %output = {lb}'shape','csv','shape_conv'{rb};
 %output = {lb}'csv'{rb};
 %output = {lb}'shape_conv'{rb};
-output = {lb}'shape','csv','csv_web_portal','matlab'{rb};
+output = {lb}{output}{rb};
 
 
-defo_lim = [];
-height_lim = [];
-ens_coh_lim = 0.5;
-ens_coh_local_lim = 0.6;
-stc_lim = 8;
+defo_lim = {defo_lim};
+height_lim = {height_lim};
+ens_coh_lim = {ens_coh_lim};
+ens_coh_local_lim = {ens_coh_local_lim};
+stc_lim = {stc_lim};
 
-defo_clim = [-10 10];
-height_clim = [-20 20];
+defo_clim = [{defo_clim_min} {defo_clim_max}];
+height_clim = [{height_clim_min} {height_clim_max}];
 %ens_coh_clim = ens_coh_lim;
 %ens_coh_local_clim = ens_coh_local_lim;
 %stc_clim = stc_lim;
-ens_coh_clim = 0;
-ens_coh_local_clim = 0;
-stc_clim = 20;
+ens_coh_clim = {ens_coh_clim};
+ens_coh_local_clim = {ens_coh_local_clim};
+stc_clim = {stc_clim};
 
 
 % ----------------------------------------------------------------------

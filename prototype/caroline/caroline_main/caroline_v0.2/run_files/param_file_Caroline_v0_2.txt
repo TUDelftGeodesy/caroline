@@ -11,6 +11,7 @@ do_doris           = 1
 do_stack_stitching = 1
 do_depsi           = 1
 do_depsi_post      = 1
+depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 
 doris_directory  = '/project/caroline/Share/users/caroline-svandiepen/dummy/stack'
 stitch_directory = '/project/caroline/Share/users/caroline-svandiepen/dummy/stitch'
@@ -156,3 +157,43 @@ epoch       = []
 
 depsi_post_dir    = '/project/caroline/Share/users/caroline-svandiepen/software/caroline_bin/depsi_post_v2.1.2.0'
 cpxfiddle_dir     = '/project/caroline/Share/users/caroline-svandiepen/software/caroline_bin/cpxfiddle'
+
+dp_dlat                    = 0
+dp_dlon                    = 0
+dp_drdx                    = 0
+dp_drdy                    = 0
+dp_proj                    = 'rd'
+dp_ref_dheight             = 0
+dp_posteriori_scale_factor = 1
+
+dp_pred_model         = [1, 3, 5]
+dp_plot_mode          = 'raster' # 'raster', 'vector'
+dp_do_plots           = {'defo', 'height', 'ens_coh', 'ens_coh_local', 'stc', 'amp_disp'}
+dp_fontsize           = 16
+dp_markersize         = 1
+dp_do_print           = 1
+dp_output_format      = 1
+dp_az0                = []
+dp_azN                = []
+dp_r0                 = []
+dp_rN                 = []
+dp_result             = 1
+dp_psc_selection      = 1
+dp_do_remove_filtered = 0
+dp_which_sl_mask      = 'apriori'
+dp_shift_to_mean      = 1
+dp_new_ref_cn         = []
+dp_map_to_vert        = 1
+dp_output             = {'shape', 'csv', 'csv_web_portal'} #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
+
+dp_defo_lim          = []
+dp_height_lim        = []
+dp_ens_coh_lim       = 0.5
+dp_ens_coh_local_lim = 0.6
+dp_stc_lim           = 8
+
+dp_defo_clim          = [-10, 10]
+dp_height_clim        = [-20, 20]
+dp_ens_coh_clim       = 0
+dp_ens_coh_local_clim = 0
+dp_stc_clim           = 20

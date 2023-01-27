@@ -20,8 +20,6 @@ if [ ! -d "${CAROLINE_PROTOTYPE_DIR}" ]; then
 	mkdir -pv "${CAROLINE_PROTOTYPE_DIR}"
 fi
 
-for DIR in files main run_files; do
-	cp -Rvp caroline/caroline_main/caroline_v0.2/${DIR}/ "${CAROLINE_PROTOTYPE_DIR}"
-done
+cp -Rvp caroline/caroline_main/caroline_v0.2/ "${CAROLINE_PROTOTYPE_DIR}"
 
 # Eof

@@ -2,7 +2,8 @@
 
 param_file='param_file_Caroline_v0_2.txt'
 step_file_version='0.2'
-caroline_dir="/project/caroline/Share/software/caroline/prototype/caroline/caroline_main"
+#caroline_dir="/project/caroline/Share/software/caroline/prototype/caroline/caroline_main"
+caroline_dir="/project/caroline/Software/caroline-prototype"
 
 echo "Starting full Caroline run..."
 

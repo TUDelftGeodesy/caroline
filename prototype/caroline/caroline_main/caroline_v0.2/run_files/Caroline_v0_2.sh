@@ -1,9 +1,52 @@
 #!/bin/bash
 
+# Defaults
 param_file='param_file_Caroline_v0_2.txt'
 step_file_version='0.2'
 #caroline_dir="/project/caroline/Share/software/caroline/prototype/caroline/caroline_main"
 caroline_dir="/project/caroline/Software/caroline-prototype"
+
+print_usage () {
+	cat <<-EOF
+	usage: Caroline_v0_2.sh [-h | --help] [ -c configfile | --config-file=configfile ]
+
+        This script runs all necessary steps to produce ...
+
+	options:
+	  -h, --help         show this help message and exit
+          -c, --config-file  specify which config file to use
+
+        configfile
+          Full path to the configfile for this script. For an example, see:
+	  ${caroline_dir}/${param_file}
+
+	EOF
+	exit
+}
+
+# Parse commandline arguments with getopt
+OPTIONS=$(getopt -o hc: --long help,config-file: -- "$@")
+[ $? -eq 0 ] || {
+	print_usage
+	exit 1
+}
+eval set -- "${OPTIONS}"
+while true; do
+	case "$1" in
+		-h|--help)
+			print_usage
+			exit
+			;;
+		-c|--config-file)
+			shift;
+			param_file="${1}"
+			;;
+		--)
+			shift
+			break
+	esac
+	shift
+done
 
 echo "Starting full Caroline run..."
 

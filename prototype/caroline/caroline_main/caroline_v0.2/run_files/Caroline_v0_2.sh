@@ -6,26 +6,33 @@ step_file_version='0.2'
 #caroline_dir="/project/caroline/Share/software/caroline/prototype/caroline/caroline_main"
 caroline_dir="/project/caroline/Software/caroline-prototype"
 
+TRACK_NUMBERS=()
+TRACK_DIRECTIONS=()
+
 print_usage () {
 	cat <<-EOF
 	usage: Caroline_v0_2.sh [-h | --help] [ -c configfile | --config-file=configfile ]
 
-        This script runs all necessary steps to produce ...
+        This script runs Doris, stack stitch, depsy and depsy post
 
 	options:
 	  -h, --help         show this help message and exit
           -c, --config-file  specify which config file to use
+          -t, --tracks       specify tracks to process
 
         configfile
           Full path to the configfile for this script. For an example, see:
 	  ${caroline_dir}/${param_file}
 
+        tracks
+	  Comma separated list of tracks with orbit direction, e.g.:
+          s1_dsc_t037,s1_asc_t161
+
 	EOF
-	exit
 }
 
 # Parse commandline arguments with getopt
-OPTIONS=$(getopt -o hc: --long help,config-file: -- "$@")
+OPTIONS=$(getopt -o hct: --long help,config-file,tracks: -- "$@")
 [ $? -eq 0 ] || {
 	print_usage
 	exit 1
@@ -41,12 +48,30 @@ while true; do
 			shift;
 			param_file="${1}"
 			;;
+		-t|--tracks)
+			shift;
+			TRACKS="${1}"
+			;;
 		--)
 			shift
 			break
 	esac
 	shift
 done
+
+if [ ! -z ${TRACKS} ]; then
+	for TRACK in $(echo "${TRACKS}" | sed -e 's/,/ /g'); do
+		TRACK_NUMBER=$(echo ${TRACK} | cut -d_ -f3 | sed -e 's/^t//' | sed -e 's/^0//')
+		TRACK_DIRECTION=$(echo ${TRACK} | cut -d_ -f2)
+		TRACK_NUMBERS+=("${TRACK_NUMBER}")
+		TRACK_DIRECTIONS+=("${TRACK_DIRECTION}")
+	done
+
+	TRACK_NUMBERS_STRING=${TRACK_NUMBERS[@]}
+	TRACK_NUMBERS_STRING=${TRACK_NUMBERS_STRING// /,}
+	TRACK_DIRECTIONS_STRING=${TRACK_DIRECTIONS[@]}
+	TRACK_DIRECTIONS_STRING=${TRACK_DIRECTIONS_STRING// /,}
+fi
 
 echo "Starting full Caroline run..."
 
@@ -58,6 +83,18 @@ mkdir auxiliary_files
 fi
 
 echo "Creating auxiliary files..."
+
+# Copy the config file to auxilary files
+TMP_CONFIG=$(mktemp auxiliary_files/caroline_config_XXX --suffix=.txt)
+cp $param_file ${TMP_CONFIG}
+param_file=${TMP_CONFIG}
+echo "Running with config file ${param_file}"
+
+# Overwrite track config if tracks are specified on commandline as argument
+sed -ie "s/^track =.*/track = [$TRACK_NUMBERS_STRING]/" $param_file
+sed -ie "s/^asc_dsc =.*/asc_dsc = [$TRACK_DIRECTIONS_STRING]/" $param_file
+
+exit
 
 python3 ${caroline_dir}/caroline_v${step_file_version}/main/fr_create_step_files.py ${param_file} ${cpath}
 

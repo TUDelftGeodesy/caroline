@@ -3,6 +3,7 @@
 # install-caroline-prototype.sh
 
 CAROLINE_HOME='/project/caroline/Software/caroline-prototype'
+CAROLINE_PLUGINS_ARCHIVE_DIR='/project/caroline/Software/archives/caroline_plugins'
 
 if [ -d "$CAROLINE_HOME" ]; then
 	BACKUP_DIR="${CAROLINE_HOME}-$(date +%Y%m%dT%H%M%S)"

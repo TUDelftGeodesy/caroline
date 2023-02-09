@@ -20,6 +20,16 @@ if [ ! -d "${CAROLINE_HOME}" ]; then
 	mkdir -pv "${CAROLINE_HOME}"
 fi
 
+# Install caroline prototype
 cp -Rvp caroline/caroline_main/caroline_v0.2/ "${CAROLINE_HOME}"
+
+# Install plugins
+mkdir -p "${CAROLINE_HOME}/plugins"
+
+tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/cpxfiddle.tar.gz" -C "${CAROLINE_HOME}/plugins"
+tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/depsi_post_v2.1.2.0.tar.gz" -C "${CAROLINE_HOME}/plugins"
+tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/depsi_v2.2.1.1.tar.gz" -C "${CAROLINE_HOME}/plugins"
+tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/geocoding_v0.9.tar.gz" -C "${CAROLINE_HOME}/plugins"
+tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/rdnaptrans.tar.gz" -C "${CAROLINE_HOME}/plugins"
 
 # Eof

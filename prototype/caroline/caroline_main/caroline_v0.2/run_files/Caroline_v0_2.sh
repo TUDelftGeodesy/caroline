@@ -4,10 +4,10 @@
 param_file='param_file_Caroline_v0_2.txt'
 step_file_version='0.2'
 
-if [ -z "${CAROLINE_HOME}" ]; then
+if [ -z "${CAROLINE}" ]; then
 	caroline_dir="/project/caroline/Share/software/caroline/prototype/caroline/caroline_main"
 else
-	caroline_dir="${CAROLINE_HOME}"
+	caroline_dir="${CAROLINE}"
 fi
 
 TRACK_NUMBERS=()

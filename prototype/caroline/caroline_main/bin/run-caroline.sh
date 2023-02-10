@@ -37,7 +37,7 @@ fi
 if [ ! -z "${TRACKS}" ]; then
 
 	# Convert tracks list into csv
-	TRACKS_CSV=$(echo ${TRACKS} | tr '\n' ',')
+	TRACKS_CSV=${TRACKS// /,}
 
 	# Submit caroline core to job queue
 	cd ${CAROLINE}/caroline_v0.2/run_files/

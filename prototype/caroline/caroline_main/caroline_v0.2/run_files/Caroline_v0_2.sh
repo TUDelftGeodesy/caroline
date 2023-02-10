@@ -68,7 +68,7 @@ if [ ! -z ${TRACKS} ]; then
 		TRACK_NUMBER=$(echo ${TRACK} | cut -d_ -f3 | sed -e 's/^t//' | sed -e 's/^0//')
 		TRACK_DIRECTION=$(echo ${TRACK} | cut -d_ -f2)
 		TRACK_NUMBERS+=("${TRACK_NUMBER}")
-		TRACK_DIRECTIONS+=("${TRACK_DIRECTION}")
+		TRACK_DIRECTIONS+=("'${TRACK_DIRECTION}'")
 	done
 
 	TRACK_NUMBERS_STRING=${TRACK_NUMBERS[@]}

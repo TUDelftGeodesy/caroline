@@ -38,4 +38,7 @@ tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/rdnaptrans.tar.gz" -C "${CAROLINE}/plu
 # Install find-new-insar-files.sh
 cp -Rvp ../scripts/find-new-insar-files.sh "${CAROLINE}/bin"
 
+# Create work directory
+mkdir -pv "${CAROLINE}/work"
+
 # Eof

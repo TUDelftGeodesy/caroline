@@ -36,7 +36,7 @@ print_usage () {
 }
 
 # Parse commandline arguments with getopt
-OPTIONS=$(getopt -o hct: --long help,config-file,tracks: -- "$@")
+OPTIONS=$(getopt -o hc:t: --long help,config-file:,tracks: -- "$@")
 [ $? -eq 0 ] || {
 	print_usage
 	exit 1

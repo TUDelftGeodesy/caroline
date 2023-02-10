@@ -98,8 +98,6 @@ echo "Running with config file ${param_file}"
 sed -i "s/^track =.*/track = [$TRACK_NUMBERS_STRING]/" $param_file
 sed -i "s/^asc_dsc =.*/asc_dsc = [$TRACK_DIRECTIONS_STRING]/" $param_file
 
-exit
-
 python3 ${caroline_dir}/caroline_v${step_file_version}/main/fr_create_step_files.py ${param_file} ${cpath}
 
 do_doris=`cat auxiliary_files/do_doris.txt`

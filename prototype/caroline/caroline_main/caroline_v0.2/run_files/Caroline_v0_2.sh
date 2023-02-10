@@ -251,10 +251,14 @@ echo ""
 echo ""
 echo "Starting DePSI..."
 echo "Creating directory..."
-if [ ! -d ${depsi_dir} ]
-then
-mkdir -p ${depsi_dir}
+if [ -d "${depsi_dir}" ]; then
+	cd ${depsi_dir}
+	for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`; do
+		rm -rf "${dir}"
+	done
 fi
+cd "${cpath}"
+mkdir -p ${depsi_dir}
 
 python3 ${caroline_dir}/caroline_v${version}/main/fr_setup_depsi_directories.py ${param_file} ${cpath} ${AoI_name}
 

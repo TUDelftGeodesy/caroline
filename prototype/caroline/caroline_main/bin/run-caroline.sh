@@ -6,8 +6,15 @@
 
 # Figure out where we are installed
 CAROLINE=$(readlink -f $(dirname $BASH_SOURCE) | sed -e 's+/bin$++')
+CAROLINE_BIN="${CAROLINE}/bin"
+CAROLINE_WORK="${CAROLINE}/work"
+
+PATH="${CAROLINE_BIN}:${PATH}"
 
 echo "\$CAROLINE: $CAROLINE"
+echo "\$CAROLINE_BIN: $CAROLINE_BIN"
+echo "\$CAROLINE_WORK: $CAROLINE_WORK"
+echo "\$PATH: $PATH"
 exit
 
 RUN_TS=$(date +%Y%m%dT%H%M%S)

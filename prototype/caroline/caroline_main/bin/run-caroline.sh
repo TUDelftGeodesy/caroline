@@ -43,3 +43,4 @@ if [ ! -z "${TRACKS}" ]; then
 	echo sbatch Caroline_v0_2.sh \
 		--config-file param_file_Caroline_v0_2_spider_nl_amsterdam.txt \
 		--tracks "${TRACKS_CSV}"
+fi

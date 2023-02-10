@@ -40,7 +40,7 @@ if [ ! -z "${TRACKS}" ]; then
 
 	# Submit caroline core to job queue
 	cd ${CAROLINE}/caroline_v0.2/run_files/
-	echo sbatch Caroline_v0_2.sh \
+	sbatch Caroline_v0_2.sh \
 		--config-file param_file_Caroline_v0_2_spider_nl_amsterdam.txt \
 		--tracks "${TRACKS_CSV}"
 fi

@@ -29,7 +29,7 @@ if [ -s "${NEW_INSAR_FILES_FILE}" ]; then
 	TRACKS=$(cat "${NEW_INSAR_FILES_FILE}" \
 		| cut -d/ -f7 \
 		| sort -u \
-		| grep -F -f ${CAROLINE}/area-track-lists/veenwijden.dat)
+		| grep -F -f ${CAROLINE}/area-track-lists/amsterdam.dat)
 fi
 
 # If we found new files for tracks we are interested in

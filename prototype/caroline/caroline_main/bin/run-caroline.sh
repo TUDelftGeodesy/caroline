@@ -26,7 +26,7 @@ find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"
 # have been downloaded
 if [ -s "${NEW_INSAR_FILES_FILE}" ]; then
 	# Check if the downloaded files pertain to tracks we are interested in
-	TRACKS=$(cat new-insar-files-${RUN_TS}.out \
+	TRACKS=$(cat "${NEW_INSAR_FILES_FILE}" \
 		| cut -d/ -f7 \
 		| sort -u \
 		| grep -F -f ${CAROLINE}/area-track-lists/veenwijden.dat)

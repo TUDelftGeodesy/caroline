@@ -30,5 +30,16 @@ if [ -s "${NEW_INSAR_FILES_FILE}" ]; then
 		| cut -d/ -f7 \
 		| sort -u \
 		| grep -F -f ${CAROLINE}/area-track-lists/veenwijden.dat)
-	echo $TRACKS
 fi
+
+# If we found new files for tracks we are interested in
+if [ ! -z "${TRACKS}" ]; then
+
+	# Convert tracks list into csv
+	TRACKS_CSV=${TRACKS// /,}
+
+	# Submit caroline core to job queue
+	cd ${CAROLINE}/caroline_v0.2/run_files/
+	echo sbatch Caroline_v0_2.sh \
+		--config-file param_file_Caroline_v0_2_spider_nl_amsterdam.txt \
+		--tracks "${TRACKS_CSV}"

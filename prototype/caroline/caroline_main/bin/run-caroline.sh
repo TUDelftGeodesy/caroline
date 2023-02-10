@@ -24,6 +24,7 @@ find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"
 
 # If the output file with downloaded files has more than 0 bytes, that means new files
 # have been downloaded
+UPDATED_TRACKS=()
 if [ -s "${NEW_INSAR_FILES_FILE}" ]; then
 	# Check if the downloaded files pertain to tracks we are interested in
 	TRACKS=$(cat "${NEW_INSAR_FILES_FILE}" \
@@ -36,7 +37,7 @@ fi
 if [ ! -z "${TRACKS}" ]; then
 
 	# Convert tracks list into csv
-	TRACKS_CSV=${TRACKS// /,}
+	TRACKS_CSV=$(echo ${TRACKS} | tr '\n' ',')
 
 	# Submit caroline core to job queue
 	cd ${CAROLINE}/caroline_v0.2/run_files/

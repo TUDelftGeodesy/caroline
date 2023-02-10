@@ -95,8 +95,8 @@ param_file=${TMP_CONFIG}
 echo "Running with config file ${param_file}"
 
 # Overwrite track config if tracks are specified on commandline as argument
-sed -ie "s/^track =.*/track = [$TRACK_NUMBERS_STRING]/" $param_file
-sed -ie "s/^asc_dsc =.*/asc_dsc = [$TRACK_DIRECTIONS_STRING]/" $param_file
+sed -i "s/^track =.*/track = [$TRACK_NUMBERS_STRING]/" $param_file
+sed -i "s/^asc_dsc =.*/asc_dsc = [$TRACK_DIRECTIONS_STRING]/" $param_file
 
 exit
 

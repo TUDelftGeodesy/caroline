@@ -254,7 +254,7 @@ echo "Creating directory..."
 if [ -d "${depsi_dir}" ]; then
 	cd ${depsi_dir}
 	for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`; do
-		rm -rf "${dir}"
+		mv "${dir}" "${dir}-$(date +%Y%m%dT%H%M%S)"
 	done
 fi
 cd "${cpath}"

@@ -39,7 +39,18 @@ if [ ! -z "${TRACKS}" ]; then
 	TRACKS_CSV=$(echo ${TRACKS} | tr ' ' ',')
 
 	# Submit caroline core to job queue
+	#
+	# Load required python and gdal modules
+	source /project/caroline/Software/bin/init.sh
+	module load python/3.9.6 gdal/3.4.1
+	#
+	# Load required python environment with gdal
+	source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
+	#
+	# Chdir to script directory
 	cd ${CAROLINE}/caroline_v0.2/run_files/
+	#
+	# Submit the job to the cluster's scheduler (slurm)
 	sbatch Caroline_v0_2.sh \
 		--config-file param_file_Caroline_v0_2_spider_nl_amsterdam.txt \
 		--tracks "${TRACKS_CSV}"

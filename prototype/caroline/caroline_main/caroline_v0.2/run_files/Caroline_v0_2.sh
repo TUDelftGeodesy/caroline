@@ -157,6 +157,7 @@ ln -s ${dem_directory} dem
 cp -r ${caroline_dir}/caroline_v${version}/files/doris_v5/input_files .
 cd good_images
 link=`cat link_directory.txt`
+rm -rf 20*
 ln -s ${link}/* .
 ls -l 20*/*.zip > zip_files.txt
 cd ${doris_dir}
@@ -171,6 +172,7 @@ do
 cd ${dir}/good_images
 for d in `cat bad_zips.txt`
 do
+rm -rf ../bad_images/${d}
 mv ${d} ../bad_images/${d}
 done
 cd ${doris_dir}

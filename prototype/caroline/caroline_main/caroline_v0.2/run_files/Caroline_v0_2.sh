@@ -296,7 +296,7 @@ python3 ${caroline_dir}/caroline_v${version}/main/fr_generate_depsi_depsi_sh.py 
 
 echo "Starting depsi..."
 cd ${depsi_dir}
-for dir in `ls`
+for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
 do
 cd ${dir}/psi
 ls > dir_contents.txt

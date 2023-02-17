@@ -28,6 +28,9 @@
 # Uncomment these lines when your job requires this software
 # Uncomment these lines when your job requires this software
 
+source /etc/profile.d/modules.sh
+source /project/caroline/software/bin/init.sh
+
 module --ignore-cache load matlab/R2021b
 
 #srun matlab -nodisplay -nosplash -nodesktop < {stitch_dir}/{AoI_name}_s1_{asc_dsc}_t{track}/MAIN.m

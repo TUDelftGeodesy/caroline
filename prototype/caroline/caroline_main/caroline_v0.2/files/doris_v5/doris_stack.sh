@@ -29,6 +29,11 @@
 # Uncomment these lines when your job requires this software
 # Uncomment these lines when your job requires this software
 
+source /etc/profile.d/modules.sh
+source /project/caroline/software/bin/init.sh
+module load python/3.9.6 gdal/3.4.1
+source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
+
 source_path=/project/caroline/Share/users/caroline-svandiepen/software/doris_v5/doris_v5_latest:/project/caroline/Share/users/caroline-svandiepen/software/doris_v5/doris_v5_latest/doris/doris_stack/functions
 export PYTHONPATH=$source_path:$PYTHONPATH 
 export PATH=/project/caroline/Share/users/caroline-svandiepen/software/doris_v5/doris_v5_lastest:/project/caroline/Share/users/caroline-svandiepen/software/doris_v5/doris_v5_latest/doris/doris_stack/functions:/project/caroline/Software/snaphu:$PATH 

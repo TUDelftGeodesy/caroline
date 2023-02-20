@@ -32,9 +32,6 @@
 #module use /opt/insy/modulefiles
 #module load matlab/R2020a
 
-source /etc/profile.d/modules.sh
-source /project/caroline/software/bin/init.sh
-
 module --ignore-cache load matlab/R2021b
 
 srun matlab -nodisplay -nosplash -nodesktop -r "run('{depsi_dir}/{AoI_name}_s1_{asc_dsc}_t{track}/psi/read_mrm_{AoI_name}_s1_{asc_dsc}_t{track}.m');exit;"

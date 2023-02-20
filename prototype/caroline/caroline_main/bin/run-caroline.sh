@@ -42,6 +42,8 @@ if [ ! -z "${TRACKS}" ]; then
 	#
 	# Load required python and gdal modules
 	source /project/caroline/Software/bin/init.sh
+        source /etc/profile.d/modules.sh
+
 	module load python/3.9.6 gdal/3.4.1
 	#
 	# Load required python environment with gdal

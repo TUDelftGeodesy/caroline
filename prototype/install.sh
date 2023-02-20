@@ -35,6 +35,10 @@ tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/depsi_v2.2.1.1.tar.gz" -C "${CAROLINE}
 tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/geocoding_v0.9.tar.gz" -C "${CAROLINE}/plugins"
 tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/rdnaptrans.tar.gz" -C "${CAROLINE}/plugins"
 
+# Apply patch for depsi_post
+cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_post_v2.1.2.0/main/ps_post_write_shape_csv.m" \
+	"${CAROLINE}/plugins/depsi_post_v2.1.2.0/main/"
+
 # Install find-new-insar-files.sh
 cp -Rvp ../scripts/find-new-insar-files.sh "${CAROLINE}/bin"
 

@@ -22,4 +22,5 @@
 # For more information see the manual pages of crontab(5) and cron(8)
 #
 # m h   dom mon dow   command
+CAROLINE=/project/caroline/Software/caroline-prototype
 0   */5 *   *   *     /project/caroline/Software/caroline-prototype/bin/run-caroline.sh

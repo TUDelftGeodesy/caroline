@@ -44,6 +44,7 @@ fi
 rsync -uav "${CSV_FILE}" "${JSON_FILE}" "${SKYGEO_USER}"@"${SKYGEO_SERVER}":"${SKYGEO_UPLOAD_PATH}/"
 #
 # Change mode of csv file on skygeo server
+ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "chmod 644 ${SKYGEO_UPLOAD_PATH}/${JSON_FILE}"
 ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "chmod 644 ${SKYGEO_UPLOAD_PATH}/${CSV_FILE}"
 #
 # Add the csv data to the viewer on skygeo server

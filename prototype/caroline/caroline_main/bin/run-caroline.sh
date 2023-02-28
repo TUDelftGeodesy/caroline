@@ -52,7 +52,7 @@ if [ ! -z "${TRACKS}" ]; then
 	cd ${CAROLINE}/caroline_v0.2/run_files/
 	#
 	# Submit the job to the cluster's scheduler (slurm)
-	sbatch Caroline_v0_2.sh \
+	./Caroline_v0_2.sh \
 		--config-file param_file_Caroline_v0_2_spider_nl_amsterdam.txt \
 		--tracks "${TRACKS_CSV}"
 fi

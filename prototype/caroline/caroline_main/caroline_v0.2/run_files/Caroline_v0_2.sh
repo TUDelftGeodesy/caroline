@@ -395,3 +395,10 @@ cd ${cpath}
 fi
 
 fi
+
+#
+# Upload csv to skygeo
+#
+cd ${depsi_dir}
+upload-result-csv-to-skygeo.sh
+cd ${cpath}

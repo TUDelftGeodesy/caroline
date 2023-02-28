@@ -399,6 +399,12 @@ fi
 #
 # Upload csv to skygeo
 #
+echo "Uploading csv to skygeo viewer"
 cd ${depsi_dir}
-upload-result-csv-to-skygeo.sh
+for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`; do
+	echo ${dir}
+	cd ${dir}/psi
+	upload-result-csv-to-skygeo.sh
+	cd ${depsi_dir}
+done
 cd ${cpath}

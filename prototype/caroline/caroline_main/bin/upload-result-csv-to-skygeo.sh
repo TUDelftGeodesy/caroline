@@ -24,9 +24,10 @@ ACQUISITION_END_TIME=$(jq -r '.acquisition_period' "${JSON_FILE}" \
 	                  | awk '{print $NF}' \
 			  | tr -d '-')
 #
-# Append the acquisition_end_time to the csv and json files
-JSON_FILE_DATED="${JSON_FILE%.json}_${ACQUISITION_END_TIME}.json"
-CSV_FILE_DATED="${CSV_FILE%.csv}_${ACQUISITION_END_TIME}.csv"
+# Append the acquisition_end_time to the csv and json files and remove the
+# word portal from the file name
+JSON_FILE_DATED="${JSON_FILE%_portal.json}_${ACQUISITION_END_TIME}.json"
+CSV_FILE_DATED="${CSV_FILE%_portal.csv}_${ACQUISITION_END_TIME}.csv"
 mv "${JSON_FILE}" "${JSON_FILE_DATED}"
 mv "${CSV_FILE}" "${CSV_FILE_DATED}"
 JSON_FILE="${JSON_FILE_DATED}"

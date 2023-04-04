@@ -31,17 +31,13 @@ mkdir -p "${CAROLINE}/plugins"
 
 tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/cpxfiddle.tar.gz" -C "${CAROLINE}/plugins"
 tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/depsi_post_v2.1.2.0.tar.gz" -C "${CAROLINE}/plugins"
-tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/depsi_v2.2.1.1.tar.gz" -C "${CAROLINE}/plugins"
+git clone -b v2.1.4.0 git@bitbucket.org:grsradartudelft/depsipost.git "${CAROLINE}/plugins/depsi_v2.1.4.0"
 tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/geocoding_v0.9.tar.gz" -C "${CAROLINE}/plugins"
 tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/rdnaptrans.tar.gz" -C "${CAROLINE}/plugins"
 
 # Apply patch for depsi
 cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_v2.2.1.1/main/ps_read_process_directory.m" \
 	"${CAROLINE}/plugins/depsi_v2.2.1.1/main/"
-
-# Apply patch for depsi_post
-cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_post_v2.1.2.0/main/ps_post_write_shape_csv.m" \
-	"${CAROLINE}/plugins/depsi_post_v2.1.2.0/main/"
 
 # Install find-new-insar-files.sh
 cp -Rvp ../scripts/find-new-insar-files.sh "${CAROLINE}/bin"

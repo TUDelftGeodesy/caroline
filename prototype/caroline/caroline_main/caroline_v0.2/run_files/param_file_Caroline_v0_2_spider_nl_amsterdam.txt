@@ -155,7 +155,7 @@ epoch       = []
 ############################################
 # Usually does not require to change anything
 
-depsi_post_dir    = '/project/caroline/Software/caroline-prototype/plugins/depsi_post_v2.1.2.0'
+depsi_post_dir    = '/project/caroline/Software/caroline-prototype/plugins/depsi_post_v2.1.4.0'
 cpxfiddle_dir     = '/project/caroline/Software/caroline-prototype/plugins/cpxfiddle'
 
 dp_dlat                    = 0

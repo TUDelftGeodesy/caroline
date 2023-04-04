@@ -73,7 +73,7 @@ max_mem_buffer    = 50e7
 visible_plots     = 'n'
 detail_plots      = 'n'
 processing_groups = []  # [7,8] to run groups 7 and 8
-run_mode          = 'normal'
+run_mode          = 'validation'
 
 exclude_date = ''
 

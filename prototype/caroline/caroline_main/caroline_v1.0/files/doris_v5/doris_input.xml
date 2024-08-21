@@ -23,6 +23,7 @@
         <do_fake_fine_coreg_bursts>{do_fake_fine_coreg_bursts}</do_fake_fine_coreg_bursts>
         <do_dac_bursts>{do_dac_bursts}</do_dac_bursts>
         <do_fake_coreg_bursts>{do_fake_coreg_bursts}</do_fake_coreg_bursts>
+        <do_fake_master_resample>{do_fake_master_resample}</do_fake_master_resample>
         <do_resample>{do_resample}</do_resample>
         <do_reramp>{do_reramp2}</do_reramp>
         <do_interferogram>{do_interferogram}</do_interferogram>
@@ -32,6 +33,8 @@
         <do_esd>{do_esd}</do_esd>
         <do_network_esd>{do_network_esd}</do_network_esd>
         <do_ESD_correct>{do_ESD_correct}</do_ESD_correct>
+        <do_combine_master>{do_combine_master}</do_combine_master>
+        <do_combine_slave>{do_combine_slave}</do_combine_slave>
         <do_ref_phase>{do_ref_phase}</do_ref_phase>
         <do_ref_dem>{do_ref_dem}</do_ref_dem>
         <do_phasefilt>{do_phasefilt}</do_phasefilt>

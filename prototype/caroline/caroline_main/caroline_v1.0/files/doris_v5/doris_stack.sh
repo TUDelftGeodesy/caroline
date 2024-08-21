@@ -34,7 +34,7 @@ source /project/caroline/software/bin/init.sh
 module load python/3.9.6 gdal/3.4.1
 source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
 
-source_path=/project/caroline/Share/users/caroline-svandiepen/software/doris_v5/doris_v5_latest:/project/caroline/Share/users/caroline-svandiepen/software/doris_v5/doris_v5_latest/doris/doris_stack/functions
+source_path={doris_code_path}:{doris_code_path}/doris/doris_stack/functions:{doris_code_path}/doris/doris_stack/main_code
 export PYTHONPATH=$source_path:$PYTHONPATH 
-export PATH=/project/caroline/Share/users/caroline-svandiepen/software/doris_v5/doris_v5_lastest:/project/caroline/Share/users/caroline-svandiepen/software/doris_v5/doris_v5_latest/doris/doris_stack/functions:/project/caroline/Software/snaphu:$PATH 
-python3 /project/caroline/Share/users/caroline-svandiepen/software/doris_v5/doris_v5_latest/doris/doris_stack/main_code/doris_main.py -p {doris_path}
+export PATH={doris_code_path}:{doris_code_path}/doris/doris_stack/functions:{doris_code_path}/doris/doris_stack/main_code:/project/caroline/Software/snaphu:$PATH
+python3 {doris_code_path}/doris/doris_stack/main_code/doris_main.py -p {doris_path}

@@ -12,7 +12,7 @@ search_parameters = ['doris_directory', 'shape_directory', 'track', 'asc_dsc', '
                      'do_interferogram', 'do_compref_phase', 'do_compref_dem', 'do_coherence', 'do_esd',
                      'do_network_esd', 'do_ESD_correct',
                      'do_ref_phase', 'do_ref_dem', 'do_phasefilt', 'do_calc_coordinates', 'do_multilooking',
-                     'do_unwrap']
+                     'do_unwrap', 'do_fake_master_resample', 'do_combine_master', 'do_combine_slave']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 base_stack = open("{}/caroline_v{}/files/doris_v5/doris_input.xml".format(caroline_dir, version))
@@ -36,6 +36,7 @@ do_reramp = "Yes" if eval(out_parameters['do_reramp']) == 1 else "No"
 do_fake_fine_coreg_bursts = "Yes" if eval(out_parameters['do_fake_fine_coreg_bursts']) == 1 else "No"
 do_dac_bursts = "Yes" if eval(out_parameters['do_dac_bursts']) == 1 else "No"
 do_fake_coreg_bursts = "Yes" if eval(out_parameters['do_fake_coreg_bursts']) == 1 else "No"
+do_fake_master_resample = "Yes" if eval(out_parameters['do_fake_master_resample']) == 1 else "No"
 do_resample = "Yes" if eval(out_parameters['do_resample']) == 1 else "No"
 do_reramp2 = "Yes" if eval(out_parameters['do_reramp2']) == 1 else "No"
 do_interferogram = "Yes" if eval(out_parameters['do_interferogram']) == 1 else "No"
@@ -45,6 +46,8 @@ do_coherence = "Yes" if eval(out_parameters['do_coherence']) == 1 else "No"
 do_esd = "Yes" if eval(out_parameters['do_esd']) == 1 else "No"
 do_network_esd = "Yes" if eval(out_parameters['do_network_esd']) == 1 else "No"
 do_ESD_correct = "Yes" if eval(out_parameters['do_ESD_correct']) == 1 else "No"
+do_combine_master = "Yes" if eval(out_parameters['do_combine_master']) == 1 else "No"
+do_combine_slave = "Yes" if eval(out_parameters['do_combine_slave']) == 1 else "No"
 do_ref_phase = "Yes" if eval(out_parameters['do_ref_phase']) == 1 else "No"
 do_ref_dem = "Yes" if eval(out_parameters['do_ref_dem']) == 1 else "No"
 do_phasefilt = "Yes" if eval(out_parameters['do_phasefilt']) == 1 else "No"
@@ -67,6 +70,7 @@ for track in range(len(tracks)):
                                do_deramp=do_deramp,
                                do_reramp=do_reramp,
                                do_fake_fine_coreg_bursts=do_fake_fine_coreg_bursts,
+                               do_fake_master_resample=do_fake_master_resample,
                                do_dac_bursts=do_dac_bursts,
                                do_fake_coreg_bursts=do_fake_coreg_bursts,
                                do_resample=do_resample,
@@ -78,6 +82,8 @@ for track in range(len(tracks)):
                                do_esd=do_esd,
                                do_network_esd=do_network_esd,
                                do_ESD_correct=do_ESD_correct,
+                               do_combine_master=do_combine_master,
+                               do_combine_slave=do_combine_slave,
                                do_ref_phase=do_ref_phase,
                                do_ref_dem=do_ref_dem,
                                do_phasefilt=do_phasefilt,

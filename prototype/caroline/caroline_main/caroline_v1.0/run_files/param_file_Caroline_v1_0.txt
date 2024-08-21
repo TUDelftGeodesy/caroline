@@ -37,11 +37,14 @@ master_date= '2020-03-25' # will search for first image after this date that exi
 # Usually does not require changing anything
 # Uses doris v5
 
-dem_directory             = '/project/caroline/Share/dem/netherlands_simon'
+doris_code_directory      = '/project/caroline/Share/stacks/doris/doris_v5.0.4_spider_slave_rsmp' # NOTE: generated doris_input.xml corresponds to this version!
+dem_directory             = '/project/caroline/Share/dem/netherlands_simon' # NOTE: only this DEM works atm, other DEMs require changes to input.dembased and input.comprefdem
+
 do_coarse_orbits          = 1
 do_deramp                 = 1
 do_reramp                 = 1
 do_fake_fine_coreg_bursts = 1
+do_fake_master_resample   = 1
 do_dac_bursts             = 1
 do_fake_coreg_bursts      = 1
 do_resample               = 1
@@ -53,6 +56,8 @@ do_coherence              = 1
 do_esd                    = 0
 do_network_esd            = 0
 do_ESD_correct            = 0
+do_combine_master         = 1
+do_combine_slave          = 1
 do_ref_phase              = 1
 do_ref_dem                = 1
 do_phasefilt              = 0

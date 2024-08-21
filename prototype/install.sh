@@ -22,6 +22,7 @@ if [ ! -d "${CAROLINE}" ]; then
 fi
 
 # Install caroline prototype
+cp -Rvp caroline/caroline_main/caroline_v1.0/ "${CAROLINE}"
 cp -Rvp caroline/caroline_main/caroline_v0.2/ "${CAROLINE}"
 cp -Rvp caroline/caroline_main/bin/ "${CAROLINE}"
 cp -Rvp caroline/caroline_main/area-track-lists/ "${CAROLINE}"

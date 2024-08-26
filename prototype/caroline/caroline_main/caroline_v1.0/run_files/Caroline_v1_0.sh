@@ -5,7 +5,7 @@ param_file='param_file_Caroline_v1_0.txt'
 step_file_version='1.0'
 
 if [ -z "${CAROLINE}" ]; then
-	caroline_dir="/project/caroline/Share/software/caroline/prototype/caroline/caroline_main"
+	caroline_dir="/project/caroline/Software/caroline-prototype"
 else
 	caroline_dir="${CAROLINE}"
 fi
@@ -399,5 +399,8 @@ if [ ${do_depsi_post} -eq 1 ]; then
     cd ${depsi_dir}
   done
   cd ${cpath}
+
+  # sending completion email
+  send-success-mail.sh ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
 
 fi

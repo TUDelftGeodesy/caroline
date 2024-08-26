@@ -85,7 +85,7 @@ main () {
 		touch "${TIMESTAMP_FILE}"
 	fi
 
-	# - Find download directories in the SCAN_DIR with xml files that are 
+	# - Find download directories in the SCAN_DIR with json files that are 
 	#   newer than the timestamp file.
 	# - Check if all files have been downloaded
 	# - Check if orbits files have been downloaded for the products
@@ -96,7 +96,7 @@ main () {
 	# directory to new_downloads
 	for DOWNLOAD_DIR in $(find "${SCAN_DIR}" \
 		               -newer "${TIMESTAMP_FILE}" \
-			       -name "*.xml" \
+			       -name "*.json" \
 			       -exec dirname {} \; | sort -u)
 	do
 		if is_download_complete "${DOWNLOAD_DIR}"; then
@@ -199,17 +199,17 @@ list_tracks () {
 
 # Check if a download is complete
 #
-# Check we have a zip file for each xml file found
+# Check we have a zip file for each json file found
 #
 is_download_complete () {
 	local DOWNLOAD_DIR="${1}"
 
-	# Check every xml file in the download directory for a corresponding
+	# Check every json file in the download directory for a corresponding
 	# zip file
-	for XMLFILE in "${DOWNLOAD_DIR}"/*.xml; do
-		ZIPFILE="${XMLFILE%.xml}.zip"
+	for JSONFILE in "${DOWNLOAD_DIR}"/*.json; do
+		ZIPFILE="${JSONFILE%.json}.zip"
 
-		# Check if zip file exists for this xml file. If there is no
+		# Check if zip file exists for this json file. If there is no
 		# zip file, the download is not complete so return false
 		if [ ! -f "${ZIPFILE}" ]; then
 			return 1
@@ -223,7 +223,7 @@ is_download_complete () {
 		fi
 	done
 	
-	# If we end up here we have a xml file for every zip file so return 
+	# If we end up here we have a json file for every zip file so return 
 	# true
 	return 0
 }

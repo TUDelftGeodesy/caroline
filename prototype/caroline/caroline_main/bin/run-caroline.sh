@@ -49,10 +49,10 @@ if [ ! -z "${TRACKS}" ]; then
 	source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
 	#
 	# Chdir to script directory
-	cd ${CAROLINE}/caroline_v0.2/run_files/
+	cd ${CAROLINE}/caroline_v1.0/run_files/
 	#
 	# Submit the job to the cluster's scheduler (slurm)
-	./Caroline_v0_2.sh \
-		--config-file param_file_Caroline_v0_2_spider_nl_amsterdam.txt \
+	./Caroline_v1_0.sh \
+		--config-file param_file_Caroline_v1_0_spider_nl_amsterdam.txt \
 		--tracks "${TRACKS_CSV}"
 fi

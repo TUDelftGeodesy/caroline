@@ -394,8 +394,6 @@ cd ${cpath}
 
 fi
 
-fi
-
 #
 # Upload csv to skygeo
 #
@@ -408,3 +406,5 @@ for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`; do
 	cd ${depsi_dir}
 done
 cd ${cpath}
+
+fi

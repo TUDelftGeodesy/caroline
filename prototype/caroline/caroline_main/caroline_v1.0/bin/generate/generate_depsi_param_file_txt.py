@@ -59,7 +59,7 @@ for track in range(len(tracks)):
                                    start_date=startdate,
                                    stop_date=end_date,
                                    master_date=masterdir,
-                                   stitch_dir=out_parameters['stitch_dir'],
+                                   stitch_dir=out_parameters['stitch_directory'],
                                    max_mem_buffer=out_parameters['max_mem_buffer'],
                                    visible_plots=out_parameters['visible_plots'],
                                    detail_plots=out_parameters['detail_plots'],

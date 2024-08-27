@@ -83,14 +83,18 @@ echo "Starting full CAROLINE run..."
 
 cpath=`pwd`
 
-if [ ! -d auxiliary_files ]; then
-  mkdir auxiliary_files
+AUX=$(echo ${param_file} | cut -d. -f1)
+RUN_TS=$(date +%Y%m%dT%H%M%S)
+auxiliary_files="config_files_"${AUX}"_"${RUN_TS}
+
+if [ ! -d ${auxiliary_files} ]; then
+  mkdir ${auxiliary_files}
 fi
 
 echo "Creating auxiliary files..."
 
 # Copy the config file to auxilary files
-TMP_CONFIG=$(mktemp auxiliary_files/caroline_config_XXX --suffix=.txt)
+TMP_CONFIG=$(mktemp ${auxiliary_files}/caroline_config_XXX --suffix=.txt)
 cp $param_file ${TMP_CONFIG}
 param_file=${TMP_CONFIG}
 echo "Running with config file ${param_file}"
@@ -99,25 +103,25 @@ echo "Running with config file ${param_file}"
 sed -i "s/^track =.*/track = [$TRACK_NUMBERS_STRING]/" $param_file
 sed -i "s/^asc_dsc =.*/asc_dsc = [$TRACK_DIRECTIONS_STRING]/" $param_file
 
-python3 ${caroline_dir}/caroline_v${step_file_version}/bin/setup/create_step_files.py ${param_file} ${cpath}
+python3 ${caroline_dir}/caroline_v${step_file_version}/bin/setup/create_step_files.py ${param_file} ${cpath} ${auxiliary_files}
 
-do_doris=`cat auxiliary_files/do_doris.txt`
-do_stitching=`cat auxiliary_files/do_stack_stitching.txt`
-do_depsi=`cat auxiliary_files/do_depsi.txt`
-do_depsi_post=`cat auxiliary_files/do_depsi_post.txt`
-doris_dir=`cat auxiliary_files/doris_directory.txt`
-stitch_dir=`cat auxiliary_files/stitch_directory.txt`
-depsi_dir=`cat auxiliary_files/depsi_directory.txt`
-shape_dir=`cat auxiliary_files/shape_directory.txt`
-AoI_name=`cat auxiliary_files/AoI_name.txt`
-version=`cat auxiliary_files/Caroline_version.txt`
-dem_directory=`cat auxiliary_files/dem_directory.txt`
-depsi_directory=`cat auxiliary_files/depsi_code_dir.txt`
-geocoding_directory=`cat auxiliary_files/geocoding_dir.txt`
-rdnaptrans_directory=`cat auxiliary_files/rdnaptrans_dir.txt`
-depsi_post_directory=`cat auxiliary_files/depsi_post_dir.txt`
-cpxfiddle_directory=`cat auxiliary_files/cpxfiddle_dir.txt`
-do_tarball=`cat auxiliary_files/depsi_post_mode.txt`
+do_doris=`cat ${auxiliary_files}/do_doris.txt`
+do_stitching=`cat ${auxiliary_files}/do_stack_stitching.txt`
+do_depsi=`cat ${auxiliary_files}/do_depsi.txt`
+do_depsi_post=`cat ${auxiliary_files}/do_depsi_post.txt`
+doris_dir=`cat ${auxiliary_files}/doris_directory.txt`
+stitch_dir=`cat ${auxiliary_files}/stitch_directory.txt`
+depsi_dir=`cat ${auxiliary_files}/depsi_directory.txt`
+shape_dir=`cat ${auxiliary_files}/shape_directory.txt`
+AoI_name=`cat ${auxiliary_files}/AoI_name.txt`
+version=`cat ${auxiliary_files}/Caroline_version.txt`
+dem_directory=`cat ${auxiliary_files}/dem_directory.txt`
+depsi_directory=`cat ${auxiliary_files}/depsi_code_dir.txt`
+geocoding_directory=`cat ${auxiliary_files}/geocoding_dir.txt`
+rdnaptrans_directory=`cat ${auxiliary_files}/rdnaptrans_dir.txt`
+depsi_post_directory=`cat ${auxiliary_files}/depsi_post_dir.txt`
+cpxfiddle_directory=`cat ${auxiliary_files}/cpxfiddle_dir.txt`
+do_tarball=`cat ${auxiliary_files}/depsi_post_mode.txt`
 
 if [ ! -d ${shape_dir} ]; then
   mkdir -p ${shape_dir}
@@ -147,7 +151,7 @@ if [ ${do_doris} -eq 1 ]; then
 
   echo "Copying and linking directories..."
   cd ${doris_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}
     ln -s ${dem_directory} dem
@@ -164,7 +168,7 @@ if [ ${do_doris} -eq 1 ]; then
   echo "Filtering bad images..."
   python3 ${caroline_dir}/caroline_v${version}/main/fr_filter_bad_images.py ${param_file} ${cpath} ${AoI_name}
   cd ${doris_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}/good_images
     for d in `cat bad_zips.txt`
@@ -184,7 +188,7 @@ if [ ${do_doris} -eq 1 ]; then
 
   echo "Starting doris..."
   cd ${doris_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}
     ls > dir_contents.txt
@@ -212,7 +216,7 @@ if [ ${do_stitching} -eq 1 ]; then
 
   echo "Linking directories..."
   cd ${stitch_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}
     linkdir=`cat link_directory.txt`
@@ -227,7 +231,7 @@ if [ ${do_stitching} -eq 1 ]; then
 
   echo "Starting stack stitching..."
   cd ${stitch_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}
     ls > dir_contents.txt
@@ -249,7 +253,7 @@ if [ ${do_depsi} -eq 1 ]; then
   echo "Creating directory..."
   if [ -d "${depsi_dir}" ]; then
     cd ${depsi_dir}
-    for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+    for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
     do
       mv "${dir}" "${dir}-$(date +%Y%m%dT%H%M%S)"
     done
@@ -261,7 +265,7 @@ if [ ${do_depsi} -eq 1 ]; then
 
   echo "Linking master files..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}/psi
     link=`cat master_directory.txt`
@@ -273,7 +277,7 @@ if [ ${do_depsi} -eq 1 ]; then
 
   echo "Copying boxes..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}/boxes
     #ln -s ${caroline_dir}/caroline_v${version}/files/depsi/boxes/* .
@@ -291,7 +295,7 @@ if [ ${do_depsi} -eq 1 ]; then
 
   echo "Starting depsi..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}/psi
     ls > dir_contents.txt
@@ -310,7 +314,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
 
   echo "Copying boxes..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}/boxes
     ln -s ${depsi_post_directory} .
@@ -323,7 +327,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
   python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_create_mrm.py ${param_file} ${cpath} ${AoI_name}
 
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}/psi
     nlines=`cat nlines_crop.txt`
@@ -341,7 +345,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
 
   echo "Correcting mrm raster..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}/psi
     ls > dir_contents_read_mrm.txt
@@ -360,7 +364,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
 
   echo "Starting DePSI_post..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do
     cd ${dir}/psi
     ls > dir_contents_depsi_post.txt
@@ -375,7 +379,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
 
     echo "Creating tarball..."
     cd ${depsi_dir}
-    for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`
+    for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
     do
       echo ${dir}
       cd ${dir}/psi
@@ -392,7 +396,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
   #
   echo "Uploading csv to skygeo viewer"
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/auxiliary_files/loop_directories.txt`; do
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`; do
     echo ${dir}
     cd ${dir}/psi
     upload-result-csv-to-skygeo.sh

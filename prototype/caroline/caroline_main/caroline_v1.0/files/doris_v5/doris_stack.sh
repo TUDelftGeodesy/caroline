@@ -30,7 +30,7 @@
 # Uncomment these lines when your job requires this software
 
 source /etc/profile.d/modules.sh
-source /project/caroline/software/bin/init.sh
+source /project/caroline/Software/bin/init.sh
 module load python/3.9.6 gdal/3.4.1
 source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
 

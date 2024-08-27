@@ -41,7 +41,7 @@ if [ ! -z "${TRACKS}" ]; then
 	# Submit caroline core to job queue
 	#
 	# Load required python and gdal modules
-        source /etc/profile.d/modules.sh
+  source /etc/profile.d/modules.sh
 	source /project/caroline/Software/bin/init.sh
 	module load python/3.9.6 gdal/3.4.1
 	#

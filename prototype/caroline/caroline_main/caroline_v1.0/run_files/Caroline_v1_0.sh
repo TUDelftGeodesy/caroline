@@ -166,7 +166,7 @@ if [ ${do_doris} -eq 1 ]; then
   cd ${cpath}
 
   echo "Filtering bad images..."
-  python3 ${caroline_dir}/caroline_v${version}/main/fr_filter_bad_images.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/utils/filter_bad_images.py ${param_file} ${cpath} ${AoI_name}
   cd ${doris_dir}
   for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
   do

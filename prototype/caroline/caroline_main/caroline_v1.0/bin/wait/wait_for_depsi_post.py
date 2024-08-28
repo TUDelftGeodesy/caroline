@@ -15,7 +15,7 @@ asc_dsc = eval(out_parameters['asc_dsc'])
 
 job_ids = {}
 for track in range(len(tracks)):
-    jf = open("{}/{}_s1_{}_t{:0>3d}/psi/job_id.txt".format(out_parameters[3], AoI_name, asc_dsc[track], tracks[track]))
+    jf = open("{}/{}_s1_{}_t{:0>3d}/psi/job_id.txt".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track], tracks[track]))
     job = jf.read().strip()
     job_ids["{}_s1_{}_t{:0>3d}".format(AoI_name, asc_dsc[track], tracks[track])] = job.split(" ")[-1]
     jf.close()

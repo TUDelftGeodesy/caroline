@@ -27,11 +27,19 @@ find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"
 if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
 
   # Enter a while loop that checks if all areas are properly submitted after their dependencies
-  ALL_DEPENDENCIES_SUBMITTED=false
-  while [ ${ALL_DEPENDENCIES_SUBMITTED} = false ]
+  ALL_DEPENDENCIES_SUBMITTED=0
+  COUNTER=0
+  while [ ${ALL_DEPENDENCIES_SUBMITTED} -eq "0" ]
   do
     # turn to true, if it is not true it will be turned to false by the following if statements
-    ALL_DEPENDENCIES_SUBMITTED=true
+    ALL_DEPENDENCIES_SUBMITTED=1
+
+    # exit in case of infinite loop (should not be possible
+    COUNTER=${COUNTER} + 1
+    if [ ${COUNTER} -eq 20 ]; then
+      echo "Submission of one or more jobs failed, check loops." | mailx -s "CAROLINE Infinite Loop" s.a.n.vandiepen@tudelft.nl
+      exit 127
+    fi
 
     # Loop over the available area-track-lists & corresponding parameter files in run-files
     # area-track-lists ATL.dat requires parameter file param_file_Caroline_v1_0_spider_ATL.txt
@@ -109,12 +117,12 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
 
               else
                 # it has not been submitted, we need another while loop iteration
-                ALL_DEPENDENCIES_SUBMITTED=false
+                ALL_DEPENDENCIES_SUBMITTED=0
               fi
 
             else
               # Invalid dependency --> just submit the job and send a warning email to Simon
-              echo "Job "${AREA}" submitted with invalid dependency "${DEPENDENCY}", continuing without dependency." | mailx -s "CAROLINE Invalid job dependency" "s.a.n.vandiepen@tudelft.nl"
+              echo "Job "${AREA}" submitted with invalid dependency "${DEPENDENCY}", continuing without dependency." | mailx -s "CAROLINE Invalid job dependency" s.a.n.vandiepen@tudelft.nl
 
               # Convert tracks list into csv
               TRACKS_CSV=$(echo ${TRACKS} | tr ' ' ',')

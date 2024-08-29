@@ -26,7 +26,7 @@ Track(s): {}
 Type: {}
 Sensor: {}
 
-Viewer: tud-portal.skygeo.com
+Viewer: https://caroline.portal-tud.skygeo.com/portal/caroline/
 
 In case of questions, please contact Niels at n.h.jansen@tudelft.nl or Simon at s.a.n.vandiepen@tudelft.nl
 

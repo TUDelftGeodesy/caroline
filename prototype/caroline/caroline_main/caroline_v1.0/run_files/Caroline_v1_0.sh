@@ -404,7 +404,8 @@ if [ ${do_depsi_post} -eq 1 ]; then
   done
   cd ${cpath}
 
-  # sending completion email
-  send-success-mail.sh ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
-
 fi
+
+# always send completion email
+send-success-mail.sh ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
+

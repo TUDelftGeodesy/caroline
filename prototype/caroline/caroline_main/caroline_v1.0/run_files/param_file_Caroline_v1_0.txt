@@ -31,6 +31,13 @@ start_date = '2020-03-01' # will search for first image after this date that exi
 end_date   = '2020-06-01' # will search for last image before this date that exists
 master_date= '2020-03-25' # will search for first image after this date that exists
 
+# send a notification to these email addresses upon completion of the Caroline script
+# examples:
+# send_completion_email = ''  # empty for no email
+# send_completion_email = 's.a.n.vandiepen@tudelft.nl'  # emails Simon
+# send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl'  # emails Simon and Ramon
+send_completion_email = 's.a.n.vandiepen@tudelft.nl'
+
 #############################################
 ############### DORIS PARAMETERS ############
 #############################################

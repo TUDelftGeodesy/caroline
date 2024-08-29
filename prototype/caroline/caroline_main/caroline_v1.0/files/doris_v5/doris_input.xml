@@ -3,7 +3,7 @@
         <datastack_folder>{doris_dir}/{AoI_name}_s1_{asc_dsc}_t{fill_track}</datastack_folder>
         <sar_data_folder>{doris_dir}/{AoI_name}_s1_{asc_dsc}_t{fill_track}/good_images</sar_data_folder>
         <polarisation>vv</polarisation>
-        <shape_file_path>{shape_dir}/{AoI_name}_shape.shp</shape_file_path>
+        <shape_file_path>{shape_dir}/{shape_AoI_name}_shape.shp</shape_file_path>
         <track>{track}</track>
         <direction>{asc_dsc}</direction>
         <orbits_folder>/project/caroline/Data/orbits/sentinel1</orbits_folder>

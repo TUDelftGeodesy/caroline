@@ -113,7 +113,10 @@ doris_dir=`cat ${auxiliary_files}/doris_directory.txt`
 stitch_dir=`cat ${auxiliary_files}/stitch_directory.txt`
 depsi_dir=`cat ${auxiliary_files}/depsi_directory.txt`
 shape_dir=`cat ${auxiliary_files}/shape_directory.txt`
-AoI_name=`cat ${auxiliary_files}/AoI_name.txt`
+doris_AoI_name=`cat ${auxiliary_files}/doris_AoI_name.txt`
+stitch_AoI_name=`cat ${auxiliary_files}/stitch_AoI_name.txt`
+depsi_AoI_name=`cat ${auxiliary_files}/depsi_AoI_name.txt`
+shape_AoI_name=`cat ${auxiliary_files}/shape_AoI_name.txt`
 version=`cat ${auxiliary_files}/Caroline_version.txt`
 dem_directory=`cat ${auxiliary_files}/dem_directory.txt`
 depsi_directory=`cat ${auxiliary_files}/depsi_code_dir.txt`
@@ -128,9 +131,9 @@ if [ ! -d ${shape_dir} ]; then
 fi
 
 
-if [ ! -f ${shape_dir}/${AoI_name}_shape.shp ]; then
+if [ ! -f ${shape_dir}/${shape_AoI_name}_shape.shp ]; then
   echo "Generating shapefile..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/utils/convert_coord_to_shp.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/utils/convert_coord_to_shp.py ${param_file} ${cpath} ${shape_AoI_name}
 else
   echo "Shapefile already exists."
 fi
@@ -147,11 +150,11 @@ if [ ${do_doris} -eq 1 ]; then
     mkdir -p ${doris_dir}
   fi
 
-  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_doris_directories.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_doris_directories.py ${param_file} ${cpath} ${doris_AoI_name}
 
   echo "Copying and linking directories..."
   cd ${doris_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_doris.txt`
   do
     cd ${dir}
     ln -s ${dem_directory} dem
@@ -166,9 +169,9 @@ if [ ${do_doris} -eq 1 ]; then
   cd ${cpath}
 
   echo "Filtering bad images..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/utils/filter_bad_images.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/utils/filter_bad_images.py ${param_file} ${cpath} ${doris_AoI_name}
   cd ${doris_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_doris.txt`
   do
     cd ${dir}/good_images
     for d in `cat bad_zips.txt`
@@ -182,13 +185,13 @@ if [ ${do_doris} -eq 1 ]; then
 
 
   echo "Generating doris files..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_doris_stack_sh.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_doris_input_xml.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_doris_stack_sh.py ${param_file} ${cpath} ${doris_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_doris_input_xml.py ${param_file} ${cpath} ${doris_AoI_name} ${shape_AoI_name} ${version} ${caroline_dir}
 
 
   echo "Starting doris..."
   cd ${doris_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_doris.txt`
   do
     cd ${dir}
     ls > dir_contents.txt
@@ -197,7 +200,7 @@ if [ ${do_doris} -eq 1 ]; then
   done
   cd ${cpath}
 
-  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_doris.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_doris.py ${param_file} ${cpath} ${doris_AoI_name}
 fi
 
 
@@ -212,11 +215,11 @@ if [ ${do_stitching} -eq 1 ]; then
     mkdir -p ${stitch_dir}
   fi
 
-  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_stitch_directories.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_stitch_directories.py ${param_file} ${cpath} ${stitch_AoI_name} ${doris_AoI_name}
 
   echo "Linking directories..."
   cd ${stitch_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_stitch.txt`
   do
     cd ${dir}
     linkdir=`cat link_directory.txt`
@@ -226,12 +229,12 @@ if [ ${do_stitching} -eq 1 ]; then
   cd ${cpath}
 
   echo "Generating matlab and bash file..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_stitch_MAIN_m.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_stitch_MAIN_sh.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_stitch_MAIN_m.py ${param_file} ${cpath} ${stitch_AoI_name} ${shape_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_stitch_MAIN_sh.py ${param_file} ${cpath} ${stitch_AoI_name} ${version} ${caroline_dir}
 
   echo "Starting stack stitching..."
   cd ${stitch_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_stitch.txt`
   do
     cd ${dir}
     ls > dir_contents.txt
@@ -240,7 +243,7 @@ if [ ${do_stitching} -eq 1 ]; then
   done
   cd ${cpath}
 
-  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_stitch.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_stitch.py ${param_file} ${cpath} ${stitch_AoI_name}
 
 fi
 
@@ -253,7 +256,7 @@ if [ ${do_depsi} -eq 1 ]; then
   echo "Creating directory..."
   if [ -d "${depsi_dir}" ]; then
     cd ${depsi_dir}
-    for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+    for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
     do
       mv "${dir}" "${dir}-$(date +%Y%m%dT%H%M%S)"
     done
@@ -261,11 +264,11 @@ if [ ${do_depsi} -eq 1 ]; then
   cd "${cpath}"
   mkdir -p ${depsi_dir}
 
-  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_depsi_directories.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_depsi_directories.py ${param_file} ${cpath} ${depsiAoI_name} ${stitch_AoI_name}
 
   echo "Linking master files..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/psi
     link=`cat master_directory.txt`
@@ -277,7 +280,7 @@ if [ ${do_depsi} -eq 1 ]; then
 
   echo "Copying boxes..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/boxes
     #ln -s ${caroline_dir}/caroline_v${version}/files/depsi/boxes/* .
@@ -289,13 +292,13 @@ if [ ${do_depsi} -eq 1 ]; then
   cd ${cpath}
 
   echo "Generating matlab and bash files..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_param_file_txt.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_depsi_m.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_depsi_sh.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_param_file_txt.py ${param_file} ${cpath} ${depsi_AoI_name} ${stitch_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_depsi_m.py ${param_file} ${cpath} ${depsi_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_depsi_sh.py ${param_file} ${cpath} ${depsi_AoI_name} ${version} ${caroline_dir}
 
   echo "Starting depsi..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/psi
     ls > dir_contents.txt
@@ -304,7 +307,7 @@ if [ ${do_depsi} -eq 1 ]; then
   done
   cd ${cpath}
 
-  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_depsi.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_depsi.py ${param_file} ${cpath} ${depsi_AoI_name}
 
 fi
 
@@ -314,7 +317,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
 
   echo "Copying boxes..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/boxes
     ln -s ${depsi_post_directory} .
@@ -324,10 +327,10 @@ if [ ${do_depsi_post} -eq 1 ]; then
 
 
   echo "Creating mrm raster..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_create_mrm.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_create_mrm.py ${param_file} ${cpath} ${depsi_AoI_name}
 
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/psi
     nlines=`cat nlines_crop.txt`
@@ -339,13 +342,13 @@ if [ ${do_depsi_post} -eq 1 ]; then
 
 
   echo "Generating mrm matlab and bash file..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_post_read_mrm_m.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_post_read_mrm_sh.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_post_read_mrm_m.py ${param_file} ${cpath} ${depsi_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_post_read_mrm_sh.py ${param_file} ${cpath} ${depsi_AoI_name} ${version} ${caroline_dir}
 
 
   echo "Correcting mrm raster..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/psi
     ls > dir_contents_read_mrm.txt
@@ -354,17 +357,17 @@ if [ ${do_depsi_post} -eq 1 ]; then
   done
   cd ${cpath}
 
-  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_read_mrm.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_read_mrm.py ${param_file} ${cpath} ${depsi_AoI_name}
 
 
   echo "Generating depsi_post matlab and bash file..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_post_depsi_post_m.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_post_depsi_post_sh.py ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_post_depsi_post_m.py ${param_file} ${cpath} ${depsi_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_post_depsi_post_sh.py ${param_file} ${cpath} ${depsi_AoI_name} ${version} ${caroline_dir}
 
 
   echo "Starting DePSI_post..."
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/psi
     ls > dir_contents_depsi_post.txt
@@ -373,13 +376,13 @@ if [ ${do_depsi_post} -eq 1 ]; then
   done
   cd ${cpath}
 
-  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_depsi_post.py ${param_file} ${cpath} ${AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_depsi_post.py ${param_file} ${cpath} ${depsi_AoI_name}
 
   if [ ${do_tarball} -eq 1 ]; then
 
     echo "Creating tarball..."
     cd ${depsi_dir}
-    for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`
+    for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
     do
       echo ${dir}
       cd ${dir}/psi
@@ -407,5 +410,5 @@ if [ ${do_depsi_post} -eq 1 ]; then
 fi
 
 # always send completion email
-send-success-mail.sh ${param_file} ${cpath} ${AoI_name} ${version} ${caroline_dir}
+send-success-mail.sh ${param_file} ${cpath}${version} ${caroline_dir}
 

@@ -5,7 +5,8 @@ from read_param_file import read_param_file
 filename, param_file, cpath, auxiliary_files = argv
 
 search_parameters = ['do_doris', 'do_stack_stitching', 'do_depsi', 'do_depsi_post',  'doris_directory',
-                     'stitch_directory', 'depsi_directory', 'shape_directory', 'AoI_name', 'Caroline_version',
+                     'stitch_directory', 'depsi_directory', 'shape_directory', 'doris_AoI_name',
+                     'stitch_AoI_name', 'depsi_AoI_name', 'shape_AoI_name', 'Caroline_version',
                      'dem_directory', 'depsi_code_dir', 'rdnaptrans_dir', 'geocoding_dir', 'depsi_post_dir',
                      'cpxfiddle_dir', 'depsi_post_mode']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
@@ -28,9 +29,10 @@ out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
 asc_dsc = eval(out_parameters['asc_dsc'])
-AoI_name = out_parameters['AoI_name']
+for prefix in ['doris', 'stitch', 'depsi']:
+    AoI_name = out_parameters[prefix + '_AoI_name']
 
-f = open("{}/{}/loop_directories.txt".format(cpath, auxiliary_files), "w")
-for track in range(len(tracks)):
-    f.write("{}_s1_{}_t{:0>3d}\n".format(AoI_name, asc_dsc[track], tracks[track]))
-f.close()
+    f = open("{}/{}/loop_directories_{}.txt".format(cpath, auxiliary_files, prefix), "w")
+    for track in range(len(tracks)):
+        f.write("{}_s1_{}_t{:0>3d}\n".format(AoI_name, asc_dsc[track], tracks[track]))
+    f.close()

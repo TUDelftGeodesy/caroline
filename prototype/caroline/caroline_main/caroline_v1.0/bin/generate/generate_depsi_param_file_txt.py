@@ -3,7 +3,7 @@ import os
 import glob
 path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
-filename, param_file, cpath, AoI_name, version, caroline_dir = argv
+filename, param_file, cpath, AoI_name, stitch_AoI_name, version, caroline_dir = argv
 
 search_parameters = ['stitch_directory', 'track', 'asc_dsc', 'depsi_directory', 'max_mem_buffer', 'visible_plots',
                      'detail_plots', 'processing_groups', 'run_mode', 'exclude_date', 'az_spacing', 'r_spacing',
@@ -30,8 +30,8 @@ stc_min_max = eval(out_parameters['stc_min_max'])
 std_param = eval(out_parameters['std_param'])
 
 for track in range(len(tracks)):
-    basedir = "{}/{}_s1_{}_t{:0>3d}/*cropped_stack/".format(out_parameters['stitch_directory'], AoI_name, asc_dsc[track], tracks[track],
-                                                            AoI_name)
+    basedir = "{}/{}_s1_{}_t{:0>3d}/*cropped_stack/".format(out_parameters['stitch_directory'], stitch_AoI_name,
+                                                            asc_dsc[track], tracks[track])
     files = glob.glob("{}*".format(basedir))
     dirs = [f for f in files if os.path.isdir(f)]
     masterdir = ""
@@ -53,7 +53,8 @@ for track in range(len(tracks)):
     rf = open("{}/caroline_v{}/files/depsi/psi/param_file.txt".format(caroline_dir, version))
     param_file = rf.read()
     rf.close()
-    param_file = param_file.format(AoI_name=AoI_name,
+    param_file = param_file.format(depsi_AoI_name=AoI_name,
+                                   stitch_AoI_name=stitch_AoI_name,
                                    fill_track="{:0>3d}".format(tracks[track]),
                                    asc_dsc=asc_dsc[track],
                                    start_date=startdate,

@@ -14,9 +14,9 @@ run_mode = '{run_mode}'
 % Project parameters
 % ----------------------------------------------------------------------
 
-project_id = '{AoI_name}_s1_{asc_dsc}_t{fill_track}'
+project_id = '{depsi_AoI_name}_s1_{asc_dsc}_t{fill_track}'
 input_file = []
-processDir = '{stitch_dir}/{AoI_name}_s1_{asc_dsc}_t{fill_track}/cropped_stack'
+processDir = '{stitch_dir}/{stitch_AoI_name}_s1_{asc_dsc}_t{fill_track}/cropped_stack'
 startDate = '{start_date}'
 stopDate = '{stop_date}'
 excludeDate = '{exclude_date}'
@@ -28,7 +28,7 @@ sensor = 's1'
 orbit = '{asc_dsc}'
 crop = []
 processor = 'doris_flinsar'
-project = '{AoI_name}'
+project = '{depsi_AoI_name}'
 
 az_spacing = {az_spacing}
 r_spacing = {r_spacing}

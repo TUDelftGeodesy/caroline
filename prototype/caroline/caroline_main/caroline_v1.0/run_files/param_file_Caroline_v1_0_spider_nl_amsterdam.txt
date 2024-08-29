@@ -13,9 +13,17 @@ do_depsi           = 1
 do_depsi_post      = 1
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 
+# Specify the AoI name and directory of each step, as well as the shapefile
+doris_AoI_name   = 'nl_amsterdam'
 doris_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/stack'
+
+stitch_AoI_name  = 'nl_amsterdam'
 stitch_directory = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/stitch'
+
+depsi_AoI_name   = 'nl_amsterdam'
 depsi_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/depsi'
+
+shape_AoI_name   = 'nl_amsterdam'
 shape_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/shape'
 
 shape_file = ''
@@ -23,7 +31,6 @@ shape_file = ''
 center_AoI = [52.371436, 4.897088]  # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size
 AoI_length = 1 # km, north-south AoI size
-AoI_name   = 'nl_amsterdam'
 
 track = [37]  # Can be multiple tracks!
 asc_dsc = ['dsc']

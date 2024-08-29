@@ -3,7 +3,7 @@ import os
 import glob
 path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
-filename, param_file, cpath, AoI_name, version, caroline_dir = argv
+filename, param_file, cpath, AoI_name, shape_AoI_name, version, caroline_dir = argv
 
 search_parameters = ['doris_directory', 'shape_directory', 'track', 'asc_dsc', 'start_date', 'end_date', 'master_date',
                      'do_coarse_orbits',
@@ -64,6 +64,7 @@ for track in range(len(tracks)):
     act_master_date = str(min([image for image in images if image >= master_date]))
 
     doris_stack = stack.format(doris_dir=doris_dir, AoI_name=AoI_name, asc_dsc=asc_dsc[track],
+                               shape_AoI_name=shape_AoI_name,
                                fill_track="{:0>3d}".format(tracks[track]),
                                track=tracks[track], shape_dir=shape_dir,
                                do_coarse_orbits=do_coarse_orbits,

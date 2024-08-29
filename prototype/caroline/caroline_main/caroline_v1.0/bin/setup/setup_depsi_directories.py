@@ -4,7 +4,7 @@ import os
 import glob
 path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
-filename, param_file, cpath, AoI_name = argv
+filename, param_file, cpath, AoI_name, stitch_AoI_name = argv
 
 search_parameters = ['stitch_directory', 'track', 'asc_dsc', 'depsi_directory']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
@@ -27,7 +27,7 @@ for track in range(len(tracks)):
                                                   tracks[track]))
     except OSError:
         pass  # Directory already exists
-    basedir = "{}/{}_s1_{}_t{:0>3d}/*cropped_stack/".format(out_parameters['stitch_directory'], AoI_name,
+    basedir = "{}/{}_s1_{}_t{:0>3d}/*cropped_stack/".format(out_parameters['stitch_directory'], stitch_AoI_name,
                                                             asc_dsc[track], tracks[track])
     files = glob.glob("{}*".format(basedir))
     dirs = [f for f in files if os.path.isdir(f)]

@@ -35,8 +35,8 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
     ALL_DEPENDENCIES_SUBMITTED=1
 
     # exit in case of infinite loop (should not be possible
-    COUNTER=${COUNTER} + 1
-    if [ ${COUNTER} -eq 20 ]; then
+    COUNTER=$((${COUNTER} + 1))
+    if [ ${COUNTER} -eq "20" ]; then
       echo "Submission of one or more jobs failed, check loops." | mailx -s "CAROLINE Infinite Loop" s.a.n.vandiepen@tudelft.nl
       exit 127
     fi

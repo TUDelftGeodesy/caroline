@@ -8,8 +8,8 @@
 Caroline_version   = 1.0
 
 do_doris           = 1
-do_stack_stitching = 0
-do_depsi           = 0
+do_stack_stitching = 1
+do_depsi           = 1
 do_depsi_post      = 0
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 

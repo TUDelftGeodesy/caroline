@@ -168,6 +168,9 @@ if [ ${do_doris} -eq 1 ]; then
   done
   cd ${cpath}
 
+  echo "Filling in DEM properties in input files..."
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_doris_input_files.py ${param_file} ${cpath} ${doris_AoI_name} ${version} ${caroline_dir}
+
   echo "Filtering bad images..."
   python3 ${caroline_dir}/caroline_v${version}/bin/utils/filter_bad_images.py ${param_file} ${cpath} ${doris_AoI_name}
   cd ${doris_dir}

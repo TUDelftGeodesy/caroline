@@ -7,20 +7,27 @@ filename, param_file, cpath, auxiliary_files = argv
 search_parameters = ['do_doris', 'do_stack_stitching', 'do_depsi', 'do_depsi_post',  'doris_directory',
                      'stitch_directory', 'depsi_directory', 'shape_directory', 'doris_AoI_name',
                      'stitch_AoI_name', 'depsi_AoI_name', 'shape_AoI_name', 'Caroline_version',
-                     'dem_directory', 'depsi_code_dir', 'rdnaptrans_dir', 'geocoding_dir', 'depsi_post_dir',
+                     'dem_file', 'depsi_code_dir', 'rdnaptrans_dir', 'geocoding_dir', 'depsi_post_dir',
                      'cpxfiddle_dir', 'depsi_post_mode', 'asc_dsc', 'track']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 for param in out_parameters.keys():
-    f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
+
     if param == 'depsi_post_mode':
+        f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
         if out_parameters[param] == 'csv':
             f.write('0')
         elif out_parameters[param] == 'tarball':
             f.write('1')
         else:
             raise ValueError("Unknown depsi post mode {}, known are 'csv' and 'tarball'".format(out_parameters[param]))
+    elif param == 'dem_file':
+        f = open(f'{cpath}/{auxiliary_files}/dem_directory.txt', 'w')
+        # cut off the dem file name
+        delta = len(out_parameters[param].split('/')[-1]) + 1
+        f.write(out_parameters[param][:-delta])
     else:
+        f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
         f.write(out_parameters[param])
     f.close()
 

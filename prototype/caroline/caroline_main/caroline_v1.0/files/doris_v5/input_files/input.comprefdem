@@ -25,10 +25,10 @@ CRD_OUT_FILE        	refdem.raw
 CRD_OUT_DEM_LP      	dem_radar.raw       
 CRD_OUT_H2PH    	h2ph_srd.raw        
 CRD_OUT_FILE        	master_slave.crd    
-CRD_IN_DEM          	/project/caroline/Share/users/caroline-svandiepen/software/caroline/caroline_main/caroline_v0.2/files/doris_v5/dem/final_netherlands.dem.wgs84
-CRD_IN_FORMAT       	r4                  
-CRD_IN_SIZE             4801 6001
-CRD_IN_DELTA            0.000833333333333 0.000833333333333
-CRD_IN_UL           	54.0 2.8            
-CRD_IN_NODATA       	-32768              
+CRD_IN_DEM          	{dem_fileq}
+CRD_IN_FORMAT       	{dem_format}
+CRD_IN_SIZE             {dem_s1} {dem_s2}
+CRD_IN_DELTA            {dem_d1} {dem_d2}
+CRD_IN_UL           	{dem_ul1} {dem_ul2}
+CRD_IN_NODATA       	{dem_nodata}
 STOP                          

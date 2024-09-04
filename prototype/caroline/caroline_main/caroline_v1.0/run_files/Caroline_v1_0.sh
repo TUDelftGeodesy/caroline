@@ -402,7 +402,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
   #
   echo "Uploading csv to skygeo viewer"
   cd ${depsi_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories.txt`; do
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`; do
     echo ${dir}
     cd ${dir}/psi
     upload-result-csv-to-skygeo.sh

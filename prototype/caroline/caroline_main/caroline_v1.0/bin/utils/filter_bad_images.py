@@ -1,6 +1,7 @@
 from sys import argv
 from read_param_file import read_param_file
 import glob
+import zipfile
 filename, param_file, cpath, AoI_name = argv
 
 search_parameters = ['doris_directory', 'track', 'asc_dsc']
@@ -37,10 +38,17 @@ for track in range(len(tracks)):
                                                                   asc_dsc[track], tracks[track]))
     for dr in dirs:
         files = glob.glob(f'{dr}/*.zip')
-        if len(files) == 0: # no zip files present
+        if len(files) == 0:  # no zip files present
             bad_zip = dr.split('/')[-1]
             if bad_zip not in bad_zips:
                 bad_zips.append(bad_zip)
+        for file in files:
+            try:
+                _ = zipfile.ZipFile(file)
+            except zipfile.BadZipFile:  # zip file cannot be opened --> incomplete download
+                bad_zip = dr.split('/')[-1]
+                if bad_zip not in bad_zips:
+                    bad_zips.append(bad_zip)
 
     f = open("{}/{}_s1_{}_t{:0>3d}/good_images/bad_zips.txt".format(out_parameters['doris_directory'], AoI_name,
                                                                     asc_dsc[track], tracks[track]), "w")

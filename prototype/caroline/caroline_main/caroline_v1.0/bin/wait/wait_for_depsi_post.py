@@ -34,8 +34,8 @@ while not finished:
         f.close()
         cur_content = glob.glob("{}/{}_s1_{}_t{:0>3d}/psi/*".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track], tracks[track]))
 
-        os.system("squeue > {}/{}_s1_{}_t{:0>3d}/queue.txt".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track], tracks[track]))
-        qf = open("{}/{}_s1_{}_t{:0>3d}/queue.txt".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track], tracks[track]))
+        os.system("squeue > {}/{}_s1_{}_t{:0>3d}/psi/queue.txt".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track], tracks[track]))
+        qf = open("{}/{}_s1_{}_t{:0>3d}/psi/queue.txt".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track], tracks[track]))
         queue = qf.read().split("\n")
         qf.close()
         found = False

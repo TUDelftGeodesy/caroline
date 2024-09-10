@@ -5,8 +5,8 @@ path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
 filename, param_file, cpath, AoI_name, shape_AoI_name, version, caroline_dir = argv
 
-search_parameters = ['doris_directory', 'shape_directory', 'track', 'asc_dsc', 'start_date', 'end_date', 'master_date',
-                     'do_coarse_orbits',
+search_parameters = ['coregistration_directory', 'shape_directory', 'track', 'asc_dsc', 'start_date', 'end_date',
+                     'master_date', 'do_coarse_orbits',
                      'do_deramp', 'do_reramp', 'do_fake_fine_coreg_bursts', 'do_dac_bursts', 'do_fake_coreg_bursts',
                      'do_resample', 'do_reramp2',
                      'do_interferogram', 'do_compref_phase', 'do_compref_dem', 'do_coherence', 'do_esd',
@@ -21,7 +21,7 @@ base_stack.close()
 
 tracks = eval(out_parameters['track'])
 shape_dir = out_parameters['shape_directory']
-doris_dir = out_parameters['doris_directory']
+doris_dir = out_parameters['coregistration_directory']
 asc_dsc = eval(out_parameters['asc_dsc'])
 start_date = out_parameters['start_date'].split("-")
 start_date = eval(start_date[0] + start_date[1] + start_date[2])
@@ -97,7 +97,7 @@ for track in range(len(tracks)):
                                master_date="{}-{}-{}".format(act_master_date[:4], act_master_date[4:6],
                                                              act_master_date[6:]))
 
-    fw = open("{}/{}_s1_{}_t{:0>3d}/doris_input.xml".format(out_parameters['doris_directory'], AoI_name, asc_dsc[track],
-                                                            tracks[track]), 'w')
+    fw = open("{}/{}_s1_{}_t{:0>3d}/doris_input.xml".format(out_parameters['coregistration_directory'], AoI_name,
+                                                            asc_dsc[track], tracks[track]), 'w')
     fw.write(doris_stack)
     fw.close()

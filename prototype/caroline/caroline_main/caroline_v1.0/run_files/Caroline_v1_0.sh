@@ -106,14 +106,17 @@ sed -i "s/^asc_dsc =.*/asc_dsc = [$TRACK_DIRECTIONS_STRING]/" $param_file
 python3 ${caroline_dir}/caroline_v${step_file_version}/bin/setup/create_step_files.py ${param_file} ${cpath} ${auxiliary_files}
 
 do_doris=`cat ${auxiliary_files}/do_doris.txt`
+do_deinsar=`cat ${auxiliary_files}/do_deinsar.txt`
 do_stitching=`cat ${auxiliary_files}/do_stack_stitching.txt`
 do_depsi=`cat ${auxiliary_files}/do_depsi.txt`
 do_depsi_post=`cat ${auxiliary_files}/do_depsi_post.txt`
 doris_dir=`cat ${auxiliary_files}/doris_directory.txt`
+deinsar_dir=`cat ${auxiliary_files}/deinsar_directory.txt`
 stitch_dir=`cat ${auxiliary_files}/stitch_directory.txt`
 depsi_dir=`cat ${auxiliary_files}/depsi_directory.txt`
 shape_dir=`cat ${auxiliary_files}/shape_directory.txt`
 doris_AoI_name=`cat ${auxiliary_files}/doris_AoI_name.txt`
+deinsar_AoI_name=`cat ${auxiliary_files}/deinsar_AoI_name.txt`
 stitch_AoI_name=`cat ${auxiliary_files}/stitch_AoI_name.txt`
 depsi_AoI_name=`cat ${auxiliary_files}/depsi_AoI_name.txt`
 shape_AoI_name=`cat ${auxiliary_files}/shape_AoI_name.txt`
@@ -139,6 +142,43 @@ else
 fi
 
 
+if [ ${do_deinsar} -eq 1 ]; then
+
+  echo ""
+  echo ""
+  echo "Starting DeInSAR..."
+  echo "Creating directories..."
+
+  if [ ! -d ${deinsar_dir} ]; then
+    mkdir -p ${deinsar_dir}
+  fi
+
+  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_deinsar_directories.py ${param_file} ${cpath} ${deinsar_AoI_name}
+
+  echo "Generating input files..."
+
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_deinsar_input_files.py ${param_file} ${cpath} ${version} ${caroline_dir}
+
+  echo "Generating DeInSAR files..."
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_deinsar_deinsar_py.py ${param_file} ${cpath} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_deinsar_deinsar_sh.py ${param_file} ${cpath} ${version} ${caroline_dir}
+
+  echo "Starting DeInSAR..."
+  cd ${deinsar_dir}
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_deinsar.txt`
+  do
+    cd ${dir}
+    ls > dir_contents.txt
+    sbatch doris_stack.sh > job_id.txt
+    cd ${doris_dir}
+  done
+  cd ${cpath}
+
+  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_deinsar.py ${param_file} ${cpath} ${deinsar_AoI_name}
+
+fi
+
+
 if [ ${do_doris} -eq 1 ]; then
 
   echo ""
@@ -157,7 +197,7 @@ if [ ${do_doris} -eq 1 ]; then
   for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_doris.txt`
   do
     cd ${dir}
-    ln -s ${dem_directory} dem
+    ln -sfn ${dem_directory} dem
     cp -r ${caroline_dir}/caroline_v${version}/files/doris_v5/input_files .
     cd good_images
     link=`cat link_directory.txt`
@@ -226,7 +266,7 @@ if [ ${do_stitching} -eq 1 ]; then
   do
     cd ${dir}
     linkdir=`cat link_directory.txt`
-    ln -s ${linkdir}/* .
+    ln -sfn ${linkdir}/* .
     cd ${stitch_dir}
   done
   cd ${cpath}
@@ -275,8 +315,8 @@ if [ ${do_depsi} -eq 1 ]; then
   do
     cd ${dir}/psi
     link=`cat master_directory.txt`
-    ln -s ${link}/master.res slave.res
-    ln -s ${link}/dem_radar*.raw dem_radar.raw
+    ln -sf ${link}/master.res slave.res
+    ln -sf ${link}/dem_radar*.raw dem_radar.raw
     cd ${depsi_dir}
   done
   cd ${cpath}
@@ -287,9 +327,9 @@ if [ ${do_depsi} -eq 1 ]; then
   do
     cd ${dir}/boxes
     #ln -s ${caroline_dir}/caroline_v${version}/files/depsi/boxes/* .
-    ln -s ${rdnaptrans_directory} .
-    ln -s ${geocoding_directory} .
-    ln -s ${depsi_directory} .
+    ln -sfn ${rdnaptrans_directory} .
+    ln -sfn ${geocoding_directory} .
+    ln -sfn ${depsi_directory} .
     cd ${depsi_dir}
   done
   cd ${cpath}
@@ -323,7 +363,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
   for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/boxes
-    ln -s ${depsi_post_directory} .
+    ln -sfn ${depsi_post_directory} .
     cd ${depsi_dir}
   done
   cd ${cpath}

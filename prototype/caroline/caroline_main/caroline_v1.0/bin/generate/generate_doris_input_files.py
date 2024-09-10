@@ -5,7 +5,7 @@ path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
 filename, param_file, cpath, AoI_name, version, caroline_dir = argv
 
-search_parameters = ['doris_directory', 'track', 'asc_dsc', 'dem_file', 'dem_format', 'dem_size', 'dem_upperleft',
+search_parameters = ['coregistration_directory', 'track', 'asc_dsc', 'dem_file', 'dem_format', 'dem_size', 'dem_upperleft',
                      'dem_nodata', 'dem_delta']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
@@ -32,7 +32,7 @@ for file in ['input.comprefdem', 'input.dembased']:
                                    dem_ul2=dem_upperleft[1],
                                    dem_nodata=out_parameters['dem_nodata'])
 
-        fw = open("{}/{}_s1_{}_t{:0>3d}/input_files/{}".format(out_parameters['doris_directory'], AoI_name,
+        fw = open("{}/{}_s1_{}_t{:0>3d}/input_files/{}".format(out_parameters['coregistration_directory'], AoI_name,
                                                                asc_dsc[track], tracks[track], file), 'w')
         fw.write(doris_stack)
         fw.close()

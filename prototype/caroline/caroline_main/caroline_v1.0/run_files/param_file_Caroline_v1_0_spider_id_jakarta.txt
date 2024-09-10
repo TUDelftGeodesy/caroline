@@ -7,15 +7,18 @@
 
 Caroline_version   = 1.0
 
-do_doris           = 1
-do_stack_stitching = 1
+sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
+polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
+
+do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
+do_stack_stitching = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise
 do_depsi           = 1
 do_depsi_post      = 0
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
-doris_AoI_name   = 'id_jakarta'
-doris_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/stack'
+coregistration_AoI_name   = 'id_jakarta'
+coregistration_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/stack'
 
 stitch_AoI_name  = 'id_jakarta'
 stitch_directory = '/project/caroline/Share/users/caroline-admin/id_jakarta/stitch'
@@ -46,18 +49,23 @@ master_date= '2021-12-15' # will search for first image after this date that exi
 send_completion_email = 's.a.n.vandiepen@tudelft.nl'
 
 #############################################
-############### DORIS PARAMETERS ############
+################# DEM PARAMETERS ############
 #############################################
-# Usually does not require changing anything
-# Uses doris v5
 
-doris_code_directory      = '/project/caroline/Share/stacks/doris/doris_v5.0.4_spider_slave_rsmp' # NOTE: generated doris_input.xml corresponds to this version!
 dem_file                  = '/project/caroline/Share/users/caroline-alapadat/projects/jakarta_s1_processing/asc_098/jakarta_dem4/jakarta_SRTMGL1Ellip.raw'
 dem_format                = 'r4'
 dem_size                  = [13389, 9886]
 dem_delta                 = [0.000277777777778, 0.000277777777778]
 dem_upperleft             = [-5.167083333341985, 105.132083333371156]
 dem_nodata                = -32768
+
+#############################################
+##### DORIS v5 PARAMETERS (Sentinel-1) ######
+#############################################
+# Usually does not require changing anything
+# Uses doris v5
+
+doris_code_directory      = '/project/caroline/Share/stacks/doris/doris_v5.0.4_spider_slave_rsmp' # NOTE: generated doris_input.xml corresponds to this version!
 
 do_coarse_orbits          = 1
 do_deramp                 = 1
@@ -83,6 +91,37 @@ do_phasefilt              = 0
 do_calc_coordinates       = 1
 do_multilooking           = 0
 do_unwrap                 = 0
+
+############################################
+######## DeInSAR PARAMETERS (non-S1) #######
+############################################
+
+# The data directories should be in the same order as the tracks and asc_dsc above!
+di_data_directories       = ['/project/caroline/Data/radar_data/eurasia/netherlands/tsx/nl_amsterdam_tsx_asc_t116_T171816_171824_007_hh/data_backup']
+
+deinsar_code_directory   = ''/project/caroline/Software/caroline-prototype/plugins/deinsar_v0.3.3'
+
+di_do_orbit               = 1 # only for ENV, ERS, RSAT2, will turn off for other sensors automatically
+di_do_crop                = 1
+di_do_tsx_deramp          = 1 # only for TSX, will turn off for other sensors automatically
+di_do_simamp              = 0
+di_do_mtiming             = 0
+di_do_ovs                 = 0
+di_do_choose_master       = 1
+di_do_coarseorb           = 1
+di_do_coarsecorr          = 1
+di_do_finecoreg           = 1
+di_finecoreg_mode         = 'simple' # simple or normal
+di_do_reltiming           = 0
+di_do_dembased            = 1
+di_do_coregpm             = 1
+di_do_resample            = 1
+di_do_tsx_reramp          = 1 # only for TSX, will turn off for other sensors automatically
+di_do_interferogram       = 1
+di_do_subtrrefpha         = 1
+di_do_subtrrefdem         = 1
+di_do_coherence           = 1
+
 
 ############################################
 ############## DEPSI PARAMETERS ############

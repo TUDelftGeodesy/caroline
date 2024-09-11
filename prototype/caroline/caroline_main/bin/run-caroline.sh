@@ -203,4 +203,7 @@ do
       fi
     fi
   done
+  if [ ${ALL_RUNS_FINISHED} -eq "0" ]; then
+    sleep 60
+  fi
 done

@@ -439,16 +439,17 @@ if [ ${do_depsi_post} -eq 1 ]; then
 
   #
   # Upload csv to skygeo
+  # THIS IS NOW DONE IN run-caroline.sh
   #
-  echo "Uploading csv to skygeo viewer"
-  cd ${depsi_dir}
-  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`; do
-    echo ${dir}
-    cd ${dir}/psi
-    upload-result-csv-to-skygeo.sh
-    cd ${depsi_dir}
-  done
-  cd ${cpath}
+  #echo "Uploading csv to skygeo viewer"
+  #cd ${depsi_dir}
+  #for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`; do
+  #  echo ${dir}
+  #  cd ${dir}/psi
+  #  upload-result-csv-to-skygeo.sh
+  #  cd ${depsi_dir}
+  #done
+  #cd ${cpath}
 
 fi
 

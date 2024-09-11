@@ -182,7 +182,7 @@ do
   for run in `cat submitted_jobs_${RUN_TS}.txt`
   do
     if [ `cat portal_${job}` -eq 1 ]; then
-      JOB_ID=$(cat run | cut -d" " -f4 | xargs echo)
+      JOB_ID=$(cat ${run} | cut -d" " -f4 | xargs echo)
       FINISHED=$(grep "${JOB_ID}" squeue_${RUN_TS}.txt)
       if [ "$(echo ${FINISHED} | wc -c)" -gt "0" ]; then
         ALL_RUNS_FINISHED=0
@@ -204,6 +204,7 @@ do
     fi
   done
   if [ ${ALL_RUNS_FINISHED} -eq "0" ]; then
+    echo "Not all runs finished yet, sleeping..."
     sleep 60
   fi
 done

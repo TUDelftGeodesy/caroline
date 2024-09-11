@@ -22,9 +22,10 @@ def read_param_file(cpath, param_file, search_parameters):
                     do = do.split("#")[0]
                 do = do.strip().strip("'").strip('"')
                 out_parameters[param] = do
-                found  = True
+                found = True
                 break
         if not found:
             out_parameters[param] = None
+            print(f"WARNING: parameter {param} requested but not found in {param_file}. Setting to None")
 
     return out_parameters

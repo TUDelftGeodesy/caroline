@@ -4,14 +4,14 @@ import glob
 import zipfile
 filename, param_file, cpath, AoI_name = argv
 
-search_parameters = ['doris_directory', 'track', 'asc_dsc']
+search_parameters = ['coregistration_directory', 'track', 'asc_dsc']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
 asc_dsc = eval(out_parameters['asc_dsc'])
 
 for track in range(len(tracks)):
-    f = open("{}/{}_s1_{}_t{:0>3d}/good_images/zip_files.txt".format(out_parameters['doris_directory'], AoI_name,
+    f = open("{}/{}_s1_{}_t{:0>3d}/good_images/zip_files.txt".format(out_parameters['coregistration_directory'], AoI_name,
                                                                      asc_dsc[track], tracks[track]))
     data = f.read().split("\n")
     f.close()
@@ -34,7 +34,7 @@ for track in range(len(tracks)):
                 bad_zips.append(bad_zip)
 
     # check for directories without zip files
-    dirs = glob.glob("{}/{}_s1_{}_t{:0>3d}/good_images/2*".format(out_parameters['doris_directory'], AoI_name,
+    dirs = glob.glob("{}/{}_s1_{}_t{:0>3d}/good_images/2*".format(out_parameters['coregistration_directory'], AoI_name,
                                                                   asc_dsc[track], tracks[track]))
     for dr in dirs:
         files = glob.glob(f'{dr}/*.zip')
@@ -50,7 +50,7 @@ for track in range(len(tracks)):
                 if bad_zip not in bad_zips:
                     bad_zips.append(bad_zip)
 
-    f = open("{}/{}_s1_{}_t{:0>3d}/good_images/bad_zips.txt".format(out_parameters['doris_directory'], AoI_name,
+    f = open("{}/{}_s1_{}_t{:0>3d}/good_images/bad_zips.txt".format(out_parameters['coregistration_directory'], AoI_name,
                                                                     asc_dsc[track], tracks[track]), "w")
     for zipp in bad_zips:
         f.write("{}\n".format(zipp))

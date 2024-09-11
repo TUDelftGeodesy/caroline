@@ -65,5 +65,5 @@ for prefix in ['doris', 'deinsar', 'stitch', 'depsi']:
 
     f = open("{}/{}/loop_directories_{}.txt".format(cpath, auxiliary_files, prefix), "w")
     for track in range(len(tracks)):
-        f.write("{}_{}_{}_t{:0>3d}\n".format(AoI_name, out_parameters['sensor'], asc_dsc[track], tracks[track]))
+        f.write("{}_{}_{}_t{:0>3d}\n".format(AoI_name, out_parameters['sensor'].lower(), asc_dsc[track], tracks[track]))
     f.close()

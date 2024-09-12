@@ -2,7 +2,7 @@ from sys import argv
 from read_param_file import read_param_file
 filename, param_file, cpath = argv
 
-search_parameters = ['track', 'asc_dsc', 'do_doris', 'do_stack_stitching', 'do_depsi', 'do_depsi_post']
+search_parameters = ['track', 'asc_dsc', 'do_coregistration', 'do_stack_stitching', 'do_depsi', 'do_depsi_post', 'sensor']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
@@ -29,7 +29,7 @@ Track(s): {tracks}
 Sensor: {sensor}
 
 The following steps were run:
-Doris v5: {dv5}
+Coregistration: {dv5}
 Stitching: {stitch}
 Depsi: {depsi}
 Depsi-post & portal upload: {dppu}
@@ -51,8 +51,8 @@ Freek, Niels, and Simon""".format(tracks=track,
 
 print_mail(run_id=run_id,
            track=tracks_formatted,
-           sensor='Sentinel-1',
-           dv5="Yes" if eval(out_parameters['do_doris']) == 1 else "No",
+           sensor=out_parameters['sensor'],
+           dv5="Yes" if eval(out_parameters['do_coregistration']) == 1 else "No",
            stitch="Yes" if eval(out_parameters['do_stack_stitching']) == 1 else "No",
            depsi="Yes" if eval(out_parameters['do_depsi']) == 1 else "No",
            dppu="Yes" if eval(out_parameters['do_depsi_post']) == 1 else "No")

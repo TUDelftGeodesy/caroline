@@ -151,60 +151,61 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
       fi
     done
   done
-fi
 
-# Check if all runs are finished
-ALL_RUNS_FINISHED=0
-cd ${CAROLINE}/caroline_v1.0/run_files/
-ls job_id_*${RUN_TS}.txt > submitted_jobs_${RUN_TS}.txt
+  # Check if all runs are finished
+  ALL_RUNS_FINISHED=0
+  cd ${CAROLINE}/caroline_v1.0/run_files/
+  ls job_id_*${RUN_TS}.txt > submitted_jobs_${RUN_TS}.txt
 
-# setup check if we should submit something to the portal, and if so if it already has been done
-for job in `cat submitted_jobs_${RUN_TS}.txt`
-do
-  PARAM_FILE="param_file_Caroline_v1_0_spider_$(echo ${job} | cut -c 8- | sed -r 's/.{20}$//').txt"
-  DO_DP=$(grep "do_depsi_post" ${PARAM_FILE} | cut -d= -f2 | xargs echo)
-  DP_MODE=$(grep "depsi_post_mode" ${PARAM_FILE} | cut -d"'" -f2 | xargs echo)
-  PORTAL_REQ=0
-  if [ ${DO_DP} -eq 1 ]; then
-    if [ "${DP_MODE}" = "csv" ]; then
-      PORTAL_REQ=1
-    fi
-  fi
-  echo ${PORTAL_REQ} > portal_${job}
-done
-
-while [ ${ALL_RUNS_FINISHED} -eq "0" ]
-do
-  ALL_RUNS_FINISHED=1
-
-  # call the squeue with the me filter
-  squeue > squeue_${RUN_TS}.txt
-  for run in `cat submitted_jobs_${RUN_TS}.txt`
+  # setup check if we should submit something to the portal, and if so if it already has been done
+  for job in `cat submitted_jobs_${RUN_TS}.txt`
   do
-    if [ `cat portal_${job}` -eq 1 ]; then
-      JOB_ID=$(cat ${run} | cut -d" " -f4 | xargs echo)
-      FINISHED=$(grep "${JOB_ID}" squeue_${RUN_TS}.txt)
-      if [ "$(echo ${FINISHED} | wc -c)" -gt "0" ]; then
-        ALL_RUNS_FINISHED=0
-      else
-        # set to 0 so we only upload once
-        echo "0" > portal_${run}
-        # retrieve the directories we need to upload
-        AUX_DIR=$(grep "Running with config file" slurm-${JOB_ID}.out | cut -d" " -f5 | cut -d/ -f1)
-        DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
-        cd ${DEPSI_DIR}
-        for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
-        do
-          cd ${dir}/psi
-          upload-result-csv-to-skygeo.sh
-          cd ${DEPSI_DIR}
-        done
-        cd ${CAROLINE}/caroline_v1.0/run_files/
+    PARAM_FILE="param_file_Caroline_v1_0_spider_$(echo ${job} | cut -c 8- | sed -r 's/.{20}$//').txt"
+    DO_DP=$(grep "do_depsi_post" ${PARAM_FILE} | cut -d= -f2 | xargs echo)
+    DP_MODE=$(grep "depsi_post_mode" ${PARAM_FILE} | cut -d"'" -f2 | xargs echo)
+    PORTAL_REQ=0
+    if [ ${DO_DP} -eq 1 ]; then
+      if [ "${DP_MODE}" = "csv" ]; then
+        PORTAL_REQ=1
       fi
     fi
+    echo ${PORTAL_REQ} > portal_${job}
   done
-  if [ ${ALL_RUNS_FINISHED} -eq "0" ]; then
-    echo "Not all runs finished yet, sleeping..."
-    sleep 60
-  fi
-done
+
+  while [ ${ALL_RUNS_FINISHED} -eq "0" ]
+  do
+    ALL_RUNS_FINISHED=1
+
+    # call the squeue with the me filter
+    squeue > squeue_${RUN_TS}.txt
+    for run in `cat submitted_jobs_${RUN_TS}.txt`
+    do
+      if [ `cat portal_${job}` -eq 1 ]; then
+        JOB_ID=$(cat ${run} | cut -d" " -f4 | xargs echo)
+        FINISHED=$(grep "${JOB_ID}" squeue_${RUN_TS}.txt)
+        if [ "$(echo ${FINISHED} | wc -c)" -gt "0" ]; then
+          ALL_RUNS_FINISHED=0
+        else
+          # set to 0 so we only upload once
+          echo "0" > portal_${run}
+          # retrieve the directories we need to upload
+          AUX_DIR=$(grep "Running with config file" slurm-${JOB_ID}.out | cut -d" " -f5 | cut -d/ -f1)
+          DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
+          cd ${DEPSI_DIR}
+          for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
+          do
+            cd ${dir}/psi
+            upload-result-csv-to-skygeo.sh
+            cd ${DEPSI_DIR}
+          done
+          cd ${CAROLINE}/caroline_v1.0/run_files/
+        fi
+      fi
+    done
+    if [ ${ALL_RUNS_FINISHED} -eq "0" ]; then
+      echo "Not all runs finished yet, sleeping..."
+      sleep 60
+    fi
+  done
+
+fi

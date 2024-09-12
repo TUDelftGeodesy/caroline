@@ -180,10 +180,10 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
     squeue > squeue_${RUN_TS}.txt
     for run in `cat submitted_jobs_${RUN_TS}.txt`
     do
-      if [ `cat portal_${job}` -eq 1 ]; then
+      if [ `cat portal_${run}` -eq 1 ]; then
         JOB_ID=$(cat ${run} | cut -d" " -f4 | xargs echo)
         FINISHED=$(grep "${JOB_ID}" squeue_${RUN_TS}.txt)
-        if [ "$(echo ${FINISHED} | wc -c)" -gt "0" ]; then
+        if [ "$(echo ${FINISHED} | wc -c)" -gt "1" ]; then
           ALL_RUNS_FINISHED=0
         else
           # set to 0 so we only upload once

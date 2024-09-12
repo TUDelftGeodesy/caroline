@@ -7,7 +7,7 @@ path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
 filename, param_file, cpath, AoI_name = argv
 
-search_parameters = ['doris_directory', 'track', 'asc_dsc', 'depsi_directory']
+search_parameters = ['track', 'asc_dsc', 'depsi_directory']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])

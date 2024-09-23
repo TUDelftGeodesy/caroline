@@ -2,6 +2,12 @@
 #
 # install-caroline-prototype.sh
 
+RUNNING=`squeue --user caroline-admin | grep "Caroline" | wc -c`
+if [ ${RUNNING} -gt "0" ]; then
+  echo "ERROR: A CAROLINE SCRIPT IS STILL RUNNING. INSTALLING NOW WILL BREAK THIS RUN. ABORTING..."
+  exit 127
+fi
+
 CAROLINE='/project/caroline/Software/caroline-prototype'
 CAROLINE_PLUGINS_ARCHIVE_DIR='/project/caroline/Software/archives/caroline_plugins'
 

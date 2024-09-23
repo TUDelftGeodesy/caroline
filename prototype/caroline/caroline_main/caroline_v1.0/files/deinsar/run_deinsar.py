@@ -23,7 +23,7 @@ processdir = os.path.abspath('process')
 
 master = '{master}'
 startdate = '{startdate}'
-stopdate = '{stopdate}'
+stopdate = '{enddate}'
 sensor = '{sensor}'  # ERS, ERSENV, ENV, TSX, TDX, PAZ, RSAT2, Cosmo, ALOS2
 
 ## Processing steps

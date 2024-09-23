@@ -35,5 +35,6 @@ module load python/3.9.6 gdal/3.4.1
 source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
 
 export PYTHONPATH={deinsar_dir}
+export PATH={doris_v4_dir}:$PATH
 export SAR_ODR_DIR=/project/caroline/Data/orbits
 python3 {coregistration_dir}/run_deinsar.py

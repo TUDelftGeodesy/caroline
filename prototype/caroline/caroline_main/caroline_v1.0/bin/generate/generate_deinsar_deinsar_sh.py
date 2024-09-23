@@ -6,7 +6,8 @@ from read_param_file import read_param_file
 filename, param_file, cpath, version, caroline_dir = argv
 
 search_parameters = ['sensor', 'coregistration_directory', 'deinsar_code_directory',
-                     'coregistration_AoI_name', 'track', 'asc_dsc', 'di_data_directories']
+                     'coregistration_AoI_name', 'track', 'asc_dsc', 'di_data_directories',
+                     'doris_v4_code_directory']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
@@ -24,7 +25,8 @@ for track in range(len(tracks)):
                                             tracks[track])
 
     data = base_data.format(coregistration_dir=basedir,
-                            deinsar_dir=out_parameters['deinsar_code_directory'])
+                            deinsar_dir=out_parameters['deinsar_code_directory'],
+                            doris_v4_dir=out_parameters['doris_v4_code_directory'])
 
     fw = open(f"{basedir}/run_deinsar.sh", "w")
     fw.write(data)

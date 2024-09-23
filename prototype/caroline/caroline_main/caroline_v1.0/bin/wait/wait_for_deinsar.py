@@ -16,9 +16,9 @@ asc_dsc = eval(out_parameters['asc_dsc'])
 job_ids = {}
 for track in range(len(tracks)):
     jf = open("{}/{}_{}_{}_t{:0>3d}/job_id.txt".format(out_parameters['coregistration_directory'], AoI_name,
-                                                       out_parameters['sensor'], asc_dsc[track], tracks[track]))
+                                                       out_parameters['sensor'].lower(), asc_dsc[track], tracks[track]))
     job = jf.read().strip()
-    job_ids["{}_{}_{}_t{:0>3d}".format(AoI_name, out_parameters['sensor'],
+    job_ids["{}_{}_{}_t{:0>3d}".format(AoI_name, out_parameters['sensor'].lower(),
                                        asc_dsc[track], tracks[track])] = job.split(" ")[-1]
     jf.close()
 
@@ -32,27 +32,27 @@ while not finished:
     proper_finish = [False for track in tracks]
     for track in range(len(tracks)):
         f = open("{}/{}_{}_{}_t{:0>3d}/dir_contents.txt".format(out_parameters['coregistration_directory'], AoI_name,
-                                                                out_parameters['sensor'], asc_dsc[track],
+                                                                out_parameters['sensor'].lower(), asc_dsc[track],
                                                                 tracks[track]))
         orig_content = f.read().split("\n")
         f.close()
         cur_content = glob.glob("{}/{}_{}_{}_t{:0>3d}/*".format(out_parameters['coregistration_directory'], AoI_name,
-                                                                out_parameters['sensor'], asc_dsc[track],
+                                                                out_parameters['sensor'].lower(), asc_dsc[track],
                                                                 tracks[track]))
 
         os.system("squeue > {}/{}_{}_{}_t{:0>3d}/queue.txt".format(out_parameters['coregistration_directory'], AoI_name,
-                                                                   out_parameters['sensor'], asc_dsc[track],
+                                                                   out_parameters['sensor'].lower(), asc_dsc[track],
                                                                    tracks[track]))
         qf = open("{}/{}_{}_{}_t{:0>3d}/queue.txt".format(out_parameters['coregistration_directory'], AoI_name,
-                                                          out_parameters['sensor'], asc_dsc[track],
+                                                          out_parameters['sensor'].lower(), asc_dsc[track],
                                                           tracks[track]))
         queue = qf.read().split("\n")
         qf.close()
         found = False
         for i in range(len(queue)):
             queue[i] = queue[i].strip().split(" ")
-            if queue[i][0] == job_ids["{}_{}_{}_t{:0>3d}".format(AoI_name, out_parameters['sensor'], asc_dsc[track],
-                                                                 tracks[track])]:
+            if queue[i][0] == job_ids["{}_{}_{}_t{:0>3d}".format(AoI_name, out_parameters['sensor'].lower(),
+                                                                 asc_dsc[track], tracks[track])]:
                 found = True
 
         if not found:

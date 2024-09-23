@@ -10,7 +10,8 @@ search_parameters = ['sensor', 'polarisation', 'di_do_orbit', 'coregistration_di
                      'di_do_mtiming', 'di_do_ovs', 'di_do_choose_master', 'di_do_coarseorb', 'di_do_coarsecorr',
                      'di_do_finecoreg', 'di_do_reltiming', 'di_do_dembased', 'di_do_coregpm', 'di_do_resample',
                      'di_do_tsx_reramp', 'di_do_interferogram', 'di_do_subtrrefpha', 'di_do_subtrrefdem',
-                     'di_do_coherence', 'di_data_directories', 'start_date', 'end_date', 'master_date']
+                     'di_do_coherence', 'di_data_directories', 'start_date', 'end_date', 'master_date',
+                     'di_do_comprefdem', 'di_do_comprefpha']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])

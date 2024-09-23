@@ -6,7 +6,7 @@ from read_param_file import read_param_file
 filename, param_file, cpath, version, caroline_dir = argv
 
 search_parameters = ['sensor', 'coregistration_directory', 'deinsar_code_directory',
-                     'coregistration_AoI_name', 'track', 'asc_dsc']
+                     'coregistration_AoI_name', 'track', 'asc_dsc', 'di_data_directories']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])

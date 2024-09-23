@@ -28,7 +28,7 @@ for track in range(len(tracks)):
         fr = open(f"{caroline_dir}/caroline_v{version}/files/deinsar/input_files/{file}", "r")
         data = fr.read()
         fr.close()
-        fw = open(f"{basedir}/{file}")
+        fw = open(f"{basedir}/{file}", "w")
         fw.write(data)
         fw.close()
 
@@ -40,10 +40,10 @@ for track in range(len(tracks)):
         for pol in polarisation:
             if pol == 'HH':
                 data = data_base.format(pol="")
-                fw = open(f"{basedir}/{file}")
+                fw = open(f"{basedir}/{file}", "w")
             else:
                 data = data_base.format(pol="_"+pol)
-                fw = open(f"{basedir}/{file}_{pol}")
+                fw = open(f"{basedir}/{file}_{pol}", "w")
             fw.write(data)
             fw.close()
 
@@ -72,7 +72,7 @@ for track in range(len(tracks)):
         if out_parameters['sensor'] != 'RSAT2':
             data = data_base.format(img_name=img_name,
                                     pol='')
-            fw = open(f"{basedir}/{file}")
+            fw = open(f"{basedir}/{file}", "w")
             fw.write(data)
             fw.close()
         else:
@@ -80,11 +80,11 @@ for track in range(len(tracks)):
                 if pol == 'HH':
                     data = data_base.format(img_name=img_name.format(pol=""),
                                             pol="")
-                    fw = open(f"{basedir}/{file}")
+                    fw = open(f"{basedir}/{file}", "w")
                 else:
                     data = data_base.format(img_name=img_name.format(pol="_" + pol),
                                             pol="_" + pol)
-                    fw = open(f"{basedir}/{file}_{pol}")
+                    fw = open(f"{basedir}/{file}_{pol}", "w")
                 fw.write(data)
                 fw.close()
 
@@ -101,7 +101,7 @@ for track in range(len(tracks)):
                                 dem_ul2=dem_upperleft[1],
                                 dem_nodata=out_parameters['dem_nodata'])
         fr.close()
-        fw = open(f"{basedir}/{file}")
+        fw = open(f"{basedir}/{file}", "w")
         fw.write(data)
         fw.close()
 
@@ -118,7 +118,7 @@ for track in range(len(tracks)):
         data_base = fr.read()
         fr.close()
         data = data_base.format(nwin=nwin)
-        fw = open(f"{basedir}/{file}{appendix}")
+        fw = open(f"{basedir}/{file}{appendix}", "w")
         fw.write(data)
         fw.close()
 
@@ -130,13 +130,13 @@ for track in range(len(tracks)):
         if out_parameters['sensor'] == 'ERS':
             for directory in ['ERS1', 'ERS2']:  # needs both
                 data = data_base.format(directory=directory)
-                fw = open(f"{basedir}/{file}_{directory}")
+                fw = open(f"{basedir}/{file}_{directory}", "w")
                 fw.write(data)
                 fw.close()
         elif out_parameters['sensor'] == 'ENV':
             directory = 'envisat/dor_vor_odr'
             data = data_base.format(directory=directory)
-            fw = open(f"{basedir}/{file}")
+            fw = open(f"{basedir}/{file}", "w")
             fw.write(data)
             fw.close()
 
@@ -191,6 +191,6 @@ for track in range(len(tracks)):
         data_base = fr.read()
         fr.close()
         data = data_base.format(data_string=strng)
-        fw = open(f"{basedir}/{file}")
+        fw = open(f"{basedir}/{file}", "w")
         fw.write(data)
         fw.close()

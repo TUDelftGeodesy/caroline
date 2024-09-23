@@ -169,7 +169,7 @@ if [ ${do_deinsar} -eq 1 ]; then
   do
     cd ${dir}
     ls > dir_contents.txt
-    sbatch doris_stack.sh > job_id.txt
+    sbatch run_deinsar.sh > job_id.txt
     cd ${doris_dir}
   done
   cd ${cpath}

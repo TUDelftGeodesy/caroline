@@ -15,8 +15,7 @@ for i in range(len(tracks)):
 if len(tracks_formatted) == 1:
     tracks_formatted = tracks_formatted[0]
 
-run_id = param_file.split('_spider_')[1].split('_')[:2]
-run_id = f'{run_id[0]}_{run_id[1]}'
+run_id = param_file.split('_spider_')[1].split('/')[0][:-16]
 
 
 def print_mail(run_id, track, sensor, dv5, stitch, depsi, dppu):

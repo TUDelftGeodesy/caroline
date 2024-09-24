@@ -59,7 +59,7 @@ def haversine(lat1, lat2, lon1, lon2):  # calculates the distance between two po
     return dist
 
 
-shapefile = out_parameters['shape_directory'] + '/' + out_parameters['shape_AoI_name'] + '.shp'
+shapefile = out_parameters['shape_directory'] + '/' + out_parameters['shape_AoI_name'] + '_shape.shp'
 
 shape = fiona.open(shapefile)
 shape_iter = iter(shape)

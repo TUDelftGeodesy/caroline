@@ -36,5 +36,5 @@ c RS_METHOD       rc12p
 RS_OUT_FILE     slave_rsmp{pol}.raw
 RS_OUT_FORMAT   cr4
 c RS_OUT_FORMAT   ci2
-c RS_DBOW_GEO        52.13 4.38 5000 1000 //
+RS_DBOW_GEO        {center_lat} {center_lon} {pix_az} {pix_r}
 STOP

@@ -31,7 +31,7 @@ I_RESFILE       ifgs{pol}.res                       // parameter file
 S_CROP_IN      {img_name}                      // name of datafile
 S_CROP_OUT     image_crop{pol}.raw
 c S_DBOW        9001 22000 1 2500             // linelow hi pixellow/hi
-c S_DBOW_GEO      52.13 4.38 3000 600
+S_DBOW_GEO      {center_lat} {center_lon} {pix_az} {pix_r}
  c
  c
 STOP

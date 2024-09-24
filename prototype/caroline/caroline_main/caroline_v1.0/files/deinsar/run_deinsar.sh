@@ -31,8 +31,7 @@
 
 source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
-module load python/3.9.6 gdal/3.4.1
-source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
+module load python/2.7.15 gdal/3.4.1
 
 export PYTHONPATH={deinsar_dir}
 export PATH={doris_v4_dir}:$PATH

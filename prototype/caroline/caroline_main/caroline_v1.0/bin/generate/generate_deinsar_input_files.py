@@ -96,8 +96,8 @@ dist_lat = haversine(min_lat, max_lat, min_lon, min_lon)
 dist_lon = haversine(ref_lat, ref_lat, min_lon, max_lon)  # calculated at the widest part of the AoI
 
 d_az, d_r = get_pixelsize(out_parameters['sensor'])
-pix_dr = np.ceil(dist_lon / d_r * 1.05)
-pix_daz = np.ceil(dist_lat / d_az * 1.05)
+pix_dr = int(np.ceil(dist_lon / d_r * 1.05))
+pix_daz = int(np.ceil(dist_lat / d_az * 1.05))
 
 for track in range(len(tracks)):
     basedir = "{}/{}_{}_{}_t{:0>3d}/process".format(out_parameters['coregistration_directory'],

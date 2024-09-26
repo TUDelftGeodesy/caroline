@@ -32,8 +32,8 @@ I_RESFILE       ifgs.res               // parameter file
 FC_METHOD       oversample                          //
 c FC_METHOD       magfft                          //
 c FC_METHOD     magspace                        //
-c FC_NWIN         {nwin}                             // number of windows
-FC_IN_POS       fc_pos.in                // file containing position of windows
+FC_NWIN         {nwin}                             // number of windows
+c FC_IN_POS       fc_pos.in                // file containing position of windows
 FC_WINSIZE      64 64                           // size of windows
 FC_ACC          8 8                             // search window, 2^n
 FC_INITOFF      coarsecorr                      // use result of coarse to compute first

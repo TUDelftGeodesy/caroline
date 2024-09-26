@@ -18,22 +18,22 @@ depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
 coregistration_AoI_name   = 'nl_amsterdam_tsx'
-coregistration_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_tsx/stack'
+coregistration_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_tsx_v2/stack'
 
 stitch_AoI_name  = 'nl_amsterdam_tsx'
-stitch_directory = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_tsx/stitch'
+stitch_directory = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_tsx_v2/stitch'
 
 depsi_AoI_name   = 'nl_amsterdam_tsx'
-depsi_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_tsx/depsi'
+depsi_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_tsx_v2/depsi'
 
 shape_AoI_name   = 'nl_amsterdam_tsx'
-shape_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_tsx/shape'
+shape_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_tsx_v2/shape'
 
 shape_file = ''
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
 center_AoI = [52.371436, 4.897088]  # Latitude, longitude
-AoI_width  = 1 # km, east-west AoI size
-AoI_length = 1 # km, north-south AoI size
+AoI_width  = 5 # km, east-west AoI size
+AoI_length = 5 # km, north-south AoI size
 
 track = [116]  # Can be multiple tracks!
 asc_dsc = ['asc']

@@ -104,7 +104,7 @@ doris_v4_code_directory  = '/project/caroline/Software/doris/doris_v4.13.1_cosmo
 
 di_do_orbit               = 0 # only for ENV, ERS, RSAT2, will turn off for other sensors automatically
 di_do_crop                = 1
-di_do_tsx_deramp          = 1 # only for TSX, will turn off for other sensors automatically
+di_do_tsx_deramp          = 0 # only for TSX, will turn off for other sensors automatically
 di_do_simamp              = 0
 di_do_mtiming             = 0
 di_do_ovs                 = 0
@@ -117,7 +117,7 @@ di_do_reltiming           = 0
 di_do_dembased            = 1
 di_do_coregpm             = 1
 di_do_resample            = 1
-di_do_tsx_reramp          = 1 # only for TSX, will turn off for other sensors automatically
+di_do_tsx_reramp          = 0 # only for TSX, will turn off for other sensors automatically
 di_do_comprefpha          = 1
 di_do_comprefdem          = 1
 di_do_interferogram       = 1

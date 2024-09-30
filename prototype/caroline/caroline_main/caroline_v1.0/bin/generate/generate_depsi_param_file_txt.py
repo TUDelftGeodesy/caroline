@@ -21,7 +21,7 @@ search_parameters = ['stitch_directory', 'track', 'asc_dsc', 'depsi_directory', 
                      'ps_area_of_interest', 'dens_method', 'dens_check', 'Nest', 'std_param', 'defo_range', 'weighting',
                      'ts_atmo_filter', 'ts_atmo_filter_length',
                      'ts_noise_filter', 'ts_noise_filter_length', 'defo_method', 'xc0', 'yc0', 'zc0', 'r0', 'r10',
-                     'epoch']
+                     'epoch', 'sensor', 'coregistration_AoI_name', 'coregistration_directory']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
@@ -30,8 +30,14 @@ stc_min_max = eval(out_parameters['stc_min_max'])
 std_param = eval(out_parameters['std_param'])
 
 for track in range(len(tracks)):
-    basedir = "{}/{}_s1_{}_t{:0>3d}/*cropped_stack/".format(out_parameters['stitch_directory'], stitch_AoI_name,
-                                                            asc_dsc[track], tracks[track])
+    if out_parameters['sensor'] == 'S1':
+        basedir = "{}/{}_s1_{}_t{:0>3d}/cropped_stack/".format(out_parameters['stitch_directory'], stitch_AoI_name,
+                                                                asc_dsc[track], tracks[track])
+    else:
+        basedir = '{}/{}_{}_{}_t{:0>3d}/process/'.format(out_parameters['coregistration_directory'],
+                                                         out_parameters['coregistration_AoI_name'],
+                                                         out_parameters['sensor'].lower(), asc_dsc[track],
+                                                         tracks[track])
     files = glob.glob("{}*".format(basedir))
     dirs = [f for f in files if os.path.isdir(f)]
     masterdir = ""
@@ -54,13 +60,13 @@ for track in range(len(tracks)):
     param_file = rf.read()
     rf.close()
     param_file = param_file.format(depsi_AoI_name=AoI_name,
-                                   stitch_AoI_name=stitch_AoI_name,
+                                   sensor=out_parameters['sensor'].lower(),
                                    fill_track="{:0>3d}".format(tracks[track]),
                                    asc_dsc=asc_dsc[track],
+                                   processdir=basedir,
                                    start_date=startdate,
                                    stop_date=end_date,
                                    master_date=masterdir,
-                                   stitch_dir=out_parameters['stitch_directory'],
                                    max_mem_buffer=out_parameters['max_mem_buffer'],
                                    visible_plots=out_parameters['visible_plots'],
                                    detail_plots=out_parameters['detail_plots'],
@@ -128,10 +134,12 @@ for track in range(len(tracks)):
                                    zc0=out_parameters['zc0'],
                                    r0=out_parameters['r0'],
                                    r10=out_parameters['r10'],
-                                   epoch=out_parameters['epoch'])
+                                   epoch=out_parameters['epoch'],
+                                   processor='doris_flinsar' if out_parameters['sensor'] == 'S1' else 'deinsar')
 
     f = open(
-        "{}/{}_s1_{}_t{:0>3d}/psi/param_file_{}_{}_t{:0>3d}.txt".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track],
+        "{}/{}_{}_{}_t{:0>3d}/psi/param_file_{}_{}_t{:0>3d}.txt".format(out_parameters['depsi_directory'], AoI_name,
+                                                                        out_parameters['sensor'].lower(), asc_dsc[track],
                                                                         tracks[track], AoI_name, asc_dsc[track],
                                                                         tracks[track]), "w")
     f.write(param_file)

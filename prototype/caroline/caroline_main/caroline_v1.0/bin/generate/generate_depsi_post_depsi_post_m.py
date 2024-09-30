@@ -9,7 +9,8 @@ search_parameters = ['depsi_directory', 'track','asc_dsc', 'depsi_post_mode', 'd
                      'dp_markersize', 'dp_do_print', 'dp_output_format', 'dp_az0', 'dp_azN', 'dp_r0', 'dp_rN', 'dp_result', 
                      'dp_psc_selection', 'dp_do_remove_filtered', 'dp_which_sl_mask', 'dp_shift_to_mean', 'dp_new_ref_cn', 
                      'dp_map_to_vert', 'dp_output', 'dp_defo_lim', 'dp_height_lim', 'dp_ens_coh_lim', 'dp_ens_coh_local_lim',
-                     'dp_stc_lim', 'dp_defo_clim', 'dp_height_clim', 'dp_ens_coh_clim', 'dp_ens_coh_local_clim', 'dp_stc_clim']
+                     'dp_stc_lim', 'dp_defo_clim', 'dp_height_clim', 'dp_ens_coh_clim', 'dp_ens_coh_local_clim', 'dp_stc_clim',
+                     'sensor']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 base_stack = open("{}/caroline_v{}/files/depsi_post/depsi_post.m".format(caroline_dir, version))
@@ -95,7 +96,10 @@ ens_coh_clim=out_parameters['dp_ens_coh_clim'],
 ens_coh_local_clim=out_parameters['dp_ens_coh_local_clim'],
 stc_clim=out_parameters['dp_stc_clim'])
 
-    fw = open("{}/{}_s1_{}_t{:0>3d}/psi/depsi_post_{}_{}_t{:0>3d}.m".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track], tracks[track], AoI_name, asc_dsc[track], tracks[track]), 'w')
+    fw = open("{}/{}_{}_{}_t{:0>3d}/psi/depsi_post_{}_{}_t{:0>3d}.m".format(out_parameters['depsi_directory'], AoI_name,
+                                                                            out_parameters['sensor'].lower(),
+                                                                            asc_dsc[track], tracks[track], AoI_name,
+                                                                            asc_dsc[track], tracks[track]), 'w')
     fw.write(main)
     fw.close()
 

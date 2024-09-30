@@ -314,9 +314,10 @@ if [ ${do_depsi} -eq 1 ]; then
   for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/psi
-    link=`cat master_directory.txt`
-    ln -sf ${link}/master.res slave.res
-    ln -sf ${link}/dem_radar*.raw dem_radar.raw
+    mother_res=`cat mother_res.txt`
+    mother_dem=`cat mother_dem.txt`
+    ln -sf ${mother_res} slave.res
+    ln -sf ${mother_dem} dem_radar.raw
     cd ${depsi_dir}
   done
   cd ${cpath}

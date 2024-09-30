@@ -14,9 +14,9 @@ run_mode = '{run_mode}'
 % Project parameters
 % ----------------------------------------------------------------------
 
-project_id = '{depsi_AoI_name}_s1_{asc_dsc}_t{fill_track}'
+project_id = '{depsi_AoI_name}_{sensor}_{asc_dsc}_t{fill_track}'
 input_file = []
-processDir = '{stitch_dir}/{stitch_AoI_name}_s1_{asc_dsc}_t{fill_track}/cropped_stack'
+processDir = '{processdir}'
 startDate = '{start_date}'
 stopDate = '{stop_date}'
 excludeDate = '{exclude_date}'
@@ -24,10 +24,10 @@ ifgsVersion = '_srd'
 altimg = ''
 master = '{master_date}'
 swath_burst = []
-sensor = 's1'
+sensor = '{sensor}'
 orbit = '{asc_dsc}'
 crop = []
-processor = 'doris_flinsar'
+processor = '{processor}'
 project = '{depsi_AoI_name}'
 
 az_spacing = {az_spacing}

@@ -52,12 +52,12 @@ send_completion_email = 's.a.n.vandiepen@tudelft.nl,y.a.lumbangaol@tudelft.nl,r.
 ################# DEM PARAMETERS ############
 #############################################
 
-dem_file                  = '/project/caroline/Share/dem/netherlands_simon/final_netherlands.dem.wgs84'
-dem_format                = 'r4'
-dem_size                  = [4801, 6001]
-dem_delta                 = [0.000833333333333, 0.000833333333333]
-dem_upperleft             = [54.0, 3.0]
-dem_nodata                = -32768
+dem_file            = '/project/caroline/Share/dem/netherlands_srtm/netherlands_SRTM.raw'
+dem_format          = 'r4'
+dem_size            = [14400, 21600]
+dem_delta           = [0.00027778, 0.00027778]
+dem_upperleft       = [54, 3]
+dem_nodata          = -32768
 
 #############################################
 ##### DORIS v5 PARAMETERS (Sentinel-1) ######

@@ -71,7 +71,11 @@ while not finished:
             f = open(resfile[0])
             data = f.read().split("\n")[:-1]
             f.close()
-            print("Track {:0>3d} ({}, job_id {}) current last step: {} ".format(tracks[track], "Finished" if track_status[track] else "Unfinished", job_ids["{}_s1_{}_t{:0>3d}".format(AoI_name, asc_dsc[track], tracks[track])], data[-1]))
+            print("Track {:0>3d} ({}, job_id {}) current last step: {} ".format(tracks[track],
+                                                                                "Finished" if track_status[track] else "Unfinished",
+                                                                                job_ids["{}_{}_{}_t{:0>3d}".format(AoI_name,
+                                                                                                                   out_parameters['sensor'].lower(),
+                                                                                                                   asc_dsc[track], tracks[track])], data[-1]))
     print("{} tracks not finished, {} finished ({} proper)".format(len(track_status)-sum(track_status), sum(track_status), sum(proper_finish)))
     if False in track_status:
         t.sleep(30)

@@ -7,7 +7,7 @@ from read_param_file import read_param_file
 filename, param_file, cpath, AoI_name, stitch_AoI_name = argv
 
 search_parameters = ['stitch_directory', 'track', 'asc_dsc', 'depsi_directory', 'sensor',
-                     'coregistration_directory']
+                     'coregistration_directory', 'coregistration_AoI_name']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])

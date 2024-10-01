@@ -51,8 +51,22 @@ for track in range(len(tracks)):
             good_dirs.append(masterdir)
         else:
             h2ph = [f for f in files if "h2ph" in f]
-            if len(h2ph) == 1:
+            if len(h2ph) in [1, 2]:
                 good_dirs.append(eval(dir.split("/")[-1]))
+    if out_parameters['sensor'] != 'S1':
+        base_ms = '{}/{}_{}_{}_t{:0>3d}'.format(out_parameters['coregistration_directory'],
+                                                out_parameters['coregistration_AoI_name'],
+                                                out_parameters['sensor'].lower(), asc_dsc[track],
+                                                tracks[track])
+        f = open(f'{base_ms}/run_deinsar.py')
+        data = f.read().split('\n')
+        f.close()
+        master_line = None
+        for i in data:
+            if "master = '" in i:
+                master_line = i
+                break
+        masterdir = master_line.strip().strip("'").split("'")[-1]
     startdate = min(good_dirs)
     end_date = max(good_dirs)
 

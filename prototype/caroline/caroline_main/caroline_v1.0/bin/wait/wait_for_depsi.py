@@ -7,7 +7,7 @@ path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
 filename, param_file, cpath, AoI_name = argv
 
-search_parameters = ['track', 'asc_dsc', 'depsi_directory']
+search_parameters = ['track', 'asc_dsc', 'depsi_directory', 'sensor']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
@@ -15,10 +15,12 @@ asc_dsc = eval(out_parameters['asc_dsc'])
 
 job_ids = {}
 for track in range(len(tracks)):
-    jf = open("{}/{}_s1_{}_t{:0>3d}/psi/job_id.txt".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track],
+    jf = open("{}/{}_{}_{}_t{:0>3d}/psi/job_id.txt".format(out_parameters['depsi_directory'], AoI_name,
+                                                           out_parameters['sensor'].lower(), asc_dsc[track],
                                                            tracks[track]))
     job = jf.read().strip()
-    job_ids["{}_s1_{}_t{:0>3d}".format(AoI_name, asc_dsc[track], tracks[track])] = job.split(" ")[-1]
+    job_ids["{}_{}_{}_t{:0>3d}".format(AoI_name, out_parameters['sensor'].lower(), asc_dsc[track],
+                                       tracks[track])] = job.split(" ")[-1]
     jf.close()
 
 print("Submitted with job IDs: {}".format(job_ids))
@@ -31,25 +33,30 @@ while not finished:
     track_status = [False for track in tracks]
     proper_finish = [False for track in tracks]
     for track in range(len(tracks)):
-        f = open("{}/{}_s1_{}_t{:0>3d}/psi/dir_contents.txt".format(out_parameters['depsi_directory'], AoI_name,
+        f = open("{}/{}_{}_{}_t{:0>3d}/psi/dir_contents.txt".format(out_parameters['depsi_directory'], AoI_name,
+                                                                    out_parameters['sensor'].lower(),
                                                                     asc_dsc[track], tracks[track]))
         orig_content = f.read().split("\n")
         f.close()
-        cur_content = glob.glob("{}/{}_s1_{}_t{:0>3d}/psi/*".format(out_parameters['depsi_directory'], AoI_name,
+        cur_content = glob.glob("{}/{}_{}_{}_t{:0>3d}/psi/*".format(out_parameters['depsi_directory'], AoI_name,
+                                                                    out_parameters['sensor'].lower(),
                                                                     asc_dsc[track], tracks[track]))
 
         resfile = [c for c in cur_content if "resfile.txt" in c]
 
-        os.system("squeue > {}/{}_s1_{}_t{:0>3d}/psi/queue.txt".format(out_parameters['depsi_directory'], AoI_name,
+        os.system("squeue > {}/{}_{}_{}_t{:0>3d}/psi/queue.txt".format(out_parameters['depsi_directory'], AoI_name,
+                                                                       out_parameters['sensor'].lower(),
                                                                        asc_dsc[track], tracks[track]))
-        qf = open("{}/{}_s1_{}_t{:0>3d}/psi/queue.txt".format(out_parameters['depsi_directory'], AoI_name, asc_dsc[track],
+        qf = open("{}/{}_{}_{}_t{:0>3d}/psi/queue.txt".format(out_parameters['depsi_directory'], AoI_name,
+                                                              out_parameters['sensor'].lower(), asc_dsc[track],
                                                               tracks[track]))
         queue = qf.read().split("\n")
         qf.close()
         found = False
         for i in range(len(queue)):
             queue[i] = queue[i].strip().split(" ")
-            if queue[i][0] == job_ids["{}_s1_{}_t{:0>3d}".format(AoI_name, asc_dsc[track], tracks[track])]:
+            if queue[i][0] == job_ids["{}_{}_{}_t{:0>3d}".format(AoI_name, out_parameters['sensor'].lower(),
+                                                                 asc_dsc[track], tracks[track])]:
                 found = True
 
         if not found:

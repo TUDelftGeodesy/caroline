@@ -10,6 +10,8 @@ out_parameters = read_param_file(cpath, param_file, search_parameters)
 tracks = eval(out_parameters['track'])
 asc_dsc = eval(out_parameters['asc_dsc'])
 
+status = []
+
 for track in range(len(tracks)):
     f = open("{}/{}_s1_{}_t{:0>3d}/good_images/zip_files.txt".format(out_parameters['coregistration_directory'], AoI_name,
                                                                      asc_dsc[track], tracks[track]))
@@ -46,6 +48,7 @@ for track in range(len(tracks)):
             try:
                 _ = zipfile.ZipFile(file)
             except zipfile.BadZipFile:  # zip file cannot be opened --> incomplete download
+                status.append(file)
                 bad_zip = dr.split('/')[-1]
                 if bad_zip not in bad_zips:
                     bad_zips.append(bad_zip)
@@ -55,3 +58,10 @@ for track in range(len(tracks)):
     for zipp in bad_zips:
         f.write("{}\n".format(zipp))
     f.close()
+
+if len(status) > 0:
+    print('Rejected the following ZIP files as incomplete downloads:')
+    for i in status:
+        print(status)
+else:
+    print('Found no incomplete downloads.')

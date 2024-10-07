@@ -43,8 +43,9 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
 
     # Loop over the available area-track-lists & corresponding parameter files in run-files
     # area-track-lists ATL.dat requires parameter file param_file_Caroline_v1_0_spider_ATL.txt
-    for AREA in `ls ${CAROLINE}/area-track-lists/`
+    for AREA_FORMAT in `ls ${CAROLINE}/area-track-lists/!(INACTIVE_*.dat)`  # excludes files starting with INACTIVE
     do
+      AREA=$(echo AREA_FORMAT | rev | cut -d/ -f1 | rev | xargs echo) # cut out the area name (last field, so reverse)
       # Check if the downloaded files pertain to tracks we are interested in
       TRACKS=$(cat "${NEW_INSAR_FILES_FILE}" \
         | cut -d/ -f7 \

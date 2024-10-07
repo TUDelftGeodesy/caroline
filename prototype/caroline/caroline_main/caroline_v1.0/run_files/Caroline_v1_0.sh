@@ -455,5 +455,5 @@ if [ ${do_depsi_post} -eq 1 ]; then
 fi
 
 # always send completion email
-send-success-mail.sh ${param_file} ${cpath} ${version} ${caroline_dir}
+send-success-mail.sh ${param_file} ${cpath} ${version} ${caroline_dir} ${TRACKS}
 

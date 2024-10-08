@@ -29,6 +29,6 @@ CRD_IN_DEM          	/project/caroline/Share/users/caroline-svandiepen/software/
 CRD_IN_FORMAT       	r4                  
 CRD_IN_SIZE             4801 6001
 CRD_IN_DELTA            0.000833333333333 0.000833333333333
-CRD_IN_UL           	54.0 2.8            
+CRD_IN_UL           	54.0 3.0
 CRD_IN_NODATA       	-32768              
 STOP                          

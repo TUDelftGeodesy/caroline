@@ -10,7 +10,7 @@ Caroline_version   = 1.0
 sensor             = 'TSX'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['HH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 
-do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
+do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 do_stack_stitching = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise
 do_depsi           = 1
 do_depsi_post      = 0

@@ -54,6 +54,23 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
 
       # If we found new files for tracks we are interested in
       if [ ! -z "${TRACKS}" ]; then
+
+        if [ ! -f ${CAROLINE}/caroline_v1.0/run_files/timestamp_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt ]; then
+          # get the formatted timestamps for the email
+          ALL_TIMESTAMPS=""
+          for TRACK in $TRACKS
+          do
+            LAST_EPOCH=$(grep ${TRACK} ${NEW_INSAR_FILES_FILE} | cut -d/ -f9 | sort -u | tail -1)
+            EPOCH_TIME=$(grep ${TRACK} ${NEW_INSAR_FILES_FILE} | grep ${LAST_EPOCH} | cut -d/ -f10 | sort -u | head -1 | cut -d_ -f6 | cut -dT -f2 | rev | cut -c 3- | rev | xargs echo)
+            FMT_TIME=$(echo ${EPOCH_TIME} | rev | cut -c 3- | rev)":"$(echo ${EPOCH_TIME} | cut -c 3-)"UTC"
+            TIMESTAMP=${LAST_EPOCH}"T"${FMT_TIME}
+            ALL_TIMESTAMPS=${ALL_TIMESTAMPS}${TIMESTAMP}","
+          done
+
+          ALL_TIMESTAMPS=$(echo ${ALL_TIMESTAMPS} | rev | cut -c 2- | rev)
+          echo ${ALL_TIMESTAMPS} > ${CAROLINE}/caroline_v1.0/run_files/timestamp_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt
+        fi
+
         # Check if the job has not already been submitted --> job_id_AREA_TS.txt must not exist
         if [ ! -f ${CAROLINE}/caroline_v1.0/run_files/job_id_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt ]; then
           # Check if there is a dependency. If Dependency: None / Dependency: none / Dependency: /

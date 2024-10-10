@@ -45,7 +45,7 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
     # area-track-lists ATL.dat requires parameter file param_file_Caroline_v1_0_spider_ATL.txt
     for AREA_FORMAT in ${CAROLINE}/area-track-lists/[!I]*.dat  # excludes files starting with INACTIVE (or any capital I)
     do
-      AREA=$(echo AREA_FORMAT | rev | cut -d/ -f1 | rev | xargs echo) # cut out the area name (last field, so reverse)
+      AREA=$(echo ${AREA_FORMAT} | rev | cut -d/ -f1 | rev | xargs echo) # cut out the area name (last field, so reverse)
       # Check if the downloaded files pertain to tracks we are interested in
       TRACKS=$(cat "${NEW_INSAR_FILES_FILE}" \
         | cut -d/ -f7 \
@@ -58,7 +58,7 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
         if [ ! -f ${CAROLINE}/caroline_v1.0/run_files/timestamp_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt ]; then
           # get the formatted timestamps for the email
           ALL_TIMESTAMPS=""
-          for TRACK in $TRACKS
+          for TRACK in ${TRACKS}
           do
             LAST_EPOCH=$(grep ${TRACK} ${NEW_INSAR_FILES_FILE} | cut -d/ -f9 | sort -u | tail -1)
             EPOCH_TIME=$(grep ${TRACK} ${NEW_INSAR_FILES_FILE} | grep ${LAST_EPOCH} | cut -d/ -f10 | sort -u | head -1 | cut -d_ -f6 | cut -dT -f2 | rev | cut -c 3- | rev | xargs echo)

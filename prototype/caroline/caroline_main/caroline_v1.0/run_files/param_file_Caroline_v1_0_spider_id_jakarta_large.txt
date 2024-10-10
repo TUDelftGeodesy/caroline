@@ -10,8 +10,8 @@ Caroline_version   = 1.0
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 
-do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
-do_stack_stitching = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise
+do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
+do_stack_stitching = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise
 do_depsi           = 1
 do_depsi_post      = 0
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
@@ -24,12 +24,12 @@ stitch_AoI_name  = 'id_jakarta'
 stitch_directory = '/project/caroline/Share/users/caroline-admin/id_jakarta/stitch'
 
 depsi_AoI_name   = 'id_jakarta'
-depsi_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/depsi'
+depsi_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/depsi'
 
 shape_AoI_name   = 'id_jakarta'
-shape_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/shape'
+shape_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/shape'
 
-shape_file = ''
+shape_file = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/Jakarta_extent_NWP.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
 center_AoI = [-6.175484428456672, 106.8270160324849] # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size

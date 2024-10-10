@@ -11,7 +11,7 @@ sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / 
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 
 do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
-do_stack_stitching = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise
+do_stack_stitching = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise
 do_depsi           = 1
 do_depsi_post      = 0
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
@@ -21,7 +21,7 @@ coregistration_AoI_name   = 'id_jakarta'
 coregistration_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/stack'
 
 stitch_AoI_name  = 'id_jakarta'
-stitch_directory = '/project/caroline/Share/users/caroline-admin/id_jakarta/stitch'
+stitch_directory = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/stitch'
 
 depsi_AoI_name   = 'id_jakarta'
 depsi_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/depsi'
@@ -46,7 +46,7 @@ master_date= '2021-12-15' # will search for first image after this date that exi
 # send_completion_email = ''  # empty for no email
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl'  # emails Simon
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl'  # emails Simon and Ramon
-send_completion_email = 's.a.n.vandiepen@tudelft.nl'
+send_completion_email = 's.a.n.vandiepen@tudelft.nl,a.m.lapadat@tudelft.nl'
 
 #############################################
 ################# DEM PARAMETERS ############

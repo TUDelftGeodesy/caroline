@@ -8,7 +8,8 @@ search_parameters = ['do_coregistration', 'do_stack_stitching', 'do_depsi', 'do_
                      'stitch_directory', 'depsi_directory', 'shape_directory', 'coregistration_AoI_name',
                      'stitch_AoI_name', 'depsi_AoI_name', 'shape_AoI_name', 'Caroline_version',
                      'dem_file', 'depsi_code_dir', 'rdnaptrans_dir', 'geocoding_dir', 'depsi_post_dir',
-                     'cpxfiddle_dir', 'depsi_post_mode', 'asc_dsc', 'track', 'sensor']
+                     'cpxfiddle_dir', 'depsi_post_mode', 'asc_dsc', 'track', 'sensor', 'do_reslc', 'reslc_AoI_name',
+                     'reslc_directory']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 for param in out_parameters.keys():
@@ -51,6 +52,11 @@ for param in out_parameters.keys():
             print(f'WARNING: do_stack_stitching (S1 only) is turned on while sensor is {out_parameters["sensor"]}, ignoring...')
         f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
         f.write('0')
+    elif param == 'do_reslc' and out_parameters['sensor'] != 'S1':
+        if out_parameters[param] == '1':
+            print(f'WARNING: do_reslc (S1 only) is turned on while sensor is {out_parameters["sensor"]}, ignoring...')
+        f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
+        f.write('0')
     else:
         f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
         f.write(out_parameters[param])
@@ -58,7 +64,7 @@ for param in out_parameters.keys():
 
 tracks = eval(out_parameters['track'])
 asc_dsc = eval(out_parameters['asc_dsc'])
-for prefix in ['doris', 'deinsar', 'stitch', 'depsi']:
+for prefix in ['doris', 'deinsar', 'stitch', 'depsi', 'reslc']:
     if prefix in ['doris', 'deinsar']:
         AoI_name = out_parameters['coregistration_AoI_name']
     else:

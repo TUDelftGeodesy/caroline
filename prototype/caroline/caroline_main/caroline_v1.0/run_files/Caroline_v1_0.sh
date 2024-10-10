@@ -108,16 +108,19 @@ python3 ${caroline_dir}/caroline_v${step_file_version}/bin/setup/create_step_fil
 do_doris=`cat ${auxiliary_files}/do_doris.txt`
 do_deinsar=`cat ${auxiliary_files}/do_deinsar.txt`
 do_stitching=`cat ${auxiliary_files}/do_stack_stitching.txt`
+do_reslc=`cat ${auxiliary_files}/do_reslc.txt`
 do_depsi=`cat ${auxiliary_files}/do_depsi.txt`
 do_depsi_post=`cat ${auxiliary_files}/do_depsi_post.txt`
 doris_dir=`cat ${auxiliary_files}/doris_directory.txt`
 deinsar_dir=`cat ${auxiliary_files}/deinsar_directory.txt`
 stitch_dir=`cat ${auxiliary_files}/stitch_directory.txt`
+reslc_dir=`cat ${auxiliary_files}/reslc_directory.txt`
 depsi_dir=`cat ${auxiliary_files}/depsi_directory.txt`
 shape_dir=`cat ${auxiliary_files}/shape_directory.txt`
 doris_AoI_name=`cat ${auxiliary_files}/doris_AoI_name.txt`
 deinsar_AoI_name=`cat ${auxiliary_files}/deinsar_AoI_name.txt`
 stitch_AoI_name=`cat ${auxiliary_files}/stitch_AoI_name.txt`
+reslc_AoI_name=`cat ${auxiliary_files}/reslc_AoI_name.txt`
 depsi_AoI_name=`cat ${auxiliary_files}/depsi_AoI_name.txt`
 shape_AoI_name=`cat ${auxiliary_files}/shape_AoI_name.txt`
 version=`cat ${auxiliary_files}/Caroline_version.txt`
@@ -288,6 +291,36 @@ if [ ${do_stitching} -eq 1 ]; then
 
   python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_stitch.py ${param_file} ${cpath} ${stitch_AoI_name}
 
+fi
+
+if [ ${do_reslc} -eq 1 ]; then
+  echo ""
+  echo ""
+  echo "Starting re-SLC..."
+  echo "Creating directory..."
+
+  if [ ! -d ${reslc_dir} ]; then
+    mkdir -p ${reslc_dir}
+  fi
+
+  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_reslc_directories.py ${param_file} ${cpath} ${reslc_AoI_name}
+
+  echo "Generating re-SLC files..."
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_reslc_reslc_py.py ${param_file} ${cpath} ${reslc_AoI_name} ${doris_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_reslc_reslc_sh.py ${param_file} ${cpath} ${reslc_AoI_name} ${version} ${caroline_dir}
+
+  echo "Starting re-SLC..."
+  cd ${reslc_dir}
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_reslc.txt`
+  do
+    cd ${dir}
+    ls > dir_contents.txt
+    sbatch reslc.sh > job_id.txt
+    cd ${reslc_dir}
+  done
+  cd ${cpath}
+
+  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_reslc.py ${param_file} ${cpath} ${reslc_AoI_name}
 fi
 
 

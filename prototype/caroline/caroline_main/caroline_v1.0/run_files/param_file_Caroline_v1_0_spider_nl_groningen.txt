@@ -11,9 +11,12 @@ sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / 
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 
 do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
-do_stack_stitching = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise
-do_depsi           = 0
-do_depsi_post      = 0
+
+do_stack_stitching = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
+do_reslc           = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
+
+do_depsi           = 0  # Requires stack_stitching (Sentinel-1), coregistration (otherwise) (here or dependency). Does not use reslc
+do_depsi_post      = 0  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
@@ -22,6 +25,9 @@ coregistration_directory  = '/project/caroline/Share/stacks'
 
 stitch_AoI_name  = 'dummy'
 stitch_directory = '/project/caroline/Share/users/caroline-admin/dummy/stitch'
+
+reslc_AoI_name   = 'dummy'
+rslc_directory   = '/project/caroline/Share/users/caroline-admin/dummy/reslc'
 
 depsi_AoI_name   = 'dummy'
 depsi_directory  = '/project/caroline/Share/users/caroline-admin/dummy/depsi'
@@ -125,6 +131,11 @@ di_do_subtrrefpha         = 1
 di_do_subtrrefdem         = 1
 di_do_coherence           = 1
 
+############################################
+############## RESLC PARAMETERS ############
+############################################
+
+reslc_code_dir    = '/project/caroline/Software/caroline-prototype/plugins/pydepsi'
 
 ############################################
 ############## DEPSI PARAMETERS ############
@@ -214,7 +225,6 @@ zc0         = []
 r0          = []
 r10         = []
 epoch       = []
-
 
 ############################################
 ########### DEPSI POST PARAMETERS ##########

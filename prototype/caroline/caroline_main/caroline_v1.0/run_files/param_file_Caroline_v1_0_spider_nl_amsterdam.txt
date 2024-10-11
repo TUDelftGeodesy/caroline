@@ -27,7 +27,7 @@ stitch_AoI_name  = 'nl_amsterdam'
 stitch_directory = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/stitch'
 
 reslc_AoI_name   = 'nl_amsterdam'
-rslc_directory   = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/reslc'
+reslc_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/reslc'
 
 depsi_AoI_name   = 'nl_amsterdam'
 depsi_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/depsi'

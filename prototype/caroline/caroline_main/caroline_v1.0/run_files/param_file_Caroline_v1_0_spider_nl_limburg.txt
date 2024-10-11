@@ -27,7 +27,7 @@ stitch_AoI_name  = 'nl_limburg'
 stitch_directory = '/project/caroline/Share/stitch'
 
 reslc_AoI_name   = 'dummy'
-rslc_directory   = '/project/caroline/Share/users/caroline-admin/dummy/reslc'
+reslc_directory  = '/project/caroline/Share/users/caroline-admin/dummy/reslc'
 
 depsi_AoI_name   = 'nl_limburg'
 depsi_directory  = '/project/caroline/Share/projects/igrs'

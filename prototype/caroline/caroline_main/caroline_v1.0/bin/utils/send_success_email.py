@@ -3,7 +3,8 @@ from read_param_file import read_param_file
 filename, param_file, cpath = argv
 
 search_parameters = ['track', 'asc_dsc', 'do_coregistration', 'do_stack_stitching', 'do_depsi', 'do_depsi_post', 'sensor',
-                     'coregistration_directory', 'stitch_directory', 'depsi_directory']
+                     'coregistration_directory', 'stitch_directory', 'depsi_directory', 'do_reslc',
+                     'reslc_directory']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
@@ -20,7 +21,7 @@ run_id = param_file.split('_spider_')[1].split('/')[0][:-16]
 
 
 def print_mail(run_id, track, sensor, dv5, stitch, depsi, dppu, portal_link, coreg_dir, stitch_dir, depsi_dir,
-               depsipost_dir):
+               depsipost_dir, reslc, reslcdir):
     print("""Dear radargroup,
 
 A new CAROLINE run has just finished on run {run_id}! 
@@ -31,7 +32,10 @@ Sensor: {sensor}
 
 The following steps were run:
 Coregistration: {dv5} {coreg_dir}
+
 Stitching: {stitch} {stitch_dir}
+Re-SLC: {reslc} {reslc_dir}
+
 Depsi: {depsi} {depsi_dir}
 Depsi-post & portal upload: {dppu} {depsipost_dir}
 
@@ -52,7 +56,9 @@ Freek, Niels, and Simon""".format(tracks=track,
                                   coreg_dir=coreg_dir,
                                   stitch_dir=stitch_dir,
                                   depsi_dir=depsi_dir,
-                                  depsipost_dir=depsipost_dir))
+                                  depsipost_dir=depsipost_dir,
+                                  reslc=reslc,
+                                  reslc_dir=reslcdir))
 
 
 print_mail(run_id=run_id,
@@ -66,4 +72,6 @@ print_mail(run_id=run_id,
            coreg_dir=f"(located in {out_parameters['coregistration_directory']} )" if eval(out_parameters['do_coregistration']) == 1 else "",
            stitch_dir=f"(located in {out_parameters['stitch_directory']} )" if eval(out_parameters['do_stack_stitching']) == 1 else "",
            depsi_dir=f"(located in {out_parameters['depsi_directory']} )" if eval(out_parameters['do_depsi']) == 1 else "",
-           depsipost_dir=f"(located in {out_parameters['depsi_directory']} )" if eval(out_parameters['do_depsi_post']) == 1 else "")
+           depsipost_dir=f"(located in {out_parameters['depsi_directory']} )" if eval(out_parameters['do_depsi_post']) == 1 else "",
+           reslc="Yes" if eval(out_parameters['do_reslc']) == 1 else "No",
+           reslcdir=f"(located in {out_parameters['reslc_directory']} )" if eval(out_parameters['do_reslc']) == 1 else "")

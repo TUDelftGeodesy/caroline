@@ -27,7 +27,7 @@ stitch_AoI_name  = 'id_jakarta'
 stitch_directory = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/stitch'
 
 reslc_AoI_name   = 'id_jakarta'
-rslc_directory   = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/reslc'
+reslc_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/reslc'
 
 depsi_AoI_name   = 'id_jakarta'
 depsi_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/depsi'

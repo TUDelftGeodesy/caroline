@@ -27,7 +27,7 @@ stitch_AoI_name  = 'nl_woerden'
 stitch_directory = '/project/caroline/Share/users/caroline-admin/nl_woerden/stitch'
 
 reslc_AoI_name   = 'nl_woerden'
-rslc_directory   = '/project/caroline/Share/users/caroline-admin/nl_woerden/reslc'
+reslc_directory  = '/project/caroline/Share/users/caroline-admin/nl_woerden/reslc'
 
 depsi_AoI_name   = 'nl_woerden'
 depsi_directory  = '/project/caroline/Share/users/caroline-admin/nl_woerden/depsi'

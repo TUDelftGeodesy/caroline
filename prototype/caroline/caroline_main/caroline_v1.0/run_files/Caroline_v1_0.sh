@@ -490,7 +490,7 @@ fi
 # always send completion email
 cd ${cpath}
 AOI_NAME=$(echo ${param_file} | cut -d_ -f9- | cut -d/ -f1 | sed -r 's/.{16}$//' | xargs echo)
-START_TIMESTAMP=$(grep $SLURM_JOB_ID job_id_${AOI_NAME}* | cut -d: -f1 | rev | cut -d_ -f1 | rev | cut -d. -f1)
+START_TIMESTAMP=$(grep $SLURM_JOB_ID [jt]*${AOI_NAME}* | cut -d: -f1 | rev | cut -d_ -f1 | rev | cut -d. -f1)
 TIMESTAMPS=`cat ${cpath}/timestamp_${AOI_NAME}_${START_TIMESTAMP}.txt`
 
 send-success-mail.sh ${param_file} ${cpath} ${version} ${caroline_dir} ${TRACKS} ${TIMESTAMPS}

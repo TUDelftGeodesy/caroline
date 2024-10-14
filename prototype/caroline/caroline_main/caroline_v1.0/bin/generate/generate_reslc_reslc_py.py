@@ -27,7 +27,7 @@ for track in range(len(tracks)):
     if mother is None:
         raise ValueError(f"Failed to detect mother in {out_parameters['coregistration_directory']}/{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]}/doris_input.xml !")
 
-    main = stack.format(AoI_name=AoI_name, coregistration_directory=out_parameters['coregistration_directory'],
+    main = stack.format(reslc_AoI_name=AoI_name, coregistration_directory=out_parameters['coregistration_directory'],
                         asc_dsc=asc_dsc[track], coregistration_AoI_name=coregistration_AoI_name,
                         track="{:0>3d}".format(tracks[track]), sensor=out_parameters['sensor'].lower(),
                         mother=mother, lb="{", rb="}")

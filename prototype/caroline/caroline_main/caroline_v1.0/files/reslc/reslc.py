@@ -61,7 +61,7 @@ cluster = SLURMCluster(
     memory="30 GB",  # Total amount of memory per worker
     processes=1,  # Number of Python processes per worker
     walltime="3:00:00",  # Reserve each worker for X hour
-    scheduler_options={"dashboard_address": f":{FREE_SOCKET}"},  # Host Dashboard in a free socket
+    scheduler_options={lb}"dashboard_address": f":{lb}FREE_SOCKET{rb}"{rb},  # Host Dashboard in a free socket
 )
 # logger.info(f"Dask dashboard hosted at port: {FREE_SOCKET}.")
 # logger.info(
@@ -122,15 +122,15 @@ if __name__ == "__main__":
     # Extract real and image part. remove other fields. convert to float16
     slc_recon_output = slc_recon.copy()
     slc_recon_output = slc_recon_output.assign(
-        {
+        {lb}
             "real": slc_recon_output["complex"].real.astype(np.float16),
             "imag": slc_recon_output["complex"].imag.astype(np.float16),
-        }
+        {rb}
     )
     slc_recon_output = slc_recon_output.drop_vars(["complex", "amplitude", "phase"])
 
     # Rechunk and write as zarr
-    slc_recon_output = slc_recon_output.chunk({"azimuth": writing_chunks[0], "range": writing_chunks[1]})
+    slc_recon_output = slc_recon_output.chunk({lb}"azimuth": writing_chunks[0], "range": writing_chunks[1]{rb})
     if overwrite_zarr:
         slc_recon.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", mode="w")
     else:

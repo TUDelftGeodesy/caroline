@@ -30,7 +30,7 @@ for track in range(len(tracks)):
     main = stack.format(AoI_name=AoI_name, coregistration_directory=out_parameters['coregistration_directory'],
                         asc_dsc=asc_dsc[track], coregistration_AoI_name=coregistration_AoI_name,
                         track="{:0>3d}".format(tracks[track]), sensor=out_parameters['sensor'].lower(),
-                        mother=mother)
+                        mother=mother, lb="{", rb="}")
 
     fw = open("{}/{}_{}_{}_t{:0>3d}/reslc_{}_{}_{}_t{:0>3d}.py".format(out_parameters['reslc_directory'], AoI_name,
                                                                        out_parameters['sensor'].lower(), asc_dsc[track],

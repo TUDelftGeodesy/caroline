@@ -16,7 +16,7 @@ tracks = eval(out_parameters['track'])
 asc_dsc = eval(out_parameters['asc_dsc'])
 
 for track in range(len(tracks)):
-    f = open(f"{out_parameters['coregistration_directory']}{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]}/doris_input.xml", "r")
+    f = open(f"{out_parameters['coregistration_directory']}/{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]}/doris_input.xml", "r")
     data = f.read().split("\n")
     f.close()
     mother = None

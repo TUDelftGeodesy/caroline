@@ -179,7 +179,7 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
   for job in `cat submitted_jobs_${RUN_TS}.txt`
   do
     PARAM_FILE="param_file_Caroline_v1_0_spider_$(echo ${job} | cut -c 8- | sed -r 's/.{20}$//').txt"
-    DO_DP=$(grep "do_depsi_post" ${PARAM_FILE} | cut -d= -f2 | xargs echo)
+    DO_DP=$(grep "do_depsi_post" ${PARAM_FILE} | cut -d= -f2 | cut -d# -f1 | xargs echo)
     DP_MODE=$(grep "depsi_post_mode" ${PARAM_FILE} | cut -d"'" -f2 | xargs echo)
     PORTAL_REQ=0
     if [ ${DO_DP} -eq 1 ]; then

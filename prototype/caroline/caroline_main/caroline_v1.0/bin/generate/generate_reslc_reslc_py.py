@@ -1,6 +1,5 @@
 from sys import argv, path
 import os
-import glob
 path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
 filename, param_file, cpath, AoI_name, coregistration_AoI_name, version, caroline_dir = argv
@@ -20,7 +19,7 @@ for track in range(len(tracks)):
     data = f.read().split("\n")
     f.close()
     mother = None
-    for line in f:
+    for line in data:
         if '<master_date>' in line:
             mother = line.split('>')[1].split('<')[0].replace("-", "")
             break

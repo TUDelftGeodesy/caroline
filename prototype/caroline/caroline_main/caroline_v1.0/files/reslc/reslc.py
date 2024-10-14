@@ -63,10 +63,10 @@ cluster = SLURMCluster(
     walltime="3:00:00",  # Reserve each worker for X hour
     scheduler_options={lb}"dashboard_address": f":{lb}FREE_SOCKET{rb}"{rb},  # Host Dashboard in a free socket
 )
-# logger.info(f"Dask dashboard hosted at port: {FREE_SOCKET}.")
+# logger.info(f"Dask dashboard hosted at port: {lb}FREE_SOCKET{rb}.")
 # logger.info(
 #     f"If you are forwarding Jupyter Server to a local port 8889, \
-#     you can access it at: localhost:8889/proxy/{FREE_SOCKET}/status"
+#     you can access it at: localhost:8889/proxy/{lb}FREE_SOCKET{rb}/status"
 # )
 
 # Option 2: Use an existing SLURMCluster by giving the schedular address 
@@ -74,10 +74,10 @@ cluster = SLURMCluster(
 # ADDRESS = "tcp://XX.X.X.XX:12345" # Manual input: Dask schedular address
 # SOCKET = 12345 # Manual input: port number. It should be the number after ":" of ADDRESS
 # cluster = None  # Keep this None, needed for an if statement
-# logger.info(f"Dask dashboard hosted at port: {SOCKET}.")
+# logger.info(f"Dask dashboard hosted at port: {lb}SOCKET{rb}.")
 # logger.info(
 #     f"If you are forwarding Jupyter Server to a local port 8889, \
-#     you can access it at: localhost:8889/proxy/{SOCKET}/status"
+#     you can access it at: localhost:8889/proxy/{lb}SOCKET{rb}/status"
 # )
 
 if __name__ == "__main__":

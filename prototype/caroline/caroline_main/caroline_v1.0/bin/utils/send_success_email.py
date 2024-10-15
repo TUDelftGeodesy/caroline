@@ -4,7 +4,7 @@ filename, param_file, cpath = argv
 
 search_parameters = ['track', 'asc_dsc', 'do_coregistration', 'do_stack_stitching', 'do_depsi', 'do_depsi_post', 'sensor',
                      'coregistration_directory', 'stitch_directory', 'depsi_directory', 'do_reslc',
-                     'reslc_directory']
+                     'reslc_directory', 'skygeo_viewer']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
@@ -68,7 +68,7 @@ print_mail(run_id=run_id,
            stitch="Yes" if eval(out_parameters['do_stack_stitching']) == 1 else "No",
            depsi="Yes" if eval(out_parameters['do_depsi']) == 1 else "No",
            dppu="Yes" if eval(out_parameters['do_depsi_post']) == 1 else "No",
-           portal_link="All CAROLINE DePSI-post results can be accessed at https://caroline.portal-tud.skygeo.com/portal/caroline/ ." if eval(out_parameters['do_depsi_post']) == 1 else "",
+           portal_link=f"The DePSI-post results can be accessed at https://caroline.portal-tud.skygeo.com/portal/caroline/{out_parameters['skygeo_viewer']} ." if eval(out_parameters['do_depsi_post']) == 1 else "",
            coreg_dir=f"(located in {out_parameters['coregistration_directory']} )" if eval(out_parameters['do_coregistration']) == 1 else "",
            stitch_dir=f"(located in {out_parameters['stitch_directory']} )" if eval(out_parameters['do_stack_stitching']) == 1 else "",
            depsi_dir=f"(located in {out_parameters['depsi_directory']} )" if eval(out_parameters['do_depsi']) == 1 else "",

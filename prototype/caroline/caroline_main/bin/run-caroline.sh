@@ -209,11 +209,12 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
           # retrieve the directories we need to upload
           AUX_DIR=$(grep "Running with config file" slurm-${JOB_ID}.out | cut -d" " -f5 | cut -d/ -f1)
           DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
+          SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
           cd ${DEPSI_DIR}
           for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
           do
             cd ${dir}/psi
-            upload-result-csv-to-skygeo.sh
+            upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
             cd ${DEPSI_DIR}
           done
           cd ${CAROLINE}/caroline_v1.0/run_files/

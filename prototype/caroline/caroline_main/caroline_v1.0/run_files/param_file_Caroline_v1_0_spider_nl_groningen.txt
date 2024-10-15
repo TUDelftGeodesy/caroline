@@ -16,8 +16,10 @@ do_stack_stitching = 0  # Only possible if sensor is Sentinel-1, will turn off a
 do_reslc           = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
 
 do_depsi           = 0  # Requires stack_stitching (Sentinel-1), coregistration (otherwise) (here or dependency). Does not use reslc
+
 do_depsi_post      = 0  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
+skygeo_viewer      = 'nl_groningen'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
 coregistration_AoI_name   = 'nl_groningen'

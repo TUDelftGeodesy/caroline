@@ -177,10 +177,10 @@ if __name__ == "__main__":
 
     # Rechunk and write as zarr
     slcs_output = slcs_output.chunk(writing_chunks)
-    if overwrite_zarr:
+    if not os.path.exists("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr"):  # append
         slcs_output.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", mode="w")
     else:
-        slcs_output.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", append_dim="time")
+        slcs_output.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", mode="a", append_dim="time")
 
     logger.info('Finishing... Closing client.')
     # Close the client when finishing

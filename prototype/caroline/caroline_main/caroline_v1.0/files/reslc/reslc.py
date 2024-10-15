@@ -180,7 +180,7 @@ if __name__ == "__main__":
     if overwrite_zarr:
         slcs_output.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", mode="w")
     else:
-        slcs_output.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", append_dim=["time"])
+        slcs_output.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", append_dim="time")
 
     logger.info('Finishing... Closing client.')
     # Close the client when finishing

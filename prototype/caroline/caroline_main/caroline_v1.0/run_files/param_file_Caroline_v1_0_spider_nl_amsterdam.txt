@@ -45,7 +45,7 @@ AoI_length = 1 # km, north-south AoI size
 
 track = [37]  # Can be multiple tracks!
 asc_dsc = ['dsc']
-start_date = '2020-03-01' # will search for first image after this date that exists
+start_date = '2010-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
 master_date= '2020-03-25' # will search for first image after this date that exists
 

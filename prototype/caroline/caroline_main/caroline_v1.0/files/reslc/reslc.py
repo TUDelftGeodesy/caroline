@@ -160,7 +160,7 @@ if __name__ == "__main__":
     slc_mother = slc_mother.drop_vars(['complex', 'amplitude', 'phase'])
 
     # Add mother SLC to the output
-    slcs_output = xr.concat([slc_recon_output, slc_mother], dim="time").sortby("time")
+    slcs_output = xr.concat([slc_recon_output, slc_mother], dim="time").drop_duplicates(dim="time", keep="last").sortby("time")
 
     # Add geo-ref coords
     lon = sarxarray.from_binary([f_lam],
@@ -177,10 +177,10 @@ if __name__ == "__main__":
 
     # Rechunk and write as zarr
     slcs_output = slcs_output.chunk(writing_chunks)
-    if not os.path.exists("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr"):  # append
+    if not os.path.exists("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr"):
         slcs_output.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", mode="w")
     else:
-        slcs_output.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", mode="a", append_dim="time")
+        slcs_output.to_zarr("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr", mode="w")
 
     logger.info('Finishing... Closing client.')
     # Close the client when finishing

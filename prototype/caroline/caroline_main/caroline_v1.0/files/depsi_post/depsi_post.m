@@ -1,9 +1,9 @@
 clear all
 close all
 
-addpath(genpath('../boxes/depsi_post_v2.1.4.0'));
-addpath(genpath('../boxes/geocoding_v0.9'));
-addpath(genpath('../boxes/rdnaptrans'));
+addpath(genpath('../boxes/{depsi_post_code}'));
+addpath(genpath('../boxes/{geocoding}'));
+addpath(genpath('../boxes/{rdnaptrans}'));
 
 %dbstop if error
 

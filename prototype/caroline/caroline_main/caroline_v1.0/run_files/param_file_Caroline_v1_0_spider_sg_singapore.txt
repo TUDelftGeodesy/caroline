@@ -19,35 +19,35 @@ do_depsi           = 1  # Requires stack_stitching (Sentinel-1), coregistration 
 
 do_depsi_post      = 1  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
-skygeo_viewer      = 'id_jakarta'
+skygeo_viewer      = 'sg_singapore'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
-coregistration_AoI_name   = 'id_jakarta'
+coregistration_AoI_name   = 'sg_singapore'
 coregistration_directory  = '/project/caroline/Share/stacks'
 
-stitch_AoI_name  = 'id_jakarta'
-stitch_directory = '/project/caroline/Share/projects/indonesia/stitch'
+stitch_AoI_name  = 'sg_singapore'
+stitch_directory = '/project/caroline/Share/projects/singapore/stitch'
 
-reslc_AoI_name   = 'id_jakarta'
-reslc_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/reslc'
+reslc_AoI_name   = 'sg_singapore'
+reslc_directory  = '/project/caroline/Share/projects/singapore/reslc'
 
-depsi_AoI_name   = 'id_jakarta'
-depsi_directory  = '/project/caroline/Share/projects/indonesia/depsi'
+depsi_AoI_name   = 'sg_singapore'
+depsi_directory  = '/project/caroline/Share/projects/singapore/depsi'
 
-shape_AoI_name   = 'id_jakarta'
-shape_directory  = '/project/caroline/Share/stacks/aoi_polygons/id_indonesia'
+shape_AoI_name   = 'sg_singapore'
+shape_directory  = '/project/caroline/Share/stacks/aoi_polygons/sg_singapore'
 
-shape_file = '/project/caroline/Share/users/caroline-alapadat/projects/jakarta_s1_processing_caroline/shape_large/Jakarta_extent_NWP_large.shp'
+shape_file = '/project/caroline/Share/users/caroline-alapadat/projects/singapore/shape/singapore_boundary.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
 center_AoI = [-6.175484428456672, 106.8270160324849] # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size
 AoI_length = 1 # km, north-south AoI size
 
-track = [98]  # Can be multiple tracks!
+track = [171]  # Can be multiple tracks!
 asc_dsc = ['asc']
 start_date = '2010-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
-master_date= '2019-06-12' # will search for first image after this date that exists
+master_date= '2021-12-15' # will search for first image after this date that exists
 
 # send a notification to these email addresses upon completion of the Caroline script
 # examples:
@@ -60,12 +60,12 @@ send_completion_email = 's.a.n.vandiepen@tudelft.nl,a.m.lapadat@tudelft.nl,r.f.h
 ################# DEM PARAMETERS ############
 #############################################
 
-dem_file                  = '/project/caroline/Share/users/caroline-alapadat/projects/jakarta_s1_processing/asc_098/jakarta_dem4/jakarta_SRTMGL1Ellip.raw'
-dem_format                = 'r4'
-dem_size                  = [13389, 9886]
-dem_delta                 = [0.000277777777778, 0.000277777777778]
-dem_upperleft             = [-5.167083333341985, 105.132083333371156]
-dem_nodata                = -32768
+dem_file            = '/project/caroline/Share/dem/singapore/dem2/singapore_SRTM.raw'
+dem_format          = 'r4'
+dem_size            = [5276, 7519]
+dem_delta           = [0.00027778, 0.00027778]
+dem_upperleft       = [2.2, 102.8]
+dem_nodata          = -32768
 
 #############################################
 ##### DORIS v5 PARAMETERS (Sentinel-1) ######
@@ -182,10 +182,10 @@ ref_height = 0
 # Psc parameters
 amplitude_calibration  = 'yes'
 psc_selection_method   = 'threshold'
-psc_selection_gridsize = 300
+psc_selection_gridsize = 100
 psc_threshold          = 0.3
 max_arc_length         = 5000
-network_method         = 'delaunay'
+network_method         = 'spider'
 Ncon                   = 16
 Nparts                 = 8
 Npsc_selections        = 1

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Defaults
+# Defaults. param_file is overwritten by --config-file option
 param_file='param_file_Caroline_v1_0.txt'
 step_file_version='1.0'
 
@@ -9,6 +9,9 @@ if [ -z "${CAROLINE}" ]; then
 else
 	caroline_dir="${CAROLINE}"
 fi
+
+CAROLINE_BIN="${caroline_dir}/bin"
+PATH="${CAROLINE_BIN}:${PATH}"
 
 TRACK_NUMBERS=()
 TRACK_DIRECTIONS=()

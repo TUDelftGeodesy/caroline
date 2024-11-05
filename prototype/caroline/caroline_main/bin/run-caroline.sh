@@ -22,8 +22,8 @@ RUN_TS=$(date +%Y%m%dT%H%M%S)
 NEW_INSAR_FILES_FILE="${CAROLINE_WORK}/new-insar-files-${RUN_TS}.out"
 find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"
 
-if [ "$(cat ${CAROLINE_WORK}/force-start-runs.txt | wc -c)" -gt "0" ]; then
-  for LINE in `cat ${CAROLINE_WORK}/force-start-runs.txt`
+if [ "$(cat ${CAROLINE_WORK}/force-start-runs.dat | wc -c)" -gt "0" ]; then
+  for LINE in `cat ${CAROLINE_WORK}/force-start-runs.dat`
   do
     AREA=$(echo ${LINE} | cut -d";" -f1)
     TRACKS_CSV=$(echo ${LINE} | cut -d";" -f2)
@@ -49,8 +49,8 @@ if [ "$(cat ${CAROLINE_WORK}/force-start-runs.txt | wc -c)" -gt "0" ]; then
       --tracks "${TRACKS_CSV}" > job_id_${AREA}_${RUN_TS}.txt
   done
 fi
-mv ${CAROLINE_WORK}/force-start-runs.txt ${CAROLINE_WORK}/force-start-runs-${RUN_TS}.txt
-echo "" > ${CAROLINE_WORK}/force-start-runs.txt
+mv ${CAROLINE_WORK}/force-start-runs.dat ${CAROLINE_WORK}/force-start-runs-${RUN_TS}.dat
+echo "" > ${CAROLINE_WORK}/force-start-runs.dat
 
 # If the output file with downloaded files has more than 32 bytes, that means new files
 # have been downloaded (the No new files found message is 32 bytes, new files found is 500+ bytes)

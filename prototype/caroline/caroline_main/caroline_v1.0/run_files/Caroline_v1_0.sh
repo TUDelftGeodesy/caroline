@@ -269,7 +269,10 @@ if [ ${do_stitching} -eq 1 ]; then
   do
     cd ${dir}
     linkdir=`cat link_directory.txt`
-    ln -sfn ${linkdir}/* .
+    # split so that dir_contents.txt, job_id.txt and queue.txt do not get soft-linked
+    ln -sfn ${linkdir}/[bgips]* .
+    ln -sfn ${linkdir}/doris* .
+    ln -sfn ${linkdir}/dem .
     cd ${stitch_dir}
   done
   cd ${cpath}

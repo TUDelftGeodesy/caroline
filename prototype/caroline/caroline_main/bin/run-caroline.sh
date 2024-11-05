@@ -22,6 +22,36 @@ RUN_TS=$(date +%Y%m%dT%H%M%S)
 NEW_INSAR_FILES_FILE="${CAROLINE_WORK}/new-insar-files-${RUN_TS}.out"
 find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"
 
+if [ "$(cat ${CAROLINE_WORK}/force-start-runs.txt | wc -c)" -gt "0" ]; then
+  for LINE in `cat ${CAROLINE_WORK}/force-start-runs.txt`
+  do
+    AREA=$(echo ${LINE} | cut -d";" -f1)
+    TRACKS_CSV=$(echo ${LINE} | cut -d";" -f2)
+
+    echo "FORCE_STARTED_AT_${RUN_TS}" > ${CAROLINE}/caroline_v1.0/run_files/timestamp_${AREA}_${RUN_TS}.txt
+
+    # Submit caroline core to job queue
+    #
+    # Load required python and gdal modules
+    source /etc/profile.d/modules.sh
+    source /project/caroline/Software/bin/init.sh
+    module load python/3.9.6 gdal/3.4.1
+    #
+    # Load required python environment with gdal
+    source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
+    #
+    # Chdir to script directory
+    cd ${CAROLINE}/caroline_v1.0/run_files/
+    #
+    # Submit the job to the cluster's scheduler (slurm) with the correct parameter file determined by the AREA name
+    sbatch ./Caroline_v1_0.sh \
+      --config-file param_file_Caroline_v1_0_spider_${AREA}.txt \
+      --tracks "${TRACKS_CSV}" > job_id_${AREA}_${RUN_TS}.txt
+  done
+fi
+mv ${CAROLINE_WORK}/force-start-runs.txt ${CAROLINE_WORK}/force-start-runs-${RUN_TS}.txt
+echo "" > ${CAROLINE_WORK}/force-start-runs.txt
+
 # If the output file with downloaded files has more than 32 bytes, that means new files
 # have been downloaded (the No new files found message is 32 bytes, new files found is 500+ bytes)
 if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then

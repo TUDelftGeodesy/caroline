@@ -55,5 +55,6 @@ cp -Rvp ../scripts/find-new-insar-files.sh "${CAROLINE}/bin"
 
 # Create work directory
 mkdir -pv "${CAROLINE}/work"
+cp -Rvp "${BACKUP_DIR}/work/force-start-runs.dat" "${CAROLINE}/work/"
 
 # Eof

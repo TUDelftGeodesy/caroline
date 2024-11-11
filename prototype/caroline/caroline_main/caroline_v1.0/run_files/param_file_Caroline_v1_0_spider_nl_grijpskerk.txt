@@ -182,7 +182,7 @@ ref_height = 0
 # Psc parameters
 amplitude_calibration  = 'yes'
 psc_selection_method   = 'threshold'
-psc_selection_gridsize = 100
+psc_selection_gridsize = 300
 psc_threshold          = 0.3
 max_arc_length         = 5000
 network_method         = 'spider'

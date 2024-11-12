@@ -199,12 +199,14 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
       fi
     done
   done
+fi
 
-  # Check if all runs are finished
-  ALL_RUNS_FINISHED=0
-  cd ${CAROLINE}/caroline_v1.0/run_files/
-  ls job_id_*${RUN_TS}.txt > submitted_jobs_${RUN_TS}.txt
+# Check if all runs are finished
+ALL_RUNS_FINISHED=0
+cd ${CAROLINE}/caroline_v1.0/run_files/
+ls job_id_*${RUN_TS}.txt > submitted_jobs_${RUN_TS}.txt
 
+if [ "$(cat submitted_jobs_${RUN_TS}.txt | wc -c)" -gt "0" ]; then
   # setup check if we should submit something to the portal, and if so if it already has been done
   for job in `cat submitted_jobs_${RUN_TS}.txt`
   do

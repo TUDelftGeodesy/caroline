@@ -30,10 +30,18 @@ for track in range(len(tracks)):
                 d.append(i)
         dirr = d[-1]
         size = d[-5]
-        if eval(size) < 3000000000:
-            bad_zip = dirr.split("/")[0]
-            if bad_zip not in bad_zips:
-                bad_zips.append(bad_zip)
+        if 'SLC__1SDV_' in dirr:  # VV/VH dual polarisation
+            if eval(size) < 3000000000:
+                bad_zip = dirr.split("/")[0]
+                if bad_zip not in bad_zips:
+                    bad_zips.append(bad_zip)
+        elif 'SLC__1SSV_' in dirr:  # VV polarisation is half the size
+            if eval(size) < 1500000000:
+                bad_zip = dirr.split("/")[0]
+                if bad_zip not in bad_zips:
+                    bad_zips.append(bad_zip)
+        else:
+            print(f'Cannot detect polarisation on {dirr}, skipping...')
 
     # check for directories without zip files
     dirs = glob.glob("{}/{}_s1_{}_t{:0>3d}/good_images/2*".format(out_parameters['coregistration_directory'], AoI_name,

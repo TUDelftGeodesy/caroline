@@ -26,7 +26,7 @@ coregistration_AoI_name   = 'id_jakarta'
 coregistration_directory  = '/project/caroline/Share/stacks' #'/project/caroline/Share/users/caroline-admin/id_jakarta/stack'
 
 stitch_AoI_name  = 'id_jakarta'
-stitch_directory = '/project/caroline/Share/projects/id_jakarta/stitch'
+stitch_directory = '/project/caroline/Share/projects/indonesia/stitch'
 
 reslc_AoI_name   = 'id_jakarta'
 reslc_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/reslc'

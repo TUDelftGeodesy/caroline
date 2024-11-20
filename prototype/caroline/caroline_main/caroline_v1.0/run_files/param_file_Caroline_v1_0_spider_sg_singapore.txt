@@ -23,13 +23,13 @@ skygeo_viewer      = 'sg_singapore'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
 coregistration_AoI_name   = 'sg_singapore'
-coregistration_directory  = '/project/caroline/Share/stacks'
+coregistration_directory  = '/project/caroline/Share/stacks' #'/project/caroline/Share/users/caroline-alapadat/projects/singapore/run2/stack'
 
 stitch_AoI_name  = 'sg_singapore'
 stitch_directory = '/project/caroline/Share/projects/singapore/stitch'
 
-reslc_AoI_name   = 'sg_singapore'
-reslc_directory  = '/project/caroline/Share/projects/singapore/reslc'
+reslc_AoI_name   = 'dummy'
+reslc_directory  = '/project/caroline/Share/users/caroline-admin/dummy/reslc'
 
 depsi_AoI_name   = 'sg_singapore'
 depsi_directory  = '/project/caroline/Share/projects/singapore/depsi'
@@ -39,22 +39,22 @@ shape_directory  = '/project/caroline/Share/stacks/aoi_polygons/sg_singapore'
 
 shape_file = '/project/caroline/Share/users/caroline-alapadat/projects/singapore/shape/sg_boundary.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
-center_AoI = [-6.175484428456672, 106.8270160324849] # Latitude, longitude
+center_AoI = []  # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size
 AoI_length = 1 # km, north-south AoI size
 
 track = [171]  # Can be multiple tracks!
 asc_dsc = ['asc']
-start_date = '2010-01-01' # will search for first image after this date that exists
+start_date = '2014-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
-master_date= '2021-12-15' # will search for first image after this date that exists
+master_date= '2021-12-15'  #'2015-02-14' # will search for first image after this date that exists
 
 # send a notification to these email addresses upon completion of the Caroline script
 # examples:
 # send_completion_email = ''  # empty for no email
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl'  # emails Simon
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl'  # emails Simon and Ramon
-send_completion_email = 's.a.n.vandiepen@tudelft.nl,a.m.lapadat@tudelft.nl,r.f.hanssen@tudelft.nl,f.j.vanleijen@tudelft.nl'
+send_completion_email = 'a.m.lapadat@tudelft.nl,s.a.n.vandiepen@tudelft.nl'
 
 #############################################
 ################# DEM PARAMETERS ############
@@ -73,7 +73,7 @@ dem_nodata          = -32768
 # Usually does not require changing anything
 # Uses doris v5
 
-doris_code_directory      = '/project/caroline/Share/stacks/doris/doris_v5.0.4_spider_slave_rsmp' # NOTE: generated doris_input.xml corresponds to this version!
+doris_code_directory      = '/project/caroline/Share/stacks/doris/doris_v5.0.4_spider_slave_rsmp' # NOTE: generated doris_input.xml corresponds to this version
 
 do_coarse_orbits          = 1
 do_deramp                 = 1
@@ -162,13 +162,13 @@ slc_selection_input = []
 ifg_selection_input = []
 ref_cn              = []
 Ncv                 = 25
-ps_method           = 'perio'
-psc_model           = [1]
-ps_model            = [1]
-final_model         = [2]
+ps_method           = 'boot'
+psc_model           = [4]
+ps_model            = [4]
+final_model         = [4]
 breakpoint          = []
 breakpoint2         = []
-ens_coh_threshold   = 0.5
+ens_coh_threshold   = 0.40
 varfac_threshold    = 3
 detrend_method      = 'yes'
 output_format       = 1
@@ -182,14 +182,14 @@ ref_height = 0
 # Psc parameters
 amplitude_calibration  = 'yes'
 psc_selection_method   = 'threshold'
-psc_selection_gridsize = 300
+psc_selection_gridsize = 400
 psc_threshold          = 0.3
-max_arc_length         = 5000
+max_arc_length         = 8000
 network_method         = 'delaunay'
 Ncon                   = 16
 Nparts                 = 8
 Npsc_selections        = 1
-filename_water_mask    = []
+filename_water_mask    = '/project/caroline/Share/users/caroline-alapadat/projects/singapore/shape/watermask_singapore_noislands.raw'
 gamma_threshold        = 0.45
 psc_distribution       = 'uniform'
 weighted_unwrap        = 'yes'
@@ -240,15 +240,15 @@ dp_dlat                    = 0
 dp_dlon                    = 0
 dp_drdx                    = 0
 dp_drdy                    = 0
-dp_proj                    = 'rd'
+dp_proj                    = 'wgs84'
 dp_ref_dheight             = 0
 dp_posteriori_scale_factor = 1
 
 dp_pred_model         = [1, 3, 5]
-dp_plot_mode          = 'raster' # 'raster', 'vector'
+dp_plot_mode          = 'vector' # 'raster', 'vector'
 dp_do_plots           = {'defo', 'height', 'ens_coh', 'ens_coh_local', 'stc', 'amp_disp'}
 dp_fontsize           = 16
-dp_markersize         = 1
+dp_markersize         = 20
 dp_do_print           = 1
 dp_output_format      = 1
 dp_az0                = []
@@ -257,21 +257,21 @@ dp_r0                 = []
 dp_rN                 = []
 dp_result             = 1
 dp_psc_selection      = 1
-dp_do_remove_filtered = 0
+dp_do_remove_filtered = 1
 dp_which_sl_mask      = 'apriori'
-dp_shift_to_mean      = 1
+dp_shift_to_mean      = 0
 dp_new_ref_cn         = []
 dp_map_to_vert        = 1
-dp_output             = {'shape', 'csv', 'csv_web_portal'} #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
+dp_output             = {'shape', 'csv', 'csv_web_portal', 'matlab'} #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
 
 dp_defo_lim          = []
 dp_height_lim        = []
-dp_ens_coh_lim       = 0.5
-dp_ens_coh_local_lim = 0.6
+dp_ens_coh_lim       = 0.4
+dp_ens_coh_local_lim = 0.5
 dp_stc_lim           = 8
 
-dp_defo_clim          = [-10, 10]
+dp_defo_clim          = [-7, 7]
 dp_height_clim        = [-20, 20]
-dp_ens_coh_clim       = 0
-dp_ens_coh_local_clim = 0
-dp_stc_clim           = 20
+dp_ens_coh_clim       = 0.4
+dp_ens_coh_local_clim = 0.5
+dp_stc_clim           = 8

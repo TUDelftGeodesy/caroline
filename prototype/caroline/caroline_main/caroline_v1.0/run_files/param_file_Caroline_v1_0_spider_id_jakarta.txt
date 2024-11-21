@@ -32,7 +32,7 @@ reslc_AoI_name   = 'id_jakarta'
 reslc_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/reslc'
 
 depsi_AoI_name   = 'id_jakarta_quadratic'
-depsi_directory  = '/project/caroline/Share/projects/indonesia/depsi'
+depsi_directory  = '/project/caroline/Share/projects/indonesia/depsi_quadratic'
 
 shape_AoI_name   = 'id_jakarta'
 shape_directory  = '/project/caroline/Share/stacks/aoi_polygons/id_indonesia'
@@ -182,7 +182,7 @@ ref_height = 0
 # Psc parameters
 amplitude_calibration  = 'yes'
 psc_selection_method   = 'threshold'
-psc_selection_gridsize = 300
+psc_selection_gridsize = 500
 psc_threshold          = 0.3
 max_arc_length         = 5000
 network_method         = 'delaunay'

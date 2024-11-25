@@ -9,7 +9,7 @@ parameters = fp.read().split("\n")
 fp.close()
 
 search_parameters = ['stitch_directory', 'track', 'asc_dsc', 'depsi_directory', 'coregistration_directory',
-                     'sensor', 'coregistration_AoI_name']
+                     'sensor', 'coregistration_AoI_name', 'stitch_AoI_name']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
@@ -18,8 +18,8 @@ asc_dsc = eval(out_parameters['asc_dsc'])
 for track in range(len(tracks)):
     if out_parameters['sensor'] == 'S1':
         fr = open("{stitch_dir}/{AoI_name}_s1_{asc_dsc}_t{fill_track}/cropped_stack/nlines_crp.txt".format(
-            stitch_dir=out_parameters['stitch_directory'], AoI_name=AoI_name, asc_dsc=asc_dsc[track],
-            fill_track="{:0>3d}".format(tracks[track])))
+            stitch_dir=out_parameters['stitch_directory'], AoI_name=out_parameters['stitch_AoI_name'],
+            asc_dsc=asc_dsc[track], fill_track="{:0>3d}".format(tracks[track])))
         data = fr.read().split("\n")
         num = data[0]
         fr.close()

@@ -201,6 +201,52 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
   done
 fi
 
+# Check for straggling portal uploads that didn't upload because of the reset at 1am UTC on Thursday (only once,
+# so effectively once every 5 hours). Note that runs in this run are ignored as the portal files have not yet been
+# generated
+cd ${CAROLINE}/caroline_v1.0/run_files/
+squeue > squeue_${RUN_TS}.txt # initialize the squeue file
+for straggling_job in `ls portal_*`
+do
+  if [ $(cat ${straggling_job}) -eq 1 ]; then
+    # if the portal upload file is 1, there was an upload that has not been pushed to a portal yet.
+    # However, we need to first check two things: 1) if the original run-caroline is no longer running (otherwise
+    # that run will handle the upload 2) if the job is finished
+    JOB=$(echo ${straggling_job} | cut -d_ -f2-)
+    TIMESTAMP=$(echo ${JOB} | rev | cut -d_ -f1 | rev | cut -d. -f1)
+    LAST_UPDATE=`date -r squeue_${TIMESTAMP}.txt`
+    NOW=`date`
+    DELTAT=$(($(date -d "${NOW}" +%s) - $(date -d "${LAST_UPDATE}" +%s)))  # in seconds
+    # if DELTAT is larger than 5 minutes (300 seconds), the original run-caroline is no longer running
+    if [ ${DELTAT} -gt 300 ]; then
+      SLURM_ID=$(cat ${JOB} | cut -d" " -f4 | xargs echo)
+      FINISHED=$(grep "${SLURM_ID}" squeue_${RUN_TS}.txt)
+      # if FINISHED did not find the job ID (it finds only 1 character), then the job is done
+      if [ "$(echo ${FINISHED} | wc -c)" -eq "1" ]; then
+        # Check if the job ever started by checking if the slurm output is there
+        if [ ! -f slurm-${SLURM_ID}.out ]; then
+          # the output is not there, so the job never started and is gone. Just turn the portal output to 0
+          echo "0" > ${straggling_job}
+        else
+          # get the auxiliary directory, then get the Skygeo viewer and depsi directory and upload
+          AUX_DIR=$(grep "Running with config file" slurm-${SLURM_ID}.out | cut -d" " -f5 | cut -d/ -f1)
+          DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
+          SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
+          cd ${DEPSI_DIR}
+          for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
+          do
+            cd ${dir}/psi
+            upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
+            cd ${DEPSI_DIR}
+          done
+          cd ${CAROLINE}/caroline_v1.0/run_files/
+          echo "0" > ${straggling_job}
+        fi
+      fi
+    fi
+  fi
+done
+
 # Check if all runs are finished
 ALL_RUNS_FINISHED=0
 cd ${CAROLINE}/caroline_v1.0/run_files/

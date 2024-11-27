@@ -16,6 +16,17 @@ echo "\$CAROLINE_BIN: $CAROLINE_BIN"
 echo "\$CAROLINE_WORK: $CAROLINE_WORK"
 echo "\$PATH: $PATH"
 
+# Load required python and gdal modules in case of submissions
+source /etc/profile.d/modules.sh
+source /project/caroline/Software/bin/init.sh
+module load python/3.9.6 gdal/3.4.1
+#
+# Load required python environment with gdal
+source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
+#
+# Chdir to script directory
+cd ${CAROLINE}/caroline_v1.0/run_files/
+
 # Run script to find if any new files have been downloaded since we last checked and
 # save the list of newly downloaded files in an output file
 RUN_TS=$(date +%Y%m%dT%H%M%S)
@@ -30,19 +41,6 @@ if [ "$(cat ${CAROLINE_WORK}/force-start-runs.dat | wc -c)" -gt "0" ]; then
 
     echo "FORCE_STARTED_AT_${RUN_TS}" > ${CAROLINE}/caroline_v1.0/run_files/timestamp_${AREA}_${RUN_TS}.txt
 
-    # Submit caroline core to job queue
-    #
-    # Load required python and gdal modules
-    source /etc/profile.d/modules.sh
-    source /project/caroline/Software/bin/init.sh
-    module load python/3.9.6 gdal/3.4.1
-    #
-    # Load required python environment with gdal
-    source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
-    #
-    # Chdir to script directory
-    cd ${CAROLINE}/caroline_v1.0/run_files/
-    #
     # Submit the job to the cluster's scheduler (slurm) with the correct parameter file determined by the AREA name
     sbatch ./Caroline_v1_0.sh \
       --config-file param_file_Caroline_v1_0_spider_${AREA}.txt \
@@ -111,19 +109,6 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
             # Convert tracks list into csv
             TRACKS_CSV=$(echo ${TRACKS} | tr ' ' ',')
 
-            # Submit caroline core to job queue
-            #
-            # Load required python and gdal modules
-            source /etc/profile.d/modules.sh
-            source /project/caroline/Software/bin/init.sh
-            module load python/3.9.6 gdal/3.4.1
-            #
-            # Load required python environment with gdal
-            source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
-            #
-            # Chdir to script directory
-            cd ${CAROLINE}/caroline_v1.0/run_files/
-            #
             # Submit the job to the cluster's scheduler (slurm) with the correct parameter file determined by the AREA name
             sbatch ./Caroline_v1_0.sh \
               --config-file param_file_Caroline_v1_0_spider_$(echo ${AREA} | cut -d. -f1).txt \
@@ -143,19 +128,6 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
                 # Convert tracks list into csv
                 TRACKS_CSV=$(echo ${TRACKS} | tr ' ' ',')
 
-                # Submit caroline core to job queue
-                #
-                # Load required python and gdal modules
-                source /etc/profile.d/modules.sh
-                source /project/caroline/Software/bin/init.sh
-                module load python/3.9.6 gdal/3.4.1
-                #
-                # Load required python environment with gdal
-                source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
-                #
-                # Chdir to script directory
-                cd ${CAROLINE}/caroline_v1.0/run_files/
-                #
                 # Submit the job to the cluster's scheduler (slurm) with the correct parameter file determined by the AREA name
                 # with the dependency job id, and the argument that it will be killed if the dependency is invalid
                 # (i.e., the process it depended on failed for whatever reason)
@@ -175,19 +147,6 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
               # Convert tracks list into csv
               TRACKS_CSV=$(echo ${TRACKS} | tr ' ' ',')
 
-              # Submit caroline core to job queue
-              #
-              # Load required python and gdal modules
-              source /etc/profile.d/modules.sh
-              source /project/caroline/Software/bin/init.sh
-              module load python/3.9.6 gdal/3.4.1
-              #
-              # Load required python environment with gdal
-              source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
-              #
-              # Chdir to script directory
-              cd ${CAROLINE}/caroline_v1.0/run_files/
-              #
               # Submit the job to the cluster's scheduler (slurm) with the correct parameter file determined by the AREA name
               sbatch ./Caroline_v1_0.sh \
                 --config-file param_file_Caroline_v1_0_spider_$(echo ${AREA} | cut -d. -f1).txt \
@@ -304,5 +263,4 @@ if [ "$(cat submitted_jobs_${RUN_TS}.txt | wc -c)" -gt "0" ]; then
       sleep 60
     fi
   done
-
 fi

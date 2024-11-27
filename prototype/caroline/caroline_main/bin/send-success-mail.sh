@@ -6,7 +6,11 @@ version=$3
 caroline_dir=$4
 tracks_csv=$5
 timestamps=$6
-slurm_id=$7
+if [ "$#" -eq 6 ]; then
+  slurm_id="UNABLE_TO_IDENTIFY"  # backwards compatibility with already running jobs
+else
+  slurm_id=$7
+fi
 
 EMAILS=$(grep "^send_completion_email*" ${cpath}/${param_file} | cut -d"'" -f2 | xargs echo)
 AoI_name=$(echo ${param_file} | cut -d_ -f9- | cut -d/ -f1 | sed -r 's/.{16}$//' | xargs echo)

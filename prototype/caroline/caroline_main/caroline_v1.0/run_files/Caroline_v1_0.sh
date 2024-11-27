@@ -84,6 +84,7 @@ fi
 
 echo "Starting full CAROLINE run..."
 
+
 cpath=`pwd`
 
 AUX=$(echo ${param_file} | cut -d. -f1)
@@ -101,6 +102,7 @@ TMP_CONFIG=$(mktemp ${auxiliary_files}/caroline_config_XXX --suffix=.txt)
 cp $param_file ${TMP_CONFIG}
 param_file=${TMP_CONFIG}
 echo "Running with config file ${param_file}"
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started Caroline_v1_0 (job id $SLURM_JOB_ID) with parameter file ${param_file}."
 
 # Overwrite track config if tracks are specified on commandline as argument
 sed -i "s/^track =.*/track = [$TRACK_NUMBERS_STRING]/" $param_file
@@ -176,6 +178,7 @@ if [ ${do_deinsar} -eq 1 ]; then
     cd ${dir}
     ls > dir_contents.txt
     sbatch run_deinsar.sh > job_id.txt
+    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted run_deinsar.sh (AoI ${deinsar_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${doris_dir}
   done
   cd ${cpath}
@@ -245,6 +248,7 @@ if [ ${do_doris} -eq 1 ]; then
     cd ${dir}
     ls > dir_contents.txt
     sbatch doris_stack.sh > job_id.txt
+    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted doris_stack.sh (AoI ${doris_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${doris_dir}
   done
   cd ${cpath}
@@ -291,6 +295,7 @@ if [ ${do_stitching} -eq 1 ]; then
     cd ${dir}
     ls > dir_contents.txt
     sbatch MAIN.sh > job_id.txt
+    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted MAIN.sh (AoI ${stitch_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${stitch_dir}
   done
   cd ${cpath}
@@ -322,6 +327,7 @@ if [ ${do_reslc} -eq 1 ]; then
     cd ${dir}
     ls > dir_contents.txt
     sbatch reslc.sh > job_id.txt
+    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted reslc.sh (AoI ${reslc_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${reslc_dir}
   done
   cd ${cpath}
@@ -386,6 +392,7 @@ if [ ${do_depsi} -eq 1 ]; then
     cd ${dir}/psi
     ls > dir_contents.txt
     sbatch depsi.sh > job_id.txt
+    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted depsi.sh (AoI ${depsi_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${depsi_dir}
   done
   cd ${cpath}
@@ -436,6 +443,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
     cd ${dir}/psi
     ls > dir_contents_read_mrm.txt
     sbatch read_mrm.sh > job_id.txt
+    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted read_mrm.sh (AoI ${depsi_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${depsi_dir}
   done
   cd ${cpath}
@@ -455,6 +463,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
     cd ${dir}/psi
     ls > dir_contents_depsi_post.txt
     sbatch depsi_post.sh > job_id.txt
+    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted depsi_post.sh (AoI ${depsi_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${depsi_dir}
   done
   cd ${cpath}
@@ -500,4 +509,5 @@ START_TIMESTAMP=$(grep $SLURM_JOB_ID [jt]*${AOI_NAME}* | cut -d: -f1 | rev | cut
 TIMESTAMPS=`cat ${cpath}/timestamp_${AOI_NAME}_${START_TIMESTAMP}.txt`
 
 send-success-mail.sh ${param_file} ${cpath} ${version} ${caroline_dir} ${TRACKS} ${TIMESTAMPS} $SLURM_JOB_ID
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished Caroline_v1_0 (job id $SLURM_JOB_ID) with parameter file ${param_file} and sent email."
 

@@ -232,8 +232,8 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
                 status_file = None
                 slurm_file = None
                 dir_file = "{}/{}_s1_{}_t{:0>3d}/psi/dir_contents.txt".format(
-                    out_parameters['coregistration_directory'],
-                    out_parameters['coregistration_AoI_name'],
+                    out_parameters['depsi_directory'],
+                    out_parameters['depsi_AoI_name'],
                     asc_dsc[track], tracks[track])
                 f = open(dir_file)
                 prev_dir_contents = f.read().split('\n')
@@ -288,8 +288,8 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
                 status_file = None
                 slurm_file = None
                 dir_file = "{}/{}_s1_{}_t{:0>3d}/psi/dir_contents_depsi_post.txt".format(
-                    out_parameters['coregistration_directory'],
-                    out_parameters['coregistration_AoI_name'],
+                    out_parameters['depsi_directory'],
+                    out_parameters['depsi_AoI_name'],
                     asc_dsc[track], tracks[track])
                 f = open(dir_file)
                 prev_dir_contents = f.read().split('\n')

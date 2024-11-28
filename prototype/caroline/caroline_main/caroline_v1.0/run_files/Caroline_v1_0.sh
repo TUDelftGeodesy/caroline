@@ -509,5 +509,5 @@ START_TIMESTAMP=$(grep $SLURM_JOB_ID [jt]*${AOI_NAME}* | cut -d: -f1 | rev | cut
 TIMESTAMPS=`cat ${cpath}/timestamp_${AOI_NAME}_${START_TIMESTAMP}.txt`
 
 send-success-mail.sh ${param_file} ${cpath} ${version} ${caroline_dir} ${TRACKS} ${TIMESTAMPS} $SLURM_JOB_ID
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished Caroline_v1_0 (job id $SLURM_JOB_ID) with parameter file ${param_file} and sent email."
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished Caroline_v1_0 (job id $SLURM_JOB_ID) with parameter file ${param_file} and sent email." >> ${caroline_dir}/work/submitted_jobs.log
 

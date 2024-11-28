@@ -35,7 +35,7 @@ success_rates = {'do_coregistration': [[], []],
                  'do_reslc': [[], []],
                  'do_depsi': [[], []],
                  'do_depsi_post': [[], []]}
-for step in ['do_coregistration', 'do_stack_stitching', 'do_depsi', 'do_depsi_post']:
+for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 'do_depsi_post']:
     if out_parameters[step] == '1':
         if step == 'do_coregistration':
             if out_parameters['sensor'] == 'S1':

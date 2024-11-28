@@ -114,7 +114,7 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
             sbatch ./Caroline_v1_0.sh \
               --config-file param_file_Caroline_v1_0_spider_$(echo ${AREA} | cut -d. -f1).txt \
               --tracks "${TRACKS_CSV}" > job_id_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt
-            echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted Caroline_v1_0.sh (AoI $(echo ${AREA} | cut -d. -f1), tracks ${TRACKS_CSV}) with slurm-ID $(cat job_id_${AREA}_${RUN_TS}.txt | cut -d" " -f4 | xargs echo)" >> ${CAROLINE_WORK}/submitted_jobs.log
+            echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted Caroline_v1_0.sh (AoI $(echo ${AREA} | cut -d. -f1), tracks ${TRACKS_CSV}) with slurm-ID $(cat  job_id_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt | cut -d" " -f4 | xargs echo)" >> ${CAROLINE_WORK}/submitted_jobs.log
 
           else
             # A dependency is introduced. We need to check if it is a valid dependency (if it is in area-track-lists)
@@ -137,7 +137,7 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
                 sbatch --dependency=afterok:${DEPENDENCY_JOB_ID} --kill-on-invalid-dep=yes ./Caroline_v1_0.sh \
                   --config-file param_file_Caroline_v1_0_spider_$(echo ${AREA} | cut -d. -f1).txt \
                   --tracks "${TRACKS_CSV}" > job_id_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt
-                echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted Caroline_v1_0.sh (AoI $(echo ${AREA} | cut -d. -f1), tracks ${TRACKS_CSV}) with slurm-ID $(cat job_id_${AREA}_${RUN_TS}.txt | cut -d" " -f4 | xargs echo) as dependency to slurm-ID ${DEPENDENCY_JOB_ID}" >> ${CAROLINE_WORK}/submitted_jobs.log
+                echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted Caroline_v1_0.sh (AoI $(echo ${AREA} | cut -d. -f1), tracks ${TRACKS_CSV}) with slurm-ID $(cat job_id_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt | cut -d" " -f4 | xargs echo) as dependency to slurm-ID ${DEPENDENCY_JOB_ID}" >> ${CAROLINE_WORK}/submitted_jobs.log
 
               else
                 # it has not been submitted, we need another while loop iteration
@@ -155,7 +155,7 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
               sbatch ./Caroline_v1_0.sh \
                 --config-file param_file_Caroline_v1_0_spider_$(echo ${AREA} | cut -d. -f1).txt \
                 --tracks "${TRACKS_CSV}" > job_id_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt
-              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted Caroline_v1_0.sh (AoI $(echo ${AREA} | cut -d. -f1), tracks ${TRACKS_CSV}) with slurm-ID $(cat job_id_${AREA}_${RUN_TS}.txt | cut -d" " -f4 | xargs echo)" >> ${CAROLINE_WORK}/submitted_jobs.log
+              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted Caroline_v1_0.sh (AoI $(echo ${AREA} | cut -d. -f1), tracks ${TRACKS_CSV}) with slurm-ID $(cat job_id_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt | cut -d" " -f4 | xargs echo)" >> ${CAROLINE_WORK}/submitted_jobs.log
 
             fi
           fi

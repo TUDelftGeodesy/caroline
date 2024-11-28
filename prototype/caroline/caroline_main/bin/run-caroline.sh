@@ -192,21 +192,23 @@ do
           # the output is not there, so the job never started and is gone. Just turn the portal output to 0
           echo "0" > ${straggling_job}
         else
-          # get the auxiliary directory, then get the Skygeo viewer and depsi directory and upload
-          AUX_DIR=$(grep "Running with config file" slurm-${SLURM_ID}.out | cut -d" " -f5 | cut -d/ -f1)
-          DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
-          SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
-          cd ${DEPSI_DIR}
-          for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
-          do
-            cd ${dir}/psi
-            echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
-            upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
-            echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+          if [ -f "${HOME}/.keychain/${HOSTNAME}-sh" ]; then  # if the SSH key is available
+            # get the auxiliary directory, then get the Skygeo viewer and depsi directory and upload
+            AUX_DIR=$(grep "Running with config file" slurm-${SLURM_ID}.out | cut -d" " -f5 | cut -d/ -f1)
+            DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
+            SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
             cd ${DEPSI_DIR}
-          done
-          cd ${CAROLINE}/caroline_v1.0/run_files/
-          echo "0" > ${straggling_job}
+            for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
+            do
+              cd ${dir}/psi
+              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+              upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
+              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+              cd ${DEPSI_DIR}
+            done
+            cd ${CAROLINE}/caroline_v1.0/run_files/
+            echo "0" > ${straggling_job}
+          fi
         fi
       fi
     fi
@@ -248,22 +250,24 @@ if [ "$(cat submitted_jobs_${RUN_TS}.txt | wc -c)" -gt "0" ]; then
         if [ "$(echo ${FINISHED} | wc -c)" -gt "1" ]; then
           ALL_RUNS_FINISHED=0
         else
-          # set to 0 so we only upload once
-          echo "0" > portal_${run}
-          # retrieve the directories we need to upload
-          AUX_DIR=$(grep "Running with config file" slurm-${JOB_ID}.out | cut -d" " -f5 | cut -d/ -f1)
-          DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
-          SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
-          cd ${DEPSI_DIR}
-          for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
-          do
-            cd ${dir}/psi
-            echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
-            upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
-            echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+          if [ -f "${HOME}/.keychain/${HOSTNAME}-sh" ]; then  # if the SSH key is available
+            # set to 0 so we only upload once
+            echo "0" > portal_${run}
+            # retrieve the directories we need to upload
+            AUX_DIR=$(grep "Running with config file" slurm-${JOB_ID}.out | cut -d" " -f5 | cut -d/ -f1)
+            DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
+            SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
             cd ${DEPSI_DIR}
-          done
-          cd ${CAROLINE}/caroline_v1.0/run_files/
+            for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
+            do
+              cd ${dir}/psi
+              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+              upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
+              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+              cd ${DEPSI_DIR}
+            done
+            cd ${CAROLINE}/caroline_v1.0/run_files/
+          fi
         fi
       fi
     done

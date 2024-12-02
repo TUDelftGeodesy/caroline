@@ -394,7 +394,7 @@ print_mail(run_id=run_id,
            stitch="Yes" if eval(out_parameters['do_stack_stitching']) == 1 else "No",
            depsi="Yes" if eval(out_parameters['do_depsi']) == 1 else "No",
            dppu="Yes" if eval(out_parameters['do_depsi_post']) == 1 else "No",
-           portal_link=f"The DePSI-post results can be accessed at https://caroline.portal-tud.skygeo.com/portal/caroline/{out_parameters['skygeo_viewer']} ." if eval(
+           portal_link=f"NOTE: it can take a few hours for the results to show up in the portal.\nThe DePSI-post results can be accessed at https://caroline.portal-tud.skygeo.com/portal/caroline/{out_parameters['skygeo_viewer']} ." if eval(
                out_parameters['do_depsi_post']) == 1 else "",
            coreg_dir=f"(located in {out_parameters['coregistration_directory']} )" if eval(
                out_parameters['do_coregistration']) == 1 else "",

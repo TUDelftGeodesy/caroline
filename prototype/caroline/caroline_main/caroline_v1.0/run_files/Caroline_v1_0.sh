@@ -280,6 +280,10 @@ if [ ${do_stitching} -eq 1 ]; then
     ln -sfn ${linkdir}/[bgips]* .
     ln -sfn ${linkdir}/doris* .
     ln -sfn ${linkdir}/dem .
+    # for compatibility with stacks where they are already linked, remove them
+    rm -rf dir_contents.txt
+    rm -rf job_id.txt
+    rm -rf queue.txt
     cd ${stitch_dir}
   done
   cd ${cpath}

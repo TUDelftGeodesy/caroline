@@ -9,6 +9,6 @@ do
   JOB=$(echo ${SQUEUE} | cut -d" " -f-8)
   echo "
 ${JOB}
-$(grep ${JOB_ID} /project/caroline/Software/caroline-prototype*/work/submitted_jobs.log)
+$(grep ${JOB_ID} /project/caroline/Software/caroline-prototype*/work/submitted_jobs.log | cut -d: -f2-)
 "
 done

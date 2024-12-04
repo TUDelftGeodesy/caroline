@@ -29,9 +29,9 @@
 # Uncomment these lines when your job requires this software
 # Uncomment these lines when your job requires this software
 
-source /etc/profile.d/modules.sh
+# source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
-module load python/2.7.15 gdal/3.4.1
+module load python/2.7.15 gdal/3.4.1-alma9
 
 export PYTHONPATH={deinsar_dir}
 export PATH={doris_v4_dir}:$PATH

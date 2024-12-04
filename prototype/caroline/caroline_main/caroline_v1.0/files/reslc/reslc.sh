@@ -7,9 +7,9 @@
 
 source ~/.bashrc
 
-source /etc/profile.d/modules.sh
+# source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
-module load python/3.10.4 gdal/3.4.1
+module load python/3.10.4 gdal/3.4.1-alma9
 
 export PATH="{pydepsi_code_dir}:$PATH"
 export PYTHONPATH="{pydepsi_code_dir}:$PYTHONPATH"

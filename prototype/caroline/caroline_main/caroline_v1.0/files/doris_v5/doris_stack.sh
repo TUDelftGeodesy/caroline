@@ -29,9 +29,9 @@
 # Uncomment these lines when your job requires this software
 # Uncomment these lines when your job requires this software
 
-source /etc/profile.d/modules.sh
+# source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
-module load python/3.9.6 gdal/3.4.1
+module load python/3.9.6 gdal/3.4.1-alma9
 source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
 
 source_path={doris_code_path}:{doris_code_path}/doris/doris_stack/functions:{doris_code_path}/doris/doris_stack/main_code

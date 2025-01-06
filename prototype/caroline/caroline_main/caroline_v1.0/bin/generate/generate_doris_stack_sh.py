@@ -17,7 +17,8 @@ asc_dsc = eval(out_parameters['asc_dsc'])
 
 for track in range(len(tracks)):
     doris_stack = stack.format(doris_path="{}/{}_s1_{}_t{:0>3d}".format(out_parameters['coregistration_directory'], AoI_name, asc_dsc[track], tracks[track]),
-                               doris_code_path=out_parameters['doris_code_directory'])
+                               doris_code_path=out_parameters['doris_code_directory'],
+                               track=tracks[track], caroline_work=caroline_dir+'/work', area=AoI_name)
 
     fw = open("{}/{}_s1_{}_t{:0>3d}/doris_stack.sh".format(out_parameters['coregistration_directory'], AoI_name, asc_dsc[track], tracks[track]), 'w')
     fw.write(doris_stack)

@@ -33,7 +33,11 @@
 source /project/caroline/Software/bin/init.sh
 module load python/2.7.15 gdal/3.4.1-alma9
 
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started deinsar.sh (AoI {area}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log
+
 export PYTHONPATH={deinsar_dir}
 export PATH={doris_v4_dir}:$PATH
 export SAR_ODR_DIR=/project/caroline/Data/orbits
 python3 {coregistration_dir}/run_deinsar.py
+
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished deinsar.sh (AoI {area}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log

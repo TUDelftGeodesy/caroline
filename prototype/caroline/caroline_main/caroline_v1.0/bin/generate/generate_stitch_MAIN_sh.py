@@ -16,7 +16,7 @@ asc_dsc = eval(out_parameters['asc_dsc'])
 
 for track in range(len(tracks)):
     main = stack.format(AoI_name=AoI_name, stitch_dir=out_parameters['stitch_directory'], asc_dsc=asc_dsc[track],
-                        track="{:0>3d}".format(tracks[track]))
+                        track="{:0>3d}".format(tracks[track]), caroline_work=caroline_dir+'/work')
 
     fw = open("{}/{}_s1_{}_t{:0>3d}/MAIN.sh".format(out_parameters['stitch_directory'], AoI_name, asc_dsc[track],
                                                     tracks[track]), 'w')

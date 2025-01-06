@@ -26,7 +26,9 @@ for track in range(len(tracks)):
 
     data = base_data.format(coregistration_dir=basedir,
                             deinsar_dir=out_parameters['deinsar_code_directory'],
-                            doris_v4_dir=out_parameters['doris_v4_code_directory'])
+                            doris_v4_dir=out_parameters['doris_v4_code_directory'],
+                            track=tracks[track], caroline_work=caroline_dir+'/work',
+                            area=out_parameters['coregistration_AoI_name'])
 
     fw = open(f"{basedir}/run_deinsar.sh", "w")
     fw.write(data)

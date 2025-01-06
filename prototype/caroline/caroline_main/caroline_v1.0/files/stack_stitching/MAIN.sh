@@ -30,5 +30,9 @@
 
 module --ignore-cache load matlab/R2021b
 
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started MAIN.sh (AoI {AoI_name}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log
+
 #srun matlab -nodisplay -nosplash -nodesktop < {stitch_dir}/{AoI_name}_s1_{asc_dsc}_t{track}/MAIN.m
 srun matlab -nodisplay -nosplash -nodesktop -r "run('{stitch_dir}/{AoI_name}_s1_{asc_dsc}_t{track}/MAIN.m');exit;"
+
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished MAIN.sh (AoI {AoI_name}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log

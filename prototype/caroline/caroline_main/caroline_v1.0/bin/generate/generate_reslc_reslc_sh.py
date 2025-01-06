@@ -16,7 +16,8 @@ asc_dsc = eval(out_parameters['asc_dsc'])
 
 for track in range(len(tracks)):
     main = stack.format(AoI_name=AoI_name, pydepsi_code_dir=out_parameters['reslc_code_dir'], asc_dsc=asc_dsc[track],
-                        track="{:0>3d}".format(tracks[track]), sensor=out_parameters['sensor'].lower())
+                        track="{:0>3d}".format(tracks[track]), sensor=out_parameters['sensor'].lower(),
+                        caroline_work=caroline_dir+'/work')
 
     fw = open("{}/{}_{}_{}_t{:0>3d}/reslc.sh".format(out_parameters['reslc_directory'], AoI_name,
                                                      out_parameters['sensor'].lower(), asc_dsc[track],

@@ -36,4 +36,8 @@
 
 module --ignore-cache load matlab/R2021b
 
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started depsi.sh (AoI {AoI_name}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log
+
 srun matlab -nodisplay -nosplash -nodesktop -r "run('{depsi_dir}/{AoI_name}_{sensor}_{asc_dsc}_t{track}/psi/depsi_{AoI_name}_{asc_dsc}_t{track}.m');exit;"
+
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished depsi.sh (AoI {AoI_name}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log

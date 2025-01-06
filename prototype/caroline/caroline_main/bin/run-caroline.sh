@@ -17,7 +17,7 @@ echo "\$CAROLINE_WORK: $CAROLINE_WORK"
 echo "\$PATH: $PATH"
 
 # Load required python and gdal modules in case of submissions
-# source /etc/profile.d/modules.sh
+source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
 module load python/3.9.6 gdal/3.4.1-alma9
 #
@@ -31,7 +31,8 @@ cd ${CAROLINE}/caroline_v1.0/run_files/
 # save the list of newly downloaded files in an output file
 RUN_TS=$(date +%Y%m%dT%H%M%S)
 NEW_INSAR_FILES_FILE="${CAROLINE_WORK}/new-insar-files-${RUN_TS}.out"
-find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"
+# find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"  ##### EDITED FOR TESTING
+echo "" > "${NEW_INSAR_FILES_FILE}"
 
 if [ "$(cat ${CAROLINE_WORK}/force-start-runs.dat | wc -c)" -gt "0" ]; then
   for LINE in `cat ${CAROLINE_WORK}/force-start-runs.dat`
@@ -66,7 +67,9 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
     # exit in case of infinite loop (should not be possible
     COUNTER=$((${COUNTER} + 1))
     if [ ${COUNTER} -eq "20" ]; then
-      echo "Submission of one or more jobs failed, check loops." | mailx -s "CAROLINE Infinite Loop" s.a.n.vandiepen@tudelft.nl
+      echo "Subject: CAROLINE Infinite Loop
+
+Submission of one or more jobs failed, check loops." | sendmail s.a.n.vandiepen@tudelft.nl
       exit 127
     fi
 
@@ -146,7 +149,9 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
 
             else
               # Invalid dependency --> just submit the job and send a warning email to Simon
-              echo "Job "${AREA}" submitted with invalid dependency "${DEPENDENCY}", continuing without dependency." | mailx -s "CAROLINE Invalid job dependency" s.a.n.vandiepen@tudelft.nl
+              echo "Subject: CAROLINE Invalid job dependency
+
+Job "${AREA}" submitted with invalid dependency "${DEPENDENCY}", continuing without dependency." | sendmail s.a.n.vandiepen@tudelft.nl
 
               # Convert tracks list into csv
               TRACKS_CSV=$(echo ${TRACKS} | tr ' ' ',')

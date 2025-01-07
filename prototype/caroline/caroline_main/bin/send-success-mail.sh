@@ -18,4 +18,4 @@ sensor=$(grep "^sensor*" ${cpath}/${param_file} | cut -d"'" -f2 | xargs echo)
 
 echo "Subject: CAROLINE: ${sensor}/${tracks_csv}/${timestamps}/${AoI_name}
 
-$(python3 ${caroline_dir}/caroline_v${version}/bin/utils/send_success_email.py ${param_file} ${cpath} ${slurm_id})" | sendmail ${EMAILS}
+$(python3 ${caroline_dir}/caroline_v${version}/bin/utils/send_success_email.py ${param_file} ${cpath} ${slurm_id})" | /usr/sbin/sendmail ${EMAILS}

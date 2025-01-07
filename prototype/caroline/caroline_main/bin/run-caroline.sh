@@ -69,7 +69,7 @@ if [ "$(cat ${NEW_INSAR_FILES_FILE} | wc -c)" -gt "32" ]; then
     if [ ${COUNTER} -eq "20" ]; then
       echo "Subject: CAROLINE Infinite Loop
 
-Submission of one or more jobs failed, check loops." | sendmail s.a.n.vandiepen@tudelft.nl
+Submission of one or more jobs failed, check loops." | /usr/sbin/sendmail s.a.n.vandiepen@tudelft.nl
       exit 127
     fi
 
@@ -151,7 +151,7 @@ Submission of one or more jobs failed, check loops." | sendmail s.a.n.vandiepen@
               # Invalid dependency --> just submit the job and send a warning email to Simon
               echo "Subject: CAROLINE Invalid job dependency
 
-Job "${AREA}" submitted with invalid dependency "${DEPENDENCY}", continuing without dependency." | sendmail s.a.n.vandiepen@tudelft.nl
+Job "${AREA}" submitted with invalid dependency "${DEPENDENCY}", continuing without dependency." | /usr/sbin/sendmail s.a.n.vandiepen@tudelft.nl
 
               # Convert tracks list into csv
               TRACKS_CSV=$(echo ${TRACKS} | tr ' ' ',')

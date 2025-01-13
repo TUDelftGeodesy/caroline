@@ -18,8 +18,8 @@ import sarxarray
 from datetime import datetime
 import xarray as xr
 
-from pydepsi.slc import ifg_to_slc
-from pydepsi.io import read_metadata
+from depsi.slc import ifg_to_slc
+from depsi.io import read_metadata
 
 # Make a logger to log the stages of processing
 logger = logging.getLogger(__name__)

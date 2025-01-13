@@ -31,8 +31,8 @@ cd ${CAROLINE}/caroline_v1.0/run_files/
 # save the list of newly downloaded files in an output file
 RUN_TS=$(date +%Y%m%dT%H%M%S)
 NEW_INSAR_FILES_FILE="${CAROLINE_WORK}/new-insar-files-${RUN_TS}.out"
-# find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"  ##### EDITED FOR TESTING
-echo "" > "${NEW_INSAR_FILES_FILE}"
+find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"
+# echo "" > "${NEW_INSAR_FILES_FILE}"
 
 if [ "$(cat ${CAROLINE_WORK}/force-start-runs.dat | wc -c)" -gt "0" ]; then
   for LINE in `cat ${CAROLINE_WORK}/force-start-runs.dat`

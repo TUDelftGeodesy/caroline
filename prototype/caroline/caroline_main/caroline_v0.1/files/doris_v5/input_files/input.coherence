@@ -1,0 +1,27 @@
+c Inputfile created by Doris 5.0
+c         ___         ___ 
+comment   ___COHERENCE___ 
+c                             
+MEMORY              	2000                	 // MB
+BEEP                	error               	 // level of beeping
+OVERWRITE           	on                  	 // overwrite existing files
+PREVIEW             	on                  	 // on
+BATCH               	on                  	 // non-interactive
+LISTINPUT           	on                  	 // prevents copy of this file to log
+SCREEN              	info                	 // level of output to standard out
+c 
+PROCESS        COHERENCE 
+c 
+LOGFILE             	log.out             	 // log file
+I_RESFILE           	ifgs.res            	 // interferogram parameter file
+M_RESFILE           	master.res          	 // master parameter file
+S_RESFILE           	slave.res           	 // slave parameter file
+HEIGHT              	0.0                 	 // average WGS84 height
+ORB_INTERP          	POLYFIT             	 // orbit interpolation method
+ELLIPSOID           	WGS84               	 // WGS84, GRS80, BESSEL or define major and minor axis
+c                             
+COH_METHOD          	INCLUDE_REFDEM      
+COH_OUT_COH         	coherence.raw       	 // output image
+COH_MULTILOOK       	1 1                 
+COH_WINSIZE         	2 10                
+STOP                          

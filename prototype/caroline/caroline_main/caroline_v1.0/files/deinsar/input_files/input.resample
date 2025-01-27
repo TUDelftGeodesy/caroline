@@ -1,0 +1,40 @@
+c **********************************************************************
+c ***
+c **********************************************************************
+ c
+ c
+ comment  ___general options___
+ c
+c SCREEN          debug                           // level of output to standard out
+SCREEN          info                           // level of output to standard out
+MEMORY          10000                             // MB
+BEEP            error                            // level of beeping
+OVERWRITE                                       // overwrite existing files
+BATCH                                           // non-interactive
+PREVIEW         on                               // on/off
+c LISTINPUT OFF                                 // prevents copy of this file to log
+c
+PROCESS          RESAMPLE
+c                                              //
+ c                                              //
+ comment  ___the general io files___            //
+ c                                              //
+LOGFILE         log.out                         // log file
+M_RESFILE       ../master{pol}.res                   // parameter file
+S_RESFILE       slave{pol}.res                       // parameter file
+I_RESFILE       ifgs{pol}.res                       // parameter file
+ c
+ c
+ comment ___RESAMPLING SLAVE___
+ c
+c RS_METHOD     cc4p
+c RS_METHOD     cc6p
+c RS_METHOD     ts6p
+c RS_METHOD     ts8p
+RS_METHOD     ts16p
+c RS_METHOD       rc12p
+RS_OUT_FILE     slave_rsmp{pol}.raw
+RS_OUT_FORMAT   cr4
+c RS_OUT_FORMAT   ci2
+RS_DBOW_GEO        {center_lat} {center_lon} {pix_az} {pix_r}
+STOP

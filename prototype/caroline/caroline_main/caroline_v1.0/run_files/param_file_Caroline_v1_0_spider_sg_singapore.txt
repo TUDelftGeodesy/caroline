@@ -43,8 +43,8 @@ center_AoI = []  # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size
 AoI_length = 1 # km, north-south AoI size
 
-track = [171]  # Can be multiple tracks!
-asc_dsc = ['asc']
+track = [171, 18]  # Can be multiple tracks!
+asc_dsc = ['asc', 'dsc']
 start_date = '2014-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
 master_date= '2021-12-15'  #'2015-02-14' # will search for first image after this date that exists
@@ -60,11 +60,11 @@ send_completion_email = 'a.m.lapadat@tudelft.nl,s.a.n.vandiepen@tudelft.nl'
 ################# DEM PARAMETERS ############
 #############################################
 
-dem_file            = '/project/caroline/Share/dem/singapore/dem2/singapore_SRTM.raw'
+dem_file            = '/project/caroline/Share/dem/singapore/dem3/singapore_SRTM.raw'
 dem_format          = 'r4'
-dem_size            = [5276, 7519]
+dem_size            = [5276, 8959]
 dem_delta           = [0.00027778, 0.00027778]
-dem_upperleft       = [2.2, 102.8]
+dem_upperleft       = [2.2, 102.4]
 dem_nodata          = -32768
 
 #############################################

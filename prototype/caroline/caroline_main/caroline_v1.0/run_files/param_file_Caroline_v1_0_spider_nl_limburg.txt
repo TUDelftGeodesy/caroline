@@ -43,8 +43,8 @@ center_AoI = [50.74767, 5.94465]  # Latitude, longitude
 AoI_width  = 10 # km, east-west AoI size
 AoI_length = 10 # km, north-south AoI size
 
-track = [88,139]  # Can be multiple tracks!
-asc_dsc = ['asc','dsc']
+track = [37,88,139,161]  # Can be multiple tracks!
+asc_dsc = ['dsc','asc','dsc','asc']
 start_date = '2020-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
 master_date= '2023-03-21' # will search for first image after this date that exists

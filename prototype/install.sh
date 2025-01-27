@@ -47,6 +47,8 @@ tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/rdnaptrans.tar.gz" -C "${CAROLINE}/plu
 # Apply patch for depsi and depsi-post
 cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_v2.2.1.1/main/ps_read_process_directory.m" \
 	"${CAROLINE}/plugins/depsi_v2.2.1.1/main/"
+cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_v2.2.1.1/main/ps_calibration.m" \
+	"${CAROLINE}/plugins/depsi_v2.2.1.1/main/"
 cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_post_v2.1.4.0/main/ps_post_write_shape_csv.m" \
   "${CAROLINE}/plugins/depsi_post_v2.1.4.0/main/"
 

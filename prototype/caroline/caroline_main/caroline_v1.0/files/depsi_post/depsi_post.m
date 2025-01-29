@@ -93,9 +93,11 @@ else
   error('The parameter file you specified does not exist.');
 end
 
-if ~exist([project_id '_post_project.mat'],'file');
-  copyfile([project_id '_project.mat'],[project_id '_post_project.mat']);
+% #11 -> if the file exists we want to move it and create a new one
+if exist([project_id '_post_project.mat'],'file');
+  movefile([project_id '_post_project.mat'],[project_id '_post_project_OLD.mat']);
 end
+copyfile([project_id '_project.mat'],[project_id '_post_project.mat']);
 
 load([project_id '_post_project.mat']);
 Nifgs = nIfgs;

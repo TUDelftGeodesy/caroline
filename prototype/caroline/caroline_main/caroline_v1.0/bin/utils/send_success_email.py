@@ -84,7 +84,7 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
                             f'{out_parameters["sensor"]}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
                         log += '!!! Step did not start properly!\n\n'
 
-                    log += f'Profile log: {status_file}\nSlurm output:{slurm_file}\n\n'
+                    log += f'Profile log: {status_file}\nSlurm output: {slurm_file}\n\n'
 
                     if status_file is not None:
                         f = open(status_file)
@@ -133,7 +133,7 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
                             f'{out_parameters["sensor"]}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
                         log += '!!! Step did not start properly!\n\n'
 
-                    log += f'Slurm output:{slurm_file}\n\n'
+                    log += f'Slurm output: {slurm_file}\n\n'
 
         elif step == 'do_stack_stitching':
             log += '\n\n---------Stitching and cropping---------\n\n'
@@ -142,14 +142,14 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
 
                 slurm_file = None
                 dir_file = "{}/{}_s1_{}_t{:0>3d}/dir_contents.txt".format(
-                    out_parameters['coregistration_directory'],
-                    out_parameters['coregistration_AoI_name'],
+                    out_parameters['stitch_directory'],
+                    out_parameters['stitch_AoI_name'],
                     asc_dsc[track], tracks[track])
                 f = open(dir_file)
                 prev_dir_contents = f.read().split('\n')
                 f.close()
                 slurms = glob.glob("{}/{}_s1_{}_t{:0>3d}/slurm*.out".format(
-                    out_parameters['coregistration_directory'], out_parameters['coregistration_AoI_name'],
+                    out_parameters['stitch_directory'], out_parameters['stitch_AoI_name'],
                     asc_dsc[track], tracks[track]))
                 for slurm in list(sorted(list(slurms))):
                     if slurm.split('/')[-1] not in prev_dir_contents:
@@ -174,7 +174,7 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
                         f'{out_parameters["sensor"]}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
                     log += '!!! Step did not start properly!\n\n'
 
-                log += f'Slurm output:{slurm_file}\n\n'
+                log += f'Slurm output: {slurm_file}\n\n'
 
         elif step == 'do_reslc':
             log += '\n\n---------Re-SLC---------\n\n'
@@ -215,7 +215,7 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
                         f'{out_parameters["sensor"]}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
                     log += '!!! Step did not start properly!\n\n'
 
-                log += f'Slurm output:{slurm_file}\n\n'
+                log += f'Slurm output: {slurm_file}\n\n'
 
                 if slurm_file is not None:
                     f = open(slurm_file)
@@ -271,7 +271,7 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
                         f'{out_parameters["sensor"]}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
                     log += '!!! Step did not start properly!\n\n'
 
-                log += f'Resfile: {status_file}\nSlurm output:{slurm_file}\n\n'
+                log += f'Resfile: {status_file}\nSlurm output: {slurm_file}\n\n'
 
                 if status_file is not None:
                     f = open(status_file)
@@ -322,7 +322,7 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
                         f'{out_parameters["sensor"]}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
                     log += '!!! Step did not start properly!\n\n'
 
-                log += f'Slurm output:{slurm_file}\n\n'
+                log += f'Slurm output: {slurm_file}\n\n'
 log += '================'
 
 

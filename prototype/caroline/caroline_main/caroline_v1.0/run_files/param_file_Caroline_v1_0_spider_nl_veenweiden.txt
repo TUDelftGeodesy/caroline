@@ -31,6 +31,7 @@ stitch_directory = '/project/caroline/Share/users/caroline-admin/dummy/stitch'
 reslc_AoI_name   = 'nl_veenweiden'
 reslc_directory  = '/project/caroline/Share/users/caroline-admin/dummy/reslc'
 
+# If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'nl_veenweiden'
 depsi_directory  = '/project/caroline/Share/users/caroline-admin/dummy/depsi'
 

@@ -31,7 +31,8 @@ stitch_directory = '/project/caroline/Share/projects/indonesia/stitch'
 reslc_AoI_name   = 'id_jakarta'
 reslc_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/reslc'
 
-depsi_AoI_name   = 'id_jakarta_quadratic_cubic'
+# If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
+depsi_AoI_name   = 'id_jakarta_cubic'
 depsi_directory  = '/project/caroline/Share/projects/indonesia/depsi'
 
 shape_AoI_name   = 'id_jakarta'

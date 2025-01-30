@@ -57,6 +57,31 @@ for param in out_parameters.keys():
             print(f'WARNING: do_reslc (S1 only) is turned on while sensor is {out_parameters["sensor"]}, ignoring...')
         f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
         f.write('0')
+
+    elif param == 'depsi_AoI_name' and len(out_parameters['depsi_AoI_name']) > 22 and out_parameters['do_depsi_post'] == 1:
+        # This follows from #28
+        print(f'WARNING: portal upload requested but {out_parameters["depsi_AoI_name"]} is '
+              f'{len(out_parameters["depsi_AoI_name"])} characters. Truncating to '
+              f'{out_parameters["depsi_AoI_name"][:22]}...')
+        new_depsi_AoI_name = out_parameters["depsi_AoI_name"][:22]
+
+        # overwrite the parameter file to ensure it is handled properly at all locations:
+        fp = open("{}/{}".format(cpath, param_file))
+        parameters = fp.read().split("\n")
+        fp.close()
+
+        for n, p in enumerate(parameters):
+            if p.split("=")[0].strip() == param:  # identify the line with depsi_AoI_name and replace that one
+                parameters[n] = f"{param} = {new_depsi_AoI_name}"
+                break
+        parameter_text = "\n".join(parameters)
+        fp = open("{}/{}".format(cpath, param_file), "w")
+        fp.write(parameter_text)
+        fp.close()
+
+        # finally, write the parameter to the step file
+        f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
+        f.write(new_depsi_AoI_name)
     else:
         f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
         f.write(out_parameters[param])

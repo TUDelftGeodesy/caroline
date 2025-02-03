@@ -61,11 +61,11 @@ send_completion_email = 'a.m.lapadat@tudelft.nl,s.a.n.vandiepen@tudelft.nl'
 ################# DEM PARAMETERS ############
 #############################################
 
-dem_file            = '/project/caroline/Share/dem/singapore/dem3/singapore_SRTM.raw'
+dem_file            = '/project/caroline/Share/dem/singapore/dem4/singapore_SRTM.raw'
 dem_format          = 'r4'
-dem_size            = [5276, 8959]
+dem_size            = [8516, 12919]
 dem_delta           = [0.00027778, 0.00027778]
-dem_upperleft       = [2.2, 102.4]
+dem_upperleft       = [2.7, 102]
 dem_nodata          = -32768
 
 #############################################

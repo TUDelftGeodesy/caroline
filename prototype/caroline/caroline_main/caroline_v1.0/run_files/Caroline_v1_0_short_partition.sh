@@ -179,7 +179,7 @@ if [ ${do_deinsar} -eq 1 ]; then
   do
     cd ${dir}
     ls > dir_contents.txt
-    sbatch --partition=short run_deinsar.sh > job_id.txt
+    sbatch --partition=short --time=10:00:00 run_deinsar.sh > job_id.txt
     echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted run_deinsar.sh (AoI ${deinsar_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${doris_dir}
   done
@@ -249,7 +249,7 @@ if [ ${do_doris} -eq 1 ]; then
   do
     cd ${dir}
     ls > dir_contents.txt
-    sbatch --partition=short doris_stack.sh > job_id.txt
+    sbatch --partition=short --time=10:00:00 doris_stack.sh > job_id.txt
     echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted doris_stack.sh (AoI ${doris_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${doris_dir}
   done
@@ -300,7 +300,7 @@ if [ ${do_stitching} -eq 1 ]; then
   do
     cd ${dir}
     ls > dir_contents.txt
-    sbatch --partition=short MAIN.sh > job_id.txt
+    sbatch --partition=short --time=10:00:00 MAIN.sh > job_id.txt
     echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted MAIN.sh (AoI ${stitch_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${stitch_dir}
   done
@@ -332,7 +332,7 @@ if [ ${do_reslc} -eq 1 ]; then
   do
     cd ${dir}
     ls > dir_contents.txt
-    sbatch --partition=short reslc.sh > job_id.txt
+    sbatch --partition=short --time=10:00:00 reslc.sh > job_id.txt
     echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted reslc.sh (AoI ${reslc_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${reslc_dir}
   done
@@ -397,7 +397,7 @@ if [ ${do_depsi} -eq 1 ]; then
   do
     cd ${dir}/psi
     ls > dir_contents.txt
-    sbatch --partition=short depsi.sh > job_id.txt
+    sbatch --partition=short --time=10:00:00 depsi.sh > job_id.txt
     echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted depsi.sh (AoI ${depsi_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${depsi_dir}
   done
@@ -448,7 +448,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
   do
     cd ${dir}/psi
     ls > dir_contents_read_mrm.txt
-    sbatch --partition=short read_mrm.sh > job_id.txt
+    sbatch --partition=short --time=10:00:00 read_mrm.sh > job_id.txt
     echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted read_mrm.sh (AoI ${depsi_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${depsi_dir}
   done
@@ -468,7 +468,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
   do
     cd ${dir}/psi
     ls > dir_contents_depsi_post.txt
-    sbatch --partition=short depsi_post.sh > job_id.txt
+    sbatch --partition=short --time=10:00:00 depsi_post.sh > job_id.txt
     echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted depsi_post.sh (AoI ${depsi_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${depsi_dir}
   done

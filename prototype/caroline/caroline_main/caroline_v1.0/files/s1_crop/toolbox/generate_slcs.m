@@ -15,7 +15,7 @@ function create_slcs(image_list,mother_index,save_path,bounding_box_radar)
     % Adapted to s1_crop by Simon van Diepen - 02/2025
 
     % calculate the number of lines in the crop
-    n_lines_crop = bounding_box_radar(3) - bounding_box_radar(1) + 1
+    n_lines_crop = bounding_box_radar(3) - bounding_box_radar(1) + 1;
 
     % read the mother SLC
     mother = freadbk([save_path,'/',image_list{mother_index},'/slc_srd.raw'],n_lines_crop,'cpxfloat32');

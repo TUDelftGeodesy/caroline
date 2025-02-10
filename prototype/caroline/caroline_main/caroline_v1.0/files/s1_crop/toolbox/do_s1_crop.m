@@ -38,8 +38,8 @@ function do_s1_crop(folder,crop_file)
         inliers = inpolygon(lam,phi,bounding_box_x,bounding_box_y);
 
         % convert to a bounding box in radar coordinates
-        [ind(:,1),ind(:,2)] = ind2sub(size(inliers),find(inliers));
-        bounding_box_radar = [min(ind) max(ind)];
+        [indx(:,1),indx(:,2)] = ind2sub(size(inliers),find(inliers));
+        bounding_box_radar = [min(indx) max(indx)];
 
         if (sum(sum(inliers))==0)
             error("WARNING: No overlap detected between requested crop and input stack! Aborting...")

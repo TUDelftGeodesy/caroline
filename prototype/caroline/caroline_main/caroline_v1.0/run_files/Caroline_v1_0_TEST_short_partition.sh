@@ -1,13 +1,15 @@
 #!/bin/bash
 
 # This version of Caroline submits all jobs on a short partition, ideal for quick tests
+# This version links to the experimental Caroline in /project/caroline/Share/users/caroline-admin/caroline-test/caroline ,
+# generally on a development branch. DO NOT USE THIS FILE FOR LIVE RUNS.
 
 # Defaults. param_file is overwritten by --config-file option
 param_file='param_file_Caroline_v1_0.txt'
 step_file_version='1.0'
 
 if [ -z "${CAROLINE}" ]; then
-	caroline_dir="/project/caroline/Software/caroline-prototype"
+	caroline_dir="/project/caroline/Share/users/caroline-admin/caroline-test/caroline/prototype/caroline/caroline_main"
 else
 	caroline_dir="${CAROLINE}"
 fi

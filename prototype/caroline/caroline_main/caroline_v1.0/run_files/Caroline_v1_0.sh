@@ -112,19 +112,19 @@ python3 ${caroline_dir}/caroline_v${step_file_version}/bin/setup/create_step_fil
 
 do_doris=`cat ${auxiliary_files}/do_doris.txt`
 do_deinsar=`cat ${auxiliary_files}/do_deinsar.txt`
-do_stitching=`cat ${auxiliary_files}/do_stack_stitching.txt`
+do_crop=`cat ${auxiliary_files}/do_crop.txt`
 do_reslc=`cat ${auxiliary_files}/do_reslc.txt`
 do_depsi=`cat ${auxiliary_files}/do_depsi.txt`
 do_depsi_post=`cat ${auxiliary_files}/do_depsi_post.txt`
 doris_dir=`cat ${auxiliary_files}/doris_directory.txt`
 deinsar_dir=`cat ${auxiliary_files}/deinsar_directory.txt`
-stitch_dir=`cat ${auxiliary_files}/stitch_directory.txt`
+crop_dir=`cat ${auxiliary_files}/crop_directory.txt`
 reslc_dir=`cat ${auxiliary_files}/reslc_directory.txt`
 depsi_dir=`cat ${auxiliary_files}/depsi_directory.txt`
 shape_dir=`cat ${auxiliary_files}/shape_directory.txt`
 doris_AoI_name=`cat ${auxiliary_files}/doris_AoI_name.txt`
 deinsar_AoI_name=`cat ${auxiliary_files}/deinsar_AoI_name.txt`
-stitch_AoI_name=`cat ${auxiliary_files}/stitch_AoI_name.txt`
+crop_AoI_name=`cat ${auxiliary_files}/crop_AoI_name.txt`
 reslc_AoI_name=`cat ${auxiliary_files}/reslc_AoI_name.txt`
 depsi_AoI_name=`cat ${auxiliary_files}/depsi_AoI_name.txt`
 shape_AoI_name=`cat ${auxiliary_files}/shape_AoI_name.txt`
@@ -257,8 +257,58 @@ if [ ${do_doris} -eq 1 ]; then
 fi
 
 
+if [ ${do_crop} -eq 1 ]; then
 
-if [ ${do_stitching} -eq 1 ]; then
+  echo ""
+  echo ""
+  echo "Starting S1 cropping..."
+  echo "Creating directory..."
+  if [ ! -d ${crop_dir} ]; then
+    mkdir -p ${crop_dir}
+  fi
+
+  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_crop_directories.py ${param_file} ${cpath} ${crop_AoI_name} ${doris_AoI_name}
+
+  echo "Linking directories..."
+  cd ${crop_dir}
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_crop.txt`
+  do
+    cd ${dir}
+    linkdir=`cat link_directory.txt`
+    # split so that dir_contents.txt, job_id.txt and queue.txt do not get soft-linked
+    ln -sfn ${linkdir}/[bgips]* .
+    ln -sfn ${linkdir}/doris* .
+    ln -sfn ${linkdir}/dem .
+    # for compatibility with stacks where they are already linked, remove them
+    rm -rf dir_contents.txt
+    rm -rf job_id.txt
+    rm -rf queue.txt
+    cd ${crop_dir}
+  done
+  cd ${cpath}
+
+  echo "Generating matlab and bash file..."
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_crop_s1_crop_m.py ${param_file} ${cpath} ${crop_AoI_name} ${shape_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_crop_s1_crop_sh.py ${param_file} ${cpath} ${crop_AoI_name} ${version} ${caroline_dir}
+
+  echo "Starting stack stitching..."
+  cd ${crop_dir}
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_crop.txt`
+  do
+    cd ${dir}
+    ls > dir_contents.txt
+    sbatch s1_crop.sh > job_id.txt
+    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted s1_crop.sh (AoI ${crop_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
+    cd ${stitch_dir}
+  done
+  cd ${cpath}
+
+  python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_crop.py ${param_file} ${cpath} ${crop_AoI_name}
+
+fi
+
+
+if [ ${do_stitching} -eq 1 ]; then  ## DEPRECATED
 
   echo ""
   echo ""

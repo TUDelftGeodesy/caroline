@@ -12,10 +12,10 @@ polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implem
 
 do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
-do_stack_stitching = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
+do_crop            = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
 do_reslc           = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
 
-do_depsi           = 1  # Requires stack_stitching (Sentinel-1), coregistration (otherwise) (here or dependency). Does not use reslc
+do_depsi           = 1  # Requires crop (Sentinel-1), coregistration (otherwise) (here or dependency). Does not use reslc
 
 do_depsi_post      = 1  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
@@ -25,8 +25,8 @@ skygeo_viewer      = 'dummy'
 coregistration_AoI_name   = 'dummy'
 coregistration_directory  = '/project/caroline/Share/users/caroline-admin/dummy/stack'
 
-stitch_AoI_name  = 'dummy'
-stitch_directory = '/project/caroline/Share/users/caroline-admin/dummy/stitch'
+crop_AoI_name    = 'dummy'
+crop_directory   = '/project/caroline/Share/users/caroline-admin/dummy/stitch'
 
 reslc_AoI_name   = 'dummy'
 reslc_directory  = '/project/caroline/Share/users/caroline-admin/dummy/reslc'

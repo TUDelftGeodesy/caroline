@@ -94,7 +94,7 @@ function do_s1_crop(folder,crop_file)
             end
         else
             % first check if the last crop file does not exist, otherwise we can skip
-            if exist([save_path,'/',image_list{i},'/h2ph_srd.raw'],'file') == 0
+            if exist([save_path,'/',image_list{i},'/h2ph.raw'],'file') == 0
                 % check if the folder exists
                 if ~(exist([save_path,'/',image_list{i}],'dir') == 7)
                     mkdir([save_path,'/',image_list{i}]);

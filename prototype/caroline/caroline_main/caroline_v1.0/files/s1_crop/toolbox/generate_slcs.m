@@ -41,11 +41,11 @@ function create_slcs(image_list,mother_index,save_path,bounding_box_radar)
 
         % PC: write all ifg paths to a text file: mother_date daughter_date path
         if i ~= mother_index
-            fprintf(fifg,'%s %s %s\n',int2str(image_list{mother_index}),int2str(image_list{i}),cint_name);
+            fprintf(fifg,'%s %s %s\n',image_list{mother_index},image_list{i},cint_name);
         end
 
         % PC: write all slc paths to a text file: slc_date path
-        fprintf(fslc,'%s %s\n',int2str(image_list{i}),slc_name);
+        fprintf(fslc,'%s %s\n',image_list{i},slc_name);
     end
 
     % close the files

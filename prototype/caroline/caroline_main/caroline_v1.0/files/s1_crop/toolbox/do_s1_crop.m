@@ -22,8 +22,8 @@ function do_s1_crop(folder,crop_file)
     mdata = mdata{:};
     fclose(fid);
 
-    ind = find(strcmp('Number_of_pixels_output_image',mdata));
-    n_lines = str2double(char(mdata(ind+1)));
+    ind = find(strcmp('Number_of_lines_output_image',mdata));
+    n_lines = str2double(char(mdata(ind+1)));  % + 1 since the value is the next one in the file
 
     % identify the bounding box
     if ~(exist([save_path,'/',image_list{mother_idx}],'dir')==7) | exist([save_path,'/nlines_crp.txt'],'file')==0

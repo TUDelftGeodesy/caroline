@@ -46,7 +46,7 @@ function do_s1_crop(folder,crop_file)
         end
 
         % preserve the memory
-        clear({'lam','phi','inliers'})
+        clearvars lam phi inliers;
 
         % write the crop files for n_lines and n_pixels
         fid = fopen([save_path,'/','nlines_crp.txt'],'w');

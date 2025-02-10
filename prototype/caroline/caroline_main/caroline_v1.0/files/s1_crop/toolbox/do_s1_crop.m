@@ -114,11 +114,11 @@ function do_s1_crop(folder,crop_file)
     generate_slcs(image_list,mother_idx,save_path,bounding_box_radar)
 
     % generate the text files necessary for DePSI and DECADE
-    system(['find "$(pwd -P)/',save_path,'"/*  -name ''*srd*.raw'' > ',save_path,'/path_images.txt']);
-    system(['find "$(pwd -P)/',save_path,'"/*  -name ''*.res'' > ',save_path,'/path_res_files.txt']);
-    system(['find "$(pwd -P)/',save_path,'"/*  -name ''phi','.raw'' > ',save_path,'/path_coords.txt']);
-    system(['find "$(pwd -P)/',save_path,'"/*  -name ''lam','.raw'' >> ',save_path,'/path_coords.txt']);
-    system(['find "$(pwd -P)/',save_path,'"/*  -name ''dem_radar','.raw'' >> ',save_path,'/path_coords.txt']);
+    system(['find ',save_path,'/*  -name ''*srd*.raw'' > ',save_path,'/path_images.txt']);
+    system(['find ',save_path,'/*  -name ''*.res'' > ',save_path,'/path_res_files.txt']);
+    system(['find ',save_path,'/*  -name ''phi','.raw'' > ',save_path,'/path_coords.txt']);
+    system(['find ',save_path,'/*  -name ''lam','.raw'' >> ',save_path,'/path_coords.txt']);
+    system(['find ',save_path,'/*  -name ''dem_radar','.raw'' >> ',save_path,'/path_coords.txt']);
     system(['cp stack/dir.txt ',save_path,'/dates.txt']);
 
 

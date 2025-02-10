@@ -26,7 +26,7 @@ function do_s1_crop(folder,crop_file)
     n_lines = str2double(char(mdata(ind+1)));
 
     % identify the bounding box
-    if ~(exist([save_path,'/',image_list{mother_idx}],'dir')==7)
+    if ~(exist([save_path,'/',image_list{mother_idx}],'dir')==7) | exist([save_path.'/nlines_crp.txt'],'file')==0
         % the mother date has not yet been cropped, so we need to crop from scratch
         [bounding_box_x,bounding_box_y] = estimate_shp_bounding_box(crop_file);
 

@@ -2,18 +2,18 @@
 #
 # install-caroline-prototype.sh
 
-RUNNING=`squeue --user caroline-admin | grep "Caroline" | wc -c`
-if [ ${RUNNING} -gt "0" ]; then
-  echo "ERROR: A CAROLINE SCRIPT IS STILL RUNNING. INSTALLING NOW WILL BREAK THIS RUN. ABORTING..."
-  exit 127
-fi
+#RUNNING=`squeue --user caroline-admin | grep "Caroline" | wc -c`
+# if [ ${RUNNING} -gt "0" ]; then
+#   echo "ERROR: A CAROLINE SCRIPT IS STILL RUNNING. INSTALLING NOW WILL BREAK THIS RUN. ABORTING..."
+#   exit 127
+# fi
 
 CAROLINE='/project/caroline/Software/caroline-prototype'
 CAROLINE_PLUGINS_ARCHIVE_DIR='/project/caroline/Software/archives/caroline_plugins'
 
 if [ -d "$CAROLINE" ]; then
 	BACKUP_DIR="${CAROLINE}-$(date +%Y%m%dT%H%M%S)"
-	echo "Creating backup of exisiting Caroline prototype directory"
+	echo "Creating backup of existing Caroline prototype directory"
 	if [ -d "${BACKUP_DIR}" ]; then
 		echo 'ERROR: Backup directory already exists. This should not happen' >&2
 		echo 'Aborting. >&2'
@@ -58,5 +58,8 @@ cp -Rvp ../scripts/find-new-insar-files.sh "${CAROLINE}/bin"
 # Create work directory
 mkdir -pv "${CAROLINE}/work"
 cp -Rvp "${BACKUP_DIR}/work/force-start-runs.dat" "${CAROLINE}/work/"
+
+# Copy run_files to run directory
+cp -Rvp "${CAROLINE}/caroline_v1.0/run_files/*" "/project/caroline/Software/run/"
 
 # Eof

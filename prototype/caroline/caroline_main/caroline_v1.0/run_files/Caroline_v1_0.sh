@@ -20,7 +20,7 @@ print_usage () {
 	cat <<-EOF
 	usage: Caroline_v1_0.sh [-h | --help] [ -c configfile | --config-file=configfile ]
 
-        This script runs Doris, stack stitch, depsy and depsy post
+        This script runs Doris, crop, DePSI, and DePSI-post
 
 	options:
 	  -h, --help         show this help message and exit
@@ -299,7 +299,7 @@ if [ ${do_crop} -eq 1 ]; then
     ls > dir_contents.txt
     sbatch s1_crop.sh > job_id.txt
     echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted s1_crop.sh (AoI ${crop_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
-    cd ${stitch_dir}
+    cd ${crop_dir}
   done
   cd ${cpath}
 

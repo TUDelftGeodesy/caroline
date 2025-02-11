@@ -177,7 +177,7 @@ if __name__ == "__main__":
     slcs_output = slcs_output.assign({lb}"lon": lon, "lat": lat{rb})
 
     slcs_output = crop_slc_spacetime(slcs_output,
-                                     aoi_filename="{shape_directory}/{shape_AoI_name}.shp")
+                                     aoi_filename="{shape_directory}/{shape_AoI_name}_shape.shp")
     # Rechunk and write as zarr
     slcs_output = slcs_output.chunk(writing_chunks)
     if not os.path.exists("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr"):

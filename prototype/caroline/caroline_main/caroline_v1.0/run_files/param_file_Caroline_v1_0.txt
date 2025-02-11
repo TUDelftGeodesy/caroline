@@ -1,5 +1,4 @@
-# Parameter file for a full doris, stack stitching, depsi, and depsi_post run until the tarball download stage.
-# NOTE: only works for sentinel 1!
+# Parameter file for a full doris, cropping, depsi, and depsi_post run, with portal upload possibility.
 
 ############################################
 ############# GENERAL PARAMETERS ###########

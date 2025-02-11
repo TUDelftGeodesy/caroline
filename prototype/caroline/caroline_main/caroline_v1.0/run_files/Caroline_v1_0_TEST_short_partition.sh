@@ -295,7 +295,7 @@ if [ ${do_crop} -eq 1 ]; then
   python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_crop_s1_crop_m.py ${param_file} ${cpath} ${crop_AoI_name} ${shape_AoI_name} ${version} ${caroline_dir}
   python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_crop_s1_crop_sh.py ${param_file} ${cpath} ${crop_AoI_name} ${version} ${caroline_dir}
 
-  echo "Starting stack stitching..."
+  echo "Starting cropping..."
   cd ${crop_dir}
   for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_crop.txt`
   do

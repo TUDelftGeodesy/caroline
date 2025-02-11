@@ -59,7 +59,10 @@ while not finished:
                     proper_finish[track] = True
         if len(crop_dir) >= 1:
             data = list(sorted(list([c for c in crop_content if "." not in c])))
-            print("Track {:0>3d} ({}, job_id {})) current last directory: {} ({} done)".format(tracks[track], "Finished" if track_status[track] else "Unfinished", job_ids["{}_s1_{}_t{:0>3d}".format(AoI_name, asc_dsc[track], tracks[track])], data[-1], len(data)))
+            if len(data) >= 1:
+                print("Track {:0>3d} ({}, job_id {})) current last directory: {} ({} done)".format(tracks[track], "Finished" if track_status[track] else "Unfinished", job_ids["{}_s1_{}_t{:0>3d}".format(AoI_name, asc_dsc[track], tracks[track])], data[-1], len(data)))
+            else:
+                print("Track {:0>3d} ({}, job_id {})) current last directory: N/A (0 done)".format(tracks[track], "Finished" if track_status[track] else "Unfinished", job_ids["{}_s1_{}_t{:0>3d}".format(AoI_name, asc_dsc[track], tracks[track])]))
     print("{} tracks not finished, {} finished ({} proper)".format(len(track_status)-sum(track_status), sum(track_status), sum(proper_finish)))
     if False in track_status:
         t.sleep(30)

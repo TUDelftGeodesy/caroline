@@ -138,7 +138,7 @@ di_do_coherence           = 1
 ############## RESLC PARAMETERS ############
 ############################################
 
-reslc_code_dir    = '/project/caroline/Software/caroline-prototype/plugins/pydepsi'
+reslc_code_dir    = '/project/caroline/Software/caroline-prototype/plugins/DePSI_group'
 
 ############################################
 ############## DEPSI PARAMETERS ############

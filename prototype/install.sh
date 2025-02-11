@@ -40,7 +40,8 @@ tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/cpxfiddle.tar.gz" -C "${CAROLINE}/plug
 tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/depsi_v2.2.1.1.tar.gz" -C "${CAROLINE}/plugins"
 git clone -b v2.1.4.0 git@bitbucket.org:grsradartudelft/depsipost.git "${CAROLINE}/plugins/depsi_post_v2.1.4.0"
 git clone -b v0.3.3 git@bitbucket.org:grsradartudelft/deinsar.git "${CAROLINE}/plugins/deinsar_v0.3.3"
-git clone git@github.com:MotionbyLearning/PyDePSI.git "${CAROLINE}/plugins/pydepsi"
+git clone -b caroline-clone-branch git@github.com:TUDelftGeodesy/DePSI_group.git "${CAROLINE}/plugins/DePSI_group"
+# git clone git@github.com:MotionbyLearning/PyDePSI.git "${CAROLINE}/plugins/pydepsi" # Replaced by #10
 tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/geocoding_v0.9.tar.gz" -C "${CAROLINE}/plugins"
 tar -xzf "${CAROLINE_PLUGINS_ARCHIVE_DIR}/rdnaptrans.tar.gz" -C "${CAROLINE}/plugins"
 

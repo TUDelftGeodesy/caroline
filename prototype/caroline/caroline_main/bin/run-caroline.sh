@@ -8,7 +8,7 @@
 CAROLINE=$(readlink -f $(dirname $BASH_SOURCE) | sed -e 's+/bin$++')
 CAROLINE_BIN="${CAROLINE}/bin"
 CAROLINE_WORK="${CAROLINE}/work"
-CAROLINE_RUN="/project/caroline/Software/run"
+CAROLINE_RUN="/project/caroline/Software/run/caroline"
 
 PATH="${CAROLINE_BIN}:${PATH}"
 

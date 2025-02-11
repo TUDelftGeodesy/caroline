@@ -60,6 +60,6 @@ mkdir -pv "${CAROLINE}/work"
 cp -Rvp "${BACKUP_DIR}/work/force-start-runs.dat" "${CAROLINE}/work/"
 
 # Copy run_files to run directory
-cp -Rvp "${CAROLINE}/caroline_v1.0/run_files/*" "/project/caroline/Software/run/"
+cp -Rvp "${CAROLINE}/caroline_v1.0/run_files/*" "/project/caroline/Software/run/caroline/"
 
 # Eof

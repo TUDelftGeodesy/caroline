@@ -4,11 +4,10 @@ import glob
 
 filename, param_file, cpath, slurm_job_id = argv
 
-search_parameters = ['track', 'asc_dsc', 'do_coregistration', 'do_stack_stitching', 'do_depsi', 'do_depsi_post',
-                     'sensor',
-                     'coregistration_directory', 'stitch_directory', 'depsi_directory', 'do_reslc',
+search_parameters = ['track', 'asc_dsc', 'do_coregistration', 'do_crop', 'do_depsi', 'do_depsi_post', 'sensor',
+                     'coregistration_directory', 'crop_directory', 'depsi_directory', 'do_reslc',
                      'reslc_directory', 'skygeo_viewer', 'coregistration_AoI_name',
-                     'stitch_AoI_name', 'depsi_AoI_name', 'reslc_AoI_name']
+                     'crop_AoI_name', 'depsi_AoI_name', 'reslc_AoI_name']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
@@ -30,12 +29,12 @@ f.close()
 log = "==========DEBUG LOGS===========\n\n"
 log += f"CAROLINE Slurm output: {cpath}/slurm-{slurm_job_id}.out\n\n"
 
-success_rates = {'do_coregistration': [[], []],
+success_rates = {'do_crop': [[], []],
                  'do_stack_stitching': [[], []],
                  'do_reslc': [[], []],
                  'do_depsi': [[], []],
                  'do_depsi_post': [[], []]}
-for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 'do_depsi_post']:
+for step in ['do_coregistration', 'do_crop', 'do_reslc', 'do_depsi', 'do_depsi_post']:
     if out_parameters[step] == '1':
         if step == 'do_coregistration':
             if out_parameters['sensor'] == 'S1':
@@ -135,21 +134,21 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
 
                     log += f'Slurm output: {slurm_file}\n\n'
 
-        elif step == 'do_stack_stitching':
-            log += '\n\n---------Stitching and cropping---------\n\n'
+        elif step == 'do_crop':
+            log += '\n\n---------Cropping---------\n\n'
             for track in range(len(tracks)):
                 log += f'---Track {tracks[track]}_{asc_dsc[track]}---\n\n'
 
                 slurm_file = None
                 dir_file = "{}/{}_s1_{}_t{:0>3d}/dir_contents.txt".format(
-                    out_parameters['stitch_directory'],
-                    out_parameters['stitch_AoI_name'],
+                    out_parameters['crop_directory'],
+                    out_parameters['crop_AoI_name'],
                     asc_dsc[track], tracks[track])
                 f = open(dir_file)
                 prev_dir_contents = f.read().split('\n')
                 f.close()
                 slurms = glob.glob("{}/{}_s1_{}_t{:0>3d}/slurm*.out".format(
-                    out_parameters['stitch_directory'], out_parameters['stitch_AoI_name'],
+                    out_parameters['crop_directory'], out_parameters['crop_AoI_name'],
                     asc_dsc[track], tracks[track]))
                 for slurm in list(sorted(list(slurms))):
                     if slurm.split('/')[-1] not in prev_dir_contents:
@@ -326,8 +325,8 @@ for step in ['do_coregistration', 'do_stack_stitching', 'do_reslc', 'do_depsi', 
 log += '================'
 
 
-def print_mail(run_id, track, sensor, dv5, stitch, depsi, dppu, portal_link, coreg_dir, stitch_dir, depsi_dir,
-               depsipost_dir, reslc, reslcdir, paramfile, param_file, logs, coreg_correct, stitch_correct,
+def print_mail(run_id, track, sensor, dv5, crop, depsi, dppu, portal_link, coreg_dir, crop_dir, depsi_dir,
+               depsipost_dir, reslc, reslcdir, paramfile, param_file, logs, coreg_correct, crop_correct,
                reslc_correct, depsi_correct, dp_correct):
     print("""Dear radargroup,
 
@@ -340,7 +339,7 @@ Sensor: {sensor}
 The following steps were run:
 Coregistration: {dv5} {coreg_correct} {coreg_dir}
 
-Stitching: {stitch} {stitch_correct} {stitch_dir}
+Cropping: {crop} {crop_correct} {crop_dir}
 Re-SLC: {reslc} {reslc_correct} {reslc_dir}
 
 Depsi: {depsi} {depsi_correct} {depsi_dir}
@@ -366,13 +365,13 @@ First logs of the subprocesses, then the parameter file.
 {paramfile}""".format(tracks=track,
                       sensor=sensor,
                       dv5=dv5,
-                      stitch=stitch,
+                      crop=crop,
                       depsi=depsi,
                       dppu=dppu,
                       run_id=run_id,
                       portal_link=portal_link,
                       coreg_dir=coreg_dir,
-                      stitch_dir=stitch_dir,
+                      crop_dir=crop_dir,
                       depsi_dir=depsi_dir,
                       depsipost_dir=depsipost_dir,
                       reslc=reslc,
@@ -381,7 +380,7 @@ First logs of the subprocesses, then the parameter file.
                       param_file=param_file,
                       logs=logs,
                       coreg_correct=coreg_correct,
-                      stitch_correct=stitch_correct,
+                      crop_correct=crop_correct,
                       reslc_correct=reslc_correct,
                       depsi_correct=depsi_correct,
                       dp_correct=dp_correct))
@@ -391,15 +390,15 @@ print_mail(run_id=run_id,
            track=tracks_formatted,
            sensor=out_parameters['sensor'],
            dv5="Yes" if eval(out_parameters['do_coregistration']) == 1 else "No",
-           stitch="Yes" if eval(out_parameters['do_stack_stitching']) == 1 else "No",
+           crop="Yes" if eval(out_parameters['do_crop']) == 1 else "No",
            depsi="Yes" if eval(out_parameters['do_depsi']) == 1 else "No",
            dppu="Yes" if eval(out_parameters['do_depsi_post']) == 1 else "No",
            portal_link=f"NOTE: it can take a few hours for the results to show up in the portal.\nThe DePSI-post results can be accessed at https://caroline.portal-tud.skygeo.com/portal/caroline/{out_parameters['skygeo_viewer']} ." if eval(
                out_parameters['do_depsi_post']) == 1 else "",
            coreg_dir=f"(located in {out_parameters['coregistration_directory']} )" if eval(
                out_parameters['do_coregistration']) == 1 else "",
-           stitch_dir=f"(located in {out_parameters['stitch_directory']} )" if eval(
-               out_parameters['do_stack_stitching']) == 1 else "",
+           crop_dir=f"(located in {out_parameters['crop_directory']} )" if eval(
+               out_parameters['do_crop']) == 1 else "",
            depsi_dir=f"(located in {out_parameters['depsi_directory']} )" if eval(
                out_parameters['do_depsi']) == 1 else "",
            depsipost_dir=f"(located in {out_parameters['depsi_directory']} )" if eval(
@@ -412,8 +411,8 @@ print_mail(run_id=run_id,
            logs=log,
            coreg_correct=f"(Proper finish: {success_rates['do_coregistration'][0]}, improper finish: {success_rates['do_coregistration'][1]} )" if eval(
                out_parameters['do_coregistration']) == 1 else "",
-           stitch_correct=f"(Proper finish: {success_rates['do_stack_stitching'][0]}, improper finish: {success_rates['do_stack_stitching'][1]} )" if eval(
-               out_parameters['do_stack_stitching']) == 1 else "",
+           crop_correct=f"(Proper finish: {success_rates['do_crop'][0]}, improper finish: {success_rates['do_crop'][1]} )" if eval(
+               out_parameters['do_crop']) == 1 else "",
            reslc_correct=f"(Proper finish: {success_rates['do_reslc'][0]}, improper finish: {success_rates['do_reslc'][1]} )" if eval(
                out_parameters['do_reslc']) == 1 else "",
            depsi_correct=f"(Proper finish: {success_rates['do_depsi'][0]}, improper finish: {success_rates['do_depsi'][1]} )" if eval(

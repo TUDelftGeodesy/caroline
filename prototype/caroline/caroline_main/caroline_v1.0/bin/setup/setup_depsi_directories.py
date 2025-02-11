@@ -6,7 +6,7 @@ path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
 filename, param_file, cpath, AoI_name, stitch_AoI_name = argv
 
-search_parameters = ['stitch_directory', 'track', 'asc_dsc', 'depsi_directory', 'sensor',
+search_parameters = ['crop_directory', 'track', 'asc_dsc', 'depsi_directory', 'sensor',
                      'coregistration_directory', 'coregistration_AoI_name']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
@@ -31,7 +31,7 @@ for track in range(len(tracks)):
         pass  # Directory already exists
 
     if out_parameters['sensor'] == 'S1':
-        basedir = "{}/{}_s1_{}_t{:0>3d}/*cropped_stack/".format(out_parameters['stitch_directory'], stitch_AoI_name,
+        basedir = "{}/{}_s1_{}_t{:0>3d}/*cropped_stack/".format(out_parameters['crop_directory'], stitch_AoI_name,
                                                                 asc_dsc[track], tracks[track])
         files = glob.glob("{}*".format(basedir))
         dirs = [f for f in files if os.path.isdir(f)]

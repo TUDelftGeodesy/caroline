@@ -4,9 +4,9 @@ path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
 filename, param_file, cpath, auxiliary_files = argv
 
-search_parameters = ['do_coregistration', 'do_stack_stitching', 'do_depsi', 'do_depsi_post',  'coregistration_directory',
-                     'stitch_directory', 'depsi_directory', 'shape_directory', 'coregistration_AoI_name',
-                     'stitch_AoI_name', 'depsi_AoI_name', 'shape_AoI_name', 'Caroline_version',
+search_parameters = ['do_coregistration', 'do_crop', 'do_depsi', 'do_depsi_post',  'coregistration_directory',
+                     'crop_directory', 'depsi_directory', 'shape_directory', 'coregistration_AoI_name',
+                     'crop_AoI_name', 'depsi_AoI_name', 'shape_AoI_name', 'Caroline_version',
                      'dem_file', 'depsi_code_dir', 'rdnaptrans_dir', 'geocoding_dir', 'depsi_post_dir',
                      'cpxfiddle_dir', 'depsi_post_mode', 'asc_dsc', 'track', 'sensor', 'do_reslc', 'reslc_AoI_name',
                      'reslc_directory', 'skygeo_viewer']
@@ -89,7 +89,7 @@ for param in out_parameters.keys():
 
 tracks = eval(out_parameters['track'])
 asc_dsc = eval(out_parameters['asc_dsc'])
-for prefix in ['doris', 'deinsar', 'stitch', 'depsi', 'reslc']:
+for prefix in ['doris', 'deinsar', 'crop', 'depsi', 'reslc']:
     if prefix in ['doris', 'deinsar']:
         AoI_name = out_parameters['coregistration_AoI_name']
     else:

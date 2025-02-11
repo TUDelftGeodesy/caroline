@@ -431,9 +431,9 @@ if [ ${do_depsi} -eq 1 ]; then
   do
     cd ${dir}/boxes
     #ln -s ${caroline_dir}/caroline_v${version}/files/depsi/boxes/* .
-    ln -sfn ${rdnaptrans_directory} .
-    ln -sfn ${geocoding_directory} .
-    ln -sfn ${depsi_directory} .
+    cp -Rp ${rdnaptrans_directory} .
+    cp -Rp ${geocoding_directory} .
+    cp -Rp ${depsi_directory} .
     cd ${depsi_dir}
   done
   cd ${cpath}
@@ -468,7 +468,7 @@ if [ ${do_depsi_post} -eq 1 ]; then
   for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_depsi.txt`
   do
     cd ${dir}/boxes
-    ln -sfn ${depsi_post_directory} .
+    cp -Rp ${depsi_post_directory} .
     cd ${depsi_dir}
   done
   cd ${cpath}

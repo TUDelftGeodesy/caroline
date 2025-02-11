@@ -20,6 +20,7 @@ import xarray as xr
 
 from depsi.slc import ifg_to_slc
 from depsi.io import read_metadata
+from depsi.utils import crop_slc_spacetime
 
 # Make a logger to log the stages of processing
 logger = logging.getLogger(__name__)
@@ -175,6 +176,8 @@ if __name__ == "__main__":
                                 chunks=reading_chunks).isel(time=0)['lat']
     slcs_output = slcs_output.assign({lb}"lon": lon, "lat": lat{rb})
 
+    slcs_output = crop_slc_spacetime(slcs_output,
+                                     aoi_filename="{shape_directory}/{shape_AoI_name}.shp")
     # Rechunk and write as zarr
     slcs_output = slcs_output.chunk(writing_chunks)
     if not os.path.exists("{reslc_AoI_name}_{sensor}_{asc_dsc}_t{track}.zarr"):

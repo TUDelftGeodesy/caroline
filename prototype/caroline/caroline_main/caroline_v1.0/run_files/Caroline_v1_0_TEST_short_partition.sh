@@ -410,7 +410,7 @@ if [ ${do_depsi} -eq 1 ]; then
   cd "${cpath}"
   mkdir -p ${depsi_dir}
 
-  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_depsi_directories.py ${param_file} ${cpath} ${depsi_AoI_name} ${stitch_AoI_name}
+  python3 ${caroline_dir}/caroline_v${version}/bin/setup/setup_depsi_directories.py ${param_file} ${cpath} ${depsi_AoI_name} ${crop_AoI_name}
 
   echo "Linking master files..."
   cd ${depsi_dir}
@@ -439,7 +439,7 @@ if [ ${do_depsi} -eq 1 ]; then
   cd ${cpath}
 
   echo "Generating matlab and bash files..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_param_file_txt.py ${param_file} ${cpath} ${depsi_AoI_name} ${stitch_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_param_file_txt.py ${param_file} ${cpath} ${depsi_AoI_name} ${crop_AoI_name} ${version} ${caroline_dir}
   python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_depsi_m.py ${param_file} ${cpath} ${depsi_AoI_name} ${version} ${caroline_dir}
   python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_depsi_depsi_sh.py ${param_file} ${cpath} ${depsi_AoI_name} ${version} ${caroline_dir}
 

@@ -5,7 +5,7 @@ path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
 filename, param_file, cpath, AoI_name, stitch_AoI_name, version, caroline_dir = argv
 
-search_parameters = ['stitch_directory', 'track', 'asc_dsc', 'depsi_directory', 'max_mem_buffer', 'visible_plots',
+search_parameters = ['crop_directory', 'track', 'asc_dsc', 'depsi_directory', 'max_mem_buffer', 'visible_plots',
                      'detail_plots', 'processing_groups', 'run_mode', 'exclude_date', 'az_spacing', 'r_spacing',
                      'slc_selection_input',
                      'ifg_selection_input', 'ref_cn', 'Ncv', 'ps_method', 'psc_model', 'ps_model', 'final_model',
@@ -31,7 +31,7 @@ std_param = eval(out_parameters['std_param'])
 
 for track in range(len(tracks)):
     if out_parameters['sensor'] == 'S1':
-        basedir = "{}/{}_s1_{}_t{:0>3d}/cropped_stack/".format(out_parameters['stitch_directory'], stitch_AoI_name,
+        basedir = "{}/{}_s1_{}_t{:0>3d}/cropped_stack/".format(out_parameters['crop_directory'], stitch_AoI_name,
                                                                 asc_dsc[track], tracks[track])
     else:
         basedir = '{}/{}_{}_{}_t{:0>3d}/process/'.format(out_parameters['coregistration_directory'],

@@ -113,6 +113,7 @@ python3 ${caroline_dir}/caroline_v${step_file_version}/bin/setup/create_step_fil
 do_doris=`cat ${auxiliary_files}/do_doris.txt`
 do_deinsar=`cat ${auxiliary_files}/do_deinsar.txt`
 do_crop=`cat ${auxiliary_files}/do_crop.txt`
+do_stitching=0
 do_reslc=`cat ${auxiliary_files}/do_reslc.txt`
 do_depsi=`cat ${auxiliary_files}/do_depsi.txt`
 do_depsi_post=`cat ${auxiliary_files}/do_depsi_post.txt`

@@ -8,6 +8,7 @@
 CAROLINE=$(readlink -f $(dirname $BASH_SOURCE) | sed -e 's+/bin$++')
 CAROLINE_BIN="${CAROLINE}/bin"
 CAROLINE_WORK="${CAROLINE}/work"
+CAROLINE_RUN="/project/caroline/Software/run/caroline"
 
 PATH="${CAROLINE_BIN}:${PATH}"
 
@@ -25,7 +26,7 @@ module load python/3.9.6 gdal/3.4.1-alma9
 source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
 #
 # Chdir to script directory
-cd ${CAROLINE}/caroline_v1.0/run_files/
+cd ${CAROLINE_RUN}
 
 # Run script to find if any new files have been downloaded since we last checked and
 # save the list of newly downloaded files in an output file
@@ -40,7 +41,7 @@ if [ "$(cat ${CAROLINE_WORK}/force-start-runs.dat | wc -c)" -gt "0" ]; then
     AREA=$(echo ${LINE} | cut -d";" -f1)
     TRACKS_CSV=$(echo ${LINE} | cut -d";" -f2)
 
-    echo "FORCE_STARTED_AT_${RUN_TS}" > ${CAROLINE}/caroline_v1.0/run_files/timestamp_${AREA}_${RUN_TS}.txt
+    echo "FORCE_STARTED_AT_${RUN_TS}" > ${CAROLINE_RUN}/timestamp_${AREA}_${RUN_TS}.txt
 
     # Submit the job to the cluster's scheduler (slurm) with the correct parameter file determined by the AREA name
     sbatch ./Caroline_v1_0.sh \
@@ -87,7 +88,7 @@ Submission of one or more jobs failed, check loops." | /usr/sbin/sendmail s.a.n.
       # If we found new files for tracks we are interested in
       if [ ! -z "${TRACKS}" ]; then
 
-        if [ ! -f ${CAROLINE}/caroline_v1.0/run_files/timestamp_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt ]; then
+        if [ ! -f ${CAROLINE_RUN}/timestamp_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt ]; then
           # get the formatted timestamps for the email
           ALL_TIMESTAMPS=""
           for TRACK in ${TRACKS}
@@ -100,11 +101,11 @@ Submission of one or more jobs failed, check loops." | /usr/sbin/sendmail s.a.n.
           done
 
           ALL_TIMESTAMPS=$(echo ${ALL_TIMESTAMPS} | rev | cut -c 2- | rev)
-          echo ${ALL_TIMESTAMPS} > ${CAROLINE}/caroline_v1.0/run_files/timestamp_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt
+          echo ${ALL_TIMESTAMPS} > ${CAROLINE_RUN}/timestamp_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt
         fi
 
         # Check if the job has not already been submitted --> job_id_AREA_TS.txt must not exist
-        if [ ! -f ${CAROLINE}/caroline_v1.0/run_files/job_id_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt ]; then
+        if [ ! -f ${CAROLINE_RUN}/job_id_$(echo ${AREA} | cut -d. -f1)_${RUN_TS}.txt ]; then
           # Check if there is a dependency. If Dependency: None / Dependency: none / Dependency: /
           # no Dependency line in the AREA file, there is no dependency and we continue normally
           DEPENDENCY=$(grep "Dependency" ${CAROLINE}/area-track-lists/${AREA} | cut -d: -f2 | xargs echo)
@@ -126,9 +127,9 @@ Submission of one or more jobs failed, check loops." | /usr/sbin/sendmail s.a.n.
             if [ -f ${CAROLINE}/area-track-lists/${DEPENDENCY}.dat ]; then # file exists
 
               #Check if the dependency has been submitted
-              if [ -f ${CAROLINE}/caroline_v1.0/run_files/job_id_${DEPENDENCY}_${RUN_TS}.txt ]; then
+              if [ -f ${CAROLINE_RUN}/job_id_${DEPENDENCY}_${RUN_TS}.txt ]; then
                 # cut out the job ID from the submitted dependency
-                DEPENDENCY_JOB_ID=$(cat ${CAROLINE}/caroline_v1.0/run_files/job_id_${DEPENDENCY}_${RUN_TS}.txt | \
+                DEPENDENCY_JOB_ID=$(cat ${CAROLINE_RUN}/job_id_${DEPENDENCY}_${RUN_TS}.txt | \
                   cut -d" " -f4 | xargs echo)
 
                 # Convert tracks list into csv
@@ -173,7 +174,7 @@ fi
 # Check for straggling portal uploads that didn't upload because of the reset at 1am UTC on Thursday (only once,
 # so effectively once every 5 hours). Note that runs in this run are ignored as the portal files have not yet been
 # generated
-cd ${CAROLINE}/caroline_v1.0/run_files/
+cd ${CAROLINE_RUN}
 squeue > squeue_${RUN_TS}.txt # initialize the squeue file
 for straggling_job in `ls portal_*`
 do
@@ -203,7 +204,7 @@ do
             DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
             SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
             cd ${DEPSI_DIR}
-            for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
+            for dir in `cat ${CAROLINE_RUN}/${AUX_DIR}/loop_directories_depsi.txt`
             do
               cd ${dir}/psi
               echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
@@ -211,7 +212,7 @@ do
               echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
               cd ${DEPSI_DIR}
             done
-            cd ${CAROLINE}/caroline_v1.0/run_files/
+            cd ${CAROLINE_RUN}
             echo "0" > ${straggling_job}
           fi
         fi
@@ -222,7 +223,7 @@ done
 
 # Check if all runs are finished
 ALL_RUNS_FINISHED=0
-cd ${CAROLINE}/caroline_v1.0/run_files/
+cd ${CAROLINE_RUN}
 ls job_id_*${RUN_TS}.txt > submitted_jobs_${RUN_TS}.txt
 
 if [ "$(cat submitted_jobs_${RUN_TS}.txt | wc -c)" -gt "0" ]; then
@@ -263,7 +264,7 @@ if [ "$(cat submitted_jobs_${RUN_TS}.txt | wc -c)" -gt "0" ]; then
             DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
             SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
             cd ${DEPSI_DIR}
-            for dir in `cat ${CAROLINE}/caroline_v1.0/run_files/${AUX_DIR}/loop_directories_depsi.txt`
+            for dir in `cat ${CAROLINE_RUN}/${AUX_DIR}/loop_directories_depsi.txt`
             do
               cd ${dir}/psi
               echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
@@ -271,7 +272,7 @@ if [ "$(cat submitted_jobs_${RUN_TS}.txt | wc -c)" -gt "0" ]; then
               echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
               cd ${DEPSI_DIR}
             done
-            cd ${CAROLINE}/caroline_v1.0/run_files/
+            cd ${CAROLINE_RUN}
           fi
         fi
       fi

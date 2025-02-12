@@ -25,17 +25,17 @@ coregistration_AoI_name   = 'sg_singapore'
 coregistration_directory  = '/project/caroline/Share/stacks' #'/project/caroline/Share/users/caroline-alapadat/projects/singapore/run2/stack'
 
 crop_AoI_name    = 'sg_singapore'
-crop_directory   = '/project/caroline/Share/projects/singapore/stitch'
+crop_directory   = '/project/caroline/Share/crops'
 
-reslc_AoI_name   = 'dummy'
-reslc_directory  = '/project/caroline/Share/users/caroline-admin/dummy/reslc'
+reslc_AoI_name   = 'sg_singapore'
+reslc_directory  = '/project/caroline/Share/zarr_stacks'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'sg_singapore'
-depsi_directory  = '/project/caroline/Share/projects/singapore/depsi'
+depsi_directory  = '/project/caroline/Share/projects/sg_singapore/depsi'
 
 shape_AoI_name   = 'sg_singapore'
-shape_directory  = '/project/caroline/Share/stacks/aoi_polygons/sg_singapore'
+shape_directory  = '/project/caroline/Software/config/roi/stacks/sg_singapore'
 
 shape_file = '/project/caroline/Share/users/caroline-alapadat/projects/singapore/shape/sg_boundary.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)

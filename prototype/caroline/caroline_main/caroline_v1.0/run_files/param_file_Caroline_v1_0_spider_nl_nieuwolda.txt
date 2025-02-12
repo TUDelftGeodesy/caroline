@@ -9,39 +9,39 @@ Caroline_version   = 1.0
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 
-do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
+do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
-do_crop            = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
+do_crop            = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
 do_reslc           = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
 
 do_depsi           = 0  # Requires crop (Sentinel-1), coregistration (otherwise) (here or dependency). Does not use reslc
 
 do_depsi_post      = 0  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
-skygeo_viewer      = 'nl_groningen'
+skygeo_viewer      = 'nl_transponders'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
 coregistration_AoI_name   = 'nl_groningen'
 coregistration_directory  = '/project/caroline/Share/stacks'
 
-crop_AoI_name    = 'nl_groningen'
+crop_AoI_name    = 'nl_nieuwolda'
 crop_directory   = '/project/caroline/Share/crops'
 
-reslc_AoI_name   = 'nl_groningen'
+reslc_AoI_name   = 'nl_nieuwolda'
 reslc_directory  = '/project/caroline/Share/zarr_stacks'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
-depsi_AoI_name   = 'nl_groningen'
-depsi_directory  = '/project/caroline/Share/projects/nl_groningen/depsi'
+depsi_AoI_name   = 'nl_nieuwolda'
+depsi_directory  = '/project/caroline/Share/projects/nl_nieuwolda/depsi'
 
-shape_AoI_name   = 'nl_groningen'
-shape_directory  = '/project/caroline/Software/config/roi/stacks/nl_groningen'
+shape_AoI_name   = 'nl_nieuwolda'
+shape_directory  = '/project/caroline/Software/config/roi/crops/nl_nieuwolda'
 
-shape_file = '/project/caroline/Share/projects/deepnl/aoi/groningen/groningen_aoi-polygon.shp'
+shape_file = ''
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
-center_AoI = [52.371436, 4.897088]  # Latitude, longitude
-AoI_width  = 1 # km, east-west AoI size
-AoI_length = 1 # km, north-south AoI size
+center_AoI = [53.25134, 6.971779]  # Latitude, longitude
+AoI_width  = 5 # km, east-west AoI size
+AoI_length = 5 # km, north-south AoI size
 
 track = [37]  # Can be multiple tracks!
 asc_dsc = ['dsc']
@@ -182,7 +182,7 @@ ref_height = 0
 # Psc parameters
 amplitude_calibration  = 'yes'
 psc_selection_method   = 'threshold'
-psc_selection_gridsize = 100
+psc_selection_gridsize = 300
 psc_threshold          = 0.3
 max_arc_length         = 5000
 network_method         = 'spider'

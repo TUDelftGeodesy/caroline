@@ -32,10 +32,10 @@ reslc_directory  = '/project/caroline/Share/zarr_stacks'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'nl_assendelft'
-depsi_directory  = '/project/caroline/Share/projects/transponders/assendelft'
+depsi_directory  = '/project/caroline/Share/projects/nl_assendelft/depsi'
 
 shape_AoI_name   = 'nl_assendelft'
-shape_directory  = '/project/caroline/Software/config/roi/crops/assendelft'
+shape_directory  = '/project/caroline/Software/config/roi/crops/nl_assendelft'
 
 shape_file = '/project/caroline/Share/users/caroline-svandiepen/projects/Transponders/Assendelft/shape_full/assendelft_shape.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)

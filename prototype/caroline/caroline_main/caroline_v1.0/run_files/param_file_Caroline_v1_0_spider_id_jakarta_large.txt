@@ -32,10 +32,10 @@ reslc_directory  = '/project/caroline/Share/zarr_stacks'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'id_jakarta_large'
-depsi_directory  = '/project/caroline/Share/projects/id_jakarta'
+depsi_directory  = '/project/caroline/Share/projects/id_jakarta/depsi'
 
 shape_AoI_name   = 'id_jakarta_large'
-shape_directory  = '/project/caroline/Software/config/roi/crops'
+shape_directory  = '/project/caroline/Software/config/roi/crops/id_jakarta_large'
 
 shape_file = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/Jakarta_extent_NWP.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)

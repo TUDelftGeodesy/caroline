@@ -22,20 +22,20 @@ skygeo_viewer      = 'id_jakarta'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
 coregistration_AoI_name   = 'id_jakarta'
-coregistration_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta/stack'
+coregistration_directory  = '/project/caroline/Share/stacks'
 
-crop_AoI_name    = 'id_jakarta'
-crop_directory   = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/stitch'
+crop_AoI_name    = 'id_jakarta_large'
+crop_directory   = '/project/caroline/Share/crops'
 
-reslc_AoI_name   = 'id_jakarta'
-reslc_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/reslc'
+reslc_AoI_name   = 'id_jakarta_large'
+reslc_directory  = '/project/caroline/Share/zarr_stacks'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
-depsi_AoI_name   = 'id_jakarta'
-depsi_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/depsi'
+depsi_AoI_name   = 'id_jakarta_large'
+depsi_directory  = '/project/caroline/Share/projects/id_jakarta/depsi'
 
-shape_AoI_name   = 'id_jakarta'
-shape_directory  = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/shape'
+shape_AoI_name   = 'id_jakarta_large'
+shape_directory  = '/project/caroline/Software/config/roi/crops/id_jakarta_large'
 
 shape_file = '/project/caroline/Share/users/caroline-admin/id_jakarta_large/Jakarta_extent_NWP.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)

@@ -9,7 +9,7 @@ Caroline_version   = 1.0
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 
-do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
+do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
 do_crop            = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
 do_reslc           = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
@@ -21,21 +21,21 @@ depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 skygeo_viewer      = 'nl_amsterdam'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
-coregistration_AoI_name   = 'nl_amsterdam'
-coregistration_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/stack'
+coregistration_AoI_name   = 'nl_veenweiden'
+coregistration_directory  = '/project/caroline/Share/stacks'
 
 crop_AoI_name    = 'nl_amsterdam'
-crop_directory   = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/stitch'
+crop_directory   = '/project/caroline/Share/crops'
 
 reslc_AoI_name   = 'nl_amsterdam'
-reslc_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/reslc'
+reslc_directory  = '/project/caroline/Share/zarr_stacks'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'nl_amsterdam'
-depsi_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/depsi'
+depsi_directory  = '/project/caroline/Share/projects/nl_amsterdam/depsi'
 
 shape_AoI_name   = 'nl_amsterdam'
-shape_directory  = '/project/caroline/Share/users/caroline-admin/nl_amsterdam_v2/shape'
+shape_directory  = '/project/caroline/Software/roi/crops/nl_amsterdam'
 
 shape_file = ''
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
@@ -60,12 +60,12 @@ send_completion_email = 's.a.n.vandiepen@tudelft.nl,y.wang-29@tudelft.nl,w.s.bro
 ################# DEM PARAMETERS ############
 #############################################
 
-dem_file                  = '/project/caroline/Share/dem/netherlands_simon/final_netherlands.dem.wgs84'
-dem_format                = 'r4'
-dem_size                  = [4801, 6001]
-dem_delta                 = [0.000833333333333, 0.000833333333333]
-dem_upperleft             = [54.0, 3.0]
-dem_nodata                = -32768
+dem_file            = '/project/caroline/Share/dem/netherlands_srtm_extended/netherlands_SRTM_extended.raw'
+dem_format          = 'r4'
+dem_size            = [14400, 25200]
+dem_delta           = [0.00027778, 0.00027778]
+dem_upperleft       = [54, 2]
+dem_nodata          = -32768
 
 #############################################
 ##### DORIS v5 PARAMETERS (Sentinel-1) ######

@@ -25,17 +25,17 @@ coregistration_AoI_name   = 'nl_groningen'
 coregistration_directory  = '/project/caroline/Share/stacks'
 
 crop_AoI_name    = 'nl_grijpskerk'
-crop_directory   = '/project/caroline/Share/stitch'
+crop_directory   = '/project/caroline/Share/crops'
 
-reslc_AoI_name   = 'dummy'
-reslc_directory  = '/project/caroline/Share/users/caroline-admin/dummy'
+reslc_AoI_name   = 'nl_grijpskerk'
+reslc_directory  = '/project/caroline/Share/zarr_stacks'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'nl_grijpskerk'
 depsi_directory  = '/project/caroline/Share/projects/nl_grijpskerk/depsi'
 
 shape_AoI_name   = 'nl_grijpskerk'
-shape_directory  = '/project/caroline/Share/stacks/aoi_polygons/nl_grijpskerk'
+shape_directory  = '/project/caroline/Software/config/roi/crops/nl_grijpskerk'
 
 shape_file = '/project/caroline/Share/stacks/aoi_polygons/nl_grijpskerk/Grijpskerk.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)

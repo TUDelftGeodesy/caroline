@@ -37,7 +37,7 @@ depsi_directory  = '/project/caroline/Share/projects/nl_grijpskerk/depsi'
 shape_AoI_name   = 'nl_grijpskerk'
 shape_directory  = '/project/caroline/Software/config/roi/crops/nl_grijpskerk'
 
-shape_file = '/project/caroline/Share/stacks/aoi_polygons/nl_grijpskerk/Grijpskerk.shp'
+shape_file = '/project/caroline/Share/users/caroline-admin/caroline-aoi-shapefiles/nl_grijpskerk/Grijpskerk.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
 center_AoI = [52.371436, 4.897088]  # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size

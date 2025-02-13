@@ -29,8 +29,8 @@ f.close()
 log = "==========DEBUG LOGS===========\n\n"
 log += f"CAROLINE Slurm output: {cpath}/slurm-{slurm_job_id}.out\n\n"
 
-success_rates = {'do_crop': [[], []],
-                 'do_stack_stitching': [[], []],
+success_rates = {'do_coregistration': [[], []],
+                 'do_crop': [[], []],
                  'do_reslc': [[], []],
                  'do_depsi': [[], []],
                  'do_depsi_post': [[], []]}

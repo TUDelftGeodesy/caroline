@@ -56,7 +56,7 @@ path_figure.mkdir(exist_ok=True) # Make figure directory if not exists
 
 # Option 1: Initiate a new SLURMCluster
 # Uncomment the following part to setup a new Dask SLURMCluster
-N_WORKERS = 4 # Manual input: number of workers to spin-up
+N_WORKERS = 8 # Manual input: number of workers to spin-up
 FREE_SOCKET = get_free_port() # Get a free port
 cluster = SLURMCluster(
     name="dask-worker",  # Name of the Slurm job
@@ -64,7 +64,7 @@ cluster = SLURMCluster(
     cores=4, # Number of cores per worker
     memory="30 GB",  # Total amount of memory per worker
     processes=1,  # Number of Python processes per worker
-    walltime="3:00:00",  # Reserve each worker for X hour
+    walltime="10:00:00",  # Reserve each worker for X hour
     scheduler_options={lb}"dashboard_address": f":{lb}FREE_SOCKET{rb}"{rb},  # Host Dashboard in a free socket
 )
 # logger.info(f"Dask dashboard hosted at port: {lb}FREE_SOCKET{rb}.")

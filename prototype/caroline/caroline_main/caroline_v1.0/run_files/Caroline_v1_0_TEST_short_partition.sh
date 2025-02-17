@@ -117,6 +117,7 @@ python3 ${caroline_dir}/caroline_v${step_file_version}/bin/setup/create_step_fil
 do_doris=`cat ${auxiliary_files}/do_doris.txt`
 do_deinsar=`cat ${auxiliary_files}/do_deinsar.txt`
 do_crop=`cat ${auxiliary_files}/do_crop.txt`
+do_stitching=0
 do_reslc=`cat ${auxiliary_files}/do_reslc.txt`
 do_depsi=`cat ${auxiliary_files}/do_depsi.txt`
 do_depsi_post=`cat ${auxiliary_files}/do_depsi_post.txt`
@@ -258,6 +259,14 @@ if [ ${do_doris} -eq 1 ]; then
   cd ${cpath}
 
   python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_doris.py ${param_file} ${cpath} ${doris_AoI_name}
+
+  echo "Cleaning up after doris..."
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_doris.txt`
+  do
+    echo "Cleaning ${doris_dir}/${dir}..."
+    bash /project/caroline/Software/bin/dorisv5/cleanup_dorisv5_s1_stacks.sh ${doris_dir}/${dir}
+  done
+
 fi
 
 

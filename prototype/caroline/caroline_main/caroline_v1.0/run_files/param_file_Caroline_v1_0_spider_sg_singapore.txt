@@ -73,7 +73,7 @@ dem_nodata          = -32768
 # Usually does not require changing anything
 # Uses doris v5
 
-doris_code_directory      = '/project/caroline/Share/stacks/doris/doris_v5.0.4_spider_slave_rsmp' # NOTE: generated doris_input.xml corresponds to this version
+doris_code_directory      = '/project/caroline/Software/doris/doris_v5_current' # NOTE: generated doris_input.xml corresponds to this version
 
 do_coarse_orbits          = 1
 do_deramp                 = 1

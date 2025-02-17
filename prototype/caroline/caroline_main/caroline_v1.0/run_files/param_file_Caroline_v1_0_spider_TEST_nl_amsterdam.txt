@@ -9,10 +9,10 @@ Caroline_version   = 1.0
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 
-do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
+do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
 do_crop            = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
-do_reslc           = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
+do_reslc           = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
 
 do_depsi           = 0  # Requires crop (Sentinel-1), coregistration (otherwise) (here or dependency). Does not use reslc
 
@@ -73,7 +73,7 @@ dem_nodata                = -32768
 # Usually does not require changing anything
 # Uses doris v5
 
-doris_code_directory      = '/project/caroline/Share/stacks/doris/doris_v5.0.4_spider_slave_rsmp' # NOTE: generated doris_input.xml corresponds to this version!
+doris_code_directory      = '/project/caroline/Software/doris/doris_v5_current' # NOTE: generated doris_input.xml corresponds to this version
 
 do_coarse_orbits          = 1
 do_deramp                 = 1

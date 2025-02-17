@@ -22,7 +22,7 @@ skygeo_viewer      = 'nl_amsterdam_test'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
 coregistration_AoI_name   = 'nl_amsterdam'
-coregistration_directory  = '/project/caroline/Share/users/caroline-admin/caroline-test/test_nl_amsterdam_v2/stack_v2'
+coregistration_directory  = '/project/caroline/Share/users/caroline-admin/caroline-test/test_nl_amsterdam_v2/stack'
 
 crop_AoI_name    = 'nl_amsterdam'
 crop_directory   = '/project/caroline/Share/users/caroline-admin/caroline-test/test_nl_amsterdam_v2/crop'

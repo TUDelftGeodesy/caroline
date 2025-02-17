@@ -199,21 +199,42 @@ do
           echo "0" > ${straggling_job}
         else
           if [ -f "${HOME}/.keychain/${HOSTNAME}-sh" ]; then  # if the SSH key is available
-            # get the auxiliary directory, then get the Skygeo viewer and depsi directory and upload
-            AUX_DIR=$(grep "Running with config file" slurm-${SLURM_ID}.out | cut -d" " -f5 | cut -d/ -f1)
-            DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
-            SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
-            cd ${DEPSI_DIR}
-            for dir in `cat ${CAROLINE_RUN}/${AUX_DIR}/loop_directories_depsi.txt`
-            do
-              cd ${dir}/psi
-              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
-              upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
-              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+            # First check if the SSH key was refreshed after last Thursday 1am (the epoch of reset
+            LAST_SSH_UPDATE=`date -r "${HOME}/.keychain/${HOSTNAME}-sh"`
+            CURRENT_DAY=`date -d"${NOW}" +%w`
+            if [ ${CURRENT_DAY} -eq 4 ]; then # if this is 4, it is Thursday and we need to check against this Thursday
+              REFERENCE=`date -d"Thursday 1 am"`
+            else  # We can check 'Thursday last week', gives the previous Thursday
+              REFERENCE=`date -d"Thursday last week 1 am"`
+            fi
+            DELTAT=$(($(date -d "${LAST_SSH_UPDATE}" +%s) - $(date -d "${REFERENCE}" +%s)))  # in seconds
+            if [ ${DELTAT} -gt 0 ]; then # The SSH key has been updated after the reference epoch, so we can upload
+              # get the auxiliary directory, then get the Skygeo viewer and depsi directory and upload
+              AUX_DIR=$(grep "Running with config file" slurm-${SLURM_ID}.out | cut -d" " -f5 | cut -d/ -f1)
+              DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
+              SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
               cd ${DEPSI_DIR}
-            done
-            cd ${CAROLINE_RUN}
-            echo "0" > ${straggling_job}
+              for dir in `cat ${CAROLINE_RUN}/${AUX_DIR}/loop_directories_depsi.txt`
+              do
+                cd ${dir}/psi
+                echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+                upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
+                echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+                cd ${DEPSI_DIR}
+              done
+              cd ${CAROLINE_RUN}
+              echo "0" > ${straggling_job}
+            else # Send a warning to the admins that the upload failed
+              echo "Subject: CAROLINE SSH Key missing (${run})
+
+Hello admins,
+
+CAROLINE tried to push run ${run} to the portal, but it failed since the SSH key is missing.
+Can one of you update the SSH key on ui-01?
+
+Kind regards,
+The CAROLINE system" | /usr/sbin/sendmail s.a.n.vandiepen@tudelft.nl,f.j.vanleijen@tudelft.nl,n.h.jansen@tudelft.nl
+            fi
           fi
         fi
       fi
@@ -257,22 +278,43 @@ if [ "$(cat submitted_jobs_${RUN_TS}.txt | wc -c)" -gt "0" ]; then
           ALL_RUNS_FINISHED=0
         else
           if [ -f "${HOME}/.keychain/${HOSTNAME}-sh" ]; then  # if the SSH key is available
-            # set to 0 so we only upload once
-            echo "0" > portal_${run}
-            # retrieve the directories we need to upload
-            AUX_DIR=$(grep "Running with config file" slurm-${JOB_ID}.out | cut -d" " -f5 | cut -d/ -f1)
-            DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
-            SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
-            cd ${DEPSI_DIR}
-            for dir in `cat ${CAROLINE_RUN}/${AUX_DIR}/loop_directories_depsi.txt`
-            do
-              cd ${dir}/psi
-              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
-              upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
-              echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+            # First check if the SSH key was refreshed after last Thursday 1am (the epoch of reset
+            LAST_SSH_UPDATE=`date -r "${HOME}/.keychain/${HOSTNAME}-sh"`
+            CURRENT_DAY=`date -d"${NOW}" +%w`
+            if [ ${CURRENT_DAY} -eq 4 ]; then # if this is 4, it is Thursday and we need to check against this Thursday
+              REFERENCE=`date -d"Thursday 1 am"`
+            else  # We can check 'Thursday last week', gives the previous Thursday
+              REFERENCE=`date -d"Thursday last week 1 am"`
+            fi
+            DELTAT=$(($(date -d "${LAST_SSH_UPDATE}" +%s) - $(date -d "${REFERENCE}" +%s)))  # in seconds
+            if [ ${DELTAT} -gt 0 ]; then # The SSH key has been updated after the reference epoch, so we can upload
+              # set to 0 so we only upload once
+              echo "0" > portal_${run}
+              # retrieve the directories we need to upload
+              AUX_DIR=$(grep "Running with config file" slurm-${JOB_ID}.out | cut -d" " -f5 | cut -d/ -f1)
+              DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
+              SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
               cd ${DEPSI_DIR}
-            done
-            cd ${CAROLINE_RUN}
+              for dir in `cat ${CAROLINE_RUN}/${AUX_DIR}/loop_directories_depsi.txt`
+              do
+                cd ${dir}/psi
+                echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+                upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
+                echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+                cd ${DEPSI_DIR}
+              done
+              cd ${CAROLINE_RUN}
+            else # Send a warning to the admins that the upload failed
+              echo "Subject: CAROLINE SSH Key missing (${run})
+
+Hello admins,
+
+CAROLINE tried to push run ${run} to the portal, but it failed since the SSH key is missing.
+Can one of you add the SSH key password on ui-01?
+
+Kind regards,
+The CAROLINE system" | /usr/sbin/sendmail s.a.n.vandiepen@tudelft.nl,f.j.vanleijen@tudelft.nl,n.h.jansen@tudelft.nl
+            fi
           fi
         fi
       fi

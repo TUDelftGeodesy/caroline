@@ -255,6 +255,14 @@ if [ ${do_doris} -eq 1 ]; then
   cd ${cpath}
 
   python3 ${caroline_dir}/caroline_v${version}/bin/wait/wait_for_doris.py ${param_file} ${cpath} ${doris_AoI_name}
+
+  echo "Cleaning up after doris..."
+  for dir in `cat ${cpath}/${auxiliary_files}/loop_directories_doris.txt`
+  do
+    echo "Cleaning ${doris_dir}/${dir}..."
+    bash /project/caroline/Software/bin/dorisv5/cleanup_dorisv5_s1_stacks.sh ${doris_dir}/${dir}
+  done
+
 fi
 
 

@@ -4,6 +4,13 @@
 ############# GENERAL PARAMETERS ###########
 ############################################
 
+project_owner          = 'Ramon'
+project_owner_email    = 'r.f.hanssen@tudelft.nl'
+project_engineer       = 'Simon'
+project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
+project_objective      = 'Time series production over Santorini due to tens of thousands of earthquakes in January and February 2025.'
+project_notes          = 'As the AoI consists of three islands, the arc length in the primary network is increased to 8km.'
+
 Caroline_version   = 1.0
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2

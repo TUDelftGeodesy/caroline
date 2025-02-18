@@ -67,8 +67,17 @@ for track in range(len(tracks)):
                 master_line = i
                 break
         masterdir = master_line.strip().strip("'").split("'")[-1]
-    startdate = min(good_dirs)
-    end_date = max(good_dirs)
+    if len(good_dirs) > 0:
+        startdate = min(good_dirs)
+        end_date = max(good_dirs)
+    else:
+        # From #77 , not doing this will cause the following in multi-track starts:
+        # Looping over A,B,C,D , if C has no good_dirs, the parameter file for D will not be generated
+        # as the generation in C will throw an error with the min() and max() commands above
+        startdate = None
+        end_date = None
+        print("WARNING: Did not identify any properly coregistered / cropped directories! Cannot determine start and "
+              "end date for DePSI, setting to None. This will crash DePSI.")
 
     rf = open("{}/caroline_v{}/files/depsi/psi/param_file.txt".format(caroline_dir, version))
     param_file = rf.read()

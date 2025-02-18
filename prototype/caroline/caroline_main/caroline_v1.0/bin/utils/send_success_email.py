@@ -8,8 +8,11 @@ try:
     search_parameters = ['track', 'asc_dsc', 'do_coregistration', 'do_crop', 'do_depsi', 'do_depsi_post', 'sensor',
                          'coregistration_directory', 'crop_directory', 'depsi_directory', 'do_reslc',
                          'reslc_directory', 'skygeo_viewer', 'coregistration_AoI_name',
-                         'crop_AoI_name', 'depsi_AoI_name', 'reslc_AoI_name']
+                         'crop_AoI_name', 'depsi_AoI_name', 'reslc_AoI_name', 'skygeo_customer']
     out_parameters = read_param_file(cpath, param_file, search_parameters)
+
+    if out_parameters['skygeo_customer'] is None:  # backwards compatibility for #12
+        out_parameters['skygeo_customer'] = 'caroline'
 
     tracks = eval(out_parameters['track'])
     asc_dsc = eval(out_parameters['asc_dsc'])
@@ -394,7 +397,7 @@ try:
                crop="Yes" if eval(out_parameters['do_crop']) == 1 else "No",
                depsi="Yes" if eval(out_parameters['do_depsi']) == 1 else "No",
                dppu="Yes" if eval(out_parameters['do_depsi_post']) == 1 else "No",
-               portal_link=f"NOTE: it can take a few hours for the results to show up in the portal.\nThe DePSI-post results can be accessed at https://caroline.portal-tud.skygeo.com/portal/caroline/{out_parameters['skygeo_viewer']} ." if eval(
+               portal_link=f"NOTE: it can take a few hours for the results to show up in the portal.\nThe DePSI-post results can be accessed at https://caroline.portal-tud.skygeo.com/portal/{out_parameters['skygeo_customer']}/{out_parameters['skygeo_viewer']} ." if eval(
                    out_parameters['do_depsi_post']) == 1 else "",
                coreg_dir=f"(located in {out_parameters['coregistration_directory']} )" if eval(
                    out_parameters['do_coregistration']) == 1 else "",

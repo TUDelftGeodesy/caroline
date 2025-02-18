@@ -213,12 +213,13 @@ do
               AUX_DIR=$(grep "Running with config file" slurm-${SLURM_ID}.out | cut -d" " -f5 | cut -d/ -f1)
               DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
               SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
+              SKYGEO_CUSTOMER=`cat ${AUX_DIR}/skygeo_customer.txt`
               cd ${DEPSI_DIR}
               for dir in `cat ${CAROLINE_RUN}/${AUX_DIR}/loop_directories_depsi.txt`
               do
                 cd ${dir}/psi
                 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
-                upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
+                upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER} ${SKYGEO_CUSTOMER}
                 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push of straggling job to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
                 cd ${DEPSI_DIR}
               done
@@ -294,12 +295,13 @@ if [ "$(cat submitted_jobs_${RUN_TS}.txt | wc -c)" -gt "0" ]; then
               AUX_DIR=$(grep "Running with config file" slurm-${JOB_ID}.out | cut -d" " -f5 | cut -d/ -f1)
               DEPSI_DIR=`cat ${AUX_DIR}/depsi_directory.txt`
               SKYGEO_VIEWER=`cat ${AUX_DIR}/skygeo_viewer.txt`
+              SKYGEO_CUSTOMER=`cat ${AUX_DIR}/skygeo_customer.txt`
               cd ${DEPSI_DIR}
               for dir in `cat ${CAROLINE_RUN}/${AUX_DIR}/loop_directories_depsi.txt`
               do
                 cd ${dir}/psi
                 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
-                upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER}
+                upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER} ${SKYGEO_CUSTOMER}
                 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
                 cd ${DEPSI_DIR}
               done

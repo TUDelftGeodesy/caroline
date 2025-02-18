@@ -18,6 +18,9 @@ do_depsi           = 1  # Requires crop (Sentinel-1), coregistration (otherwise)
 
 do_depsi_post      = 0  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
+
+# The portal will be https://caroline.portal-tud.skygeo.com/portal/<skygeo_customer>/<skygeo_viewer>/viewers/basic/
+skygeo_customer    = 'caroline'  # default 'caroline', only recommended to change if one wants to share data with others
 skygeo_viewer      = 'id_jakarta'
 
 # Specify the AoI name and directory of each step, as well as the shapefile

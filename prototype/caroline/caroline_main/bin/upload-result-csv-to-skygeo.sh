@@ -6,6 +6,13 @@
 # must be run from the depsi output directory with the viewer as argument
 SKYGEO_USER='caroline'
 SKYGEO_VIEWER=$1
+
+if [ "$#" -lt 2 ]; then
+  SKYGEO_CUSTOMER='caroline'
+else
+  SKYGEO_CUSTOMER=$2
+fi
+
 SKYGEO_SERVER='portal-tud.skygeo.com'
 SKYGEO_UPLOAD_PATH='/tmp'
 #
@@ -52,11 +59,17 @@ ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "chmod 644 ${SKYGEO_UPLOAD_PATH}/${CSV_F
 # Add the csv data to the viewer on skygeo server
 #ssh $USER@portal-tud.skygeo.com "pmantud add_viewer_data_layer /tmp/$CSV_BASENAME.csv $CSV_BASENAME $USER $VIEWER"
 
-VIEWER=$(ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "ls /var/www/html/portal/caroline" | grep ${SKYGEO_SERVER} | xargs echo)
-if [ "$(echo ${VIEWER} | wc -c)" -eq "0" ]; then  # viewer does not exist
-  ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "pmantud add_viewer ${SKYGEO_VIEWER}"
+CUSTOMER=$(ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "ls /var/www/html/portal" | grep ${SKYGEO_CUSTOMER} | xargs echo)
+if [ "$(echo ${CUSTOMER} | wc -c)" -eq "0" ]; then  # viewer does not exist
+  echo "Cannot find specified customer ${SKYGEO_CUSTOMER}, aborting.."
+  exit 1
 fi
 
-ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "pmantud add_viewer_data_layer ${SKYGEO_UPLOAD_PATH}/${CSV_FILE} ${CSV_FILE%.csv} ${SKYGEO_USER} ${SKYGEO_VIEWER}"
+VIEWER=$(ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "ls /var/www/html/portal/${SKYGEO_CUSTOMER}" | grep ${SKYGEO_VIEWER} | xargs echo)
+if [ "$(echo ${VIEWER} | wc -c)" -eq "0" ]; then  # viewer does not exist
+  ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "pmantud add_viewer ${SKYGEO_VIEWER} ${SKYGEO_CUSTOMER}"
+fi
+
+ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "pmantud add_viewer_data_layer ${SKYGEO_UPLOAD_PATH}/${CSV_FILE} ${CSV_FILE%.csv} ${SKYGEO_CUSTOMER} ${SKYGEO_VIEWER}"
 #
 # Eof

@@ -192,7 +192,9 @@ network_method         = 'spider'
 Ncon                   = 16
 Nparts                 = 8
 Npsc_selections        = 1
-filename_water_mask    = []
+# if do_water_mask is turned to 'yes', the file '/project/caroline/Software/config/caroline-water-masks/water_mask_<depsi_AoI_name>_<sensor>_<asc_dsc>_t<track:0>3d>.raw'
+# is expected, matching with the requested crop, see #68
+do_water_mask          = 'no'
 gamma_threshold        = 0.45
 psc_distribution       = 'uniform'
 weighted_unwrap        = 'yes'

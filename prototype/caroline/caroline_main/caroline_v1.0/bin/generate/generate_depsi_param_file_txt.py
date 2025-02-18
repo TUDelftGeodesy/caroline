@@ -14,7 +14,7 @@ search_parameters = ['crop_directory', 'track', 'asc_dsc', 'depsi_directory', 'm
                      'do_apriori_sidelobe_mask', 'do_aposteriori_sidelobe_mask', 'ref_height', 'amplitude_calibration',
                      'psc_selection_method', 'psc_selection_gridsize', 'psc_threshold', 'max_arc_length',
                      'network_method', 'Ncon',
-                     'Nparts', 'Npsc_selections', 'filename_water_mask', 'gamma_threshold', 'psc_distribution',
+                     'Nparts', 'Npsc_selections', 'do_water_mask', 'gamma_threshold', 'psc_distribution',
                      'weighted_unwrap', 'livetime_threshold', 'peak_tolerance', 'psp_selection_method',
                      'psp_threshold1', 'psp_threshold2',
                      'ps_eval_method', 'Namp_disp_bins', 'Ndens_iterations', 'densification_flag',
@@ -38,6 +38,12 @@ for track in range(len(tracks)):
                                                          out_parameters['coregistration_AoI_name'],
                                                          out_parameters['sensor'].lower(), asc_dsc[track],
                                                          tracks[track])
+    if out_parameters['do_water_mask'] == 'yes':
+        filename_water_mask = f"/project/caroline/Software/config/roi/caroline-water-masks/water_mask_{AoI_name}_" \
+                              f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}.raw"
+    else:
+        filename_water_mask = "[]"
+
     files = glob.glob("{}*".format(basedir))
     dirs = [f for f in files if os.path.isdir(f)]
     masterdir = ""
@@ -125,7 +131,7 @@ for track in range(len(tracks)):
                                    Ncon=out_parameters['Ncon'],
                                    Nparts=out_parameters['Nparts'],
                                    Npsc_selections=out_parameters['Npsc_selections'],
-                                   filename_water_mask=out_parameters['filename_water_mask'],
+                                   filename_water_mask=filename_water_mask,
                                    gamma_threshold=out_parameters['gamma_threshold'],
                                    psc_distribution=out_parameters['psc_distribution'],
                                    weighted_unwrap=out_parameters['weighted_unwrap'],

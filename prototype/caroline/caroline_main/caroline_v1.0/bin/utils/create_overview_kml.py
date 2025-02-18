@@ -1,4 +1,14 @@
 import os
+import glob
+import json
+from datetime import datetime
+
+
+def read_SLC_json(filename):
+    f = open(filename)
+    data = json.load(f)
+    f.close()
+    return data['geometry']['coordinates'][0]
 
 
 class KML:
@@ -175,5 +185,35 @@ if __name__ == "__main__":
     kml.save()
     """
 
-    
+    now = datetime.now()
+    now_str = now.strftime("%Y%m%d")
+
+    # kml = KML(f'test_{now_str}.kml')
+    kml = KML(f'/project/caroline/Share/caroline-aoi-extents/AoI_summary_{now_str}.kml')
+    kml.open_folder('SLCs', 'Extents of all downloaded SLCs')
+
+    # SLC_base_folder = '/Users/sanvandiepen/PycharmProjects/workingEnvironment2/stackswaths'
+    SLC_base_folder = '/project/caroline/Data/radar_data/sentinel1'
+    SLC_folders = glob.glob(f"{SLC_base_folder}/s1*")
+
+    for SLC_folder in SLC_folders:
+        name_pt1 = SLC_folder.split('/')[-1]
+
+        dates = glob.glob(f"{SLC_folder}/IW_SLC__1SDV_VVVH/2*")
+        dates = [date.split('/')[-1] for date in dates]
+
+        if len(dates) > 0:
+            first_date = min(dates)
+            last_date = max(dates)
+            n_dates = len(dates)
+            jsons = list(sorted(glob.glob(f"{SLC_folder}/IW_SLC__1SDV_VVVH/{last_date}/*.json")))
+            for n, json_file in enumerate(jsons):
+                coordinates = read_SLC_json(json_file)
+
+                kml.add_polygon(coordinates, f"{name_pt1}_img{n+1}",
+                                f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})', 'SLC')
+    kml.close_folder()
+    kml.save()
+
+
 

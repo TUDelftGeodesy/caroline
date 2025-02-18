@@ -199,11 +199,11 @@ if __name__ == "__main__":
     for SLC_folder in SLC_folders:
         name_pt1 = SLC_folder.split('/')[-1]
 
-        kml.open_folder(name_pt1, '')
         dates = glob.glob(f"{SLC_folder}/IW_SLC__1SDV_VVVH/2*")
         dates = [date.split('/')[-1] for date in dates]
 
         if len(dates) > 0:
+            kml.open_folder(name_pt1, '')
             first_date = min(dates)
             last_date = max(dates)
             n_dates = len(dates)
@@ -213,7 +213,7 @@ if __name__ == "__main__":
 
                 kml.add_polygon(coordinates, f"{name_pt1}_img{n+1}",
                                 f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})', 'SLC')
-        kml.close_folder()
+            kml.close_folder()
     kml.close_folder()
     kml.save()
 

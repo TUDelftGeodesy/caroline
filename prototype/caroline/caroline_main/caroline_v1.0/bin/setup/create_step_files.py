@@ -9,7 +9,7 @@ search_parameters = ['do_coregistration', 'do_crop', 'do_depsi', 'do_depsi_post'
                      'crop_AoI_name', 'depsi_AoI_name', 'shape_AoI_name', 'Caroline_version',
                      'dem_file', 'depsi_code_dir', 'rdnaptrans_dir', 'geocoding_dir', 'depsi_post_dir',
                      'cpxfiddle_dir', 'depsi_post_mode', 'asc_dsc', 'track', 'sensor', 'do_reslc', 'reslc_AoI_name',
-                     'reslc_directory', 'skygeo_viewer']
+                     'reslc_directory', 'skygeo_viewer', 'skygeo_customer']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 for param in out_parameters.keys():

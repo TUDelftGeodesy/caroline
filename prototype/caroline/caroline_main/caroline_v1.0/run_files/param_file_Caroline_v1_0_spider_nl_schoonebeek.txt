@@ -4,6 +4,13 @@
 ############# GENERAL PARAMETERS ###########
 ############################################
 
+project_owner          = 'Ramon'
+project_owner_email    = 'r.f.hanssen@tudelft.nl'
+project_engineer       = 'Simon'
+project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
+project_objective      = 'Time series production over the Schoonebeek gas fields.'
+project_notes          = 'Requested together with nl_grijpskerk.'
+
 Caroline_version   = 1.0
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2

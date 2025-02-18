@@ -4,6 +4,13 @@
 ############# GENERAL PARAMETERS ###########
 ############################################
 
+project_owner          = 'Simon'
+project_owner_email    = 's.a.n.vandiepen@tudelft.nl'
+project_engineer       = 'Simon'
+project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
+project_objective      = 'Example parameter file.'
+project_notes          = 'Please consider looking at other parameter files as well.'
+
 Caroline_version   = 1.0
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2

@@ -4,6 +4,13 @@
 ############# GENERAL PARAMETERS ###########
 ############################################
 
+project_owner          = 'Simon'
+project_owner_email    = 's.a.n.vandiepen@tudelft.nl'
+project_engineer       = 'Simon'
+project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
+project_objective      = 'Generating crops over the Aldeboarn radar transponder for further analysis in Matlab and Python.'
+project_notes          = 'Does not run DePSI as manual selection of the dates is required to kick out dates on which the radar transponder did not respond.'
+
 Caroline_version   = 1.0
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2

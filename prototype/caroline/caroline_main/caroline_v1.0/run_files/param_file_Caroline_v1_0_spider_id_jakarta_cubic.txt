@@ -4,6 +4,13 @@
 ############# GENERAL PARAMETERS ###########
 ############################################
 
+project_owner          = 'Alex'
+project_owner_email    = 'a.m.lapadat@tudelft.nl'
+project_engineer       = 'Simon'
+project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
+project_objective      = 'Time series production over Jakarta for the Three Sisters project.'
+project_notes          = 'Uses quadratic cubic models.'
+
 Caroline_version   = 1.0
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2

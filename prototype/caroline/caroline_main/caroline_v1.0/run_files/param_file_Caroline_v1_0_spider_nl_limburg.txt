@@ -4,6 +4,13 @@
 ############# GENERAL PARAMETERS ###########
 ############################################
 
+project_owner          = 'Alex'
+project_owner_email    = 'a.m.lapadat@tudelft.nl'
+project_engineer       = 'Simon'
+project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
+project_objective      = 'Run DePSI over the IGRS stations in southern Limburg for further analysis with other tools.'
+project_notes          = 'Initially did not run over all tracks produced by nl_limburg_stack, hence the split.'
+
 Caroline_version   = 1.0
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2

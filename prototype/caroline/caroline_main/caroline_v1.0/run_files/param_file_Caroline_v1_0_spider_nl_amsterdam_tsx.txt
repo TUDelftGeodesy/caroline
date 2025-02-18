@@ -4,6 +4,13 @@
 ############# GENERAL PARAMETERS ###########
 ############################################
 
+project_owner          = 'Simon'
+project_owner_email    = 's.a.n.vandiepen@tudelft.nl'
+project_engineer       = 'Simon'
+project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
+project_objective      = 'Proof of concept for being able to run TSX data in Caroline.'
+project_notes          = 'DePSI needs to be further tuned if this parameter file is to be used.'
+
 Caroline_version   = 1.0
 
 sensor             = 'TSX'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2

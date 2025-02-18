@@ -8,7 +8,9 @@ try:
     search_parameters = ['track', 'asc_dsc', 'do_coregistration', 'do_crop', 'do_depsi', 'do_depsi_post', 'sensor',
                          'coregistration_directory', 'crop_directory', 'depsi_directory', 'do_reslc',
                          'reslc_directory', 'skygeo_viewer', 'coregistration_AoI_name',
-                         'crop_AoI_name', 'depsi_AoI_name', 'reslc_AoI_name', 'skygeo_customer']
+                         'crop_AoI_name', 'depsi_AoI_name', 'reslc_AoI_name', 'skygeo_customer',
+                         'project_owner', 'project_owner_email', 'project_engineer',
+                         'project_engineer_email', 'project_objective', 'project_notes']
     out_parameters = read_param_file(cpath, param_file, search_parameters)
 
     if out_parameters['skygeo_customer'] is None:  # backwards compatibility for #12
@@ -328,26 +330,65 @@ try:
                     log += f'Slurm output: {slurm_file}\n\n'
     log += '================'
 
+    project_characteristics = f"""Project characteristics:
+Owner: {out_parameters['project_owner']} ({out_parameters['project_owner_email']})
+Engineer: {out_parameters['project_engineer']} ({out_parameters['project_engineer_email']})
+Objective: {out_parameters['project_objective']}
+Notes: {out_parameters['project_notes']}
+"""
 
     def print_mail(run_id, track, sensor, dv5, crop, depsi, dppu, portal_link, coreg_dir, crop_dir, depsi_dir,
                    depsipost_dir, reslc, reslcdir, paramfile, param_file, logs, coreg_correct, crop_correct,
-                   reslc_correct, depsi_correct, dp_correct):
+                   reslc_correct, depsi_correct, dp_correct, project_characteristics):
+
+        if dv5 == 'Yes':
+            if 'improper finish: []' in coreg_correct:
+                coreg_correct = coreg_correct.split(", improper")[0]
+            coreg_line = f'Coregistration: {coreg_correct} {coreg_dir}\n\n'
+        else:
+            coreg_line = ''
+
+        if crop == 'Yes':
+            if 'improper finish: []' in crop_correct:
+                crop_correct = crop_correct.split(", improper")[0]
+            crop_line = f'Cropping: {crop_correct} {crop_dir}\n'
+        else:
+            crop_line = ''
+
+        if reslc == 'Yes':
+            if 'improper finish: []' in reslc_correct:
+                reslc_correct = reslc_correct.split(", improper")[0]
+            reslc_line = f'Re-SLC: {reslc_correct} {reslcdir}\n\n'
+        elif crop == 'Yes':
+            reslc_line = '\n'  # add an extra divider line
+        else:
+            reslc_line = ''
+
+        if depsi == 'Yes':
+            if 'improper finish: []' in depsi_correct:
+                depsi_correct = depsi_correct.split(", improper")[0]
+            depsi_line = f'DePSI: {depsi_correct} {depsi_dir}\n'
+        else:
+            depsi_line = ''
+
+        if dppu == 'Yes':
+            if 'improper finish: []' in dp_correct:
+                dp_correct = dp_correct.split(", improper")[0]
+            dppu_line = f'DePSI-post & portal upload: {dp_correct} {depsipost_dir}\n'
+        else:
+            dppu_line = ''
+
         print("""Dear radargroup,
     
     A new CAROLINE run has just finished on run {run_id}! 
     
-    The characteristics of this run are:
+    {project_characteristics}
+    Run characteristics:
     Track(s): {tracks}
     Sensor: {sensor}
     
     The following steps were run:
-    Coregistration: {dv5} {coreg_correct} {coreg_dir}
-    
-    Cropping: {crop} {crop_correct} {crop_dir}
-    Re-SLC: {reslc} {reslc_correct} {reslc_dir}
-    
-    Depsi: {depsi} {depsi_correct} {depsi_dir}
-    Depsi-post & portal upload: {dppu} {dp_correct} {depsipost_dir}
+    {coreg_line}{crop_line}{reslc_line}{depsi_line}{dppu_line}
     
     {portal_link}
     
@@ -368,26 +409,17 @@ try:
     --- PARAMETER FILE: {param_file} ---
     {paramfile}""".format(tracks=track,
                           sensor=sensor,
-                          dv5=dv5,
-                          crop=crop,
-                          depsi=depsi,
-                          dppu=dppu,
                           run_id=run_id,
                           portal_link=portal_link,
-                          coreg_dir=coreg_dir,
-                          crop_dir=crop_dir,
-                          depsi_dir=depsi_dir,
-                          depsipost_dir=depsipost_dir,
-                          reslc=reslc,
-                          reslc_dir=reslcdir,
                           paramfile=paramfile,
                           param_file=param_file,
                           logs=logs,
-                          coreg_correct=coreg_correct,
-                          crop_correct=crop_correct,
-                          reslc_correct=reslc_correct,
-                          depsi_correct=depsi_correct,
-                          dp_correct=dp_correct))
+                          coreg_line=coreg_line,
+                          crop_line=crop_line,
+                          reslc_line=reslc_line,
+                          depsi_line=depsi_line,
+                          dppu_line=dppu_line,
+                          project_characteristics=project_characteristics))
 
 
     print_mail(run_id=run_id,
@@ -413,16 +445,17 @@ try:
                paramfile=paramfile,
                param_file=f"{cpath}/{param_file}",
                logs=log,
-               coreg_correct=f"(Proper finish: {success_rates['do_coregistration'][0]}, improper finish: {success_rates['do_coregistration'][1]} )" if eval(
+               coreg_correct=f"Proper finish: {success_rates['do_coregistration'][0]}, improper finish: {success_rates['do_coregistration'][1]}" if eval(
                    out_parameters['do_coregistration']) == 1 else "",
-               crop_correct=f"(Proper finish: {success_rates['do_crop'][0]}, improper finish: {success_rates['do_crop'][1]} )" if eval(
+               crop_correct=f"Proper finish: {success_rates['do_crop'][0]}, improper finish: {success_rates['do_crop'][1]}" if eval(
                    out_parameters['do_crop']) == 1 else "",
-               reslc_correct=f"(Proper finish: {success_rates['do_reslc'][0]}, improper finish: {success_rates['do_reslc'][1]} )" if eval(
+               reslc_correct=f"Proper finish: {success_rates['do_reslc'][0]}, improper finish: {success_rates['do_reslc'][1]}" if eval(
                    out_parameters['do_reslc']) == 1 else "",
-               depsi_correct=f"(Proper finish: {success_rates['do_depsi'][0]}, improper finish: {success_rates['do_depsi'][1]} )" if eval(
+               depsi_correct=f"Proper finish: {success_rates['do_depsi'][0]}, improper finish: {success_rates['do_depsi'][1]}" if eval(
                    out_parameters['do_depsi']) == 1 else "",
-               dp_correct=f"(Proper finish: {success_rates['do_depsi_post'][0]}, improper finish: {success_rates['do_depsi_post'][1]} )" if eval(
-                   out_parameters['do_depsi_post']) == 1 else "")
+               dp_correct=f"Proper finish: {success_rates['do_depsi_post'][0]}, improper finish: {success_rates['do_depsi_post'][1]}" if eval(
+                   out_parameters['do_depsi_post']) == 1 else "",
+               project_characteristics=project_characteristics)
 
 except Exception as e:
     print(f"""Dear radargroup,

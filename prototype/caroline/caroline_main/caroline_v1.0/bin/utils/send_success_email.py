@@ -8,7 +8,9 @@ try:
     search_parameters = ['track', 'asc_dsc', 'do_coregistration', 'do_crop', 'do_depsi', 'do_depsi_post', 'sensor',
                          'coregistration_directory', 'crop_directory', 'depsi_directory', 'do_reslc',
                          'reslc_directory', 'skygeo_viewer', 'coregistration_AoI_name',
-                         'crop_AoI_name', 'depsi_AoI_name', 'reslc_AoI_name', 'skygeo_customer']
+                         'crop_AoI_name', 'depsi_AoI_name', 'reslc_AoI_name', 'skygeo_customer',
+                         'project_owner', 'project_owner_email', 'project_engineer',
+                         'project_engineer_email', 'project_objective', 'project_notes']
     out_parameters = read_param_file(cpath, param_file, search_parameters)
 
     if out_parameters['skygeo_customer'] is None:  # backwards compatibility for #12
@@ -328,10 +330,16 @@ try:
                     log += f'Slurm output: {slurm_file}\n\n'
     log += '================'
 
+    project_characteristics = f"""Project characteristics:
+Owner: {out_parameters['project_owner']} ({out_parameters['project_owner_email']})
+Engineer: {out_parameters['project_engineer']} ({out_parameters['project_engineer_email']})
+Objective: {out_parameters['project_objective']}
+Notes: {out_parameters['project_notes']}
+"""
 
     def print_mail(run_id, track, sensor, dv5, crop, depsi, dppu, portal_link, coreg_dir, crop_dir, depsi_dir,
                    depsipost_dir, reslc, reslcdir, paramfile, param_file, logs, coreg_correct, crop_correct,
-                   reslc_correct, depsi_correct, dp_correct):
+                   reslc_correct, depsi_correct, dp_correct, project_characteristics):
 
         if dv5 == 'Yes':
             if 'improper finish: []' in coreg_correct:
@@ -374,7 +382,8 @@ try:
     
     A new CAROLINE run has just finished on run {run_id}! 
     
-    The characteristics of this run are:
+    {project_characteristics}
+    Run characteristics:
     Track(s): {tracks}
     Sensor: {sensor}
     
@@ -409,7 +418,8 @@ try:
                           crop_line=crop_line,
                           reslc_line=reslc_line,
                           depsi_line=depsi_line,
-                          dppu_line=dppu_line))
+                          dppu_line=dppu_line,
+                          project_characteristics=project_characteristics))
 
 
     print_mail(run_id=run_id,
@@ -444,7 +454,8 @@ try:
                depsi_correct=f"Proper finish: {success_rates['do_depsi'][0]}, improper finish: {success_rates['do_depsi'][1]}" if eval(
                    out_parameters['do_depsi']) == 1 else "",
                dp_correct=f"Proper finish: {success_rates['do_depsi_post'][0]}, improper finish: {success_rates['do_depsi_post'][1]}" if eval(
-                   out_parameters['do_depsi_post']) == 1 else "")
+                   out_parameters['do_depsi_post']) == 1 else "",
+               project_characteristics=project_characteristics)
 
 except Exception as e:
     print(f"""Dear radargroup,

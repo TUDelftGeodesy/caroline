@@ -324,7 +324,7 @@ if __name__ == "__main__":
                     n_dates = 0
 
                 for name in list(sorted(list(coordinate_dict.keys()))):
-                    kml.add_polygon(coordinate_dict[name], f"{AoI}_{track}_{name}",
+                    kml.add_polygon(coordinate_dict[name], f"{AoI_name}_{AoI}_{name}",
                                     f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
                                     'stack')
 

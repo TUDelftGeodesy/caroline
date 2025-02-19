@@ -297,7 +297,7 @@ if __name__ == "__main__":
     grouped_stack_folders = {}
 
     for stack_folder in stack_folders:
-        track = stack_folder.split('_s1_')[-1]
+        track = "s1_" + stack_folder.split('_s1_')[-1]
         if track in grouped_stack_folders.keys():
             grouped_stack_folders[track].append(stack_folder)
         else:

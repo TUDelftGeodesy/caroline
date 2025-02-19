@@ -319,8 +319,8 @@ if __name__ == "__main__":
     if LOCAL:
         s1_stack_folders = [SLC_base_folder]
     else:
-        s1_stack_folders = list(sorted(list(set([param_file_data[i]['coregistration_directory']]
-                                                for i in param_file_data.keys()))))
+        s1_stack_folders = list(sorted(list(set([param_file_data[i]['coregistration_directory']
+                                                for i in param_file_data.keys()]))))
 
     # filter out the Sentinel-1 stacks
     stack_folders = []

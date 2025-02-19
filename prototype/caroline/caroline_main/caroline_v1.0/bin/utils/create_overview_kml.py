@@ -283,7 +283,7 @@ if __name__ == "__main__":
     kml.close_folder()
 
     # Then the stack AoIs
-    kml.open_folder('SLCs', 'Extents of all coregistered stacks')
+    kml.open_folder('Coregistered stacks', 'Extents of all coregistered stacks')
 
     if LOCAL:
         s1_stack_folder = SLC_base_folder

@@ -307,27 +307,28 @@ if __name__ == "__main__":
         kml.open_folder(AoI)
 
         for stack_folder in list(sorted(grouped_stack_folders[AoI])):
-            track = stack_folder.split('_s1_')[-1]
-            kml.open_folder(track)
+            if os.path.exists(f"{stack_folder}/stackswath_coverage.shp"):
+                track = stack_folder.split('_s1_')[-1]
+                kml.open_folder(track)
 
-            coordinate_dict = read_shp_extent(f"{stack_folder}/stackswath_coverage.shp")
-            dates = glob.glob(f"{stack_folder}/stack/2*")
-            dates = [date.split('/')[-1] for date in dates]
-            if len(dates) > 0:
-                first_date = min(dates)
-                last_date = max(dates)
-                n_dates = len(dates)
-            else:
-                first_date = None
-                last_date = None
-                n_dates = 0
+                coordinate_dict = read_shp_extent(f"{stack_folder}/stackswath_coverage.shp")
+                dates = glob.glob(f"{stack_folder}/stack/2*")
+                dates = [date.split('/')[-1] for date in dates]
+                if len(dates) > 0:
+                    first_date = min(dates)
+                    last_date = max(dates)
+                    n_dates = len(dates)
+                else:
+                    first_date = None
+                    last_date = None
+                    n_dates = 0
 
-            for name in list(sorted(list(coordinate_dict.keys()))):
-                kml.add_polygon(coordinate_dict[name], f"{AoI}_{track}_{name}",
-                                f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
-                                'stack')
+                for name in list(sorted(list(coordinate_dict.keys()))):
+                    kml.add_polygon(coordinate_dict[name], f"{AoI}_{track}_{name}",
+                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                                    'stack')
 
-            kml.close_folder()
+                kml.close_folder()
 
         kml.close_folder()
 

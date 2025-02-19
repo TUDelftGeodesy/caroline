@@ -286,12 +286,18 @@ if __name__ == "__main__":
     kml.open_folder('Coregistered stacks', 'Extents of all coregistered stacks')
 
     if LOCAL:
-        s1_stack_folder = SLC_base_folder
+        s1_stack_folders = [SLC_base_folder]
     else:
-        s1_stack_folder = '/project/caroline/Share/stacks'
+        s1_stack_folders = ['/project/caroline/Share/stacks',
+                            '/project/caroline/Share/users/caroline-admin/caroline-test/test_nl_amsterdam_v2/stack']
 
     # filter out the Sentinel-1 stacks
-    stack_folders = list(sorted(glob.glob(f'{s1_stack_folder}/*_s1_[ad]sc_t*')))
+    stack_folders = []
+    for folder in s1_stack_folders:
+        part_folders = list(sorted(glob.glob(f'{folder}/*_s1_[ad]sc_t*')))
+        for f in part_folders:
+            stack_folders.append(f)
+    stack_folders = list(sorted(stack_folders))
 
     # Group them per AoI
     grouped_stack_folders = {}
@@ -325,7 +331,7 @@ if __name__ == "__main__":
 
                 for name in list(sorted(list(coordinate_dict.keys()))):
                     kml.add_polygon(coordinate_dict[name], f"{AoI_name}_{AoI}_{name}",
-                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\nLocated in {stack_folder}',
                                     'stack')
 
                 kml.close_folder()

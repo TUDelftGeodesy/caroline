@@ -297,19 +297,19 @@ if __name__ == "__main__":
     grouped_stack_folders = {}
 
     for stack_folder in stack_folders:
-        AoI_name = stack_folder.split('/')[-1].split('_s1_')[0]
-        if AoI_name in grouped_stack_folders.keys():
-            grouped_stack_folders[AoI_name].append(stack_folder)
+        track = stack_folder.split('_s1_')[-1]
+        if track in grouped_stack_folders.keys():
+            grouped_stack_folders[track].append(stack_folder)
         else:
-            grouped_stack_folders[AoI_name] = [stack_folder]
+            grouped_stack_folders[track] = [stack_folder]
 
     for AoI in list(sorted(list(grouped_stack_folders.keys()))):
         kml.open_folder(AoI)
 
         for stack_folder in list(sorted(grouped_stack_folders[AoI])):
             if os.path.exists(f"{stack_folder}/stackswath_coverage.shp"):
-                track = stack_folder.split('_s1_')[-1]
-                kml.open_folder(track)
+                AoI_name = stack_folder.split('/')[-1].split('_s1_')[0]
+                kml.open_folder(AoI_name)
 
                 coordinate_dict = read_shp_extent(f"{stack_folder}/stackswath_coverage.shp")
                 dates = glob.glob(f"{stack_folder}/stack/2*")

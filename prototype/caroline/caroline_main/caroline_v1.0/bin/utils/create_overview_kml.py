@@ -13,6 +13,7 @@ def read_SLC_json(filename):
 
 
 def read_SLC_xml(filename):
+    print(f'Parsing {filename}...')
     tree = ET.parse(filename)
     root = tree.getroot()
     for idx in range(len(root)):

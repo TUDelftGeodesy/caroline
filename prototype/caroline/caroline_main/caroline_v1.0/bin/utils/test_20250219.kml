@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+    <StyleMap id="SLC">
+        <Pair>
+            <key>normal</key>
+            <styleUrl>#SLC-n</styleUrl>
+        </Pair>
+        <Pair>
+            <key>highlight</key>
+            <styleUrl>#SLC-h</styleUrl>
+        </Pair>
+    </StyleMap>
+    <Style id="SLC-n">
+        <LineStyle>
+            <color>ff0000ff</color>
+            <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+            <color>8014B4FF</color>
+            <fill>1</fill>
+            <outline>1</outline>
+        </PolyStyle>
+    </Style>
+    <Style id="SLC-h">
+        <LineStyle>
+            <color>ff00ffff</color>
+            <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+            <color>5014B4FF</color>
+            <fill>1</fill>
+            <outline>1</outline>
+        </PolyStyle>
+    </Style>
+    <StyleMap id="AoI">
+        <Pair>
+            <key>normal</key>
+            <styleUrl>#AoI-n</styleUrl>
+        </Pair>
+        <Pair>
+            <key>highlight</key>
+            <styleUrl>#AoI-h</styleUrl>
+        </Pair>
+    </StyleMap>
+    <Style id="AoI-n">
+        <LineStyle>
+            <color>ff00ff00</color>
+            <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+            <color>8078E352</color>
+            <fill>1</fill>
+            <outline>1</outline>
+        </PolyStyle>
+    </Style>
+    <Style id="AoI-h">
+        <LineStyle>
+            <color>ff00ffff</color>
+            <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+            <color>5078E352</color>
+            <fill>1</fill>
+            <outline>1</outline>
+        </PolyStyle>
+    </Style>
+    <StyleMap id="stack">
+        <Pair>
+            <key>normal</key>
+            <styleUrl>#stack-n</styleUrl>
+        </Pair>
+        <Pair>
+            <key>highlight</key>
+            <styleUrl>#stack-h</styleUrl>
+        </Pair>
+    </StyleMap>
+    <Style id="stack-n">
+        <LineStyle>
+            <color>ffff0000</color>
+            <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+            <color>80919C8E</color>
+            <fill>1</fill>
+            <outline>1</outline>
+        </PolyStyle>
+    </Style>
+    <Style id="stack-h">
+        <LineStyle>
+            <color>ff00ffff</color>
+            <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+            <color>50919C8E</color>
+            <fill>1</fill>
+            <outline>1</outline>
+        </PolyStyle>
+    </Style>    
+<Folder>
+    <name>SLCs</name>
+    <description>Extents of all downloaded SLCs</description>
+<Folder>
+    <name>s1_dsc_t009</name>
+    <description></description>
+<Placemark>
+    <name>s1_dsc_t009_img1</name>
+    <description>20231031 - 20231031 (1 image)</description>
+    <styleUrl>#SLC</styleUrl>
+    <Polygon>
+        <outerBoundaryIs>
+            <LinearRing>
+                <coordinates>
+                  -15.459816,64.926018
+                  -14.362425,66.681412
+                  -20.01016,67.151932
+                  -20.733864,65.37812
+                  -15.459816,64.926018
+             </coordinates>
+            </LinearRing>
+        </outerBoundaryIs>
+    </Polygon>
+</Placemark></Folder>
+<Folder>
+    <name>s1_dsc_t037</name>
+    <description></description>
+<Placemark>
+    <name>s1_dsc_t037_img1</name>
+    <description>20250211 - 20250211 (1 image)</description>
+    <styleUrl>#SLC</styleUrl>
+    <Polygon>
+        <outerBoundaryIs>
+            <LinearRing>
+                <coordinates>
+                  8.45766,53.750637
+                  4.546449,54.161552
+                  4.135508,52.541489
+                  7.899701,52.134155
+                  8.45766,53.750637
+             </coordinates>
+            </LinearRing>
+        </outerBoundaryIs>
+    </Polygon>
+</Placemark><Placemark>
+    <name>s1_dsc_t037_img2</name>
+    <description>20250211 - 20250211 (1 image)</description>
+    <styleUrl>#SLC</styleUrl>
+    <Polygon>
+        <outerBoundaryIs>
+            <LinearRing>
+                <coordinates>
+                  7.945233,52.26963
+                  4.169297,52.677223
+                  3.771196,51.056309
+                  7.412035,50.651535
+                  7.945233,52.26963
+             </coordinates>
+            </LinearRing>
+        </outerBoundaryIs>
+    </Polygon>
+</Placemark><Placemark>
+    <name>s1_dsc_t037_img3</name>
+    <description>20250211 - 20250211 (1 image)</description>
+    <styleUrl>#SLC</styleUrl>
+    <Polygon>
+        <outerBoundaryIs>
+            <LinearRing>
+                <coordinates>
+                  7.452123,50.787586
+                  3.801971,51.192303
+                  3.415191,49.570446
+                  6.940976,49.167858
+                  7.452123,50.787586
+             </coordinates>
+            </LinearRing>
+        </outerBoundaryIs>
+    </Polygon>
+</Placemark><Placemark>
+    <name>s1_dsc_t037_img4</name>
+    <description>20250211 - 20250211 (1 image)</description>
+    <styleUrl>#SLC</styleUrl>
+    <Polygon>
+        <outerBoundaryIs>
+            <LinearRing>
+                <coordinates>
+                  6.98252,49.303497
+                  3.446906,49.706211
+                  3.058722,48.034065
+                  6.476249,47.632912
+                  6.98252,49.303497
+             </coordinates>
+            </LinearRing>
+        </outerBoundaryIs>
+    </Polygon>
+</Placemark></Folder>
+</Folder>
+</Document>
+</kml>

@@ -3,6 +3,7 @@ import glob
 import json
 from datetime import datetime
 import xml.etree.ElementTree as ET
+import geopandas
 
 
 def read_SLC_json(filename):
@@ -25,6 +26,22 @@ def read_SLC_xml(filename):
                 return coordinates
 
     raise ValueError(f'Cannot find footprint in {filename}!')
+
+
+def read_shp_extent(filename):
+    shape = geopandas.read_file(filename)
+
+    coordinate_dict = {}
+
+    for i in range(len(shape)):
+        name = shape['name'].get(i)
+        geom = shape['geometry'].get(i)
+        boundary = geom.boundary.xy
+        coordinates = [[boundary[0][i], boundary[1][i]] for i in range(len(boundary[0]))]
+
+        coordinate_dict[name] = coordinates[:]
+
+    return coordinate_dict
 
 
 class KML:
@@ -149,7 +166,7 @@ class KML:
     </Style>    
 """
 
-    def open_folder(self, folder_name, folder_description):
+    def open_folder(self, folder_name, folder_description=""):
         self.kml += f"""<Folder>
     <name>{folder_name}</name>
     <description>{folder_description}</description>
@@ -179,6 +196,8 @@ class KML:
 </Placemark>"""
 
 
+LOCAL = False
+
 if __name__ == "__main__":
     # AN EXAMPLE WORKFLOW:
     """
@@ -204,12 +223,18 @@ if __name__ == "__main__":
     now = datetime.now()
     now_str = now.strftime("%Y%m%d")
 
-    # kml = KML(f'test_{now_str}.kml')
-    kml = KML(f'/project/caroline/Share/caroline-aoi-extents/AoI_summary_{now_str}.kml')
+    if LOCAL:
+        kml = KML(f'/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_{now_str}.kml')
+    else:
+        kml = KML(f'/project/caroline/Share/caroline-aoi-extents/AoI_summary_{now_str}.kml')
+
+    # START WITH THE SLCs
     kml.open_folder('SLCs', 'Extents of all downloaded SLCs')
 
-    # SLC_base_folder = '/Users/sanvandiepen/PycharmProjects/workingEnvironment2/stackswaths'
-    SLC_base_folder = '/project/caroline/Data/radar_data/sentinel1'
+    if LOCAL:
+        SLC_base_folder = '/Users/sanvandiepen/PycharmProjects/workingEnvironment2/stackswaths'
+    else:
+        SLC_base_folder = '/project/caroline/Data/radar_data/sentinel1'
     SLC_folders = list(sorted(glob.glob(f"{SLC_base_folder}/s1*")))
 
     for SLC_folder in SLC_folders:
@@ -219,7 +244,7 @@ if __name__ == "__main__":
         dates = [date.split('/')[-1] for date in dates]
 
         if len(dates) > 0:
-            kml.open_folder(name_pt1, '')
+            kml.open_folder(name_pt1)
             first_date = min(dates)
             last_date = max(dates)
             n_dates = len(dates)
@@ -256,6 +281,58 @@ if __name__ == "__main__":
 
             kml.close_folder()
     kml.close_folder()
+
+    # Then the stack AoIs
+    kml.open_folder('SLCs', 'Extents of all coregistered stacks')
+
+    if LOCAL:
+        s1_stack_folder = SLC_base_folder
+    else:
+        s1_stack_folder = '/project/caroline/Share/stacks'
+
+    # filter out the Sentinel-1 stacks
+    stack_folders = list(sorted(glob.glob(f'{s1_stack_folder}/*_s1_[ad]sc_t*')))
+
+    # Group them per AoI
+    grouped_stack_folders = {}
+
+    for stack_folder in stack_folders:
+        AoI_name = stack_folder.split('/')[-1].split('_s1_')[0]
+        if AoI_name in grouped_stack_folders.keys():
+            grouped_stack_folders[AoI_name].append(stack_folder)
+        else:
+            grouped_stack_folders[AoI_name] = [stack_folder]
+
+    for AoI in list(sorted(list(grouped_stack_folders.keys()))):
+        kml.open_folder(AoI)
+
+        for stack_folder in list(sorted(grouped_stack_folders[AoI])):
+            track = stack_folder.split('_s1_')[-1]
+            kml.open_folder(track)
+
+            coordinate_dict = read_shp_extent(f"{stack_folder}/stackswath_coverage.shp")
+            dates = glob.glob(f"{stack_folder}/stack/2*")
+            dates = [date.split('/')[-1] for date in dates]
+            if len(dates) > 0:
+                first_date = min(dates)
+                last_date = max(dates)
+                n_dates = len(dates)
+            else:
+                first_date = None
+                last_date = None
+                n_dates = 0
+
+            for name in list(sorted(list(coordinate_dict.keys()))):
+                kml.add_polygon(coordinate_dict[name], f"{AoI}_{track}_{name}",
+                                f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                                'stack')
+
+            kml.close_folder()
+
+        kml.close_folder()
+
+    kml.close_folder()
+
     kml.save()
 
 

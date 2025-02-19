@@ -2,6 +2,7 @@ import os
 import glob
 import json
 from datetime import datetime
+import xml.etree.ElementTree as ET
 
 
 def read_SLC_json(filename):
@@ -9,6 +10,20 @@ def read_SLC_json(filename):
     data = json.load(f)
     f.close()
     return data['geometry']['coordinates'][0]
+
+
+def read_SLC_xml(filename):
+    tree = ET.parse(filename)
+    root = tree.getroot()
+    for idx in range(len(root)):
+        if 'name' in root[idx].attrib.keys():
+            if root[idx].attrib["name"] == 'footprint':
+                data = root[idx].text.split('(')[-1].split(')')[0]
+                coordinates = data.split(',')
+                coordinates = [coordinate.strip().split(' ') for coordinate in coordinates]
+                return coordinates
+
+    raise ValueError(f'Cannot find footprint in {filename}!')
 
 
 class KML:
@@ -208,11 +223,36 @@ if __name__ == "__main__":
             last_date = max(dates)
             n_dates = len(dates)
             jsons = list(sorted(glob.glob(f"{SLC_folder}/IW_SLC__1SDV_VVVH/{last_date}/*.json")))
-            for n, json_file in enumerate(jsons):
-                coordinates = read_SLC_json(json_file)
+            if len(jsons) > 0:
+                for n, json_file in enumerate(jsons):
+                    coordinates = read_SLC_json(json_file)
 
-                kml.add_polygon(coordinates, f"{name_pt1}_img{n+1}",
-                                f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})', 'SLC')
+                    kml.add_polygon(coordinates, f"{name_pt1}_img{n+1}",
+                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})', 'SLC')
+            else:
+                # if the last folder does not contain jsons, the current download has not been activated.
+                # We need to reverse in time to find a .xml or .json
+                rev_dates = list(sorted(dates))[::-1]
+                for date in rev_dates:
+                    jsons = list(sorted(glob.glob(f"{SLC_folder}/IW_SLC__1SDV_VVVH/{date}/*.json")))
+                    xmls = list(sorted(glob.glob(f"{SLC_folder}/IW_SLC__1SDV_VVVH/{date}/*.xml")))
+                    if len(jsons) > 0 or len(xmls) > 0:
+                        if len(jsons) > 0:
+                            for n, json_file in enumerate(jsons):
+                                coordinates = read_SLC_json(json_file)
+
+                                kml.add_polygon(coordinates, f"{name_pt1}_img{n + 1}",
+                                                f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                                                'SLC')
+                        elif len(xmls) > 0:
+                            for n, xml_file in enumerate(xmls):
+                                coordinates = read_SLC_xml(xml_file)
+
+                                kml.add_polygon(coordinates, f"{name_pt1}_img{n + 1}",
+                                                f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                                                'SLC')
+                        break  # to only add it once
+
             kml.close_folder()
     kml.close_folder()
     kml.save()

@@ -312,9 +312,12 @@ if __name__ == "__main__":
     for AoI in list(sorted(list(grouped_stack_folders.keys()))):
         kml.open_folder(AoI)
 
-        for stack_folder in list(sorted(grouped_stack_folders[AoI])):
+        AoI_names = [[stack_folder.split('/')[-1].split('_s1_')[0], stack_folder]
+                     for stack_folder in grouped_stack_folders[AoI]]
+        for AoI_name_zipped in list(sorted(AoI_names)):
+            stack_folder = AoI_name_zipped[1]
+            AoI_name = AoI_name_zipped[0]
             if os.path.exists(f"{stack_folder}/stackswath_coverage.shp"):
-                AoI_name = stack_folder.split('/')[-1].split('_s1_')[0]
                 kml.open_folder(AoI_name)
 
                 coordinate_dict = read_shp_extent(f"{stack_folder}/stackswath_coverage.shp")

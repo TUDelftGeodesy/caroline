@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 import xml.etree.ElementTree as ET
 import geopandas
+from read_param_file import read_param_file
 
 
 def read_SLC_json(filename):
@@ -282,14 +283,44 @@ if __name__ == "__main__":
             kml.close_folder()
     kml.close_folder()
 
+    # First read all CAROLINE parameter files and save the properties
+    if LOCAL:
+        CAROLINE_PARAM_DIR = '/Users/sanvandiepen/PycharmProjects/workingEnvironment2/GitHub_repos/caroline/prototype/caroline/caroline_main/caroline_v1.0/run_files'
+    else:
+        CAROLINE_PARAM_DIR = '/project/caroline/Software/caroline-prototype/caroline_v1.0/run_files'
+
+    param_files = glob.glob(f"{CAROLINE_PARAM_DIR}/param_file_Caroline_v*_spider_*")
+    param_file_data = {}
+    for param_file in param_files:
+        out = read_param_file(CAROLINE_PARAM_DIR, param_file.split('/')[-1],
+                              ['sensor', 'coregistration_directory', 'coregistration_AoI_name', 'do_coregistration',
+                               'do_crop', 'do_reslc', 'do_depsi', 'do_depsi_post', 'skygeo_customer', 'skygeo_viewer',
+                               'crop_directory', 'reslc_directory', 'depsi_directory', 'shape_directory',
+                               'shape_AoI_name', 'project_owner', 'project_owner_email', 'project_engineer',
+                               'project_engineer_email', 'project_objective', 'project_notes'])
+
+        if out['sensor'] == 'S1':  # for now we only consider Sentinel-1
+            param_file_AoI_name = param_file.split('_spider_')[-1].split('.')[0]
+            track_list_file = f"{CAROLINE_PARAM_DIR}/../../area-track-lists/{param_file_AoI_name}.dat"
+            if os.path.exists(track_list_file):
+                f = open(track_list_file)
+                data = f.read().split('\n')
+                f.close()
+                out['tracks'] = ", ".join(data[1:])
+            elif param_file_AoI_name == "TEST_nl_amsterdam":
+                out['tracks'] = "s1_dsc_t037"
+            else:
+                out['tracks'] = "Unknown"
+            param_file_data[param_file_AoI_name] = out
+
     # Then the stack AoIs
     kml.open_folder('Coregistered stacks', 'Extents of all coregistered stacks')
 
     if LOCAL:
         s1_stack_folders = [SLC_base_folder]
     else:
-        s1_stack_folders = ['/project/caroline/Share/stacks',
-                            '/project/caroline/Share/users/caroline-admin/caroline-test/test_nl_amsterdam_v2/stack']
+        s1_stack_folders = list(sorted(list(set([param_file_data[i]['coregistration_directory']]
+                                                for i in param_file_data.keys()))))
 
     # filter out the Sentinel-1 stacks
     stack_folders = []
@@ -332,9 +363,24 @@ if __name__ == "__main__":
                     last_date = None
                     n_dates = 0
 
+                message = f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
+                message += f'Located in {stack_folder}\n'
+                check_coreg_directory = stack_folder.split('/'+AoI_name)[0]
+                check_track = stack_folder.split(AoI_name+'_')[1]
+                workflows = []
+                for param_file_AoI_name in param_file_data.keys():
+                    if param_file_data[param_file_AoI_name]['coregistration_directory'] == check_coreg_directory:
+                        if param_file_data[param_file_AoI_name]['coregistration_AoI_name'] == AoI_name:
+                            if check_track in param_file_data[param_file_AoI_name]['tracks']:
+                                workflows.append(param_file_AoI_name)
+                if len(workflows) > 0:
+                    message += "Part of CAROLINE workflows " + ", ".join(workflows)
+                else:
+                    message += "Not part of any CAROLINE workflows"
+
                 for name in list(sorted(list(coordinate_dict.keys()))):
                     kml.add_polygon(coordinate_dict[name], f"{AoI_name}_{AoI}_{name}",
-                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\nLocated in {stack_folder}',
+                                    message,
                                     'stack')
 
                 kml.close_folder()

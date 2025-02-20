@@ -299,7 +299,8 @@ if __name__ == "__main__":
                                'do_crop', 'do_reslc', 'do_depsi', 'do_depsi_post', 'skygeo_customer', 'skygeo_viewer',
                                'crop_directory', 'reslc_directory', 'depsi_directory', 'shape_directory',
                                'shape_AoI_name', 'project_owner', 'project_owner_email', 'project_engineer',
-                               'project_engineer_email', 'project_objective', 'project_notes'])
+                               'project_engineer_email', 'project_objective', 'project_notes', 'crop_AoI_name',
+                               'depsi_AoI_name'])
 
         if out['sensor'] == 'S1':  # for now we only consider Sentinel-1
             param_file_AoI_name = param_file.split('_spider_')[-1].split('.')[0]
@@ -421,17 +422,21 @@ if __name__ == "__main__":
             for step in ["coregistration", "crop", "reslc", "depsi", "depsi_post"]:
                 if param_file_data[param_file_AoI_name][f"do_{step}"] == "1":
                     if step == "depsi_post":
-                        message += f"{step}: done in {param_file_data[param_file_AoI_name][f'depsi_directory']}\n"
+                        message += f"{step}: done in {param_file_data[param_file_AoI_name][f'depsi_directory']}\n" \
+                                   f"(AoI {param_file_data[param_file_AoI_name][f'depsi_AoI_name']})\n"
                         message += f"Portal: https://caroline.portal-tud.skygeo.com/portal/" \
                                    f"{param_file_data[param_file_AoI_name]['skygeo_customer']}/" \
                                    f"{param_file_data[param_file_AoI_name]['skygeo_viewer']}/viewers/basic/"
                     else:
-                        message += f"{step}: done in {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
+                        message += f"{step}: done in {param_file_data[param_file_AoI_name][f'{step}_directory']} " \
+                                   f"(AoI {param_file_data[param_file_AoI_name][f'{step}_AoI_name']})\n"
                 else:
                     if step == "coregistration" and any([param_file_data[param_file_AoI_name][f"do_{step_}"] == "1" for step_ in ["crop", "reslc"]]):
-                        message += f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
+                        message += f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']} " \
+                                   f"(AoI {param_file_data[param_file_AoI_name]['coregistration_AoI_name']})\n"
                     elif step == "crop" and param_file_data[param_file_AoI_name][f"do_depsi"] == "1":
-                        message += f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
+                        message += f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']} " \
+                                   f"(AoI {param_file_data[param_file_AoI_name]['crop_AoI_name']})\n"
             kml.add_polygon(coordinate_dict["0"], param_file_AoI_name, message, "AoI")
 
     kml.close_folder()

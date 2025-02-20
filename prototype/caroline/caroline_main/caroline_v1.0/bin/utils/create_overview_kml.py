@@ -372,11 +372,11 @@ if __name__ == "__main__":
 
                 message = f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
                 message += f'Located in {stack_folder}\n'
-                check_coreg_directory = stack_folder.split('/'+AoI_name)[0]
-                check_track = stack_folder.split(AoI_name+'_')[1]
+                check_coreg_directory = stack_folder.split('/'+AoI_name+'_s1_')[0]
+                check_track = stack_folder.split(check_coreg_directory+'/'+AoI_name+'_')[1]
                 print(f"Checking {check_coreg_directory} , {AoI_name}, {check_track}...")
                 workflows = []
-                for param_file_AoI_name in param_file_data.keys():
+                for param_file_AoI_name in list(sorted(param_file_data.keys())):
                     if param_file_data[param_file_AoI_name]['coregistration_directory'] == check_coreg_directory:
                         if param_file_data[param_file_AoI_name]['coregistration_AoI_name'] == AoI_name:
                             if check_track in param_file_data[param_file_AoI_name]['tracks']:

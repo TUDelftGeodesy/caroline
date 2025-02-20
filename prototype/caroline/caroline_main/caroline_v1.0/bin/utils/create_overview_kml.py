@@ -300,7 +300,7 @@ if __name__ == "__main__":
                                'crop_directory', 'reslc_directory', 'depsi_directory', 'shape_directory',
                                'shape_AoI_name', 'project_owner', 'project_owner_email', 'project_engineer',
                                'project_engineer_email', 'project_objective', 'project_notes', 'crop_AoI_name',
-                               'depsi_AoI_name'])
+                               'depsi_AoI_name', 'reslc_AoI_name'])
 
         if out['sensor'] == 'S1':  # for now we only consider Sentinel-1
             param_file_AoI_name = param_file.split('_spider_')[-1].split('.')[0]

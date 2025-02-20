@@ -310,7 +310,14 @@ if __name__ == "__main__":
             elif param_file_AoI_name == "TEST_nl_amsterdam":
                 out['tracks'] = "s1_dsc_t037"
             else:
-                out['tracks'] = "Unknown"
+                track_list_file = f"{CAROLINE_PARAM_DIR}/../../area-track-lists/INACTIVE_{param_file_AoI_name}.dat"
+                if os.path.exists(track_list_file):
+                    f = open(track_list_file)
+                    data = f.read().split('\n')
+                    f.close()
+                    out['tracks'] = ", ".join(data[1:])
+                else:
+                    out['tracks'] = "Unknown"
             param_file_data[param_file_AoI_name] = out
 
     # Then the stack AoIs

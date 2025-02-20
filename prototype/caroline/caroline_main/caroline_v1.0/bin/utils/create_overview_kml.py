@@ -409,11 +409,14 @@ if __name__ == "__main__":
                                               "AoI")
             message = f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n\n"
             message += f"Project owner: {param_file_data[param_file_AoI_name]['project_owner']} (" \
-                       f"{param_file_data[param_file_AoI_name]['project_owner_email']}\n" \
+                       f"{param_file_data[param_file_AoI_name]['project_owner_email']})\n" \
                        f"Project engineer: {param_file_data[param_file_AoI_name]['project_engineer']} (" \
-                       f"{param_file_data[param_file_AoI_name]['project_engineer_email']}\n" \
-                       f"Objective: {param_file_data[param_file_AoI_name]['project_objective']}\n" \
-                       f"Notes: {param_file_data[param_file_AoI_name]['project_notes']}\n\n"
+                       f"{param_file_data[param_file_AoI_name]['project_engineer_email']})\n" \
+                       f"Objective: {param_file_data[param_file_AoI_name]['project_objective']}\n"
+            if param_file_data[param_file_AoI_name]['project_notes'] != '':
+                message += f"Notes: {param_file_data[param_file_AoI_name]['project_notes']}\n\n"
+            else:
+                message += '\n'
             message += "Processing steps done: \n"
             for step in ["coregistration", "crop", "reslc", "depsi", "depsi_post"]:
                 if param_file_data[param_file_AoI_name][f"do_{step}"] == "1":

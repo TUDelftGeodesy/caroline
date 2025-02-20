@@ -28,13 +28,16 @@ def read_SLC_xml(filename):
     raise ValueError(f'Cannot find footprint in {filename}!')
 
 
-def read_shp_extent(filename):
+def read_shp_extent(filename, type="swath"):
     shape = geopandas.read_file(filename)
 
     coordinate_dict = {}
 
     for i in range(len(shape)):
-        name = shape['name'].get(i)
+        if type == "swath":
+            name = shape['name'].get(i)
+        else:
+            name = str(i)
         geom = shape['geometry'].get(i)
         boundary = geom.boundary.xy
         coordinates = [[boundary[0][i], boundary[1][i]] for i in range(len(boundary[0]))]
@@ -336,7 +339,7 @@ if __name__ == "__main__":
             stack_folders.append(f)
     stack_folders = list(sorted(stack_folders))
 
-    # Group them per AoI
+    # Group them per track
     grouped_stack_folders = {}
 
     for stack_folder in stack_folders:
@@ -392,6 +395,28 @@ if __name__ == "__main__":
                 kml.close_folder()
 
         kml.close_folder()
+
+    kml.close_folder()
+
+    kml.open_folder("AoIs", "Extents of CAROLINEs AoIs")
+
+    # Finally, the processing AoIs
+    for param_file_AoI_name in list(sorted(param_file_data.keys())):
+        if os.path.exists(f"{param_file_data[param_file_AoI_name]['shape_directory']}/"
+                          f"{param_file_data[param_file_AoI_name]['shape_AoI_name']}_shape.shp"):
+            coordinate_dict = read_shp_extent(f"{param_file_data[param_file_AoI_name]['shape_directory']}/"
+                                              f"{param_file_data[param_file_AoI_name]['shape_AoI_name']}_shape.shp",
+                                              "AoI")
+            message = f"Tracks: {param_file_data[param_file_AoI_name]['tracks']}\nProcessing steps done: \n"
+            for step in ["coregistration", "crop", "reslc", "depsi", "depsi_post"]:
+                if param_file_data[param_file_AoI_name][f"do_{step}"] == 1:
+                    message += f"{step}: done in {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
+                else:
+                    if step == "coregistration" and any([param_file_data[param_file_AoI_name][f"do_{step_}"] == 1 for step_ in ["crop", "reslc"]]):
+                        message += f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
+                    elif step == "crop" and param_file_data[param_file_AoI_name][f"do_depsi"] == 1:
+                        message += f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
+            kml.add_polygon(coordinate_dict["0"], param_file_AoI_name, message, "AoI")
 
     kml.close_folder()
 

@@ -199,8 +199,6 @@ class KML:
 </Placemark>"""
 
 
-LOCAL = False
-
 if __name__ == "__main__":
     # AN EXAMPLE WORKFLOW:
     """
@@ -226,18 +224,12 @@ if __name__ == "__main__":
     now = datetime.now()
     now_str = now.strftime("%Y%m%d")
 
-    if LOCAL:
-        kml = KML(f'/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_{now_str}.kml')
-    else:
-        kml = KML(f'/project/caroline/Share/caroline-aoi-extents/AoI_summary_{now_str}.kml')
+    kml = KML(f'/project/caroline/Share/caroline-aoi-extents/AoI_summary_{now_str}.kml')
 
     # START WITH THE SLCs
     kml.open_folder('SLCs', 'Extents of all downloaded SLCs')
 
-    if LOCAL:
-        SLC_base_folder = '/Users/sanvandiepen/PycharmProjects/workingEnvironment2/stackswaths'
-    else:
-        SLC_base_folder = '/project/caroline/Data/radar_data/sentinel1'
+    SLC_base_folder = '/project/caroline/Data/radar_data/sentinel1'
     SLC_folders = list(sorted(glob.glob(f"{SLC_base_folder}/s1*")))
 
     for SLC_folder in SLC_folders:
@@ -286,10 +278,7 @@ if __name__ == "__main__":
     kml.close_folder()
 
     # First read all CAROLINE parameter files and save the properties
-    if LOCAL:
-        CAROLINE_PARAM_DIR = '/Users/sanvandiepen/PycharmProjects/workingEnvironment2/GitHub_repos/caroline/prototype/caroline/caroline_main/caroline_v1.0/run_files'
-    else:
-        CAROLINE_PARAM_DIR = '/project/caroline/Software/caroline-prototype/caroline_v1.0/run_files'
+    CAROLINE_PARAM_DIR = '/project/caroline/Software/caroline-prototype/caroline_v1.0/run_files'
 
     param_files = glob.glob(f"{CAROLINE_PARAM_DIR}/param_file_Caroline_v*_spider_*")
     param_file_data = {}
@@ -326,11 +315,8 @@ if __name__ == "__main__":
     # Then the stack AoIs
     kml.open_folder('Coregistered stacks', 'Extents of all coregistered stacks')
 
-    if LOCAL:
-        s1_stack_folders = [SLC_base_folder]
-    else:
-        s1_stack_folders = list(sorted(list(set([param_file_data[i]['coregistration_directory']
-                                                for i in param_file_data.keys()]))))
+    s1_stack_folders = list(sorted(list(set([param_file_data[i]['coregistration_directory']
+                                            for i in param_file_data.keys()]))))
 
     # filter out the Sentinel-1 stacks
     stack_folders = []

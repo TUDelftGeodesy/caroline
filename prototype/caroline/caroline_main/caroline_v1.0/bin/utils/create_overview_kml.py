@@ -407,11 +407,23 @@ if __name__ == "__main__":
             coordinate_dict = read_shp_extent(f"{param_file_data[param_file_AoI_name]['shape_directory']}/"
                                               f"{param_file_data[param_file_AoI_name]['shape_AoI_name']}_shape.shp",
                                               "AoI")
-            message = f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n"
+            message = f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n\n"
+            message += f"Project owner: {param_file_data[param_file_AoI_name]['project_owner']} (" \
+                       f"{param_file_data[param_file_AoI_name]['project_owner_email']}\n" \
+                       f"Project engineer: {param_file_data[param_file_AoI_name]['project_engineer']} (" \
+                       f"{param_file_data[param_file_AoI_name]['project_engineer_email']}\n" \
+                       f"Objective: {param_file_data[param_file_AoI_name]['project_objective']}\n" \
+                       f"Notes: {param_file_data[param_file_AoI_name]['project_notes']}\n\n"
             message += "Processing steps done: \n"
             for step in ["coregistration", "crop", "reslc", "depsi", "depsi_post"]:
                 if param_file_data[param_file_AoI_name][f"do_{step}"] == "1":
-                    message += f"{step}: done in {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
+                    if step == "depsi_post":
+                        message += f"{step}: done in {param_file_data[param_file_AoI_name][f'depsi_directory']}\n"
+                        message += f"Portal: https://caroline.portal-tud.skygeo.com/portal/" \
+                                   f"{param_file_data[param_file_AoI_name]['skygeo_customer']}/" \
+                                   f"{param_file_data[param_file_AoI_name]['skygeo_viewer']}/viewers/basic/"
+                    else:
+                        message += f"{step}: done in {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
                 else:
                     if step == "coregistration" and any([param_file_data[param_file_AoI_name][f"do_{step_}"] == "1" for step_ in ["crop", "reslc"]]):
                         message += f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"

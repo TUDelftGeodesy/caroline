@@ -374,6 +374,7 @@ if __name__ == "__main__":
                 message += f'Located in {stack_folder}\n'
                 check_coreg_directory = stack_folder.split('/'+AoI_name)[0]
                 check_track = stack_folder.split(AoI_name+'_')[1]
+                print(f"Checking {check_coreg_directory} , {AoI_name}, {check_track}...")
                 workflows = []
                 for param_file_AoI_name in param_file_data.keys():
                     if param_file_data[param_file_AoI_name]['coregistration_directory'] == check_coreg_directory:

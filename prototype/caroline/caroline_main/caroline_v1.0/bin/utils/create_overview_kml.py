@@ -410,13 +410,12 @@ if __name__ == "__main__":
             message = f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n"
             message += "Processing steps done: \n"
             for step in ["coregistration", "crop", "reslc", "depsi", "depsi_post"]:
-                print(param_file_data[param_file_AoI_name][f"do_{step}"], step, param_file_data[param_file_AoI_name][f"do_{step}"] == 1)
-                if param_file_data[param_file_AoI_name][f"do_{step}"] == 1:
+                if param_file_data[param_file_AoI_name][f"do_{step}"] == "1":
                     message += f"{step}: done in {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
                 else:
-                    if step == "coregistration" and any([param_file_data[param_file_AoI_name][f"do_{step_}"] == 1 for step_ in ["crop", "reslc"]]):
+                    if step == "coregistration" and any([param_file_data[param_file_AoI_name][f"do_{step_}"] == "1" for step_ in ["crop", "reslc"]]):
                         message += f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
-                    elif step == "crop" and param_file_data[param_file_AoI_name][f"do_depsi"] == 1:
+                    elif step == "crop" and param_file_data[param_file_AoI_name][f"do_depsi"] == "1":
                         message += f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
             kml.add_polygon(coordinate_dict["0"], param_file_AoI_name, message, "AoI")
 

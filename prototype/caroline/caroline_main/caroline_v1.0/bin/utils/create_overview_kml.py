@@ -407,8 +407,10 @@ if __name__ == "__main__":
             coordinate_dict = read_shp_extent(f"{param_file_data[param_file_AoI_name]['shape_directory']}/"
                                               f"{param_file_data[param_file_AoI_name]['shape_AoI_name']}_shape.shp",
                                               "AoI")
-            message = f"Tracks: {param_file_data[param_file_AoI_name]['tracks']}\nProcessing steps done: \n"
+            message = f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n"
+            message += "Processing steps done: \n"
             for step in ["coregistration", "crop", "reslc", "depsi", "depsi_post"]:
+                print(param_file_data[param_file_AoI_name][f"do_{step}"], step, param_file_data[param_file_AoI_name][f"do_{step}"] == 1)
                 if param_file_data[param_file_AoI_name][f"do_{step}"] == 1:
                     message += f"{step}: done in {param_file_data[param_file_AoI_name][f'{step}_directory']}\n"
                 else:

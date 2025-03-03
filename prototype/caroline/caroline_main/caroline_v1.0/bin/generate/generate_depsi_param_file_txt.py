@@ -104,16 +104,21 @@ for track in range(len(tracks)):
         directories = glob.glob("{}/{}_{}_{}_t{:0>3d}-*".format(out_parameters['depsi_directory'], AoI_name,
                                                                 out_parameters['sensor'].lower(), asc_dsc[track],
                                                                 tracks[track]))
+        ref_cn = '[]'
         if len(directories) == 0:
             # no old runs are present, so we run on mode 'independent' for the initialization
-            ref_cn = '[]'
+            pass
         else:
             rev_order_runs = list(sorted(directories))[::-1]  # sort and reverse them to find the most recent one
-            ref_file = f"{rev_order_runs[0]}/psi/{AoI_name}_{out_parameters['sensor'].lower()}_" \
-                f"{asc_dsc[track]}_t{tracks[track]:0>3d}_ref_sel1.raw"  # this file saves the selected reference
-            ref_data = np.memmap(ref_file, mode="r", shape=(3, ), dtype="float64")
-            # this outputs the reference point in [index, az, r]. We need [az,r]
-            ref_cn = f'[{int(round(ref_data[1]))},{int(round(ref_data[2]))}]'
+            for i in range(len(rev_order_runs)):  # loop in case one crashed. If all crashed,
+                # ref_cn is defined before the if/else, and we run on mode 'independent'
+                ref_file = f"{rev_order_runs[i]}/psi/{AoI_name}_{out_parameters['sensor'].lower()}_" \
+                    f"{asc_dsc[track]}_t{tracks[track]:0>3d}_ref_sel1.raw"  # this file saves the selected reference
+                if os.path.exists(ref_file):
+                    ref_data = np.memmap(ref_file, mode="r", shape=(3, ), dtype="float64")
+                    # this outputs the reference point in [index, az, r]. We need [az,r]
+                    ref_cn = f'[{int(round(ref_data[1]))},{int(round(ref_data[2]))}]'
+                    break  # we found one, so we can stop
 
     else:
         raise ValueError(f"Expected types are dictionary, 'independent', '[]', '[az, r]', or 'constant', got {mode}")

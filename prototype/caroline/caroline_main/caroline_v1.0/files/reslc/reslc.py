@@ -41,7 +41,7 @@ def get_free_port():
 
 # ---- Config 1: Path Configuration ----
 # Paths and files
-stack_dir = Path("{coregistration_directory}/{coregistration_AoI_name}_{sensor}_{asc_dsc}_t{track}/stack")  # ifg stack dir
+stack_dir = Path("{coregistration_directory}/{coregistration_AoI_name}_{sensor}_{asc_dsc}_t{track}/{stack_folder_name}")  # ifg stack dir
 mother_dir = stack_dir / "{mother}"  # Mother image dir
 reading_chunks = (4000, 4000)  # Reading chunks (azimuth, range) from binary
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     f_phi = mother_dir / "phi.raw" # lat
 
     # Mother SLC
-    f_mother_slc = mother_dir / "slave_rsmp_reramped.raw"
+    f_mother_slc = mother_dir / "{mother_slc_name}"
 
     # List of SLC
     f_ifgs = list(sorted(stack_dir.rglob("2*/cint_srd.raw")))

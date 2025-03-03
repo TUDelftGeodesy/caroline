@@ -136,4 +136,6 @@ readfiles(slcs, processdir)
 {do_coherence_vh}coherence(slcs, processdir, altimg='_VH')
 {do_coherence_vv}coherence(slcs, processdir, altimg='_VV')
 
+{do_geocoding}fake_slant2h(master, processdir)
 
+{do_geocoding}geocoding(master, processdir)

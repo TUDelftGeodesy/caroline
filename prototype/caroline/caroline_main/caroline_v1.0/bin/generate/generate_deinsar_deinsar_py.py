@@ -11,7 +11,7 @@ search_parameters = ['sensor', 'polarisation', 'di_do_orbit', 'coregistration_di
                      'di_do_finecoreg', 'di_do_reltiming', 'di_do_dembased', 'di_do_coregpm', 'di_do_resample',
                      'di_do_tsx_reramp', 'di_do_interferogram', 'di_do_subtrrefpha', 'di_do_subtrrefdem',
                      'di_do_coherence', 'di_data_directories', 'start_date', 'end_date', 'master_date',
-                     'di_do_comprefdem', 'di_do_comprefpha']
+                     'di_do_comprefdem', 'di_do_comprefpha', 'di_do_geocoding']
 out_parameters = read_param_file(cpath, param_file, search_parameters)
 
 tracks = eval(out_parameters['track'])
@@ -102,6 +102,7 @@ do_coherence_hh = '' if (out_parameters['di_do_coherence'] == '1' and 'HH' in po
 do_coherence_hv = '' if (out_parameters['di_do_coherence'] == '1' and 'HV' in polarisation) else '#'
 do_coherence_vh = '' if (out_parameters['di_do_coherence'] == '1' and 'VH' in polarisation) else '#'
 do_coherence_vv = '' if (out_parameters['di_do_coherence'] == '1' and 'VV' in polarisation) else '#'
+do_geocoding = '' if out_parameters['di_do_geocoding'] == '1' else '#'
 
 for track in range(len(tracks)):
     basedir = "{}/{}_{}_{}_t{:0>3d}".format(out_parameters['coregistration_directory'],
@@ -193,7 +194,8 @@ for track in range(len(tracks)):
                             do_coherence_hh=do_coherence_hh,
                             do_coherence_hv=do_coherence_hv,
                             do_coherence_vh=do_coherence_vh,
-                            do_coherence_vv=do_coherence_vv)
+                            do_coherence_vv=do_coherence_vv,
+                            do_geocoding=do_geocoding)
 
     fw = open(f"{basedir}/run_deinsar.py", "w")
     fw.write(data)

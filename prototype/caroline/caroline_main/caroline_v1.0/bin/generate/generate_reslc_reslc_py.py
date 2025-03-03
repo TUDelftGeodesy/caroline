@@ -14,6 +14,8 @@ base_stack.close()
 
 tracks = eval(out_parameters['track'])
 asc_dsc = eval(out_parameters['asc_dsc'])
+stack_folder_name = 'stack' if out_parameters['sensor'].lower() == 's1' else 'process'
+mother_slc_name = 'slave_rsmp_reramped.raw' if out_parameters['sensor'].lower() == 's1' else 'slave_rsmp.raw'
 
 for track in range(len(tracks)):
     f = open(f"{out_parameters['coregistration_directory']}/{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{'{:0>3d}'.format(tracks[track])}/doris_input.xml", "r")
@@ -32,7 +34,8 @@ for track in range(len(tracks)):
                         asc_dsc=asc_dsc[track], coregistration_AoI_name=coregistration_AoI_name,
                         track="{:0>3d}".format(tracks[track]), sensor=out_parameters['sensor'].lower(),
                         mother=mother, lb="{", rb="}", shape_directory=out_parameters['shape_directory'],
-                        shape_AoI_name=out_parameters["shape_AoI_name"])
+                        shape_AoI_name=out_parameters["shape_AoI_name"], stack_folder_name=stack_folder_name,
+                        mother_slc_name=mother_slc_name)
 
     fw = open("{}/{}_{}_{}_t{:0>3d}/reslc_{}_{}_{}_t{:0>3d}.py".format(out_parameters['reslc_directory'], AoI_name,
                                                                        out_parameters['sensor'].lower(), asc_dsc[track],

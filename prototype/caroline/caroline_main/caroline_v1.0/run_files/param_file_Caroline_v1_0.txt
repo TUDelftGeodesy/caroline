@@ -19,7 +19,7 @@ polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implem
 do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
 do_crop            = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
-do_reslc           = 1  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
+do_reslc           = 1  # Requires coregistration (here or dependency)
 
 do_depsi           = 1  # Requires crop (Sentinel-1), coregistration (otherwise) (here or dependency). Does not use reslc
 
@@ -117,7 +117,7 @@ do_unwrap                 = 0
 # The data directories should be in the same order as the tracks and asc_dsc above!
 di_data_directories       = ['/project/caroline/Data/radar_data/eurasia/netherlands/tsx/nl_amsterdam_tsx_asc_t116_T171816_171824_007_hh/data_backup']
 
-deinsar_code_directory   = '/project/caroline/Software/caroline-prototype/plugins/deinsar_v0.3.3'
+deinsar_code_directory   = '/project/caroline/Software/caroline-prototype/plugins/deinsar_v0.3.4'
 doris_v4_code_directory  = '/project/caroline/Software/doris/doris_v4.13.1_cosmo2_alos2fix_tsxfix'
 
 di_do_orbit               = 1 # only for ENV, ERS, RSAT2, will turn off for other sensors automatically
@@ -142,6 +142,7 @@ di_do_interferogram       = 1
 di_do_subtrrefpha         = 1
 di_do_subtrrefdem         = 1
 di_do_coherence           = 1
+di_do_geocoding           = 1
 
 ############################################
 ############## RESLC PARAMETERS ############

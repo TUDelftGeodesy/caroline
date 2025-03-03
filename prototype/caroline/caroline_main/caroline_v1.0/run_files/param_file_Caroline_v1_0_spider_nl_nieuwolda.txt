@@ -64,7 +64,7 @@ master_date= '2020-03-25' # will search for first image after this date that exi
 # send_completion_email = ''  # empty for no email
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl'  # emails Simon
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl'  # emails Simon and Ramon
-send_completion_email = 's.a.n.vandiepen@tudelft.nl,y.a.lumbangaol@tudelft.nl,r.f.hanssen@tudelft.nl,f.j.vanleijen@tudelft.nl'
+send_completion_email = 's.a.n.vandiepen@tudelft.nl'
 
 #############################################
 ################# DEM PARAMETERS ############

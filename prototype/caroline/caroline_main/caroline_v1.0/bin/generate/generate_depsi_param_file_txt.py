@@ -97,7 +97,7 @@ for track in range(len(tracks)):
 
     if mode in ['independent', '[]']:
         ref_cn = '[]'
-    elif mode == '[':  # hardcoded
+    elif mode[0] == '[':  # hardcoded
         ref_cn = mode.replace(' ', '')  # remove spaces since Matlab doesn't like them
     elif mode == 'constant':
         # find the old runs

@@ -1,6 +1,7 @@
 from sys import argv, path
 import os
 import glob
+import numpy as np
 path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
 filename, param_file, cpath, AoI_name, stitch_AoI_name, version, caroline_dir = argv
@@ -85,6 +86,38 @@ for track in range(len(tracks)):
         print("WARNING: Did not identify any properly coregistered / cropped directories! Cannot determine start and "
               "end date for DePSI, setting to None. This will crash DePSI.")
 
+    # #62 -> figure out the reference point
+    if out_parameters['ref_cn'][0] == '{':  # it's a dictionary
+        data = eval(out_parameters['ref_cn'])
+        assert f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}" in data.keys(), \
+            f"Cannot find {out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d} in ref_cn {data}!"
+        mode = data[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"]
+    else:
+        mode = out_parameters['ref_cn']
+
+    if mode in ['independent', '[]']:
+        ref_cn = '[]'
+    elif mode == '[':  # hardcoded
+        ref_cn = mode.replace(' ', '')  # remove spaces since Matlab doesn't like them
+    elif mode == 'constant':
+        # find the old runs
+        directories = glob.glob("{}/{}_{}_{}_t{:0>3d}-*".format(out_parameters['depsi_directory'], AoI_name,
+                                                                out_parameters['sensor'].lower(), asc_dsc[track],
+                                                                tracks[track]))
+        if len(directories) == 0:
+            # no old runs are present, so we run on mode 'independent' for the initialization
+            ref_cn = '[]'
+        else:
+            rev_order_runs = list(sorted(directories))[::-1]  # sort and reverse them to find the most recent one
+            ref_file = f"{rev_order_runs[0]}/psi/{AoI_name}_{out_parameters['sensor'].lower()}_" \
+                f"{asc_dsc[track]}_t{tracks[track]:0>3d}_ref_sel1.raw"  # this file saves the selected reference
+            ref_data = np.memmap(ref_file, mode="r", shape=(3, ), dtype="float64")
+            # this outputs the reference point in [index, az, r]. We need [az,r]
+            ref_cn = f'[{int(round(ref_data[1]))},{int(round(ref_data[2]))}]'
+
+    else:
+        raise ValueError(f"Expected types are dictionary, 'independent', '[]', '[az, r]', or 'constant', got {mode}")
+
     rf = open("{}/caroline_v{}/files/depsi/psi/param_file.txt".format(caroline_dir, version))
     param_file = rf.read()
     rf.close()
@@ -106,7 +139,7 @@ for track in range(len(tracks)):
                                    r_spacing=out_parameters['r_spacing'],
                                    slc_selection_input=out_parameters['slc_selection_input'],
                                    ifg_selection_input=out_parameters['ifg_selection_input'],
-                                   ref_cn=out_parameters['ref_cn'],
+                                   ref_cn=ref_cn,
                                    Ncv=out_parameters['Ncv'],
                                    ps_method=out_parameters['ps_method'],
                                    psc_model=out_parameters['psc_model'],

@@ -171,7 +171,20 @@ az_spacing          = 13.9
 r_spacing           = 4.0
 slc_selection_input = []
 ifg_selection_input = []
-ref_cn              = []
+
+# ref_cn specifies the reference point of the CAROLINE DePSI analyses. The following options are available:
+# ref_cn = 'independent'   -> DePSI chooses the reference point itself (one of the nodes of the arc with the lowest amplitude dispersion),
+#                             this can be different between consecutive runs on the same track.
+# ref_cn = []              -> same as 'independent'
+# ref_cn = 'constant'      -> keep the reference point constant between runs on the same track. If no runs exist,
+#                             the first run will run on mode 'independent'
+# ref_cn = [azimuth,range] -> force the reference point to this coordinate regardless of what is there. If the reference point is not selected
+#                             as PS point, DePSI will throw an error
+# ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300]} -> different behaviours for different tracks. If this option is chosen,
+#                                                                   a mode for all tracks in the .dat file must exist.
+# Recommended is 'constant'
+ref_cn              = {'s1_dsc_t047': 'constant', 's1_asc_t098': [1886,1587]}
+
 Ncv                 = 25
 ps_method           = 'boot'
 psc_model           = [3]

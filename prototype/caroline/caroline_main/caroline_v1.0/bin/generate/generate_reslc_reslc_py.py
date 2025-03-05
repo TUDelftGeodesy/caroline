@@ -18,17 +18,31 @@ stack_folder_name = 'stack' if out_parameters['sensor'].lower() == 's1' else 'pr
 mother_slc_name = 'slave_rsmp_reramped.raw' if out_parameters['sensor'].lower() == 's1' else 'slave_rsmp.raw'
 
 for track in range(len(tracks)):
-    f = open(f"{out_parameters['coregistration_directory']}/{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{'{:0>3d}'.format(tracks[track])}/doris_input.xml", "r")
-    data = f.read().split("\n")
-    f.close()
-    mother = None
-    for line in data:
-        if '<master_date>' in line:
-            mother = line.split('>')[1].split('<')[0].replace("-", "")
-            break
+    if out_parameters['sensor'].lower() == 's1':
+        f = open(f"{out_parameters['coregistration_directory']}/{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}/doris_input.xml", "r")
+        data = f.read().split("\n")
+        f.close()
+        mother = None
+        for line in data:
+            if '<master_date>' in line:
+                mother = line.split('>')[1].split('<')[0].replace("-", "")
+                break
 
-    if mother is None:
-        raise ValueError(f"Failed to detect mother in {out_parameters['coregistration_directory']}/{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]}/doris_input.xml !")
+        if mother is None:
+            raise ValueError(f"Failed to detect mother in {out_parameters['coregistration_directory']}/{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}/doris_input.xml !")
+
+    else:
+        f = open(f"{out_parameters['coregistration_directory']}/{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}/run_deinsar.py", "r")
+        data = f.read().split("\n")
+        f.close()
+        mother = None
+        for line in data:
+            if 'master = ' in line:
+                mother = line.split("'")[1]
+                break
+
+        if mother is None:
+            raise ValueError(f"Failed to detect mother in {out_parameters['coregistration_directory']}/{coregistration_AoI_name}_{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}/run_deinsar.py !")
 
     main = stack.format(reslc_AoI_name=AoI_name, coregistration_directory=out_parameters['coregistration_directory'],
                         asc_dsc=asc_dsc[track], coregistration_AoI_name=coregistration_AoI_name,

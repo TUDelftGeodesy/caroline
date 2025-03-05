@@ -105,15 +105,18 @@ try:
                         log += f'---Track {tracks[track]}_{asc_dsc[track]}---\n\n'
 
                         slurm_file = None
-                        dir_file = "{}/{}_s1_{}_t{:0>3d}/dir_contents.txt".format(
-                            out_parameters['stitch_directory'],
-                            out_parameters['stitch_AoI_name'],
+                        dir_file = "{}/{}_{}_{}_t{:0>3d}/dir_contents.txt".format(
+                            out_parameters['coregistration_directory'],
+                            out_parameters['coregistration_AoI_name'],
+                            out_parameters['sensor'].lower(),
                             asc_dsc[track], tracks[track])
                         f = open(dir_file)
                         prev_dir_contents = f.read().split('\n')
                         f.close()
-                        slurms = glob.glob("{}/{}_s1_{}_t{:0>3d}/slurm*.out".format(
-                            out_parameters['stitch_directory'], out_parameters['stitch_AoI_name'],
+                        slurms = glob.glob("{}/{}_{}_{}_t{:0>3d}/slurm*.out".format(
+                            out_parameters['coregistration_directory'],
+                            out_parameters['coregistration_AoI_name'],
+                            out_parameters['sensor'].lower(),
                             asc_dsc[track], tracks[track]))
                         for slurm in slurms:
                             if slurm.split('/')[-1] not in prev_dir_contents:
@@ -125,17 +128,17 @@ try:
                             status = f.read()
                             f.close()
 
-                            if 'Traceback (most recent call last):' in status:
+                            if 'Traceback (most recent call last):' in status or 'EXCEPTION class' in status:
                                 success_rates[step][1].append(
-                                    f'{out_parameters["sensor"]}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
+                                    f'{out_parameters["sensor"].lower()}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
                                 log += '!!! Step did not finish properly!\n\n'
                             else:
                                 success_rates[step][0].append(
-                                    f'{out_parameters["sensor"]}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
+                                    f'{out_parameters["sensor"].lower()}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
                                 log += 'Step finished successfully!\n\n'
                         else:
                             success_rates[step][1].append(
-                                f'{out_parameters["sensor"]}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
+                                f'{out_parameters["sensor"].lower()}_{asc_dsc[track]}_t{"{:0>3d}".format(tracks[track])}')
                             log += '!!! Step did not start properly!\n\n'
 
                         log += f'Slurm output: {slurm_file}\n\n'

@@ -91,9 +91,9 @@ for track in range(len(tracks)):
         data = eval(out_parameters['ref_cn'])
         assert f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}" in data.keys(), \
             f"Cannot find {out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d} in ref_cn {data}!"
-        mode = data[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"]
+        mode = str(data[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"])
     else:
-        mode = out_parameters['ref_cn']
+        mode = str(out_parameters['ref_cn'])
 
     if mode in ['independent', '[]']:
         ref_cn = '[]'

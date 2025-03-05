@@ -107,7 +107,7 @@ for track in range(len(tracks)):
     # input files not in need of modification
     for file in ['input.baselines', 'input.coarsecorr', 'input.coarseorb',
                  'input.comprefpha', 'input.coregpm',
-                 'input.mtiming', 'input.reltiming']:
+                 'input.mtiming', 'input.reltiming', 'input.geocoding']:
         fr = open(f"{caroline_dir}/caroline_v{version}/files/deinsar/input_files/{file}", "r")
         data = fr.read()
         fr.close()

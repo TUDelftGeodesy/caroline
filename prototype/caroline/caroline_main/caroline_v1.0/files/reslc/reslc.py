@@ -44,6 +44,7 @@ def get_free_port():
 stack_dir = Path("{coregistration_directory}/{coregistration_AoI_name}_{sensor}_{asc_dsc}_t{track}/{stack_folder_name}")  # ifg stack dir
 mother_dir = stack_dir / "{mother}"  # Mother image dir
 reading_chunks = (4000, 4000)  # Reading chunks (azimuth, range) from binary
+sensor = '{sensor}'
 
 # Output config
 overwrite_zarr = False  # Flag for zarr overwrite
@@ -73,7 +74,7 @@ cluster = SLURMCluster(
 #     you can access it at: localhost:8889/proxy/{lb}FREE_SOCKET{rb}/status"
 # )
 
-# Option 2: Use an existing SLURMCluster by giving the schedular address 
+# Option 2: Use an existing SLURMCluster by giving the schedular address
 # Uncomment the following part to use an existing Dask SLURMCluster
 # ADDRESS = "tcp://XX.X.X.XX:12345" # Manual input: Dask schedular address
 # SOCKET = 12345 # Manual input: port number. It should be the number after ":" of ADDRESS
@@ -100,7 +101,6 @@ if __name__ == "__main__":
     # Metadata
     f_mother_res = mother_dir / "slave.res"
 
-    sensor = '{sensor}'
     if sensor == 's1':
         metadata = read_metadata(f_mother_res)  # Only works for Doris v5 output
 
@@ -124,8 +124,13 @@ if __name__ == "__main__":
     f_h2phs = list(sorted(stack_dir.rglob("2*/h2ph_srd.raw")))
 
     shape = (metadata["n_lines"], metadata["n_pixels"])
-    dtype_slc_ifg = np.dtype([("re", np.float32), ("im", np.float32)])
-    dtype_lam_phi = np.float32
+
+    if sensor == 's1':
+        dtype_slc_ifg = np.dtype([("re", np.float32), ("im", np.float32)])
+        dtype_lam_phi = np.float32
+    else:
+        dtype_slc_ifg = np.dtype([("re", np.float16), ("im", np.float16)])
+        dtype_lam_phi = np.float16
 
     # Lazy loading ifg stack
     ifgs = sarxarray.from_binary(f_ifgs,

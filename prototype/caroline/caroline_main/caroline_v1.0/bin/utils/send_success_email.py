@@ -190,15 +190,17 @@ try:
                     log += f'---Track {tracks[track]}_{asc_dsc[track]}---\n\n'
 
                     slurm_file = None
-                    dir_file = "{}/{}_s1_{}_t{:0>3d}/dir_contents.txt".format(
+                    dir_file = "{}/{}_{}_{}_t{:0>3d}/dir_contents.txt".format(
                         out_parameters['reslc_directory'],
+                        out_parameters['sensor'].lower(),
                         out_parameters['reslc_AoI_name'],
                         asc_dsc[track], tracks[track])
                     f = open(dir_file)
                     prev_dir_contents = f.read().split('\n')
                     f.close()
-                    slurms = glob.glob("{}/{}_s1_{}_t{:0>3d}/slurm*.out".format(
-                        out_parameters['reslc_directory'], out_parameters['reslc_AoI_name'],
+                    slurms = glob.glob("{}/{}_{}_{}_t{:0>3d}/slurm*.out".format(
+                        out_parameters['reslc_directory'], out_parameters['sensor'].lower(),
+                        out_parameters['reslc_AoI_name'],
                         asc_dsc[track], tracks[track]))
                     for slurm in list(sorted(list(slurms))):
                         if slurm.split('/')[-1] not in prev_dir_contents:

@@ -109,8 +109,8 @@ if __name__ == "__main__":
         data = f.read()
         f.close()
 
-        metadata = {"n_lines": eval(data.split('Number of lines (non-multilooked): \t\t')[1].split('\n')[0]),
-                    "n_pixels": eval(data.split('Number of pixels (non-multilooked): \t\t')[1].split('\n')[0])}
+        metadata = {lb}"n_lines": eval(data.split('Number of lines (non-multilooked): \t\t')[1].split('\n')[0]),
+                    "n_pixels": eval(data.split('Number of pixels (non-multilooked): \t\t')[1].split('\n')[0]){rb}
 
     # Coordinates
     f_lam = mother_dir / "lam.raw" # lon

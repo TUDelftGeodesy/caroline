@@ -99,7 +99,18 @@ if __name__ == "__main__":
     logger.info("Loading data ...")
     # Metadata
     f_mother_res = mother_dir / "slave.res"
-    metadata = read_metadata(f_mother_res)
+
+    sensor = '{sensor}'
+    if sensor == 's1':
+        metadata = read_metadata(f_mother_res)  # Only works for Doris v5 output
+
+    else:
+        f = open(f_mother_res)
+        data = f.read()
+        f.close()
+
+        metadata = {"n_lines": eval(data.split('Number of lines (non-multilooked): \t\t')[1].split('\n')[0]),
+                    "n_pixels": eval(data.split('Number of pixels (non-multilooked): \t\t')[1].split('\n')[0])}
 
     # Coordinates
     f_lam = mother_dir / "lam.raw" # lon

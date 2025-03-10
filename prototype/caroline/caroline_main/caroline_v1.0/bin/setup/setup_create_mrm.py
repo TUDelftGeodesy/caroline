@@ -24,7 +24,7 @@ for track in range(len(tracks)):
         num = data[0]
         fr.close()
     else:
-        fr = open('{coregistration_dir}/{AoI_name}_{sensor}_{asc_dsc}_t{fill_track}/process/input.crop'.format(
+        fr = open('{coregistration_dir}/{AoI_name}_{sensor}_{asc_dsc}_t{fill_track}/process/input.resample'.format(
             coregistration_dir=out_parameters['coregistration_directory'],
             AoI_name=out_parameters['coregistration_AoI_name'],
             sensor=out_parameters['sensor'].lower(), asc_dsc=asc_dsc[track], fill_track="{:0>3d}".format(tracks[track])))
@@ -32,8 +32,8 @@ for track in range(len(tracks)):
         fr.close()
         num = 0
         for i in data:
-            if "S_DBOW_GEO" in i and i[:2] != 'c ':
-                num = i.split('//')[0].strip().split(' ')[-1]  # TODO: -2 = vertical, -1 = horizontal, which one is it?
+            if "RS_DBOW_GEO" in i and i[:2] != 'c ':
+                num = i.split('//')[0].strip().split(' ')[-2]
                 break
 
     f = open("{}/{}_{}_{}_t{:0>3d}/psi/nlines_crop.txt".format(out_parameters['depsi_directory'], AoI_name,

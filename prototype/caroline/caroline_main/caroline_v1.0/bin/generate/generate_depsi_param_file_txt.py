@@ -40,7 +40,7 @@ for track in range(len(tracks)):
                                                          out_parameters['sensor'].lower(), asc_dsc[track],
                                                          tracks[track])
     if out_parameters['do_water_mask'] == 'yes':
-        filename_water_mask = f"/project/caroline/Software/config/roi/caroline-water-masks/water_mask_{AoI_name}_" \
+        filename_water_mask = f"/project/caroline/Software/config/caroline-water-masks/water_mask_{AoI_name}_" \
                               f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}.raw"
     else:
         filename_water_mask = "[]"

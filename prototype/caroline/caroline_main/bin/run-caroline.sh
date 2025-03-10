@@ -324,7 +324,6 @@ The CAROLINE system" | /usr/sbin/sendmail s.a.n.vandiepen@tudelft.nl,f.j.vanleij
       fi
     done
     if [ ${ALL_RUNS_FINISHED} -eq "0" ]; then
-      echo "Not all runs finished yet, sleeping..."
       sleep 60
     fi
   done

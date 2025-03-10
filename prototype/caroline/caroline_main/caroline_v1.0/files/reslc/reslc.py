@@ -105,24 +105,12 @@ if __name__ == "__main__":
         metadata = read_metadata(f_mother_res)  # Only works for Doris v5 output
 
     else:
-        crop_file = stack_dir / "input.resample"
-        f = open(crop_file)
-        data = f.read().split("\n")
+        f = open(f_mother_res)
+        data = f.read()
         f.close()
-
-        n_lines = n_pixels = None
-
-        for i in data:
-            if "RS_DBOW_GEO" in i and i[:2] != 'c ':
-                n_lines = i.split('//')[0].strip().split(' ')[-2]
-                n_pixels = i.split('//')[0].strip().split(' ')[-1]
-                break
-
-        if n_lines is None or n_pixels is None:
-            raise ValueError("n_lines or n_pixels was not properly detected!")
-
-        metadata = {lb}"n_lines": eval(n_lines),
-                    "n_pixels": eval(n_pixels){rb}
+        # -500 due to the resampling step subtracting 500 pixels in azimuth and range
+        metadata = {lb}"n_lines": eval(data.split('Number of lines (non-multilooked): \t\t')[1].split('\n')[0]) - 500,
+                    "n_pixels": eval(data.split('Number of pixels (non-multilooked): \t\t')[1].split('\n')[0]) - 500{rb}
 
     # Coordinates
     f_lam = mother_dir / "lam.raw" # lon

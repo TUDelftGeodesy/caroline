@@ -105,12 +105,24 @@ if __name__ == "__main__":
         metadata = read_metadata(f_mother_res)  # Only works for Doris v5 output
 
     else:
-        f = open(f_mother_res)
-        data = f.read()
+        crop_file = stack_dir / "input.resample"
+        f = open(crop_file)
+        data = f.read().split("\n")
         f.close()
 
-        metadata = {lb}"n_lines": eval(data.split('Number of lines (non-multilooked): \t\t')[1].split('\n')[0]),
-                    "n_pixels": eval(data.split('Number of pixels (non-multilooked): \t\t')[1].split('\n')[0]){rb}
+        n_lines = n_pixels = None
+
+        for i in data:
+            if "RS_DBOW_GEO" in i and i[:2] != 'c ':
+                n_lines = i.split('//')[0].strip().split(' ')[-2]
+                n_pixels = i.split('//')[0].strip().split(' ')[-1]
+                break
+
+        if n_lines is None or n_pixels is None:
+            raise ValueError("n_lines or n_pixels was not properly detected!")
+
+        metadata = {lb}"n_lines": eval(n_lines),
+                    "n_pixels": eval(n_pixels){rb}
 
     # Coordinates
     f_lam = mother_dir / "lam.raw" # lon
@@ -125,12 +137,8 @@ if __name__ == "__main__":
 
     shape = (metadata["n_lines"], metadata["n_pixels"])
 
-    if sensor == 's1':
-        dtype_slc_ifg = np.dtype([("re", np.float32), ("im", np.float32)])
-        dtype_lam_phi = np.float32
-    else:
-        dtype_slc_ifg = np.dtype([("re", np.float16), ("im", np.float16)])
-        dtype_lam_phi = np.float16
+    dtype_slc_ifg = np.dtype([("re", np.float32), ("im", np.float32)])
+    dtype_lam_phi = np.float32
 
     # Lazy loading ifg stack
     ifgs = sarxarray.from_binary(f_ifgs,

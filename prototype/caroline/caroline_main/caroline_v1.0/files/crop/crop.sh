@@ -30,9 +30,9 @@
 
 module --ignore-cache load matlab/R2021b
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started s1_crop.sh (AoI {AoI_name}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started crop.sh (AoI {AoI_name}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log
 
-#srun matlab -nodisplay -nosplash -nodesktop < {crop_dir}/{AoI_name}_s1_{asc_dsc}_t{track}/s1_crop.m
-srun matlab -nodisplay -nosplash -nodesktop -r "run('{crop_dir}/{AoI_name}_s1_{asc_dsc}_t{track}/s1_crop.m');exit;"
+#srun matlab -nodisplay -nosplash -nodesktop < {crop_dir}/{AoI_name}_{sensor}_{asc_dsc}_t{track}/crop.m
+srun matlab -nodisplay -nosplash -nodesktop -r "run('{crop_dir}/{AoI_name}_{sensor}_{asc_dsc}_t{track}/crop.m');exit;"
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished s1_crop.sh (AoI {AoI_name}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished crop.sh (AoI {AoI_name}, tracks {track}) with slurm-ID $SLURM_JOB_ID)" >> {caroline_work}/submitted_jobs.log

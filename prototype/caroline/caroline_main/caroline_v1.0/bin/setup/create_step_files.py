@@ -47,11 +47,6 @@ for param in out_parameters.keys():
         f.close()
         f = open(f'{cpath}/{auxiliary_files}/{param.replace("coregistration", "deinsar")}.txt', "w")
         f.write(out_parameters[param])
-    elif param == 'do_stack_stitching' and out_parameters['sensor'] != 'S1':
-        if out_parameters[param] == '1':
-            print(f'WARNING: do_stack_stitching (S1 only) is turned on while sensor is {out_parameters["sensor"]}, ignoring...')
-        f = open(f'{cpath}/{auxiliary_files}/{param}.txt', 'w')
-        f.write('0')
 
     elif param == 'depsi_AoI_name' and len(out_parameters['depsi_AoI_name']) > 22 and out_parameters['do_depsi_post'] == 1:
         # This follows from #28

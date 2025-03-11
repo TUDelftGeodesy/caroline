@@ -1,13 +1,15 @@
-function do_s1_crop(folder,crop_file)
+function do_s1_crop(folder,crop_file,sensor)
     % Function to perform the cropping for Sentinel-1 output from DORIS 5.0.
     % Adapted from Floris Heuff, 2018
     % Created by Simon van Diepen, 02/2025
+    %
+    % Support for other sensors by Simon van Diepen - 10/03/2025
 
     % Get the list of images
-    image_list = scan_directory();
+    image_list = scan_directory(sensor);
 
     % Get the mother image index
-    mother_idx = detect_mother_image(image_list);
+    mother_idx = detect_mother_image(image_list,sensor);
 
     % Get the full link to the save file folder
     save_path = [fullfile(pwd),'/',folder];
@@ -17,13 +19,26 @@ function do_s1_crop(folder,crop_file)
     end
 
     % Read the resfile to extract the number of lines in the images
-    fid = fopen(['stack/',image_list{mother_idx},'/master.res']);
-    mdata =textscan(fid,'%s','delimiter',':');
-    mdata = mdata{:};
-    fclose(fid);
+    if strcmp(sensor,'S1')
+        fid = fopen(['stack/',image_list{mother_idx},'/master.res']);
+        mdata =textscan(fid,'%s','delimiter',':');
+        mdata = mdata{:};
+        fclose(fid);
 
-    ind = find(strcmp('Number_of_lines_output_image',mdata));
-    n_lines = str2double(char(mdata(ind+1)));  % + 1 since the value is the next one in the file
+        ind = find(strcmp('Number_of_lines_output_image',mdata));
+        n_lines = str2double(char(mdata(ind+1)));  % + 1 since the value is the next one in the file
+    else
+        fid = fopen(['stack/',image_list{mother_idx},'/slave.res']);
+        mdata =textscan(fid,'%s','delimiter',':');
+        mdata = mdata{:};
+        fclose(fid);
+
+        ind1 = find(strcmp('Last_line (w.r.t. original_master)',mdata));  % this is from the resample step
+        ind2 = find(strcmp('First_line (w.r.t. original_master)',mdata));
+        end_line = str2double(char(mdata(ind1+1)));  % + 1 since the value is the next one in the file
+        start_line = str2double(char(mdata(ind2+1))); % + 1 since the value is the next one in the file
+        n_lines = end_line - start_line + 1;  % + 1 since the end_line also counts
+    end
 
     % identify the bounding box
     if ~(exist([save_path,'/',image_list{mother_idx}],'dir')==7) | exist([save_path,'/nlines_crp.txt'],'file')==0
@@ -83,10 +98,14 @@ function do_s1_crop(folder,crop_file)
                 end
 
                 % we need to crop the dem_radar, lambda and phi, slc_srd, and copy master.res
-                crop(['stack/',image_list{i},'/dem_radar.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/dem_radar.raw'],bounding_box_radar);
-                crop(['stack/',image_list{i},'/lam.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/lam.raw'],bounding_box_radar);
-                crop(['stack/',image_list{i},'/phi.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/phi.raw'],bounding_box_radar);
-                crop(['stack/',image_list{i},'/slave_rsmp_reramped.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/dem_radar.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/dem_radar.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/lam.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/lam.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/phi.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/phi.raw'],bounding_box_radar);
+                if strcmp(sensor,'S1')
+                    crop_raw(['stack/',image_list{i},'/slave_rsmp_reramped.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
+                else
+                    crop_raw(['stack/',image_list{i},'/slave_rsmp.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
+                end
 
                 copyfile(['stack/',image_list{i},'/master.res'],[save_path,'/',image_list{i},'/master.res']);
 
@@ -100,8 +119,8 @@ function do_s1_crop(folder,crop_file)
                     mkdir([save_path,'/',image_list{i}]);
                 end
                 % we need to crop cint_srd, h2ph and copy slave.res
-                crop(['stack/',image_list{i},'/cint_srd.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/cint_srd.raw'],bounding_box_radar);
-                crop(['stack/',image_list{i},'/h2ph_srd.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/h2ph.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/cint_srd.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/cint_srd.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/h2ph_srd.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/h2ph.raw'],bounding_box_radar);
 
                 copyfile(['stack/',image_list{i},'/slave.res'],[save_path,'/',image_list{i},'/slave.res']);
 

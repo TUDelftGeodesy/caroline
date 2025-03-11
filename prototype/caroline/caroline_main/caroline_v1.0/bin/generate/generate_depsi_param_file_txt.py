@@ -4,7 +4,7 @@ import glob
 import numpy as np
 path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from read_param_file import read_param_file
-filename, param_file, cpath, AoI_name, stitch_AoI_name, version, caroline_dir = argv
+filename, param_file, cpath, AoI_name, crop_AoI_name, version, caroline_dir = argv
 
 search_parameters = ['crop_directory', 'track', 'asc_dsc', 'depsi_directory', 'max_mem_buffer', 'visible_plots',
                      'detail_plots', 'processing_groups', 'run_mode', 'exclude_date', 'az_spacing', 'r_spacing',
@@ -31,14 +31,10 @@ stc_min_max = eval(out_parameters['stc_min_max'])
 std_param = eval(out_parameters['std_param'])
 
 for track in range(len(tracks)):
-    if out_parameters['sensor'] == 'S1':
-        basedir = "{}/{}_s1_{}_t{:0>3d}/cropped_stack/".format(out_parameters['crop_directory'], stitch_AoI_name,
-                                                                asc_dsc[track], tracks[track])
-    else:
-        basedir = '{}/{}_{}_{}_t{:0>3d}/process/'.format(out_parameters['coregistration_directory'],
-                                                         out_parameters['coregistration_AoI_name'],
-                                                         out_parameters['sensor'].lower(), asc_dsc[track],
-                                                         tracks[track])
+    basedir = "{}/{}_{}_{}_t{:0>3d}/cropped_stack/".format(out_parameters['crop_directory'], crop_AoI_name,
+                                                           out_parameters['sensor'].lower(),
+                                                           asc_dsc[track], tracks[track])
+
     if out_parameters['do_water_mask'] == 'yes':
         filename_water_mask = f"/project/caroline/Software/config/caroline-water-masks/water_mask_{AoI_name}_" \
                               f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}.raw"
@@ -60,20 +56,6 @@ for track in range(len(tracks)):
             h2ph = [f for f in files if "h2ph" in f]
             if len(h2ph) in [1, 2]:
                 good_dirs.append(eval(dir.split("/")[-1]))
-    if out_parameters['sensor'] != 'S1':
-        base_ms = '{}/{}_{}_{}_t{:0>3d}'.format(out_parameters['coregistration_directory'],
-                                                out_parameters['coregistration_AoI_name'],
-                                                out_parameters['sensor'].lower(), asc_dsc[track],
-                                                tracks[track])
-        f = open(f'{base_ms}/run_deinsar.py')
-        data = f.read().split('\n')
-        f.close()
-        master_line = None
-        for i in data:
-            if "master = '" in i:
-                master_line = i
-                break
-        masterdir = master_line.strip().strip("'").split("'")[-1]
     if len(good_dirs) > 0:
         startdate = min(good_dirs)
         end_date = max(good_dirs)
@@ -202,7 +184,7 @@ for track in range(len(tracks)):
                                    r0=out_parameters['r0'],
                                    r10=out_parameters['r10'],
                                    epoch=out_parameters['epoch'],
-                                   processor='doris_flinsar' if out_parameters['sensor'] == 'S1' else 'deinsar')
+                                   processor='doris_flinsar')
 
     f = open(
         "{}/{}_{}_{}_t{:0>3d}/psi/param_file_{}_{}_t{:0>3d}.txt".format(out_parameters['depsi_directory'], AoI_name,

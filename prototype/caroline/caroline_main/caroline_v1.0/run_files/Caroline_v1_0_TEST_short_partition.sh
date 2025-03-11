@@ -274,7 +274,7 @@ if [ ${do_crop} -eq 1 ]; then
 
   echo ""
   echo ""
-  echo "Starting S1 cropping..."
+  echo "Starting cropping..."
   echo "Creating directory..."
   if [ ! -d ${crop_dir} ]; then
     mkdir -p ${crop_dir}
@@ -301,8 +301,8 @@ if [ ${do_crop} -eq 1 ]; then
   cd ${cpath}
 
   echo "Generating matlab and bash file..."
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_crop_s1_crop_m.py ${param_file} ${cpath} ${crop_AoI_name} ${shape_AoI_name} ${version} ${caroline_dir}
-  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_crop_s1_crop_sh.py ${param_file} ${cpath} ${crop_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_crop_crop_m.py ${param_file} ${cpath} ${crop_AoI_name} ${shape_AoI_name} ${version} ${caroline_dir}
+  python3 ${caroline_dir}/caroline_v${version}/bin/generate/generate_crop_crop_sh.py ${param_file} ${cpath} ${crop_AoI_name} ${version} ${caroline_dir}
 
   echo "Starting cropping..."
   cd ${crop_dir}
@@ -310,8 +310,8 @@ if [ ${do_crop} -eq 1 ]; then
   do
     cd ${dir}
     ls > dir_contents.txt
-    sbatch --partition=short --time=10:00:00 s1_crop.sh > job_id.txt
-    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted s1_crop.sh (AoI ${crop_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
+    sbatch --partition=short --time=10:00:00 crop.sh > job_id.txt
+    echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted crop.sh (AoI ${crop_AoI_name}, track $(echo ${dir} | rev | cut -d_ -f1-3 | rev)) from job $SLURM_JOB_ID with slurm-ID $(cat job_id.txt | cut -d" " -f4 | xargs echo)" >> ${caroline_dir}/work/submitted_jobs.log
     cd ${stitch_dir}
   done
   cd ${cpath}

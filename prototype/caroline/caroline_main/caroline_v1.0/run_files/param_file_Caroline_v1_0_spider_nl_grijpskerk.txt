@@ -38,7 +38,7 @@ crop_AoI_name    = 'nl_grijpskerk'
 crop_directory   = '/project/caroline/Share/crops'
 
 reslc_AoI_name   = 'nl_grijpskerk'
-reslc_directory  = '/project/caroline/Share/zarr_stacks'
+reslc_directory  = '/project/caroline/Share/stacks_zarr'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'nl_grijpskerk'

@@ -78,7 +78,7 @@ lint.ignore = [
 ] # docstring style
 
 line-length = 120
-exclude = ["airflow", "caroline", "dockers", "docs", "download", "processing", "scripts",
+exclude = ["airflow", "dockers", "docs", "download", "processing", "scripts",
            "prototype/caroline/caroline_main/caroline_v0.1/*", "prototype/caroline/caroline_main/caroline_v0.2/*",
            "*.m"]
 # Allow unused variables when underscore-prefixed.

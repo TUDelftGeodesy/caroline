@@ -78,7 +78,8 @@ lint.ignore = [
 ] # docstring style
 
 line-length = 120
-exclude = ["docs", "build"]
+include = ["prototype/caroline/caroline_main/caroline_v1.0"]
+# exclude = ["docs", "build"]
 # Allow unused variables when underscore-prefixed.
 lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py310"

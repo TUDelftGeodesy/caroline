@@ -48,7 +48,7 @@ docs = [
 ]
 
 [tool.setuptools]
-packages = ["caroline"]
+packages = ["prototype"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -59,7 +59,7 @@ testpaths = [
 
 [tool.coverage.run]
 branch = true
-source = ["caroline"]
+source = ["prototype"]
 
 [tool.ruff]
 lint.select = [

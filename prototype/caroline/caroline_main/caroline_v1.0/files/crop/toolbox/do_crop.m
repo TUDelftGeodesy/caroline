@@ -98,13 +98,13 @@ function do_s1_crop(folder,crop_file,sensor)
                 end
 
                 % we need to crop the dem_radar, lambda and phi, slc_srd, and copy master.res
-                crop(['stack/',image_list{i},'/dem_radar.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/dem_radar.raw'],bounding_box_radar);
-                crop(['stack/',image_list{i},'/lam.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/lam.raw'],bounding_box_radar);
-                crop(['stack/',image_list{i},'/phi.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/phi.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/dem_radar.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/dem_radar.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/lam.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/lam.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/phi.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/phi.raw'],bounding_box_radar);
                 if strcmp(sensor,'S1')
-                    crop(['stack/',image_list{i},'/slave_rsmp_reramped.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
+                    crop_raw(['stack/',image_list{i},'/slave_rsmp_reramped.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
                 else
-                    crop(['stack/',image_list{i},'/slave_rsmp.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
+                    crop_raw(['stack/',image_list{i},'/slave_rsmp.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
                 end
 
                 copyfile(['stack/',image_list{i},'/master.res'],[save_path,'/',image_list{i},'/master.res']);
@@ -119,8 +119,8 @@ function do_s1_crop(folder,crop_file,sensor)
                     mkdir([save_path,'/',image_list{i}]);
                 end
                 % we need to crop cint_srd, h2ph and copy slave.res
-                crop(['stack/',image_list{i},'/cint_srd.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/cint_srd.raw'],bounding_box_radar);
-                crop(['stack/',image_list{i},'/h2ph_srd.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/h2ph.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/cint_srd.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/cint_srd.raw'],bounding_box_radar);
+                crop_raw(['stack/',image_list{i},'/h2ph_srd.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/h2ph.raw'],bounding_box_radar);
 
                 copyfile(['stack/',image_list{i},'/slave.res'],[save_path,'/',image_list{i},'/slave.res']);
 

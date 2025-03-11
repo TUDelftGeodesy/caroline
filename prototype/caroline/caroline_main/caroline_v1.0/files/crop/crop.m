@@ -7,7 +7,7 @@
 % Support for other sensors by Simon van Diepen - 10/03/2025
 
 % Link code
-addpath(genpath('{caroline_dir}/caroline_v{version}/files/s1_crop'));
+addpath(genpath('{caroline_dir}/caroline_v{version}/files/crop'));
 
 %%% USER SETTINGS %%%
 % name of new folder
@@ -21,5 +21,5 @@ sensor = '{sensor}';
 
 %%% END OF USER SETTINGS %%%
 
-do_s1_crop(folder,crop_file,sensor);
+do_crop(folder,crop_file,sensor);
 

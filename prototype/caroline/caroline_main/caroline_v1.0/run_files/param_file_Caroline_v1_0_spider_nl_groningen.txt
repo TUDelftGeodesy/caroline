@@ -18,10 +18,10 @@ polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implem
 
 do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
-do_crop            = 0  # Only possible if sensor is Sentinel-1, will turn off automatically otherwise. Requires coregistration (here or dependency)
+do_crop            = 0  # Requires coregistration (here or dependency)
 do_reslc           = 1  # Requires coregistration (here or dependency)
 
-do_depsi           = 0  # Requires crop (Sentinel-1), coregistration (otherwise) (here or dependency). Does not use reslc
+do_depsi           = 0  # Requires crop (here or dependency). Does not use reslc
 
 do_depsi_post      = 0  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'

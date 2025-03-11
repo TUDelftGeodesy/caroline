@@ -79,7 +79,8 @@ lint.ignore = [
 
 line-length = 120
 exclude = ["airflow", "caroline", "dockers", "docs", "download", "processing", "scripts",
-           "prototype/caroline/caroline_main/caroline_v0.1", "prototype/caroline/caroline_main/caroline_v0.2", "*.m"]
+           "prototype/caroline/caroline_main/caroline_v0.1/*", "prototype/caroline/caroline_main/caroline_v0.2/*",
+           "*.m"]
 # Allow unused variables when underscore-prefixed.
 lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py310"

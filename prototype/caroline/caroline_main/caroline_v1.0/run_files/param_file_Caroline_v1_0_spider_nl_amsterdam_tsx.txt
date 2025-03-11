@@ -21,7 +21,7 @@ do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 do_crop            = 1  # Requires coregistration (here or dependency)
 do_reslc           = 1  # Requires coregistration (here or dependency)
 
-do_depsi           = 0  # Requires crop (here or dependency). Does not use reslc
+do_depsi           = 1  # Requires crop (here or dependency). Does not use reslc
 
 do_depsi_post      = 0  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
@@ -225,7 +225,7 @@ peak_tolerance         = 0.9
 
 # Ps parameters
 psp_selection_method = 'ampdisp'
-psp_threshold1       = 0.5
+psp_threshold1       = 0.4
 psp_threshold2       = []
 ps_eval_method       = 'psp'
 Namp_disp_bins       = 100

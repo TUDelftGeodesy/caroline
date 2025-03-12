@@ -10,7 +10,7 @@ dependencies = [
     "fiona",
     "sarxarray",
     "matplotlib",
-    "psycopg2"
+    "psycopg2-binary"
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"
 readme = "README.md"
@@ -48,7 +48,7 @@ docs = [
 ]
 
 [tool.setuptools]
-packages = ["caroline"]
+packages = ["prototype"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -74,11 +74,13 @@ lint.select = [
 ]
 lint.ignore = [
 "D100", "D101", "D104", "D105", "D106", "D107", "D203", "D213", "D413",
-"N803", "N806" # Allow capital letters in variables
+"N802", "N803", "N806", "N816" # Allow capital letters in variables
 ] # docstring style
 
 line-length = 120
-exclude = ["docs", "build", "*.ipynb", "examples/*", "depsi/LAMBDA.py"]
+include = ["prototype/caroline/caroline_main/caroline_v1.0/**.py"]
+exclude = ["prototype/caroline/caroline_main/caroline_v1.0/files/deinsar/run_deinsar.py",
+    "prototype/caroline/caroline_main/caroline_v1.0/files/reslc/reslc.py"]
 # Allow unused variables when underscore-prefixed.
 lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py310"

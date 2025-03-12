@@ -20,7 +20,8 @@ function do_s1_crop(folder,crop_file,sensor)
 
     % Read the resfile to extract the number of lines in the images
     if strcmp(sensor,'S1')
-        fid = fopen(['stack/',image_list{mother_idx},'/master.res']);
+        process_folder = 'stack/';
+        fid = fopen([process_folder,image_list{mother_idx},'/master.res']);
         mdata =textscan(fid,'%s','delimiter',':');
         mdata = mdata{:};
         fclose(fid);
@@ -28,7 +29,8 @@ function do_s1_crop(folder,crop_file,sensor)
         ind = find(strcmp('Number_of_lines_output_image',mdata));
         n_lines = str2double(char(mdata(ind+1)));  % + 1 since the value is the next one in the file
     else
-        fid = fopen(['stack/',image_list{mother_idx},'/slave.res']);
+        process_folder = 'process/';
+        fid = fopen([process_folder,image_list{mother_idx},'/slave.res']);
         mdata =textscan(fid,'%s','delimiter',':');
         mdata = mdata{:};
         fclose(fid);
@@ -46,8 +48,8 @@ function do_s1_crop(folder,crop_file,sensor)
         [bounding_box_x,bounding_box_y] = estimate_shp_bounding_box(crop_file);
 
         % Read the lambda and phi files
-        phi = freadbk(['stack/',image_list{mother_idx},'/phi.raw'],n_lines,'float32');
-        lam = freadbk(['stack/',image_list{mother_idx},'/lam.raw'],n_lines,'float32');
+        phi = freadbk([process_folder,image_list{mother_idx},'/phi.raw'],n_lines,'float32');
+        lam = freadbk([process_folder,image_list{mother_idx},'/lam.raw'],n_lines,'float32');
 
         % identify the pixels inside the bounding box
         inliers = inpolygon(lam,phi,bounding_box_x,bounding_box_y);
@@ -98,18 +100,18 @@ function do_s1_crop(folder,crop_file,sensor)
                 end
 
                 % we need to crop the dem_radar, lambda and phi, slc_srd, and copy master.res
-                crop_raw(['stack/',image_list{i},'/dem_radar.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/dem_radar.raw'],bounding_box_radar);
-                crop_raw(['stack/',image_list{i},'/lam.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/lam.raw'],bounding_box_radar);
-                crop_raw(['stack/',image_list{i},'/phi.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/phi.raw'],bounding_box_radar);
+                crop_raw([process_folder,image_list{i},'/dem_radar.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/dem_radar.raw'],bounding_box_radar);
+                crop_raw([process_folder,image_list{i},'/lam.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/lam.raw'],bounding_box_radar);
+                crop_raw([process_folder,image_list{i},'/phi.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/phi.raw'],bounding_box_radar);
                 if strcmp(sensor,'S1')
-                    crop_raw(['stack/',image_list{i},'/slave_rsmp_reramped.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
+                    crop_raw([process_folder,image_list{i},'/slave_rsmp_reramped.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
+                    copyfile([process_folder,image_list{i},'/master.res'],[save_path,'/',image_list{i},'/master.res']);
                 else
-                    crop_raw(['stack/',image_list{i},'/slave_rsmp.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
+                    crop_raw([process_folder,image_list{i},'/slave_rsmp.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/slc_srd.raw'],bounding_box_radar);
+                    copyfile([process_folder,image_list{i},'/slave.res'],[save_path,'/',image_list{i},'/master.res']);
                 end
 
-                copyfile(['stack/',image_list{i},'/master.res'],[save_path,'/',image_list{i},'/master.res']);
-
-                fprintf('Finished folder %s. \n',['stack/',image_list{i}])
+                fprintf('Finished folder %s. \n',[process_folder,image_list{i}])
             end
         else
             % first check if the last crop file does not exist, otherwise we can skip
@@ -119,12 +121,12 @@ function do_s1_crop(folder,crop_file,sensor)
                     mkdir([save_path,'/',image_list{i}]);
                 end
                 % we need to crop cint_srd, h2ph and copy slave.res
-                crop_raw(['stack/',image_list{i},'/cint_srd.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/cint_srd.raw'],bounding_box_radar);
-                crop_raw(['stack/',image_list{i},'/h2ph_srd.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/h2ph.raw'],bounding_box_radar);
+                crop_raw([process_folder,image_list{i},'/cint_srd.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/cint_srd.raw'],bounding_box_radar);
+                crop_raw([process_folder,image_list{i},'/h2ph_srd.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/h2ph.raw'],bounding_box_radar);
 
-                copyfile(['stack/',image_list{i},'/slave.res'],[save_path,'/',image_list{i},'/slave.res']);
+                copyfile([process_folder,image_list{i},'/slave.res'],[save_path,'/',image_list{i},'/slave.res']);
 
-                fprintf('Finished folder %s. \n',['stack/',image_list{i}])
+                fprintf('Finished folder %s. \n',[process_folder,image_list{i}])
             end
         end
     end
@@ -138,7 +140,7 @@ function do_s1_crop(folder,crop_file,sensor)
     system(['find ',save_path,'/*  -name ''phi','.raw'' > ',save_path,'/path_coords.txt']);
     system(['find ',save_path,'/*  -name ''lam','.raw'' >> ',save_path,'/path_coords.txt']);
     system(['find ',save_path,'/*  -name ''dem_radar','.raw'' >> ',save_path,'/path_coords.txt']);
-    system(['cp stack/dir.txt ',save_path,'/dates.txt']);
+    system(['cp ',process_folder,'dir.txt ',save_path,'/dates.txt']);
 
 
 end

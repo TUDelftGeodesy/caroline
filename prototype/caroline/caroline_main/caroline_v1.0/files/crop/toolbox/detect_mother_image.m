@@ -33,7 +33,7 @@ function [mother_idx] = detect_mother_image(list_of_images,sensor)
         % extract the mother image (line 24 in run_deinsar.py)
         % TODO: this should not be a number, this will break if run_deinsar.py is changed
         % The 11:end - 1 is needed to cut off "master = '" and "'"
-        mother_image = doris_input{24}(11:end - 1);
+        mother_image = deinsar_input{24}(11:end - 1);
     end
 
     % Find the mother index in list_of_images

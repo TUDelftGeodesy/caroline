@@ -30,22 +30,26 @@ function create_slcs(image_list,mother_index,save_path,bounding_box_radar)
         % generate the SLC and interferogram names
         slc_name = [save_path,'/',image_list{i},'/slc_srd.raw'];
         cint_name = [save_path,'/',image_list{i},'/cint_srd.raw'];
+        % check if the interferogram exists, otherwise there was no input data
+        if exist(cint_name,'file') == 0
+            fprintf('Interferogram %s does not exist, skipping...\n',cint_name)
+        else
+            % PC: Generate a new SLC from the given interferogram, skipping the mother
+            if exist(slc_name,'file') == 0 && i ~= mother_index
+                ifg = freadbk(cint_name,n_lines_crop,'cpxfloat32');
+                slc = mother.*conj(ifg)./(abs(mother).^2);
+                slc(isnan(slc))=complex(0,0);
+                fwritebk(slc,slc_name,'cpxfloat32');
+            end
 
-        % PC: Generate a new SLC from the given interferogram, skipping the mother
-        if exist(slc_name,'file') == 0 && i ~= mother_index
-            ifg = freadbk(cint_name,n_lines_crop,'cpxfloat32');
-            slc = mother.*conj(ifg)./(abs(mother).^2);
-            slc(isnan(slc))=complex(0,0);
-            fwritebk(slc,slc_name,'cpxfloat32');
+            % PC: write all ifg paths to a text file: mother_date daughter_date path
+            if i ~= mother_index
+                fprintf(fifg,'%s %s %s\n',image_list{mother_index},image_list{i},cint_name);
+            end
+
+            % PC: write all slc paths to a text file: slc_date path
+            fprintf(fslc,'%s %s\n',image_list{i},slc_name);
         end
-
-        % PC: write all ifg paths to a text file: mother_date daughter_date path
-        if i ~= mother_index
-            fprintf(fifg,'%s %s %s\n',image_list{mother_index},image_list{i},cint_name);
-        end
-
-        % PC: write all slc paths to a text file: slc_date path
-        fprintf(fslc,'%s %s\n',image_list{i},slc_name);
     end
 
     % close the files

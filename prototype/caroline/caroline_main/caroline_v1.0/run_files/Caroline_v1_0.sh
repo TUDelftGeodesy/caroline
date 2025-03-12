@@ -285,7 +285,7 @@ if [ ${do_crop} -eq 1 ]; then
     cd ${dir}
     linkdir=`cat link_directory.txt`
     # split so that dir_contents.txt, job_id.txt and queue.txt do not get soft-linked
-    ln -sfn ${linkdir}/[bgips]* .
+    ln -sfn ${linkdir}/[bgiprs]* .
     ln -sfn ${linkdir}/doris* .
     ln -sfn ${linkdir}/dem .
     # for compatibility with stacks where they are already linked, remove them

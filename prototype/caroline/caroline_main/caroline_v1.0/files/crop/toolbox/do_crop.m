@@ -116,17 +116,22 @@ function do_s1_crop(folder,crop_file,sensor)
         else
             % first check if the last crop file does not exist, otherwise we can skip
             if exist([save_path,'/',image_list{i},'/h2ph.raw'],'file') == 0
-                % check if the folder exists
-                if ~(exist([save_path,'/',image_list{i}],'dir') == 7)
-                    mkdir([save_path,'/',image_list{i}]);
+                % check if the input data exists
+                if exist([process_folder,image_list{i},'/cint_srd.raw'],'file') == 0
+                    fprintf('Folder %s is empty, skipping...',[process_folder,image_list{i}])
+                else
+                    % check if the folder exists
+                    if ~(exist([save_path,'/',image_list{i}],'dir') == 7)
+                        mkdir([save_path,'/',image_list{i}]);
+                    end
+                    % we need to crop cint_srd, h2ph and copy slave.res
+                    crop_raw([process_folder,image_list{i},'/cint_srd.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/cint_srd.raw'],bounding_box_radar);
+                    crop_raw([process_folder,image_list{i},'/h2ph_srd.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/h2ph.raw'],bounding_box_radar);
+
+                    copyfile([process_folder,image_list{i},'/slave.res'],[save_path,'/',image_list{i},'/slave.res']);
+
+                    fprintf('Finished folder %s. \n',[process_folder,image_list{i}])
                 end
-                % we need to crop cint_srd, h2ph and copy slave.res
-                crop_raw([process_folder,image_list{i},'/cint_srd.raw'],n_lines,'cpxfloat32',[save_path,'/',image_list{i},'/cint_srd.raw'],bounding_box_radar);
-                crop_raw([process_folder,image_list{i},'/h2ph_srd.raw'],n_lines,'float32',[save_path,'/',image_list{i},'/h2ph.raw'],bounding_box_radar);
-
-                copyfile([process_folder,image_list{i},'/slave.res'],[save_path,'/',image_list{i},'/slave.res']);
-
-                fprintf('Finished folder %s. \n',[process_folder,image_list{i}])
             end
         end
     end

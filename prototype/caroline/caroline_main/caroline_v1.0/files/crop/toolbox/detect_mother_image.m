@@ -26,14 +26,14 @@ function [mother_idx] = detect_mother_image(list_of_images,sensor)
     else
         % open run_deinsar.py
         finput = fopen('run_deinsar.py');
-        temp = textscan(finput,'%s');
+        temp = textscan(finput,'%s','delimiter','=');
         deinsar_input = temp{1,1};
         fclose(finput);
 
-        % extract the mother image (line 24 in run_deinsar.py)
+        % extract the mother image (line 24 in run_deinsar.py, 25 due to split on =)
         % TODO: this should not be a number, this will break if run_deinsar.py is changed
-        % The 11:end - 1 is needed to cut off "master = '" and "'"
-        mother_image = deinsar_input{24}(11:end - 1);
+        % The 2:end - 1 is needed to cut off the apostrophes
+        mother_image = deinsar_input{25}(2:end - 1);
     end
 
     % Find the mother index in list_of_images

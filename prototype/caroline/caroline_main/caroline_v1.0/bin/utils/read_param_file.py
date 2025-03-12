@@ -1,13 +1,22 @@
-def read_param_file(cpath, param_file, search_parameters):
-    """
-    Function to read parameters from a parameter file into a dictionary
+def read_param_file(cpath: str, param_file: str, search_parameters: list) -> dict:
+    """Read parameters from a parameter file into a dictionary.
 
-    :param cpath: directory of the parameter file
-    :param param_file: name of the parameter file
-    :param search_parameters: list of parameter names to be retrieved
-    :return: `dict` with the parameters
+    Parameters
+    ----------
+    cpath : str
+        Direcotry of the parameter file
+    param_file : str
+        Name of the parameter file
+    search_parameters: list
+        List of parameter names to be retrieved
+
+    Returns
+    -------
+    dict
+        Dictorionary containing the values of the requested parameters. If an invalid parameter is requested,
+        `None` is returned for that parameter.
     """
-    fp = open("{}/{}".format(cpath, param_file))
+    fp = open(f"{cpath}/{param_file}")
     parameters = fp.read().split("\n")
     fp.close()
 

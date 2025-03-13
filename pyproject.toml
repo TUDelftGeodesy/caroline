@@ -78,9 +78,9 @@ lint.ignore = [
 ] # docstring style
 
 line-length = 120
-include = ["prototype/caroline/caroline_main/caroline_v1.0/**.py", "caroline/**.py"]
+include = ["prototype/caroline/caroline_main/caroline_v1.0/**.py", "caroline/**"]
 exclude = ["prototype/caroline/caroline_main/caroline_v1.0/files/deinsar/run_deinsar.py",
-    "prototype/caroline/caroline_main/caroline_v1.0/files/reslc/reslc.py"]
+    "prototype/caroline/caroline_main/caroline_v1.0/files/reslc/reslc.py", "*.m", "*.txt", "*.sh"]
 # Allow unused variables when underscore-prefixed.
 lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py310"

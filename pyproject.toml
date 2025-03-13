@@ -7,11 +7,12 @@ name = "Caroline"
 version = "1.0.0"
 requires-python = ">=3.10"
 dependencies = [
+    "apache-airflow",
     "fiona",
     "geopandas",
     "matplotlib",
-    "sarxarray",
     "psycopg2-binary",
+    "sarxarray",
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"
 readme = "README.md"

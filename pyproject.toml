@@ -10,7 +10,8 @@ dependencies = [
     "fiona",
     "sarxarray",
     "matplotlib",
-    "psycopg2-binary"
+    "psycopg2-binary",
+    "geopandas"
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"
 readme = "README.md"

@@ -2,7 +2,7 @@ import glob
 import zipfile
 from typing import Literal
 
-from caroline.io import read_parameter_file
+from caroline.io import create_shapefile, link_shapefile, read_parameter_file
 
 
 def format_process_folder(
@@ -116,3 +116,24 @@ def identify_incomplete_sentinel1_images(parameter_file: str):
             print(i)
     else:
         print("Found no incomplete downloads.")
+
+
+def generate_shapefile(parameter_file: str):
+    """Generate a shapefile based on a CAROLINE parameter file.
+
+    If `shape_file` is a shapefile, this file will be linked. Otherwise a square is shapefile is generated.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to the parameter file
+
+    """
+    search_parameters = ["shape_file"]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    if len(out_parameters["shape_file"]) == 0:
+        # no shapefile is generated --> we need a new one
+        create_shapefile(parameter_file)
+    else:
+        link_shapefile(parameter_file)

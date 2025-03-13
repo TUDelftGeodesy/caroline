@@ -1,8 +1,12 @@
 import json
 import os
 import xml.etree.ElementTree as ET
+from math import cos, pi, radians
 
+import fiona
 import geopandas
+
+EARTH_RADIUS = 6378136  # m
 
 
 def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
@@ -129,9 +133,9 @@ def read_shp_extent(filename: str, shp_type: str = "swath") -> dict:
     ----------
     filename: str
         Full path to the shapefile
-    shp_type: str
+    shp_type: str, optional
         Switch to check for specific shapefiles. In mode "swath", a name layer is expected in the shapefile. Otherwise,
-        polygons are simply numbered.
+        polygons are simply numbered. Default "swath"
 
     Returns
     -------
@@ -161,3 +165,73 @@ def read_shp_extent(filename: str, shp_type: str = "swath") -> dict:
         coordinate_dict[name] = coordinates[:]
 
     return coordinate_dict
+
+
+def link_shapefile(parameter_file: str):
+    """Link a shapefile based on provided parameters in the CAROLINE parameter file.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to the CAROLINE parameter file.
+
+    """
+    search_parameters = ["shape_file", "shape_directory", "shape_AoI_name"]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    assert (
+        out_parameters["shape_file"].split(".")[-1] == "shp"
+    ), f"Provided shapefile {out_parameters['shape_file']} does not end in .shp!"
+
+    export_shp = f"{out_parameters['shape_directory']}/{out_parameters['shape_AoI_name']}_shape.shp"
+
+    for appendix in ["shp", "prj", "shx", "dbf"]:
+        os.system(f"ln -s {out_parameters['shape_file'][:-4]}.{appendix} {export_shp[:-4]}.{appendix}")
+
+
+def create_shapefile(parameter_file: str):
+    """Create a square shapefile from scratch based on provided parameters in the CAROLINE parameter file.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to the CAROLINE parameter file.
+
+    """
+    search_parameters = ["center_AoI", "AoI_length", "AoI_width", "shape_directory", "shape_AoI_name"]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    export_shp = f"{out_parameters['shape_directory']}/{out_parameters['shape_AoI_name']}_shape.shp"
+
+    central_coord = eval(out_parameters["center_AoI"])
+    crop_length = eval(out_parameters["AoI_length"])
+    crop_width = eval(out_parameters["AoI_width"])
+
+    # Calculate the limits of the AoI
+    Dlat_m = 2 * pi * EARTH_RADIUS / 360  # m per degree of latitude
+
+    N_limit = central_coord[0] + crop_length * 1000 / 2 / Dlat_m
+    S_limit = central_coord[0] - crop_length * 1000 / 2 / Dlat_m
+
+    # Set to the maximum width (in the northern hemisphere this is the south, in the southern it is the north
+    W_limit = min(
+        central_coord[1] - crop_width * 1000 / 2 / (Dlat_m * cos(radians(N_limit))),
+        central_coord[1] - crop_width * 1000 / 2 / (Dlat_m * cos(radians(S_limit))),
+    )
+    E_limit = max(
+        central_coord[1] + crop_width * 1000 / 2 / (Dlat_m * cos(radians(N_limit))),
+        central_coord[1] + crop_width * 1000 / 2 / (Dlat_m * cos(radians(S_limit))),
+    )
+
+    # make a square
+    coords = [[W_limit, N_limit], [E_limit, N_limit], [E_limit, S_limit], [W_limit, S_limit], [W_limit, N_limit]]
+
+    # create the shapefile
+    schema = {"geometry": "Polygon"}
+
+    shapefile = fiona.open(export_shp, mode="w", driver="ESRI Shapefile", schema=schema, crs="EPSG:4326")
+
+    rows = {"geometry": {"type": "Polygon", "coordinates": [coords]}}
+
+    shapefile.write(rows)
+    shapefile.close()

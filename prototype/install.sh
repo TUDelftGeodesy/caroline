@@ -56,6 +56,8 @@ cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_v2.2.1.1/main/ps_read_process_
 	"${CAROLINE}/plugins/depsi_v2.2.1.1/main/"
 cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_v2.2.1.1/main/ps_calibration.m" \
 	"${CAROLINE}/plugins/depsi_v2.2.1.1/main/"
+cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_v2.2.1.1/main/get_stack_parameters.m" \
+	"${CAROLINE}/plugins/depsi_v2.2.1.1/main/"
 cp "${CAROLINE_PLUGINS_ARCHIVE_DIR}/patches/depsi_post_v2.1.4.0/main/ps_post_write_shape_csv.m" \
   "${CAROLINE}/plugins/depsi_post_v2.1.4.0/main/"
 

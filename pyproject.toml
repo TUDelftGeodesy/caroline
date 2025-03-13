@@ -78,7 +78,7 @@ lint.ignore = [
 ] # docstring style
 
 line-length = 120
-include = ["prototype/caroline/caroline_main/caroline_v1.0/**.py"]
+include = ["prototype/caroline/caroline_main/caroline_v1.0/**.py", "caroline/**.py"]
 exclude = ["prototype/caroline/caroline_main/caroline_v1.0/files/deinsar/run_deinsar.py",
     "prototype/caroline/caroline_main/caroline_v1.0/files/reslc/reslc.py"]
 # Allow unused variables when underscore-prefixed.

@@ -53,3 +53,36 @@ def prepare_crop(parameter_file: str) -> None:
         for key in link_keys:
             # run the soft-link command
             os.system(f"ln -sfn {coregistration_directory}/{key} {crop_directory}")
+
+
+def prepare_deinsar(parameter_file: str) -> None:
+    """Set up the directories for DeInSAR.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    """
+    search_parameters = [
+        "coregistration_directory",
+        "coregistration_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        coregistration_directory = format_process_folder(
+            base_folder=out_parameters["coregistration_directory"],
+            AoI_name=out_parameters["coregistration_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        # we need a process folder in the coregistration directory, so we can combine that command
+        os.makedirs(f"{coregistration_directory}/process", exist_ok=True)

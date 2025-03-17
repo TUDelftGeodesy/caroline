@@ -4,6 +4,7 @@ import os
 from caroline.io import read_parameter_file
 from caroline.utils import format_process_folder, remove_incomplete_sentinel1_images
 
+FILE_FOLDER = "/".join(os.getcwd().split("/")[:-1]) + "/files"
 SLC_BASE_FOLDER = "/project/caroline/Data/radar_data/sentinel1"
 
 
@@ -201,6 +202,58 @@ def prepare_doris(parameter_file: str) -> None:
 
         # move the invalid images to the bad_images
         remove_incomplete_sentinel1_images(parameter_file)
+
+
+def prepare_mrm(parameter_file: str) -> None:
+    """Set up the directories for mrm creation, part of DePSI-post.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    """
+    search_parameters = [
+        "crop_directory",
+        "crop_AoI_name",
+        "depsi_directory",
+        "depsi_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+        "cpxfiddle_dir",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        crop_directory = format_process_folder(
+            base_folder=out_parameters["crop_directory"],
+            AoI_name=out_parameters["crop_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+        depsi_directory = format_process_folder(
+            base_folder=out_parameters["depsi_directory"],
+            AoI_name=out_parameters["depsi_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        # we need to run cpxfiddle first. This requires two parameters: n_lines, and the project ID
+        fr = open(f"{crop_directory}/cropped_stack/nlines_crp.txt")
+        data = fr.read().split("\n")
+        fr.close()
+        n_lines = data[0]
+
+        project_id = depsi_directory.split("/")[-1]
+
+        # format the arguments in the correct order
+        command_args = f"{project_id} {n_lines} 1 1 {out_parameters['cpxfiddle_dir']} {depsi_directory}/psi"
+        os.system(f"bash {FILE_FOLDER}/create_mrm_ras_header.sh {command_args}")
 
 
 def prepare_reslc(parameter_file: str) -> None:

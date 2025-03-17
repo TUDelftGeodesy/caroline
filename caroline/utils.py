@@ -141,7 +141,7 @@ def generate_shapefile(parameter_file: str):
         link_shapefile(parameter_file)
 
 
-def generate_email(parameter_file: str, slurm_job_id: str) -> str:
+def _generate_email(parameter_file: str, slurm_job_id: str) -> str:
     """Generate the CAROLINE email.
 
     Parameters
@@ -512,3 +512,62 @@ def proper_finish_check(
     }
 
     return output
+
+
+def _failed_email_generation(error: Exception) -> str:
+    """Generate the notification that email generation failed.
+
+    Parameters
+    ----------
+    error: Exception
+        The error that was encountered by `generate_email`
+
+    Returns
+    -------
+    str
+        The message to notify that the email generation failed.
+    """
+    message = f"""Dear radargroup,
+
+It appears the CAROLINE email generation has encountered an error. Please create an issue on the CAROLINE GitHub project
+https://github.com/TUDelftGeodesy/caroline/issues mentioning:
+1) that the email generation failed
+2) the subject of this mail
+3) the following error message:
+
+{error}
+
+
+Please add the labels Priority-0 and bug, and assign Simon.
+
+Thank you in advance, and sorry for the inconvenience.
+
+Kind regards,
+The CAROLINE development team,
+Freek, Niels, and Simon
+
+"""
+    return message
+
+
+def generate_email(parameter_file: str, slurm_job_id: str) -> str:
+    """Generate the CAROLINE email.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file
+    slurm_job_id: str
+        ID number of the slurm job that managed the run.
+
+    Returns
+    -------
+    str
+        The message that will be emailed.
+    """
+    try:
+        message = _generate_email(parameter_file, slurm_job_id)
+    except Exception as error:
+        message = _failed_email_generation(error)
+
+    return message

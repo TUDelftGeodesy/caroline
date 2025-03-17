@@ -1,3 +1,4 @@
+import glob
 import os
 
 from caroline.io import read_parameter_file
@@ -88,6 +89,67 @@ def prepare_deinsar(parameter_file: str) -> None:
 
         # we need a process folder in the coregistration directory, so we can combine that command
         os.makedirs(f"{coregistration_directory}/process", exist_ok=True)
+
+
+def prepare_depsi(parameter_file: str) -> None:
+    """Set up the directories for DePSI.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    """
+    search_parameters = [
+        "depsi_directory",
+        "depsi_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+        "crop_directory",
+        "crop_AoI_name",
+        "depsi_code_dir",
+        "rdnaptrans_dir",
+        "geocoding_dir",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        depsi_directory = format_process_folder(
+            base_folder=out_parameters["depsi_directory"],
+            AoI_name=out_parameters["depsi_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        crop_directory = format_process_folder(
+            base_folder=out_parameters["crop_directory"],
+            AoI_name=out_parameters["crop_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        # we need a psi and boxes folder in the depsi directory
+        os.makedirs(f"{depsi_directory}/psi", exist_ok=True)
+        os.makedirs(f"{depsi_directory}/boxes", exist_ok=True)
+
+        # link the necessary boxes
+        os.system(f"cp -Rp {out_parameters['depsi_code_dir']} {depsi_directory}/boxes")
+        os.system(f"cp -Rp {out_parameters['rdnaptrans_dir']} {depsi_directory}/boxes")
+        os.system(f"cp -Rp {out_parameters['geocoding_dir']} {depsi_directory}/boxes")
+
+        # detect the mother and dem_radar from the mother
+        mother = glob.glob(f"{crop_directory}/*cropped_stack/2*/master.res")[0]
+        # cut off master.res, and add dem_radar.raw
+        dem_radar = mother.replace("/master.res", "/dem_radar.raw")
+
+        # link the mother resfile and dem_radar
+        os.system(f"ln -sf {mother} {depsi_directory}/psi/slave.res")
+        os.system(f"ln -sf {dem_radar} {depsi_directory}/psi/dem_radar.raw")
 
 
 def prepare_doris(parameter_file: str) -> None:

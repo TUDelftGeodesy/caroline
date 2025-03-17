@@ -86,3 +86,35 @@ def prepare_deinsar(parameter_file: str) -> None:
 
         # we need a process folder in the coregistration directory, so we can combine that command
         os.makedirs(f"{coregistration_directory}/process", exist_ok=True)
+
+
+def prepare_reslc(parameter_file: str) -> None:
+    """Set up the directories for re-SLC.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    """
+    search_parameters = [
+        "reslc_directory",
+        "reslc_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        reslc_directory = format_process_folder(
+            base_folder=out_parameters["reslc_directory"],
+            AoI_name=out_parameters["reslc_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        os.makedirs(reslc_directory, exist_ok=True)

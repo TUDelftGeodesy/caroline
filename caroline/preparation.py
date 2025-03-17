@@ -4,7 +4,7 @@ import os
 from caroline.io import read_parameter_file
 from caroline.utils import format_process_folder, remove_incomplete_sentinel1_images
 
-FILE_FOLDER = "/".join(os.getcwd().split("/")[:-1]) + "/files"
+SCRIPT_FOLDER = "/".join(os.getcwd().split("/")[:-1]) + "/scripts"
 SLC_BASE_FOLDER = "/project/caroline/Data/radar_data/sentinel1"
 
 
@@ -253,7 +253,7 @@ def prepare_mrm(parameter_file: str) -> None:
 
         # format the arguments in the correct order
         command_args = f"{project_id} {n_lines} 1 1 {out_parameters['cpxfiddle_dir']} {depsi_directory}/psi"
-        os.system(f"bash {FILE_FOLDER}/create_mrm_ras_header.sh {command_args}")
+        os.system(f"bash {SCRIPT_FOLDER}/create_mrm_ras_header.sh {command_args}")
 
 
 def prepare_reslc(parameter_file: str) -> None:

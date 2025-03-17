@@ -1,7 +1,9 @@
 import os
 
 from caroline.io import read_parameter_file
-from caroline.utils import format_process_folder
+from caroline.utils import format_process_folder, remove_incomplete_sentinel1_images
+
+SLC_BASE_FOLDER = "/project/caroline/Data/radar_data/sentinel1"
 
 
 def prepare_crop(parameter_file: str) -> None:
@@ -86,6 +88,57 @@ def prepare_deinsar(parameter_file: str) -> None:
 
         # we need a process folder in the coregistration directory, so we can combine that command
         os.makedirs(f"{coregistration_directory}/process", exist_ok=True)
+
+
+def prepare_doris(parameter_file: str) -> None:
+    """Set up the directories for Doris v5.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    """
+    search_parameters = [
+        "coregistration_directory",
+        "coregistration_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        coregistration_directory = format_process_folder(
+            base_folder=out_parameters["coregistration_directory"],
+            AoI_name=out_parameters["coregistration_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        # we need a process folder in the coregistration directory, so we can combine that command
+        os.makedirs(f"{coregistration_directory}/bad_images", exist_ok=True)
+        os.makedirs(f"{coregistration_directory}/good_images", exist_ok=True)
+        os.makedirs(f"{coregistration_directory}/input_files", exist_ok=True)
+
+        # link the S1 data in good_images, first remove the current ones, then link the new ones
+        os.system(f"rm -rf {coregistration_directory}/good_images/2*")
+        os.system(
+            f"ln -sfn {SLC_BASE_FOLDER}/s1_{asc_dsc[track]}_t{tracks[track]:0>3d}/IW_SLC__1SDV_VVVH/* "
+            f"{coregistration_directory}/good_images"
+        )
+
+        # dump the zipfiles with their size into a text file, necessary for utils/identify_incomplete_sentinel1_images
+        os.system(
+            f"ls -l {coregistration_directory}/good_images/2*/*.zip > "
+            f"{coregistration_directory}/good_images/zip_files.txt"
+        )
+
+        # move the invalid images to the bad_images
+        remove_incomplete_sentinel1_images(parameter_file)
 
 
 def prepare_reslc(parameter_file: str) -> None:

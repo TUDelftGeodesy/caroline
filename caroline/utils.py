@@ -1,4 +1,5 @@
 import glob
+import os
 import zipfile
 from typing import Literal
 
@@ -33,8 +34,8 @@ def format_process_folder(
     return f"{base_folder}/{AoI_name}_{sensor.lower()}_{asc_dsc.lower()}_t{track:0>3d}"
 
 
-def identify_incomplete_sentinel1_images(parameter_file: str):
-    """Identify incomplete Sentinel-1 image downloads to prevent Doris v5 crashing.
+def remove_incomplete_sentinel1_images(parameter_file: str):
+    """Identify and remove incomplete Sentinel-1 image downloads to prevent Doris v5 crashing.
 
     The identified files are printed to a `bad_zips.txt`.
 
@@ -107,9 +108,12 @@ def identify_incomplete_sentinel1_images(parameter_file: str):
                     if bad_zip not in bad_zips:
                         bad_zips.append(bad_zip)
 
+        # save the bad zips, and move the folders from good images to bad images
         f = open(f"{base_folder}/good_images/bad_zips.txt", "w")
         for zipp in bad_zips:
             f.write(f"{zipp}\n")
+            os.system(f"rm -rf {base_folder}/bad_images/{zipp}")  # in case it already exists, otherwise mv fails
+            os.system(f"mv {base_folder}/good_images/{zipp} {base_folder}/bad_images/{zipp}")  # move it
         f.close()
 
     if len(status) > 0:

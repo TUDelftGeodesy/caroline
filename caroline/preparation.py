@@ -1,11 +1,14 @@
 import glob
 import os
 
-from caroline.io import read_parameter_file
+from caroline.io import read_parameter_file, write_run_file
 from caroline.utils import format_process_folder, remove_incomplete_sentinel1_images
 
-SCRIPT_FOLDER = "/".join(os.getcwd().split("/")[:-1]) + "/scripts"
-SLC_BASE_FOLDER = "/project/caroline/Data/radar_data/sentinel1"
+CONFIG_PARAMETERS = {
+    "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
+    "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
+    "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
+}
 
 
 def prepare_crop(parameter_file: str) -> None:
@@ -57,6 +60,29 @@ def prepare_crop(parameter_file: str) -> None:
         for key in link_keys:
             # run the soft-link command
             os.system(f"ln -sfn {coregistration_directory}/{key} {crop_directory}")
+
+        # generate crop.sh
+        write_run_file(
+            save_path=f"{crop_directory}/crop.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop/crop.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["crop_AoI_name"],
+            config_parameters=["caroline_work_directory"],
+            other_parameters={"track": tracks[track], "crop_base_directory": crop_directory},
+        )
+
+        # generate crop.m
+        write_run_file(
+            save_path=f"{crop_directory}/crop.m",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop/crop.m",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["shape_AoI_name", "shape_directory", "sensor"],
+            config_parameters=["caroline_install_directory"],
+        )
 
 
 def prepare_deinsar(parameter_file: str) -> None:
@@ -190,8 +216,8 @@ def prepare_doris(parameter_file: str) -> None:
         # link the S1 data in good_images, first remove the current ones, then link the new ones
         os.system(f"rm -rf {coregistration_directory}/good_images/2*")
         os.system(
-            f"ln -sfn {SLC_BASE_FOLDER}/s1_{asc_dsc[track]}_t{tracks[track]:0>3d}/IW_SLC__1SDV_VVVH/* "
-            f"{coregistration_directory}/good_images"
+            f"ln -sfn {CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/s1_{asc_dsc[track]}_t{tracks[track]:0>3d}/"
+            f"IW_SLC__1SDV_VVVH/* {coregistration_directory}/good_images"
         )
 
         # dump the zipfiles with their size into a text file, necessary for utils/identify_incomplete_sentinel1_images
@@ -253,7 +279,10 @@ def prepare_mrm(parameter_file: str) -> None:
 
         # format the arguments in the correct order
         command_args = f"{project_id} {n_lines} 1 1 {out_parameters['cpxfiddle_dir']} {depsi_directory}/psi"
-        os.system(f"bash {SCRIPT_FOLDER}/create_mrm_ras_header.sh {command_args}")
+        os.system(
+            f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_mrm_ras_header.sh "
+            f"{command_args}"
+        )
 
 
 def prepare_reslc(parameter_file: str) -> None:

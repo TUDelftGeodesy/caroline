@@ -22,8 +22,8 @@ c                                              //
  c                                              //
 LOGFILE         log.out                         // log file
 M_RESFILE       dummy.res  // parameter file
-S_RESFILE       slave{pol}.res                       // parameter file
-I_RESFILE       ifgs{pol}.res               // parameter file
+S_RESFILE       slave**pol**.res                       // parameter file
+I_RESFILE       ifgs**pol**.res               // parameter file
  c                                              //
  c
  comment ___OVERSAMPLE___
@@ -32,6 +32,6 @@ S_OVS_FACT_RNG      2                        // range oversampling ratio
 S_OVS_FACT_AZI      2                        // azimuth oversampling ratio
 S_OVS_KERNELSIZE    16                       // interpolation kernel
 S_OVS_OUT_FORMAT    cr4                      // image ci2 | cr4
-S_OVS_OUT           image_crop_ovs{pol}.raw       // output filename
+S_OVS_OUT           image_crop_ovs**pol**.raw       // output filename
  c
 STOP

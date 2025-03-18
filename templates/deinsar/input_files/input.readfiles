@@ -29,7 +29,7 @@ I_RESFILE       ifgs.res                       // parameter file
  c
  comment ___READFILES___
  c
-{data_string}
+**data_string**
 c
  c
 STOP

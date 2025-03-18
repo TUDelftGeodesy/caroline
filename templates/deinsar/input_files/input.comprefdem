@@ -38,12 +38,12 @@ CRD_OUT_H2PH    h2ph_srd.raw
 c
 c Change the following lines to your DEM
 c
-CRD_IN_DEM          	{dem_file}
-CRD_IN_FORMAT       	{dem_format}
-CRD_IN_SIZE             {dem_s1} {dem_s2}
-CRD_IN_DELTA            {dem_d1} {dem_d2}
-CRD_IN_UL           	{dem_ul1} {dem_ul2}
-CRD_IN_NODATA       	{dem_nodata}
+CRD_IN_DEM          	**dem_file**
+CRD_IN_FORMAT       	**dem_format**
+CRD_IN_SIZE             **dem_s1** **dem_s2**
+CRD_IN_DELTA            **dem_d1** **dem_d2**
+CRD_IN_UL           	**dem_ul1** **dem_ul2**
+CRD_IN_NODATA       	**dem_nodata**
 c
 
 STOP

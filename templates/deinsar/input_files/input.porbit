@@ -28,7 +28,7 @@ I_RESFILE       ifgs.res               // parameter file
  comment   ___PORBITS___
  c
 c S_ORBDIR        $SAR_ODR_DIR/ers1/dgm-e04
-S_ORBDIR        $SAR_ODR_DIR/{directory}
+S_ORBDIR        $SAR_ODR_DIR/**directory**
 S_ORB_INTERVAL  1
 S_ORB_EXTRATIME 6
  c

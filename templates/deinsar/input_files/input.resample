@@ -20,9 +20,9 @@ c                                              //
  comment  ___the general io files___            //
  c                                              //
 LOGFILE         log.out                         // log file
-M_RESFILE       ../master{pol}.res                   // parameter file
-S_RESFILE       slave{pol}.res                       // parameter file
-I_RESFILE       ifgs{pol}.res                       // parameter file
+M_RESFILE       ../master**pol**.res                   // parameter file
+S_RESFILE       slave**pol**.res                       // parameter file
+I_RESFILE       ifgs**pol**.res                       // parameter file
  c
  c
  comment ___RESAMPLING SLAVE___
@@ -33,8 +33,8 @@ c RS_METHOD     ts6p
 c RS_METHOD     ts8p
 RS_METHOD     ts16p
 c RS_METHOD       rc12p
-RS_OUT_FILE     slave_rsmp{pol}.raw
+RS_OUT_FILE     slave_rsmp**pol**.raw
 RS_OUT_FORMAT   cr4
 c RS_OUT_FORMAT   ci2
-RS_DBOW_GEO        {center_lat} {center_lon} {pix_az} {pix_r}
+RS_DBOW_GEO        **center_lat** **center_lon** **pix_az** **pix_r**
 STOP

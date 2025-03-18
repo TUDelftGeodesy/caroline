@@ -3,8 +3,11 @@ import os
 import zipfile
 from typing import Literal
 
+import numpy as np
+
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file
 
+EARTH_RADIUS = 6378136  # m
 VALID_STEPS_TO_CHECK = ["coregistration", "crop", "reslc", "depsi", "depsi_post"]
 
 
@@ -575,3 +578,86 @@ def generate_email(parameter_file: str, slurm_job_id: str) -> str:
         message = _failed_email_generation(error)
 
     return message
+
+
+def detect_sensor_pixelsize(sensor: str) -> tuple[int, int]:
+    """Retrieve the size of the pixels of a specific sensor.
+
+    Parameters
+    ----------
+    sensor: str
+        Abbreviated name of the sensor. Options are "TSX", "RSAT2", "ERS", "ENV", "Cosmo", "PAZ", ALOS2", "TDX".
+
+    Returns
+    -------
+    tuple[int, int]
+        Azimuth pixel size in meters, range pixel size in meters
+
+    Raises
+    ------
+    ValueError
+        If an unknown sensor is provided.
+
+    """
+    # returns pixel size in m
+    if sensor == "TSX":
+        d_az = 3
+        d_r = 3
+    elif sensor == "RSAT2":
+        d_az = 11.8
+        d_r = 8
+    elif sensor == "ERS":
+        d_az = 8
+        d_r = 4
+    elif sensor == "ENV":
+        d_az = 30
+        d_r = 30
+    elif sensor == "Cosmo":
+        d_az = 15
+        d_r = 15
+    elif sensor == "PAZ":
+        d_az = 3
+        d_r = 3
+    elif sensor == "ALOS2":
+        d_az = 10
+        d_r = 10
+    elif sensor == "TDX":
+        d_az = 3
+        d_r = 3
+    else:
+        raise ValueError(f"Unknown sensor {sensor}!")
+    return d_az, d_r
+
+
+def haversine(lat1: float, lat2: float, lon1: float, lon2: float) -> float:
+    """Calculate the spherical distance between [lat1, lon1] and [lat2, lon2].
+
+    Parameters
+    ----------
+    lat1 : float
+        Latitude of point 1
+    lat2 : float
+        Latitude of point 2
+    lon1 : float
+        Longitude of point 1
+    lon2 : float
+        Longitude of point 2
+
+    Returns
+    -------
+    float
+        Spherical distance in meters between [lat1, lon1] and [lat2, lon2].
+
+    """
+    dphi = np.radians(lat1 - lat2)
+    dlambda = np.radians(lon1 - lon2)
+    dist = (
+        2
+        * EARTH_RADIUS
+        * np.arcsin(
+            np.sqrt(
+                (1 - np.cos(dphi) + np.cos(np.radians(lat1)) * np.cos(np.radians(lat2)) * (1 - np.cos(dlambda))) / 2
+            )
+        )
+    )
+    return dist

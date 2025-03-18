@@ -7,12 +7,13 @@ from caroline.utils import format_process_folder, remove_incomplete_sentinel1_im
 CONFIG_PARAMETERS = {
     "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
     "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
+    "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
     "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
 }
 
 
 def prepare_crop(parameter_file: str) -> None:
-    """Set up the directories for cropping.
+    """Set up the directories and run files for cropping.
 
     Parameters
     ----------
@@ -86,12 +87,19 @@ def prepare_crop(parameter_file: str) -> None:
 
 
 def prepare_deinsar(parameter_file: str) -> None:
-    """Set up the directories for DeInSAR.
+    """Set up the directories and run files for DeInSAR.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+
+    Raises
+    ------
+    AssertionError
+        If one of the tracks is not provided in `di_data_directories`
+    ValueError
+        If an unknown sensor is provided in the parameter file
     """
     search_parameters = [
         "coregistration_directory",
@@ -99,13 +107,25 @@ def prepare_deinsar(parameter_file: str) -> None:
         "track",
         "asc_dsc",
         "sensor",
+        "di_data_directories",
+        "start_date",
+        "end_date",
+        "master_date",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
     tracks = eval(out_parameters["track"])
     asc_dsc = eval(out_parameters["asc_dsc"])
+    datadirs = eval(out_parameters["di_data_directories"])
+    start_date = eval(out_parameters["start_date"].replace("-", ""))
+    master_date = eval(out_parameters["master_date"].replace("-", ""))
+    end_date = eval(out_parameters["end_date"].replace("-", ""))
 
     for track in range(len(tracks)):
+        assert (
+            f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}" in datadirs.keys()
+        ), f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d} is not in di_data_directories!"
+
         coregistration_directory = format_process_folder(
             base_folder=out_parameters["coregistration_directory"],
             AoI_name=out_parameters["coregistration_AoI_name"],
@@ -116,6 +136,90 @@ def prepare_deinsar(parameter_file: str) -> None:
 
         # we need a process folder in the coregistration directory, so we can combine that command
         os.makedirs(f"{coregistration_directory}/process", exist_ok=True)
+
+        # generate deinsar.sh
+        write_run_file(
+            save_path=f"{coregistration_directory}/run_deinsar.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/deinsar/run_deinsar.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["deinsar_code_directory", "doris_v4_code_directory", "coregistration_AoI_name"],
+            config_parameters=["caroline_work_directory", "orbit_directory"],
+            other_parameters={"track": tracks[track], "crop_base_directory": coregistration_directory},
+        )
+
+        # generate deinsar.py
+
+        # first search for the start, end, and master dates by parsing all data in the data directory,
+        # which is different per sensor
+        datadir = datadirs[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"]
+        if out_parameters["sensor"] in ["ALOS2", "ERS"]:
+            dirs = glob.glob(f"{datadir}/[12]*")
+            images = list(sorted([eval(image.split("/")[-1]) for image in dirs]))
+        elif out_parameters["sensor"] in ["RSAT2"]:
+            dirs = glob.glob(f"{datadir}/RS2*")
+            images = list(sorted([eval(image.split("/")[-1].split("FQ2_")[1].split("_")[0]) for image in dirs]))
+        elif out_parameters["sensor"] in ["TSX"]:
+            dirs = glob.glob(f"{datadir}/*/iif/*")
+            images = list(sorted([eval(image.split("/")[-1].split("SRA_")[1].split("T")[0]) for image in dirs]))
+        elif out_parameters["sensor"] in ["SAOCOM"]:
+            dirs = glob.glob(f"{datadir}/*/*.xemt")
+            images = list(sorted([eval(image.split("/")[-1].split("OLF_")[1].split("T")[0]) for image in dirs]))
+        elif out_parameters["sensor"] in ["ENV"]:
+            # 2 different formats for some reason
+            dirs1 = glob.glob(f"{datadir}/*.N1")
+            dirs2 = glob.glob(f"{datadir}/*/*.N1")
+            dirs = []
+            for d in dirs1:
+                dirs.append(d)
+            for d in dirs2:
+                dirs.append(d)
+            images = list(sorted([eval(image.split("/")[-1].split("PA")[1].split("_")[0]) for image in dirs]))
+        else:
+            raise ValueError(f'Unknown directory format for sensor {out_parameters["sensor"]}!')
+
+        # then select the start, end, and master dates
+        act_start_date = str(min([image for image in images if image >= start_date]))
+        act_end_date = str(max([image for image in images if image <= end_date]))
+        act_master_date = str(min([image for image in images if image >= master_date]))
+
+        # finally, write run_deinsar.py
+        write_run_file(
+            save_path=f"{coregistration_directory}/run_deinsar.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/deinsar/run_deinsar.py",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                ["di_data_directories", "dictionary"],
+                "sensor",
+                "polarisation",
+                "di_do_orbit",
+                "di_do_crop",
+                "di_do_tsx_deramp",
+                "di_do_simamp",
+                "di_do_mtiming",
+                "di_do_ovs",
+                "di_do_choose_master",
+                "di_do_coarseorb",
+                "di_do_coarsecorr",
+                "di_do_finecoreg",
+                "di_do_reltiming",
+                "di_do_dembased",
+                "di_do_coregpm",
+                "di_do_comprefpha",
+                "di_do_comprefdem",
+                "di_do_resample",
+                "di_do_tsx_reramp",
+                "di_do_interferogram",
+                "di_do_subtrrefpha",
+                "di_do_subtrrefdem",
+                "di_do_coherence",
+                "di_do_geocoding",
+            ],
+            other_parameters={"master": act_master_date, "startdate": act_start_date, "enddate": act_end_date},
+        )
 
 
 def prepare_depsi(parameter_file: str) -> None:

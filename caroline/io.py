@@ -11,6 +11,7 @@ import numpy as np
 CONFIG_PARAMETERS = {
     "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
     "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
+    "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
     "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
 }
 EARTH_RADIUS = 6378136  # m
@@ -108,6 +109,7 @@ def write_run_file(
         - `SLC_BASE_DIRECTORY`
         - `CAROLINE_WORK_DIRECTORY`
         - `CAROLINE_INSTALL_DIRECTORY`
+        - `ORBIT_DIRECTORY`
     other_parameters: dict
         Dictionary with as keys the parameter name in the template, as argument the value it should be replaced by
 
@@ -133,7 +135,7 @@ def write_run_file(
         for parameter_file_parameter in parameter_file_parameters:
             if isinstance(parameter_file_parameter, str):
                 value = read_parameter_file(parameter_file, [parameter_file_parameter])[parameter_file_parameter]
-                template_data.replace(f"**{parameter_file_parameter}**", value)
+                template_data.replace(f"**{parameter_file_parameter}**", str(value))
             elif isinstance(parameter_file_parameter, list):
                 value = read_parameter_file(parameter_file, [parameter_file_parameter[0]])[parameter_file_parameter[0]]
                 if parameter_file_parameter[1] == "force_lowercase":
@@ -149,7 +151,7 @@ def write_run_file(
                         f"Unknown parameter mode {parameter_file_parameter[1]}! Known are force_lowercase, "
                         "force_uppercase, dictionary."
                     )
-                template_data.replace(f"**{parameter_file_parameter[0]}", value)
+                template_data.replace(f"**{parameter_file_parameter[0]}", str(value))
             else:
                 raise ValueError(
                     f"Allowed types are str and list, got {type(parameter_file_parameter)} as parameter file"
@@ -158,11 +160,11 @@ def write_run_file(
 
     if config_parameters is not None:
         for config_parameter in config_parameters:
-            template_data.replace(f"**{config_parameter.lower()}**", CONFIG_PARAMETERS[config_parameter.upper()])
+            template_data.replace(f"**{config_parameter.lower()}**", str(CONFIG_PARAMETERS[config_parameter.upper()]))
 
     if other_parameters is not None:
         for other_parameter in other_parameters.keys():
-            template_data.replace(f"**{other_parameter}**", other_parameters[other_parameter])
+            template_data.replace(f"**{other_parameter}**", str(other_parameters[other_parameter]))
 
     fw = open(save_path, "w")
     fw.write(template_data)

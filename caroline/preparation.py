@@ -11,6 +11,7 @@ CONFIG_PARAMETERS = {
     "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
     "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
     "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
+    "CAROLINE_WATER_MASK_DIRECTORY": "/project/caroline/Software/config/caroline-water-masks",
 }
 
 
@@ -505,6 +506,13 @@ def prepare_depsi(parameter_file: str) -> None:
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+
+    Raises
+    ------
+    AssertionError
+        If a dictionary is passed to `ref_cn` in the parameter file, but the track key is missing
+    ValueError
+        If an invalid mode is passed to `ref_cn` in the parameter file
     """
     search_parameters = [
         "depsi_directory",
@@ -517,11 +525,21 @@ def prepare_depsi(parameter_file: str) -> None:
         "depsi_code_dir",
         "rdnaptrans_dir",
         "geocoding_dir",
+        "stc_min_max",
+        "std_param",
+        "start_date",
+        "end_date",
+        "ref_cn",
+        "do_water_mask",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
     tracks = eval(out_parameters["track"])
     asc_dsc = eval(out_parameters["asc_dsc"])
+    stc_min_max = eval(out_parameters["stc_min_max"])
+    std_param = eval(out_parameters["std_param"])
+    start_date = out_parameters["start_date"].replace("-", "")
+    end_date = out_parameters["start_date"].replace("-", "")
 
     for track in range(len(tracks)):
         depsi_directory = format_process_folder(
@@ -540,6 +558,10 @@ def prepare_depsi(parameter_file: str) -> None:
             track=tracks[track],
         )
 
+        # if a previous run exists, first move it out of the way
+        if os.path.exists(depsi_directory):
+            os.system(f'''mv "${depsi_directory}" "${depsi_directory}-$(date +%Y%m%dT%H%M%S)"''')
+
         # we need a psi and boxes folder in the depsi directory
         os.makedirs(f"{depsi_directory}/psi", exist_ok=True)
         os.makedirs(f"{depsi_directory}/boxes", exist_ok=True)
@@ -553,10 +575,207 @@ def prepare_depsi(parameter_file: str) -> None:
         mother = glob.glob(f"{crop_directory}/*cropped_stack/2*/master.res")[0]
         # cut off master.res, and add dem_radar.raw
         dem_radar = mother.replace("/master.res", "/dem_radar.raw")
+        mother_date = mother.split("/")[-2]
 
         # link the mother resfile and dem_radar
         os.system(f"ln -sf {mother} {depsi_directory}/psi/slave.res")
         os.system(f"ln -sf {dem_radar} {depsi_directory}/psi/dem_radar.raw")
+
+        # find the first and last valid dates within range
+        if os.path.exists(f"{crop_directory}/cropped_stack/path_res_files.txt"):
+            f = open(f"{crop_directory}/cropped_stack/path_res_files.txt")
+            resfiles = f.read().split("\n")
+            f.close()
+            dates = [i.split("/")[-2] for i in resfiles if i != ""]
+            valid_dates = [date for date in dates if start_date <= date <= end_date]
+        else:
+            valid_dates = []
+
+        if len(valid_dates) == 0:
+            # From #77 , not doing this will cause the following in multi-track starts:
+            # Looping over A,B,C,D , if C has no valid_dates, the parameter file for D will not be generated
+            # as the generation in C will throw an error with the min/max below
+            print(
+                "WARNING: Did not identify any properly cropped images! Cannot determine start and "
+                "end date for DePSI, setting to None. This will crash DePSI."
+            )
+            act_start_date = None
+            act_end_date = None
+        else:
+            act_start_date = min(valid_dates)
+            act_end_date = max(valid_dates)
+
+        # generate the water mask link
+        if out_parameters["do_water_mask"] == "yes":
+            filename_water_mask = (
+                f"{CONFIG_PARAMETERS['CAROLINE_WATER_MASK_DIRECTORY']}/water_mask_{out_parameters['depsi_AoI_name']}_"
+                f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}.raw"
+            )
+        else:
+            filename_water_mask = "[]"
+
+        # #62 -> figure out the reference point
+        if out_parameters["ref_cn"][0] == "{":  # it's a dictionary
+            data = eval(out_parameters["ref_cn"])
+            assert f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}" in data.keys(), (
+                f"Cannot find {out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d} "
+                f"in ref_cn {data}!"
+            )
+            mode = str(data[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"])
+        else:
+            mode = str(out_parameters["ref_cn"])
+
+        if mode in ["independent", "[]"]:
+            ref_cn = "[]"
+        elif mode[0] == "[":  # hardcoded
+            ref_cn = mode.replace(" ", "")  # remove spaces since Matlab doesn't like them
+        elif mode == "constant":
+            # find the old runs
+            directories = glob.glob(f"{depsi_directory}-*")
+            ref_cn = "[]"
+            if len(directories) == 0:
+                # no old runs are present, so we run on mode 'independent' for the initialization
+                pass
+            else:
+                # sort and reverse them to find the most recent one
+                rev_order_runs = list(sorted(directories))[::-1]
+                for i in range(len(rev_order_runs)):  # loop in case one crashed. If all crashed,
+                    # ref_cn is defined before the if/else, and we run on mode 'independent'
+                    ref_file = (
+                        f"{rev_order_runs[i]}/psi/{out_parameters['depsi_AoI_name']}_"
+                        f"{out_parameters['sensor'].lower()}_"
+                        f"{asc_dsc[track]}_t{tracks[track]:0>3d}_ref_sel1.raw"
+                    )  # this file saves the selected reference
+                    if os.path.exists(ref_file):
+                        ref_data = np.memmap(ref_file, mode="r", shape=(3,), dtype="float64")
+                        # this outputs the reference point in [index, az, r]. We need [az,r]
+                        ref_cn = f"[{int(round(ref_data[1]))},{int(round(ref_data[2]))}]"
+                        break  # we found one, so we can stop
+
+        else:
+            raise ValueError(
+                f"Expected types are dictionary, 'independent', '[]', '[az, r]', or 'constant', got {mode}"
+            )
+
+        # write depsi.m
+        write_run_file(
+            save_path=f"{depsi_directory}/psi/depsi.m",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/depsi.m",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            other_parameters={
+                "geocoding_version": out_parameters["geocoding_dir"].split("/")[-1].rstrip(),
+                "depsi_version": out_parameters["depsi_code_dir"].split("/")[-1].rstrip(),
+            },
+        )
+
+        # write depsi.sh
+        write_run_file(
+            save_path=f"{depsi_directory}/psi/depsi.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/depsi.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["depsi_AoI_name"],
+            config_parameters=["caroline_work_directory"],
+            other_parameters={"depsi_base_directory": depsi_directory, "track": tracks[track]},
+        )
+
+        # create param_file.txt
+        #
+        write_run_file(
+            save_path=f"{depsi_directory}/psi/param_file.txt",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/param_file.txt",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "depsi_AoI_name",
+                "max_mem_buffer",
+                "visible_plots",
+                "detail_plots",
+                "processing_groups",
+                "run_mode",
+                ["sensor", "lowercase"],
+                "exclude_date",
+                "az_spacing",
+                "r_spacing",
+                "slc_selection_input",
+                "ifg_selection_input",
+                "Ncv",
+                "ps_method",
+                "psc_model",
+                "ps_model",
+                "final_model",
+                "breakpoint",
+                "breakpoint2",
+                "ens_coh_threshold",
+                "varfac_threshold",
+                "detrend_method",
+                "output_format",
+                "do_apriori_sidelobe_mask",
+                "do_aposteriori_sidelobe_mask",
+                "ref_height",
+                "amplitude_calibration",
+                "psc_selection_method",
+                "psc_selection_gridsize",
+                "psc_threshold",
+                "max_arc_length",
+                "network_method",
+                "Ncon",
+                "Nparts",
+                "Npsc_selections",
+                "gamma_threshold",
+                "psc_distribution",
+                "weighted_unwrap",
+                "livetime_threshold",
+                "peak_tolerance",
+                "psp_selection_method",
+                "psp_threshold1",
+                "psp_threshold2",
+                "ps_eval_method",
+                "Namp_disp_bins",
+                "Ndens_iterations",
+                "densification_flag",
+                "ps_area_of_interest",
+                "dens_method",
+                "dens_check",
+                "Nest",
+                "defo_range",
+                "weighting",
+                "ts_atmo_filter",
+                "ts_atmo_filter_length",
+                "ts_noise_filter",
+                "ts_noise_filter_length",
+                "defo_method",
+                "xc0",
+                "yc0",
+                "zc0",
+                "r0",
+                "r10",
+                "epoch",
+            ],
+            other_parameters={
+                "crop_base_directory": crop_directory,
+                "track": f"{tracks[track]:0>3d}",
+                "asc_dsc": asc_dsc[track],
+                "start_date": act_start_date,
+                "stop_date": act_end_date,
+                "master_date": mother_date,
+                "ref_cn": ref_cn,
+                "stc_min": stc_min_max[0],
+                "stc_max": stc_min_max[1],
+                "filename_water_mask": filename_water_mask,
+                "std_param1": std_param[0],
+                "std_param2": std_param[1],
+                "std_param3": std_param[2],
+                "std_param4": std_param[3],
+                "std_param5": std_param[4],
+                "std_param6": std_param[5],
+                "std_param7": std_param[6],
+            },
+        )
 
 
 def prepare_doris(parameter_file: str) -> None:

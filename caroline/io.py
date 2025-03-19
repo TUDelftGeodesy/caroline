@@ -13,6 +13,7 @@ CONFIG_PARAMETERS = {
     "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
     "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
     "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
+    "CAROLINE_WATER_MASK_DIRECTORY": "/project/caroline/Software/config/caroline-water-masks",
 }
 EARTH_RADIUS = 6378136  # m
 

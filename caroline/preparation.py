@@ -500,7 +500,7 @@ S_IN_LEA        leader.xml"""
 
 
 def prepare_depsi(parameter_file: str) -> None:
-    """Set up the directories for DePSI.
+    """Set up the directories and files for DePSI.
 
     Parameters
     ----------
@@ -525,8 +525,6 @@ def prepare_depsi(parameter_file: str) -> None:
         "depsi_code_dir",
         "rdnaptrans_dir",
         "geocoding_dir",
-        "stc_min_max",
-        "std_param",
         "start_date",
         "end_date",
         "ref_cn",
@@ -536,8 +534,6 @@ def prepare_depsi(parameter_file: str) -> None:
 
     tracks = eval(out_parameters["track"])
     asc_dsc = eval(out_parameters["asc_dsc"])
-    stc_min_max = eval(out_parameters["stc_min_max"])
-    std_param = eval(out_parameters["std_param"])
     start_date = out_parameters["start_date"].replace("-", "")
     end_date = out_parameters["start_date"].replace("-", "")
 
@@ -755,6 +751,8 @@ def prepare_depsi(parameter_file: str) -> None:
                 "r0",
                 "r10",
                 "epoch",
+                ["stc_min_max", "strip", "[] "],
+                ["std_param", "strip", "[] "],
             ],
             other_parameters={
                 "crop_base_directory": crop_directory,
@@ -764,17 +762,141 @@ def prepare_depsi(parameter_file: str) -> None:
                 "stop_date": act_end_date,
                 "master_date": mother_date,
                 "ref_cn": ref_cn,
-                "stc_min": stc_min_max[0],
-                "stc_max": stc_min_max[1],
                 "filename_water_mask": filename_water_mask,
-                "std_param1": std_param[0],
-                "std_param2": std_param[1],
-                "std_param3": std_param[2],
-                "std_param4": std_param[3],
-                "std_param5": std_param[4],
-                "std_param6": std_param[5],
-                "std_param7": std_param[6],
             },
+        )
+
+
+def prepare_depsi_post(parameter_file: str) -> None:
+    """Set up the directories and files for DePSI-post.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+
+    Raises
+    ------
+    ValueError
+        If `depsi_post_mode` is not 'tarball' or 'csv'
+    """
+    search_parameters = [
+        "depsi_directory",
+        "depsi_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+        "depsi_post_dir",
+        "geocoding_dir",
+        "rdnaptrans_dir",
+        "dp_defo_clim",
+        "dp_height_clim",
+        "depsi_post_mode",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    defo_clim_raw = out_parameters["dp_defo_clim"]
+    defo_clim_min = defo_clim_raw.split(",")[0][1:].strip()
+    defo_clim_max = defo_clim_raw.split(",")[1][:-1].strip()
+
+    height_clim_raw = out_parameters["dp_height_clim"]
+    height_clim_min = height_clim_raw.split(",")[0][1:].strip()
+    height_clim_max = height_clim_raw.split(",")[1][:-1].strip()
+
+    if out_parameters["depsi_post_mode"] == "tarball":
+        do_csv = 0
+    elif out_parameters["depsi_post_mode"] == "csv":
+        do_csv = 1
+    else:
+        raise ValueError(
+            f"depsi_post_mode is set to {out_parameters['depsi_post_mode']}, only know 'tarball' and 'csv'!"
+        )
+
+    for track in range(len(tracks)):
+        depsi_directory = format_process_folder(
+            base_folder=out_parameters["depsi_directory"],
+            AoI_name=out_parameters["depsi_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        # link the DePSI-post box
+        os.system(f"cp -Rp {out_parameters['depsi_post_dir']} {depsi_directory}/boxes")
+
+        # write depsi_post.m
+        write_run_file(
+            save_path=f"{depsi_directory}/psi/depsi_post.m",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi_post/depsi_post.m",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "dp_dlat",
+                "dp_dlon",
+                "dp_drdx",
+                "dp_drdy",
+                "sensor",
+                "depsi_AoI_name",
+                "dp_proj",
+                "dp_ref_dheight",
+                "dp_posteriori_scale_factor",
+                ["dp_pred_model", "strip", " "],
+                "dp_plot_mode",
+                ["dp_do_plots", "strip", "{} "],
+                ["dp_output", "strip", "{} "],
+                "dp_fontsize",
+                "dp_markersize",
+                "dp_do_print",
+                "dp_output_format",
+                "dp_az0",
+                "dp_azN",
+                "dp_r0",
+                "dp_rN",
+                "dp_result",
+                "dp_psc_selection",
+                "dp_do_remove_filtered",
+                "dp_which_sl_mask",
+                "dp_shift_to_mean",
+                "dp_new_ref_cn",
+                "dp_map_to_vert",
+                "dp_defo_lim",
+                "dp_height_lim",
+                "dp_ens_coh_lim",
+                "dp_ens_coh_local_lim",
+                "dp_stc_lim",
+                "dp_ens_coh_clim",
+                "dp_ens_coh_local_clim",
+                "dp_stc_clim",
+            ],
+            other_parameters={
+                "geocoding_version": out_parameters["geocoding_dir"].split("/")[-1].rstrip(),
+                "depsi_post_version": out_parameters["depsi_post_dir"].split("/")[-1].rstrip(),
+                "rdnaptrans_version": out_parameters["rdnaptrans_dir"].split("/")[-1].rstrip(),
+                "do_csv": do_csv,
+                "asc_dsc": asc_dsc[track],
+                "track": tracks[track],
+                "fill_track": f"{tracks[track]:0>3d}",
+                "dp_defo_clim_min": defo_clim_min,
+                "dp_defo_clim_max": defo_clim_max,
+                "dp_height_clim_min": height_clim_min,
+                "dp_height_clim_max": height_clim_max,
+            },
+        )
+
+        # write depsi_post.sh
+        write_run_file(
+            save_path=f"{depsi_directory}/psi/depsi_post.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi_post/depsi_post.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["depsi_AoI_name"],
+            config_parameters=["caroline_work_directory"],
+            other_parameters={"track": tracks[track], "depsi_base_directory": depsi_directory},
         )
 
 

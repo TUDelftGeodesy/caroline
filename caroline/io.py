@@ -105,6 +105,8 @@ def write_run_file(
           - "uppercase" - formats the parameter value into uppercase symbols.
           - "dictionary" - signals the parameter value is a dictionary. The key `sensor`_`asc_dsc`_t`track:0>3d` is
             expected. The value is the argument of this key.
+          - "strip" - formatted as ["parameter_name", "strip", "chars"], removes all characters in the `chars` string
+            from the parameter. E.g. `{"output", "csv"}` with `chars="{} "` becomes `"output","csv"`.
     config_parameters: list
         List of configuration parameters to be pasted into the template. Currently avalailable are
         - `SLC_BASE_DIRECTORY`
@@ -121,6 +123,8 @@ def write_run_file(
         - If an unknown mode of parameter formatting is encountered
     AssertionError
         - If an unknown configuration parameter is requested
+        - If strip mode is requested, but no characters to strip are provided
+        - If strip mode is requested, but the characters to strip field is not a string
 
     """
     if config_parameters is not None:
@@ -147,6 +151,16 @@ def write_run_file(
                     sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"].lower()
                     key = f"{sensor}_{asc_dsc}_t{track:0>3d}"
                     value = eval(value)[key]
+                elif parameter_file_parameter[1] == "strip":
+                    assert len(parameter_file_parameter) > 2, (
+                        f"Strip mode for parameter {parameter_file_parameter} "
+                        "requested but no string of characters to strip provided!"
+                    )
+                    assert isinstance(parameter_file_parameter[2], str), (
+                        "Characters to strip from " f"{parameter_file_parameter} is not a string!"
+                    )
+                    for strip_key in parameter_file_parameter[2]:
+                        value = value.replace(strip_key, "")
                 else:
                     raise ValueError(
                         f"Unknown parameter mode {parameter_file_parameter[1]}! Known are force_lowercase, "

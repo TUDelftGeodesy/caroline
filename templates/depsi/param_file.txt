@@ -46,7 +46,7 @@ ens_coh_threshold = **ens_coh_threshold**
 varfac_threshold = **varfac_threshold**
 detrend_method = '**detrend_method**'
 output_format = **output_format**
-stc_min_max = [**stc_min**,**stc_max**]
+stc_min_max = [**stc_min_max**]
 do_apriori_sidelobe_mask = '**do_apriori_sidelobe_mask**'
 do_aposteriori_sidelobe_mask = '**do_aposteriori_sidelobe_mask**'
 
@@ -100,7 +100,7 @@ Nest = **Nest**;
 % Stochastic model parameters
 % ----------------------------------------------------------------------
 
-std_param = [**std_param1**,**std_param2**,**std_param3**,**std_param4**,**std_param5**,**std_param6**,**std_param7**];
+std_param = [**std_param**];
 defo_range = **defo_range**
 weighting = '**weighting**'
 ts_atmo_filter = '**ts_atmo_filter**'

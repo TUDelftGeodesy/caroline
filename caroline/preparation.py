@@ -952,7 +952,7 @@ def prepare_doris(parameter_file: str) -> None:
 
 
 def prepare_mrm(parameter_file: str) -> None:
-    """Set up the directories for mrm creation, part of DePSI-post.
+    """Set up the directories and files for mrm creation, part of DePSI-post.
 
     Parameters
     ----------
@@ -1003,6 +1003,36 @@ def prepare_mrm(parameter_file: str) -> None:
         os.system(
             f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_mrm_ras_header.sh "
             f"{command_args}"
+        )
+
+        write_run_file(
+            save_path=f"{depsi_directory}/psi/read_mrm.m",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/mrm/read_mrm.m",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "depsi_AoI_name",
+                ["sensor", "lowercase"],
+            ],
+            other_parameters={
+                "fill_track": f"{tracks[track]:0>3d}",
+                "asc_dsc": asc_dsc[track],
+            },
+        )
+
+        write_run_file(
+            save_path=f"{depsi_directory}/psi/read_mrm.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/mrm/read_mrm.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["depsi_AoI_name"],
+            config_parameters=["caroline_work_directory"],
+            other_parameters={
+                "track": tracks[track],
+                "depsi_base_directory": depsi_directory,
+            },
         )
 
 

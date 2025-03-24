@@ -901,7 +901,7 @@ def prepare_depsi_post(parameter_file: str) -> None:
 
 
 def prepare_doris(parameter_file: str) -> None:
-    """Set up the directories for Doris v5.
+    """Set up the directories and run files for Doris v5.
 
     Parameters
     ----------
@@ -914,11 +914,22 @@ def prepare_doris(parameter_file: str) -> None:
         "track",
         "asc_dsc",
         "sensor",
+        "dem_delta",
+        "dem_upperleft",
+        "dem_size",
+        "dem_file",
+        "start_date",
+        "end_date",
+        "master_date",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
     tracks = eval(out_parameters["track"])
     asc_dsc = eval(out_parameters["asc_dsc"])
+
+    dem_delta = eval(out_parameters["dem_delta"])
+    dem_size = eval(out_parameters["dem_size"])
+    dem_upperleft = eval(out_parameters["dem_upperleft"])
 
     for track in range(len(tracks)):
         coregistration_directory = format_process_folder(
@@ -949,6 +960,136 @@ def prepare_doris(parameter_file: str) -> None:
 
         # move the invalid images to the bad_images
         remove_incomplete_sentinel1_images(parameter_file)
+
+        # link the DEM
+        dem_directory = "/".join(out_parameters["dem_file"].split("/")[:-1])
+        os.system(f"ln -sfn {dem_directory} {coregistration_directory}/dem")
+
+        # generate the input files
+        input_files = glob.glob(
+            f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/" "doris/input_files/input.*"
+        )
+        for file in input_files:
+            if file.split("/")[-1] in ["input.comprefdem", "input.dembased"]:
+                # these ones need the DEM variables
+                write_run_file(
+                    save_path=f"{coregistration_directory}/input_files/{file.split('/')[-1]}",
+                    template_path=file,
+                    asc_dsc=asc_dsc[track],
+                    track=tracks[track],
+                    parameter_file=parameter_file,
+                    parameter_file_parameters=["dem_file", "dem_format", "dem_nodata"],
+                    other_parameters={
+                        "dem_s1": dem_size[0],
+                        "dem_s2": dem_size[1],
+                        "dem_d1": dem_delta[0],
+                        "dem_d2": dem_delta[1],
+                        "dem_ul1": dem_upperleft[0],
+                        "dem_ul2": dem_upperleft[1],
+                    },
+                )
+            else:
+                # copy it directly
+                write_run_file(
+                    save_path=f"{coregistration_directory}/input_files/{file.split('/')[-1]}",
+                    template_path=file,
+                    asc_dsc=asc_dsc[track],
+                    track=tracks[track],
+                    parameter_file=parameter_file,
+                )
+
+        # create doris_input.xml
+        # we need to transform all the 1/0 from the parameter file into Yes/No
+        other_parameters = {}
+        for parameter in [
+            "do_coarse_orbits",
+            "do_deramp",
+            "do_reramp",
+            "do_fake_fine_coreg_bursts",
+            "do_dac_bursts",
+            "do_fake_coreg_bursts",
+            "do_fake_master_resample",
+            "do_resample",
+            "do_reramp2",
+            "do_interferogram",
+            "do_compref_phase",
+            "do_compref_dem",
+            "do_coherence",
+            "do_esd",
+            "do_network_esd",
+            "do_ESD_correct",
+            "do_combine_master",
+            "do_combine_slave",
+            "do_ref_phase",
+            "do_ref_dem",
+            "do_phasefilt",
+            "do_calc_coordinates",
+            "do_multilooking",
+            "do_unwrap",
+        ]:
+            value = read_parameter_file(parameter_file, [parameter])[parameter]
+            if value == "1":
+                other_parameters[parameter] = "Yes"
+            else:
+                other_parameters[parameter] = "No"
+
+        # we also need the track and orbit direction
+        other_parameters["track"] = tracks[track]
+        other_parameters["asc_dsc"] = asc_dsc[track]
+
+        # and the start, end, and mother dates
+        images = glob.glob(f"{coregistration_directory}/good_images/2*")
+        images = [eval(image.split("/")[-1]) for image in images]
+
+        start_date = eval(out_parameters["start_date"].replace("-", ""))
+        end_date = eval(out_parameters["end_date"].replace("-", ""))
+        master_date = eval(out_parameters["master_date"].replace("-", ""))
+
+        # then select and format the start, end, and master dates
+        other_parameters["start_date"] = str(min([image for image in images if image >= start_date]))
+        other_parameters["start_date"] = (
+            f"{other_parameters['start_date'][:4]}-"
+            f"{other_parameters['start_date'][4:6]}-"
+            f"{other_parameters['start_date'][6:]}"
+        )
+        other_parameters["end_date"] = str(max([image for image in images if image <= end_date]))
+        other_parameters["end_date"] = (
+            f"{other_parameters['end_date'][:4]}-"
+            f"{other_parameters['end_date'][4:6]}-"
+            f"{other_parameters['end_date'][6:]}"
+        )
+        other_parameters["master_date"] = str(min([image for image in images if image >= master_date]))
+        other_parameters["master_date"] = (
+            f"{other_parameters['master_date'][:4]}-"
+            f"{other_parameters['master_date'][4:6]}-"
+            f"{other_parameters['master_date'][6:]}"
+        )
+
+        # finally, add the coregistration directory
+        other_parameters["coregistration_directory"] = coregistration_directory
+
+        # write doris_input.xml
+        write_run_file(
+            save_path=f"{coregistration_directory}/doris_input.xml",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris/doris_input.xml",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["shape_directory", "shape_AoI_name"],
+            other_parameters=other_parameters,
+        )
+
+        # write doris_stack.sh
+        write_run_file(
+            save_path=f"{coregistration_directory}/doris_input.xml",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris/doris_input.xml",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["coregistration_AoI_name", "doris_code_directory"],
+            config_parameters=["caroline_work_directory"],
+            other_parameters={"track": tracks[track], "coregistration_directory": coregistration_directory},
+        )
 
 
 def prepare_mrm(parameter_file: str) -> None:

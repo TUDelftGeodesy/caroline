@@ -4,7 +4,13 @@ import os
 import numpy as np
 
 from caroline.io import read_parameter_file, read_shp_extent, write_run_file
-from caroline.utils import detect_sensor_pixelsize, format_process_folder, haversine, remove_incomplete_sentinel1_images
+from caroline.utils import (
+    detect_sensor_pixelsize,
+    format_process_folder,
+    haversine,
+    remove_incomplete_sentinel1_images,
+    write_directory_contents,
+)
 
 CONFIG_PARAMETERS = {
     "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
@@ -87,6 +93,8 @@ def prepare_crop(parameter_file: str) -> None:
             parameter_file_parameters=["shape_AoI_name", "shape_directory", "sensor"],
             config_parameters=["caroline_install_directory"],
         )
+
+        write_directory_contents(crop_directory)
 
 
 def prepare_deinsar(parameter_file: str) -> None:
@@ -498,6 +506,8 @@ S_IN_LEA        leader.xml"""
             other_parameters={"data_string": data_string},
         )
 
+        write_directory_contents(coregistration_directory)
+
 
 def prepare_depsi(parameter_file: str) -> None:
     """Set up the directories and files for DePSI.
@@ -766,6 +776,8 @@ def prepare_depsi(parameter_file: str) -> None:
             },
         )
 
+        write_directory_contents(depsi_directory)
+
 
 def prepare_depsi_post(parameter_file: str) -> None:
     """Set up the directories and files for DePSI-post.
@@ -898,6 +910,8 @@ def prepare_depsi_post(parameter_file: str) -> None:
             config_parameters=["caroline_work_directory"],
             other_parameters={"track": tracks[track], "depsi_base_directory": depsi_directory},
         )
+
+        write_directory_contents(depsi_directory, filename="dir_contents_depsi_post.txt")
 
 
 def prepare_doris(parameter_file: str) -> None:
@@ -1091,6 +1105,8 @@ def prepare_doris(parameter_file: str) -> None:
             other_parameters={"track": tracks[track], "coregistration_directory": coregistration_directory},
         )
 
+        write_directory_contents(coregistration_directory)
+
 
 def prepare_mrm(parameter_file: str) -> None:
     """Set up the directories and files for mrm creation, part of DePSI-post.
@@ -1175,6 +1191,8 @@ def prepare_mrm(parameter_file: str) -> None:
                 "depsi_base_directory": depsi_directory,
             },
         )
+
+        write_directory_contents(depsi_directory, filename="dir_contents_read_mrm.txt")
 
 
 def prepare_reslc(parameter_file: str) -> None:
@@ -1283,3 +1301,5 @@ def prepare_reslc(parameter_file: str) -> None:
             config_parameters=["caroline_work_directory"],
             other_parameters={"track": tracks[track]},
         )
+
+        write_directory_contents(reslc_directory)

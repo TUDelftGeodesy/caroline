@@ -661,3 +661,22 @@ def haversine(lat1: float, lat2: float, lon1: float, lon2: float) -> float:
         )
     )
     return dist
+
+
+def write_directory_contents(directory: str, filename: str = "dir_contents.txt") -> None:
+    """Write the contents of a directory into a text file in that directory.
+
+    Parameters
+    ----------
+    directory: str
+        Directory of which the contents should be saved
+    filename: str, optional
+        Name of the output text file. Default `dir_contents.txt`
+    """
+    files = glob.glob(f"{directory}/*")
+    filenames = [file.split("/")[-1] for file in files]
+
+    save_string = "\n".join(filenames)
+    f = open(f"{directory}/{filename}", "w")
+    f.write(save_string)
+    f.close()

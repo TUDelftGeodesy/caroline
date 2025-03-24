@@ -1178,16 +1178,23 @@ def prepare_mrm(parameter_file: str) -> None:
 
 
 def prepare_reslc(parameter_file: str) -> None:
-    """Set up the directories for re-SLC.
+    """Set up the directories and run files for re-SLC.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+
+    Raises
+    ------
+    ValueError
+        If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
     """
     search_parameters = [
         "reslc_directory",
         "reslc_AoI_name",
+        "coregistration_directory",
+        "coregistration_AoI_name",
         "track",
         "asc_dsc",
         "sensor",
@@ -1206,4 +1213,73 @@ def prepare_reslc(parameter_file: str) -> None:
             track=tracks[track],
         )
 
+        coregistration_directory = format_process_folder(
+            base_folder=out_parameters["coregistration_directory"],
+            AoI_name=out_parameters["coregistration_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
         os.makedirs(reslc_directory, exist_ok=True)
+
+        # detect the mother image
+        if out_parameters["sensor"].lower() == "s1":
+            f = open(f"{coregistration_directory}/doris_input.xml")
+            data = f.read().split("\n")
+            f.close()
+            mother = None
+            for line in data:
+                if "<master_date>" in line:
+                    mother = line.split(">")[1].split("<")[0].replace("-", "")
+                    break
+
+            if mother is None:
+                raise ValueError(f"Failed to detect mother in {coregistration_directory}/doris_input.xml!")
+
+        else:
+            f = open(f"{coregistration_directory}/run_deinsar.py")
+            data = f.read().split("\n")
+            f.close()
+            mother = None
+            for line in data:
+                if "master = " in line:
+                    mother = line.split("'")[1]
+                    break
+
+            if mother is None:
+                raise ValueError(f"Failed to detect mother in {coregistration_directory}/run_deinsar.py !")
+
+        # generate reslc.py
+        reslc_output_name = reslc_directory.split("/")[-1]
+
+        write_run_file(
+            save_path=f"{reslc_directory}/reslc.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reslc/reslc.py",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["shape_AoI_name", "sensor", "shape_directory"],
+            other_parameters={
+                "coregistration_directory": coregistration_directory,
+                "stack_folder_name": "stack" if out_parameters["sensor"] == "S1" else "process",
+                "mother": mother,
+                "mother_slc_name": "slave_rsmp_reramped.raw" if out_parameters["sensor"] == "S1" else "slave_rsmp.raw",
+                "reslc_output_filename": reslc_output_name,
+            },
+        )
+
+        # generate reslc.sh
+        write_run_file(
+            save_path=f"{reslc_directory}/reslc.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reslc/reslc.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "reslc_AoI_name",
+                "reslc_code_dir",
+            ],
+            config_parameters=["caroline_work_directory"],
+            other_parameters={"track": tracks[track]},
+        )

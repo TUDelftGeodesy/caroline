@@ -6,7 +6,7 @@
         <shape_file_path>**shape_directory**/**shape_AoI_name**_shape.shp</shape_file_path>
         <track>**track**</track>
         <direction>**asc_dsc**</direction>
-        <orbits_folder>/project/caroline/Data/orbits/sentinel1</orbits_folder>
+        <orbits_folder>**orbit_directory**/sentinel1</orbits_folder>
         <generate_dem>yes</generate_dem>
         <dem_folder>**coregistration_directory**/dem</dem_folder>
         <dem_processing_folder>**coregistration_directory**/dem</dem_processing_folder>

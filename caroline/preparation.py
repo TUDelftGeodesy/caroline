@@ -1090,6 +1090,7 @@ def prepare_doris(parameter_file: str) -> None:
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=["shape_directory", "shape_AoI_name"],
+            config_parameters=["orbit_directory"],
             other_parameters=other_parameters,
         )
 

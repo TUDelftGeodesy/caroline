@@ -18,6 +18,38 @@ CONFIG_PARAMETERS = {
 EARTH_RADIUS = 6378136  # m
 
 
+def read_area_track_list(area_track_list_file: str) -> tuple[str | None, list]:
+    """Read the data in an area-track-list file.
+
+    Parameters
+    ----------
+    area_track_list_file: str
+        Full path to the area-track-list file
+
+    Returns
+    -------
+    tuple[str | None, list]
+        A tuple with as first element either the ID of the dependency, or None (if no dependency is found),
+        as second element the list of tracks
+    """
+    if area_track_list_file.split("/")[-1].split("_")[0] == "INACTIVE":
+        return None, []
+
+    f = open(area_track_list_file)
+    data = f.read().split("\n")
+    f.close()
+
+    # read the dependency
+    dependency = data[0].split(":")[-1].strip()
+    if dependency == "None":
+        dependency = None
+
+    # get the tracks
+    tracks = [track for track in data[1:] if track != ""]
+
+    return dependency, tracks
+
+
 def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
     """Read parameters from a CAROLINE parameter file into a dictionary.
 

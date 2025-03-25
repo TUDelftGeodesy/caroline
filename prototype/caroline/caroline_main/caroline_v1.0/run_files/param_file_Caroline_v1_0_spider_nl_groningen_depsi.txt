@@ -8,8 +8,8 @@ project_owner          = 'Ramon'
 project_owner_email    = 'r.f.hanssen@tudelft.nl'
 project_engineer       = 'Simon'
 project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
-project_objective      = 'Time series production over the Grijpskerk gas fields.'
-project_notes          = 'Requested together with nl_schoonebeek.'
+project_objective      = 'Time series production over Groningen for DeepNL.'
+project_notes          = 'Split from nl_groningen so that nl_grijpskerk and nl_nieuwolda can continue after coregistration.'
 
 Caroline_version   = 1.0
 
@@ -19,7 +19,7 @@ polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implem
 do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
 do_crop            = 1  # Requires coregistration (here or dependency)
-do_reslc           = 1  # Requires coregistration (here or dependency)
+do_reslc           = 0  # Requires coregistration (here or dependency)
 
 do_depsi           = 1  # Requires crop (here or dependency). Does not use reslc
 
@@ -34,28 +34,28 @@ skygeo_viewer      = 'nl_grijpskerk'
 coregistration_AoI_name   = 'nl_groningen'
 coregistration_directory  = '/project/caroline/Share/stacks'
 
-crop_AoI_name    = 'nl_grijpskerk'
+crop_AoI_name    = 'nl_groningen'
 crop_directory   = '/project/caroline/Share/crops'
 
-reslc_AoI_name   = 'nl_grijpskerk'
+reslc_AoI_name   = 'nl_groningen'
 reslc_directory  = '/project/caroline/Share/stacks_zarr'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
-depsi_AoI_name   = 'nl_grijpskerk'
-depsi_directory  = '/project/caroline/Share/projects/nl_grijpskerk/depsi'
+depsi_AoI_name   = 'nl_groningen'
+depsi_directory  = '/project/caroline/Share/projects/nl_groningen/depsi'
 
-shape_AoI_name   = 'nl_grijpskerk'
-shape_directory  = '/project/caroline/Software/config/roi/crops/nl_grijpskerk'
+shape_AoI_name   = 'nl_groningen'
+shape_directory  = '/project/caroline/Software/config/roi/stacks/nl_groningen'
 
-shape_file = '/project/caroline/Share/users/caroline-admin/caroline-aoi-shapefiles/nl_grijpskerk/Grijpskerk.shp'
+shape_file = '/project/caroline/Share/projects/deepnl/aoi/groningen/groningen_aoi-polygon.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
-center_AoI = [52.371436, 4.897088]  # Latitude, longitude
+center_AoI = [] # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size
 AoI_length = 1 # km, north-south AoI size
 
-track = [37]  # Can be multiple tracks!
-asc_dsc = ['dsc']
-start_date = '2000-01-01' # will search for first image after this date that exists
+track = []  # Can be multiple tracks!
+asc_dsc = []
+start_date = '2014-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
 master_date= '2020-03-25' # will search for first image after this date that exists
 
@@ -162,7 +162,7 @@ geocoding_dir     = '/project/caroline/Software/caroline-prototype/plugins/geoco
 max_mem_buffer    = 50e7
 visible_plots     = 'n'
 detail_plots      = 'n'
-processing_groups = []  # [7,8] to run groups 7 and 8
+processing_groups = []  # [1:2] first
 run_mode          = 'validation'
 
 exclude_date = ''
@@ -183,16 +183,16 @@ ifg_selection_input = []
 # ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300]} -> different behaviours for different tracks. If this option is chosen,
 #                                                                   a mode for all tracks in the .dat file must exist.
 # Recommended is 'constant'
-ref_cn              = 'constant'
+ref_cn              = {'s1_dsc_t047': 'constant', 's1_asc_t098': [1886,1587]}
 
 Ncv                 = 25
-ps_method           = 'perio'
+ps_method           = 'boot'
 psc_model           = [1]
 ps_model            = [1]
 final_model         = [2]
 breakpoint          = []
 breakpoint2         = []
-ens_coh_threshold   = 0.5
+ens_coh_threshold   = 0.5 #change to 0.4 after one run
 varfac_threshold    = 3
 detrend_method      = 'yes'
 output_format       = 1
@@ -206,10 +206,10 @@ ref_height = 0
 # Psc parameters
 amplitude_calibration  = 'yes'
 psc_selection_method   = 'threshold'
-psc_selection_gridsize = 300
+psc_selection_gridsize = 500
 psc_threshold          = 0.3
 max_arc_length         = 5000
-network_method         = 'spider'
+network_method         = 'delaunay'
 Ncon                   = 16
 Nparts                 = 8
 Npsc_selections        = 1
@@ -266,15 +266,15 @@ dp_dlat                    = 0
 dp_dlon                    = 0
 dp_drdx                    = 0
 dp_drdy                    = 0
-dp_proj                    = 'rd'
+dp_proj                    = 'wgs84'
 dp_ref_dheight             = 0
 dp_posteriori_scale_factor = 1
 
 dp_pred_model         = [1, 3, 5]
-dp_plot_mode          = 'raster' # 'raster', 'vector'
+dp_plot_mode          = 'vector' # 'raster', 'vector'
 dp_do_plots           = {'defo', 'height', 'ens_coh', 'ens_coh_local', 'stc', 'amp_disp'}
 dp_fontsize           = 16
-dp_markersize         = 1
+dp_markersize         = 20
 dp_do_print           = 1
 dp_output_format      = 1
 dp_az0                = []
@@ -283,21 +283,21 @@ dp_r0                 = []
 dp_rN                 = []
 dp_result             = 1
 dp_psc_selection      = 1
-dp_do_remove_filtered = 0
+dp_do_remove_filtered = 1
 dp_which_sl_mask      = 'apriori'
-dp_shift_to_mean      = 1
+dp_shift_to_mean      = 0
 dp_new_ref_cn         = []
 dp_map_to_vert        = 1
-dp_output             = {'shape', 'csv', 'csv_web_portal'} #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
+dp_output             = {'shape', 'csv', 'csv_web_portal', 'matlab'} #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
 
 dp_defo_lim          = []
 dp_height_lim        = []
-dp_ens_coh_lim       = 0.5
-dp_ens_coh_local_lim = 0.6
+dp_ens_coh_lim       = 0.4
+dp_ens_coh_local_lim = 0.5
 dp_stc_lim           = 8
 
-dp_defo_clim          = [-10, 10]
-dp_height_clim        = [-20, 20]
-dp_ens_coh_clim       = 0
-dp_ens_coh_local_clim = 0
-dp_stc_clim           = 20
+dp_defo_clim          = [-300, 300]
+dp_height_clim        = [-30, 30]
+dp_ens_coh_clim       = 0.4
+dp_ens_coh_local_clim = 0.5
+dp_stc_clim           = 8

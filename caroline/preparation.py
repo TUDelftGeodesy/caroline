@@ -21,13 +21,16 @@ CONFIG_PARAMETERS = {
 }
 
 
-def prepare_crop(parameter_file: str) -> None:
+def prepare_crop(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for cropping.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
     """
     search_parameters = [
         "coregistration_directory",
@@ -44,6 +47,13 @@ def prepare_crop(parameter_file: str) -> None:
     asc_dsc = eval(out_parameters["asc_dsc"])
 
     for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
         crop_directory = format_process_folder(
             base_folder=out_parameters["crop_directory"],
             AoI_name=out_parameters["crop_AoI_name"],
@@ -97,13 +107,16 @@ def prepare_crop(parameter_file: str) -> None:
         write_directory_contents(crop_directory)
 
 
-def prepare_deinsar(parameter_file: str) -> None:
+def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for DeInSAR.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
 
     Raises
     ------
@@ -151,6 +164,13 @@ def prepare_deinsar(parameter_file: str) -> None:
     dem_upperleft = eval(out_parameters["dem_upperleft"])
 
     for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
         assert (
             f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}" in datadirs.keys()
         ), f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d} is not in di_data_directories!"
@@ -509,13 +529,16 @@ S_IN_LEA        leader.xml"""
         write_directory_contents(coregistration_directory)
 
 
-def prepare_depsi(parameter_file: str) -> None:
+def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and files for DePSI.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
 
     Raises
     ------
@@ -548,6 +571,13 @@ def prepare_depsi(parameter_file: str) -> None:
     end_date = out_parameters["start_date"].replace("-", "")
 
     for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
         depsi_directory = format_process_folder(
             base_folder=out_parameters["depsi_directory"],
             AoI_name=out_parameters["depsi_AoI_name"],
@@ -779,13 +809,16 @@ def prepare_depsi(parameter_file: str) -> None:
         write_directory_contents(depsi_directory)
 
 
-def prepare_depsi_post(parameter_file: str) -> None:
+def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and files for DePSI-post.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
 
     Raises
     ------
@@ -828,6 +861,13 @@ def prepare_depsi_post(parameter_file: str) -> None:
         )
 
     for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
         depsi_directory = format_process_folder(
             base_folder=out_parameters["depsi_directory"],
             AoI_name=out_parameters["depsi_AoI_name"],
@@ -914,13 +954,16 @@ def prepare_depsi_post(parameter_file: str) -> None:
         write_directory_contents(depsi_directory, filename="dir_contents_depsi_post.txt")
 
 
-def prepare_doris(parameter_file: str) -> None:
+def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for Doris v5.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
     """
     search_parameters = [
         "coregistration_directory",
@@ -946,6 +989,13 @@ def prepare_doris(parameter_file: str) -> None:
     dem_upperleft = eval(out_parameters["dem_upperleft"])
 
     for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
         coregistration_directory = format_process_folder(
             base_folder=out_parameters["coregistration_directory"],
             AoI_name=out_parameters["coregistration_AoI_name"],
@@ -1109,13 +1159,16 @@ def prepare_doris(parameter_file: str) -> None:
         write_directory_contents(coregistration_directory)
 
 
-def prepare_mrm(parameter_file: str) -> None:
+def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and files for mrm creation, part of DePSI-post.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
     """
     search_parameters = [
         "crop_directory",
@@ -1133,6 +1186,13 @@ def prepare_mrm(parameter_file: str) -> None:
     asc_dsc = eval(out_parameters["asc_dsc"])
 
     for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
         crop_directory = format_process_folder(
             base_folder=out_parameters["crop_directory"],
             AoI_name=out_parameters["crop_AoI_name"],
@@ -1196,13 +1256,16 @@ def prepare_mrm(parameter_file: str) -> None:
         write_directory_contents(depsi_directory, filename="dir_contents_read_mrm.txt")
 
 
-def prepare_reslc(parameter_file: str) -> None:
+def prepare_reslc(parameter_file: str, do_track: int) -> None:
     """Set up the directories and run files for re-SLC.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
 
     Raises
     ------
@@ -1224,6 +1287,13 @@ def prepare_reslc(parameter_file: str) -> None:
     asc_dsc = eval(out_parameters["asc_dsc"])
 
     for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
         reslc_directory = format_process_folder(
             base_folder=out_parameters["reslc_directory"],
             AoI_name=out_parameters["reslc_AoI_name"],

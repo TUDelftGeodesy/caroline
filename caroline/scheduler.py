@@ -1,14 +1,10 @@
 import glob
+import os
 
-from caroline.io import read_area_track_list, read_parameter_file
+from caroline.config import get_config
+from caroline.io import create_shapefile, link_shapefile, read_area_track_list, read_parameter_file
 
-CONFIG_PARAMETERS = {
-    "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
-    "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
-    "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
-    "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
-    "CAROLINE_WATER_MASK_DIRECTORY": "/project/caroline/Software/config/caroline-water-masks",
-}
+CONFIG_PARAMETERS = get_config()
 STEP_KEYS = ["coregistration", "crop", "reslc", "depsi", "depsi_post"]
 STEP_REQUIREMENTS = {
     "coregistration": None,
@@ -82,7 +78,7 @@ def scheduler(new_tracks: list) -> list:
 
             for step in out_parameters.keys():
                 if out_parameters[step] == "1":
-                    process_id = f"{data[0]}_{step[3:]}_{new_track}"
+                    process_id = f"{data[0]}-{step[3:]}-{new_track}"
 
                     # we need to figure out the dependencies
                     requirement = STEP_REQUIREMENTS[step[3:]]
@@ -91,10 +87,10 @@ def scheduler(new_tracks: list) -> list:
                         if isinstance(requirement, str):
                             # if the step is run in the same parameter file, that is the dependency
                             if out_parameters[f"do_{requirement}"] == "1":
-                                dependency_id = f"{data[0]}_{requirement}_{new_track}"
+                                dependency_id = f"{data[0]}-{requirement}-{new_track}"
                             # if not, and there is a dependency parameter file, it is run there
                             elif data[1] is not None:
-                                dependency_id = f"{data[1]}_{requirement}_{new_track}"
+                                dependency_id = f"{data[1]}-{requirement}-{new_track}"
                             # if not either, the dependency will not run and we assume it already ran
                             else:
                                 dependency_id = None
@@ -104,7 +100,7 @@ def scheduler(new_tracks: list) -> list:
                             dependency_id = None
                             for req in requirement:
                                 if out_parameters[f"do_{req}"] == "1":
-                                    dependency_id = f"{data[0]}_{req}_{new_track}"
+                                    dependency_id = f"{data[0]}-{req}-{new_track}"
                                     break
                     else:
                         dependency_id = None
@@ -135,3 +131,29 @@ def scheduler(new_tracks: list) -> list:
                 sorted_processes.append([process[0], None])
 
     return sorted_processes
+
+
+def _generate_all_shapefiles(sorted_processes: list) -> None:
+    """Generate the shapefiles of all processes that are being scheduled.
+
+    Parameters
+    ----------
+    sorted_processes: list
+        All processes to be scheduled.
+    """
+    for process in sorted_processes:
+        parameter_file = (
+            f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
+            f"parameter-files/param_file_{process[0].split('-')[0]}.txt"
+        )
+        parameter_file_parameters = read_parameter_file(
+            parameter_file, ["shape_directory", "shape_AoI_name", "shape_file"]
+        )
+        if not os.path.exists(
+            f"{parameter_file_parameters['shape_directory']}/"
+            f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"
+        ):
+            if parameter_file_parameters["shape_file"] == "":
+                create_shapefile(parameter_file)
+            else:
+                link_shapefile(parameter_file)

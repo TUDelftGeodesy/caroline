@@ -1,24 +1,21 @@
 import glob
 import os
+import sys
 
 import numpy as np
 
+from caroline.config import get_config
 from caroline.io import read_parameter_file, read_shp_extent, write_run_file
 from caroline.utils import (
     detect_sensor_pixelsize,
     format_process_folder,
+    generate_email,
     haversine,
     remove_incomplete_sentinel1_images,
     write_directory_contents,
 )
 
-CONFIG_PARAMETERS = {
-    "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
-    "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
-    "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
-    "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
-    "CAROLINE_WATER_MASK_DIRECTORY": "/project/caroline/Software/config/caroline-water-masks",
-}
+CONFIG_PARAMETERS = get_config()
 
 
 def prepare_crop(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1159,6 +1156,41 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         write_directory_contents(coregistration_directory)
 
 
+def prepare_email(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Create and send the completion email.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    body = generate_email(parameter_file)
+    parameters = read_parameter_file(parameter_file, ["send_completion_email", "sensor", "tracks", "asc_dsc"])
+    area_name = parameter_file.split("/")[-1].split(".")[0].split("param_file_")[-1]
+
+    tracks = eval(parameters["tracks"])
+    asc_dsc = eval(parameters["asc_dsc"])
+    track_csv = ""
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if do_track == tracks[track]:
+                track_csv += f"{parameters['sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
+        elif isinstance(do_track, list):
+            if tracks[track] in do_track:
+                track_csv += f"{parameters['sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
+        else:
+            track_csv += f"{parameters['sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
+
+    track_csv = track_csv.strip(",")
+    header = f"CAROLINE: {parameters['sensor']}/{area_name}/{track_csv}"
+    os.system(f"""echo "Subject: {header}
+
+{body}" | {CONFIG_PARAMETERS['SENDMAIL_DIRECTORY']} {parameters['send_completion_email']}""")
+
+
 def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and files for mrm creation, part of DePSI-post.
 
@@ -1256,7 +1288,24 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         write_directory_contents(depsi_directory, filename="dir_contents_read_mrm.txt")
 
 
-def prepare_reslc(parameter_file: str, do_track: int) -> None:
+def prepare_portal_upload(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Create the indication for a portal upload.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    portal_upload_file = f"{parameter_file.split('/')[-1].split('.')[0]}_upload.txt"
+    f = open(portal_upload_file, "w")
+    f.write(f"1\n{parameter_file}\n{do_track}")
+    f.close()
+
+
+def prepare_reslc(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for re-SLC.
 
     Parameters
@@ -1374,3 +1423,65 @@ def prepare_reslc(parameter_file: str, do_track: int) -> None:
         )
 
         write_directory_contents(reslc_directory)
+
+
+def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Create the tarball after DePSI-post.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "depsi_directory",
+        "depsi_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        depsi_directory = format_process_folder(
+            base_folder=out_parameters["depsi_directory"],
+            AoI_name=out_parameters["depsi_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        project_id = depsi_directory.split("/")[-1]
+        cwd = os.popen("pwd").read()
+        os.system(f"cd {depsi_directory}")
+        os.system(
+            f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/"
+            f"create_post_project_tar.sh {project_id}"
+        )
+        os.system(f"cd {cwd}")
+
+
+if __name__ == "__main__":
+    filename, parameter_file, track, job = sys.argv
+    track_number = int(track.split("_")[-1].lstrip("0"))
+    if job == "coregistration":
+        sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"]
+        if sensor == "S1":
+            prepare_doris(parameter_file, do_track=track_number)
+        else:
+            prepare_deinsar(parameter_file, do_track=track_number)
+    else:
+        eval(f"prepare_{job}({parameter_file}, do_track={track_number})")

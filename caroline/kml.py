@@ -2,10 +2,10 @@ import glob
 import os
 from typing import Literal
 
+from caroline.config import get_config
 from caroline.io import read_parameter_file, read_shp_extent, read_SLC_json, read_SLC_xml
 
-SLC_BASE_FOLDER = "/project/caroline/Data/radar_data/sentinel1"
-CAROLINE_PARAM_DIR = "/project/caroline/Software/caroline-prototype/caroline_v1.0/run_files"
+CONFIG_PARAMETERS = get_config()
 
 
 class KML:
@@ -310,7 +310,7 @@ def add_SLC_folder(kml: KML) -> KML:
 
     kml.open_folder("SLCs", "Extents of all downloaded SLCs")
 
-    SLC_folders = list(sorted(glob.glob(f"{SLC_BASE_FOLDER}/s1*")))
+    SLC_folders = list(sorted(glob.glob(f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/s1*")))
 
     for SLC_folder in SLC_folders:
         name_pt1 = SLC_folder.split("/")[-1]  # this is e.g. s1_asc_t088
@@ -488,7 +488,7 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
     dict
         Dictionary containing the relevant parameters for the KML generation
     """
-    param_files = glob.glob(f"{CAROLINE_PARAM_DIR}/param_file_Caroline_v*_spider_*")
+    param_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/*")
     param_file_data = {}
     for param_file in param_files:
         out = read_parameter_file(
@@ -522,10 +522,13 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
         )
 
         if out["sensor"] == "S1":  # for now, we only consider Sentinel-1
-            param_file_AoI_name = param_file.split("_spider_")[-1].split(".")[0]
+            param_file_AoI_name = param_file.split("param_file_")[-1].split(".")[0]
 
             # retrieve the tracks
-            track_list_file = f"{CAROLINE_PARAM_DIR}/../../area-track-lists/{param_file_AoI_name}.dat"
+            track_list_file = (
+                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
+                f"area-track-lists/{param_file_AoI_name}.dat"
+            )
             if os.path.exists(track_list_file):
                 f = open(track_list_file)
                 data = f.read().split("\n")
@@ -534,7 +537,10 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
             elif param_file_AoI_name == "TEST_nl_amsterdam":  # this test AoI does not have a parameter file
                 out["tracks"] = "s1_dsc_t037"
             else:  # if it has not yet been found, it might be inactive, which we need to check for
-                track_list_file = f"{CAROLINE_PARAM_DIR}/../../area-track-lists/INACTIVE_{param_file_AoI_name}.dat"
+                track_list_file = (
+                    f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
+                    f"INACTIVE_area-track-lists/{param_file_AoI_name}.dat"
+                )
                 if os.path.exists(track_list_file):
                     f = open(track_list_file)
                     data = f.read().split("\n")

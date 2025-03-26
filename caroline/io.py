@@ -8,13 +8,9 @@ import fiona
 import geopandas
 import numpy as np
 
-CONFIG_PARAMETERS = {
-    "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
-    "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
-    "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
-    "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
-    "CAROLINE_WATER_MASK_DIRECTORY": "/project/caroline/Software/config/caroline-water-masks",
-}
+from caroline.config import get_config
+
+CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
 
 

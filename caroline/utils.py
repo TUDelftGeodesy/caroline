@@ -5,8 +5,10 @@ from typing import Literal
 
 import numpy as np
 
+from caroline.config import get_config
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file
 
+CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
 VALID_STEPS_TO_CHECK = ["coregistration", "crop", "reslc", "depsi", "depsi_post"]
 
@@ -148,15 +150,13 @@ def generate_shapefile(parameter_file: str):
         link_shapefile(parameter_file)
 
 
-def _generate_email(parameter_file: str, slurm_job_id: str) -> str:
+def _generate_email(parameter_file: str) -> str:
     """Generate the CAROLINE email.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file
-    slurm_job_id: str
-        ID number of the slurm job that managed the run.
 
     Returns
     -------
@@ -215,7 +215,6 @@ def _generate_email(parameter_file: str, slurm_job_id: str) -> str:
 
     # Generate the logs
     log = "==========DEBUG LOGS===========\n\n"
-    log += f"CAROLINE Slurm output: {'/'.join(parameter_file.split('/')[:-2])}/slurm-{slurm_job_id}.out\n\n"
 
     success_rates = {
         "do_coregistration": [[], []],
@@ -267,11 +266,11 @@ def _generate_email(parameter_file: str, slurm_job_id: str) -> str:
     log += "================"
 
     project_characteristics = f"""Project characteristics:
-    Owner: {out_parameters['project_owner']} ({out_parameters['project_owner_email']})
-    Engineer: {out_parameters['project_engineer']} ({out_parameters['project_engineer_email']})
-    Objective: {out_parameters['project_objective']}
-    Notes: {out_parameters['project_notes']}
-    """
+Owner: {out_parameters['project_owner']} ({out_parameters['project_owner_email']})
+Engineer: {out_parameters['project_engineer']} ({out_parameters['project_engineer_email']})
+Objective: {out_parameters['project_objective']}
+Notes: {out_parameters['project_notes']}
+"""
 
     lines = {}
 
@@ -404,7 +403,15 @@ def proper_finish_check(
         base_directory += "/psi"
 
     # Detect the new slurm file
-    slurms = glob.glob(f"{base_directory}/slurm*.out")
+    job_id_file = f"{parameter_file.split('/')[-1].split('.')[0]}_job_id.txt"
+    if not os.path.exists(f"{base_directory}/{job_id_file}"):
+        new_slurms = []
+    else:
+        f = open(f"{base_directory}/{job_id_file}")
+        job_id = f.read().strip()
+        f.close()
+        new_slurms = [f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"]
+
     if step_check == "depsi_post":
         dir_file = f"{base_directory}/dir_contents_depsi_post.txt"
     else:
@@ -413,9 +420,6 @@ def proper_finish_check(
     f = open(dir_file)
     contents = f.read().split("\n")
     f.close()
-    # contents was what was in the directory before the start of the new process. The new slurms are the ones that
-    # were not there yet
-    new_slurms = [slurm for slurm in list(sorted(list(slurms))) if slurm.split("/")[-1] not in contents]
 
     if len(new_slurms) > 0:
         slurm_file = new_slurms[0]  # it's the first one that started running after the file was generated
@@ -557,15 +561,13 @@ Freek, Niels, and Simon
     return message
 
 
-def generate_email(parameter_file: str, slurm_job_id: str) -> str:
+def generate_email(parameter_file: str) -> str:
     """Generate the CAROLINE email.
 
     Parameters
     ----------
     parameter_file: str
         Absolute path to the parameter file
-    slurm_job_id: str
-        ID number of the slurm job that managed the run.
 
     Returns
     -------
@@ -573,7 +575,7 @@ def generate_email(parameter_file: str, slurm_job_id: str) -> str:
         The message that will be emailed.
     """
     try:
-        message = _generate_email(parameter_file, slurm_job_id)
+        message = _generate_email(parameter_file)
     except Exception as error:
         message = _failed_email_generation(error)
 

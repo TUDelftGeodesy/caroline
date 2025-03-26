@@ -23,4 +23,5 @@ def get_config():
         "SLURM_OUTPUT_DIRECTORY": "/project/caroline/Software/run/caroline/slurm-output",
         "PORTAL_UPLOAD_FLAG_DIRECTORY": "/project/caroline/Software/run/caroline/portal-upload-flags",
         "SENDMAIl_DIRECTORY": "/usr/sbin/sendmail",
+        "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY": "/project/caroline/Software/venv/caroline",
     }

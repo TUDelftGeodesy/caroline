@@ -298,10 +298,14 @@ def submit_processes(sorted_processes: list) -> None:
 
         # generate the arguments necessary to start the job
         if SBATCH_BASH_FILE[job] is None:  # no bash job is necessary
-            start_job_arguments = f"{frozen_parameter_file} {job} {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}"
+            start_job_arguments = (
+                f"{frozen_parameter_file} {eval(track.split('_')[2].lstrip('0'))} {job} "
+                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
+                f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}"
+            )
             base_directory = None
         else:  # generate the path to the bash file, then add it as the fourth argument
-            if job in ["mrm", "depsi_post", "depsi"]:  # these all run in the depsi folder
+            if job in ["mrm", "depsi_post", "depsi"]:  # these all run in the depsi folder, which has one extra layer
                 parameters = read_parameter_file(frozen_parameter_file, ["depsi_directory", "depsi_AoI_name"])
                 base_directory = format_process_folder(
                     base_folder=parameters["depsi_directory"],
@@ -310,6 +314,7 @@ def submit_processes(sorted_processes: list) -> None:
                     asc_dsc=track.split("_")[1],
                     track=eval(track.split("_")[2].lstrip("0")),
                 )
+                base_directory += "/psi"
             else:
                 parameters = read_parameter_file(frozen_parameter_file, [f"{job}_directory", f"{job}_AoI_name"])
                 base_directory = format_process_folder(
@@ -320,8 +325,10 @@ def submit_processes(sorted_processes: list) -> None:
                     track=eval(track.split("_")[2].lstrip("0")),
                 )
             start_job_arguments = (
-                f"{frozen_parameter_file} {job} {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
-                f"{base_directory}/{SBATCH_BASH_FILE[job]}"
+                f"{frozen_parameter_file} {eval(track.split('_')[2].lstrip('0'))} {job} "
+                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
+                f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']} "
+                f"{base_directory} {SBATCH_BASH_FILE[job]}"
             )
 
         # finally, submit the job and save the job id in the dictionary and in a file in the output directory

@@ -389,3 +389,47 @@ def create_shapefile(parameter_file: str):
 
     shapefile.write(rows)
     shapefile.close()
+
+
+def parse_start_files(new_insar_files_file: str, force_start_file: str) -> tuple[list, list]:
+    """Read the two start files to start jobs.
+
+    Parameters
+    ----------
+    new_insar_files_file: str
+        Full path to the file containing newly detected InSAR files (output from `find-new-insar-files.sh`
+    force_start_file: str
+        Full path to the file containing AoIs that should be force-started
+
+    Returns
+    -------
+    tuple[list, list]
+        The first list contains the tracks detected with new images, the second contains the track/AoI combinations
+        that should be started
+    """
+    f = open(new_insar_files_file)
+    data = f.read()
+    f.close()
+    if "No new complete downloads found" in data:
+        new_tracks_list = []
+    else:
+        new_tracks_list = []
+        lines = data.split("\n")
+        for line in lines:
+            if CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"] in line:
+                new_tracks_list.append(line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[1])
+
+        new_tracks_list = list(sorted(list(set(new_tracks_list))))  # to make it unique and sorted
+
+    f = open(force_start_file)
+    data = f.read().split("\n")
+    f.close()
+    new_force_starts = []
+    for line in data:
+        if line != "":
+            aoi = line.split(";")[0]
+            tracks = line.split(";")[1].split(",")
+            for track in tracks:
+                new_force_starts.append([track, aoi])
+
+    return new_tracks_list, new_force_starts

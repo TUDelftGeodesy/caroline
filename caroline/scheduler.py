@@ -2,9 +2,10 @@ import datetime as dt
 import glob
 import os
 import re
+from sys import argv
 
 from caroline.config import get_config
-from caroline.io import create_shapefile, link_shapefile, read_area_track_list, read_parameter_file
+from caroline.io import create_shapefile, link_shapefile, parse_start_files, read_area_track_list, read_parameter_file
 from caroline.utils import format_process_folder
 
 CONFIG_PARAMETERS = get_config()
@@ -64,13 +65,15 @@ SBATCH_TWO_LETTER_ID = {
 }
 
 
-def scheduler(new_tracks: list) -> list:
+def scheduler(new_tracks: list, force_tracks: list) -> list:
     """Create a list of processes to be scheduled given a set of new tracks.
 
     Parameters
     ----------
-    new_tracks:
+    new_tracks: list
         list of tracks with new images, formatted as `s1_dsc_t037`
+    force_tracks: list
+        list of tracks formatted as `[`s1_dsc_t037`, 'nl_grijpskerk']` for specific AoIs
 
     Returns
     -------
@@ -90,6 +93,16 @@ def scheduler(new_tracks: list) -> list:
         for new_track in new_tracks:
             if new_track in tracks:
                 track_dict[new_track].append([area_track_file.split("/")[-1].split(".")[0], dependency])
+
+    # add the forced parameter files
+    for track in force_tracks:
+        if track[0] in track_dict.keys():
+            if track[1] in [i[0] for i in track_dict[track[0]]]:  # it is already being submitted
+                pass
+            else:
+                track_dict[track[0]].append([track[1], None])
+        else:
+            track_dict[track[0]] = [[track[1], None]]
 
     parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param_file"
 
@@ -343,3 +356,13 @@ def submit_processes(sorted_processes: list) -> None:
             f = open(f"{frozen_parameter_file.split('/')[-1].split('.')[0]}_job_id.txt")
             f.write(str(job_id))
             f.close()
+
+
+if __name__ == "__main__":
+    filename, new_insar_files_file, force_start_file = argv
+
+    new_tracks, force_start_tracks = parse_start_files(new_insar_files_file, force_start_file)
+
+    processes_to_submit = scheduler(new_tracks, force_start_tracks)
+
+    submit_processes(list(processes_to_submit))

@@ -1,0 +1,310 @@
+# Parameter file for a full doris, cropping, depsi, and depsi_post run, with portal upload possibility.
+
+############################################
+############# GENERAL PARAMETERS ###########
+############################################
+
+project_owner          = 'Freek'
+project_owner_email    = 'f.j.vanleijen@tudelft.nl'
+project_engineer       = 'Simon'
+project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
+project_objective      = 'Coregister TSX data over Marken and Amsterdam, as well as the greater Southern North Holland region.'
+project_notes          = ''
+three_letter_id        = 'NHT'
+
+sensor             = 'TSX'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
+polarisation       = ['HH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
+
+do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
+
+do_crop            = 0  # Requires coregistration (here or dependency)
+do_reslc           = 0  # Requires coregistration (here or dependency)
+
+do_depsi           = 0  # Requires crop (here or dependency). Does not use reslc
+
+do_depsi_post      = 0  # Requires depsi (here or dependency)
+depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
+
+# The portal will be https://caroline.portal-tud.skygeo.com/portal/<skygeo_customer>/<skygeo_viewer>/viewers/basic/
+skygeo_customer    = 'caroline'  # default 'caroline', only recommended to change if one wants to share data with others
+skygeo_viewer      = 'nl_amsterdam'
+
+# Specify the AoI name and directory of each step, as well as the shapefile
+coregistration_AoI_name   = 'nl_north_holland_south_tsx'
+coregistration_directory  = '/project/caroline/Share/stacks'
+
+crop_AoI_name    = 'nl_north_holland_south_tsx'
+crop_directory   = '/project/caroline/Share/crops'
+
+reslc_AoI_name   = 'nl_north_holland_south_tsx'
+reslc_directory  = '/project/caroline/Share/stacks_zarr'
+
+# If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
+depsi_AoI_name   = 'nl_north_holland_s_tsx'
+depsi_directory  = '/project/caroline/Share/projects/nl_amsterdam/depsi'
+
+shape_AoI_name   = 'nl_north_holland_south_tsx'
+shape_directory  = '/project/caroline/Software/config/roi/stacks/nl_north_holland_south_tsx'
+
+shape_file = '/project/caroline/Share/users/caroline-admin/caroline-aoi-shapefiles/nl_north_holland_south/NorthHollandSouth.shp'
+# above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
+center_AoI = [52.371436, 4.897088]  # Latitude, longitude
+AoI_width  = 5 # km, east-west AoI size
+AoI_length = 5 # km, north-south AoI size
+
+track = [116]  # Can be multiple tracks!
+asc_dsc = ['asc']
+start_date = '2000-01-01' # will search for first image after this date that exists
+end_date   = '9999-12-31' # will search for last image before this date that exists
+master_date= '2019-03-20' # will search for first image after this date that exists
+
+# send a notification to these email addresses upon completion of the Caroline script
+# examples:
+# send_completion_email = ''  # empty for no email
+# send_completion_email = 's.a.n.vandiepen@tudelft.nl'  # emails Simon
+# send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl'  # emails Simon and Ramon
+send_completion_email = 's.a.n.vandiepen@tudelft.nl,f.j.vanleijen@tudelft.nl'
+
+# specify the partition on which the steps will run. This is short (up to 10h, max 2 jobs), normal (up to 5 days), or infinite (up to 12 days)
+# the longer the time period, the more difficult it is to schedule
+coregistration_partition = 'normal'
+crop_partition           = 'normal'
+reslc_partition          = 'normal'
+depsi_partition          = 'infinite'
+depsi_post_partition     = 'normal'
+
+#############################################
+################# DEM PARAMETERS ############
+#############################################
+
+dem_file                  = '/project/caroline/Share/dem/netherlands_simon/final_netherlands.dem.wgs84'
+dem_format                = 'r4'
+dem_size                  = [4801, 6001]
+dem_delta                 = [0.000833333333333, 0.000833333333333]
+dem_upperleft             = [54.0, 3.0]
+dem_nodata                = -32768
+
+#############################################
+##### DORIS v5 PARAMETERS (Sentinel-1) ######
+#############################################
+# Usually does not require changing anything
+# Uses doris v5
+
+doris_code_directory      = '/project/caroline/Software/doris/doris_v5_current' # NOTE: generated doris_input.xml corresponds to this version
+
+do_coarse_orbits          = 1
+do_deramp                 = 1
+do_reramp                 = 1
+do_fake_fine_coreg_bursts = 1
+do_fake_master_resample   = 1
+do_dac_bursts             = 1
+do_fake_coreg_bursts      = 1
+do_resample               = 1
+do_reramp2                = 1
+do_interferogram          = 1
+do_compref_phase          = 1
+do_compref_dem            = 1
+do_coherence              = 1
+do_esd                    = 0
+do_network_esd            = 0
+do_ESD_correct            = 0
+do_combine_master         = 1
+do_combine_slave          = 1
+do_ref_phase              = 1
+do_ref_dem                = 1
+do_phasefilt              = 0
+do_calc_coordinates       = 1
+do_multilooking           = 0
+do_unwrap                 = 0
+
+############################################
+######## DeInSAR PARAMETERS (non-S1) #######
+############################################
+
+# The data directories should be in a directory with keys formatted as 'tsx_asc_t009' (#117)
+di_data_directories       = {'tsx_asc_t116': '/project/caroline/Data/radar_data/eurasia/netherlands/tsx/nl_amsterdam_tsx_asc_t116_T171816_171824_007_hh/data_backup'}
+
+deinsar_code_directory   = '/project/caroline/Software/caroline-prototype/plugins/deinsar_v0.3.4'
+doris_v4_code_directory  = '/project/caroline/Software/doris/doris_v4.13.1_cosmo2_alos2fix_tsxfix'
+
+di_do_orbit               = 0 # only for ENV, ERS, RSAT2, will turn off for other sensors automatically
+di_do_crop                = 1
+di_do_tsx_deramp          = 0 # only for TSX, will turn off for other sensors automatically
+di_do_simamp              = 0
+di_do_mtiming             = 0
+di_do_ovs                 = 0
+di_do_choose_master       = 1
+di_do_coarseorb           = 1
+di_do_coarsecorr          = 1
+di_do_finecoreg           = 1
+di_finecoreg_mode         = 'simple' # simple or normal
+di_do_reltiming           = 0
+di_do_dembased            = 1
+di_do_coregpm             = 1
+di_do_resample            = 1
+di_do_tsx_reramp          = 0 # only for TSX, will turn off for other sensors automatically
+di_do_comprefpha          = 1
+di_do_comprefdem          = 1
+di_do_interferogram       = 1
+di_do_subtrrefpha         = 1
+di_do_subtrrefdem         = 1
+di_do_coherence           = 1
+di_do_geocoding           = 1
+
+############################################
+############## RESLC PARAMETERS ############
+############################################
+
+reslc_code_dir    = '/project/caroline/Software/caroline-prototype/plugins/DePSI_group'
+
+############################################
+############## DEPSI PARAMETERS ############
+############################################
+# Usually does not require to change anything
+
+depsi_code_dir    = '/project/caroline/Software/caroline-prototype/plugins/depsi_v2.2.1.1'
+rdnaptrans_dir    = '/project/caroline/Software/caroline-prototype/plugins/rdnaptrans'
+geocoding_dir     = '/project/caroline/Software/caroline-prototype/plugins/geocoding_v0.9'
+
+max_mem_buffer    = 50e7
+visible_plots     = 'n'
+detail_plots      = 'n'
+processing_groups = []  # [7,8] to run groups 7 and 8
+run_mode          = 'validation'
+
+exclude_date = ''
+
+az_spacing          = 13.9
+r_spacing           = 4.0
+slc_selection_input = []
+ifg_selection_input = []
+
+# ref_cn specifies the reference point of the CAROLINE DePSI analyses. The following options are available:
+# ref_cn = 'independent'   -> DePSI chooses the reference point itself (one of the nodes of the arc with the lowest amplitude dispersion),
+#                             this can be different between consecutive runs on the same track.
+# ref_cn = []              -> same as 'independent'
+# ref_cn = 'constant'      -> keep the reference point constant between runs on the same track. If no runs exist,
+#                             the first run will run on mode 'independent'
+# ref_cn = [azimuth,range] -> force the reference point to this coordinate regardless of what is there. If the reference point is not selected
+#                             as PS point, DePSI will throw an error
+# ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300]} -> different behaviours for different tracks. If this option is chosen,
+#                                                                   a mode for all tracks in the .dat file must exist.
+# Recommended is 'constant'
+ref_cn              = 'constant'
+
+Ncv                 = 25
+ps_method           = 'perio'
+psc_model           = [1]
+ps_model            = [1]
+final_model         = [2]
+breakpoint          = []
+breakpoint2         = []
+ens_coh_threshold   = 0.5
+varfac_threshold    = 3
+detrend_method      = 'yes'
+output_format       = 1
+stc_min_max         = [30, 100]
+do_apriori_sidelobe_mask = 'no'
+do_aposteriori_sidelobe_mask = 'no'
+
+# Geocoding parameters
+ref_height = 0
+
+# Psc parameters
+amplitude_calibration  = 'yes'
+psc_selection_method   = 'threshold'
+psc_selection_gridsize = 100
+psc_threshold          = 0.3
+max_arc_length         = 5000
+network_method         = 'spider'
+Ncon                   = 16
+Nparts                 = 8
+Npsc_selections        = 1
+# if do_water_mask is turned to 'yes', the file '/project/caroline/Software/config/caroline-water-masks/water_mask_<depsi_AoI_name>_<sensor>_<asc_dsc>_t<track:0>3d>.raw'
+# is expected, matching with the requested crop, see #68
+do_water_mask          = 'no'
+gamma_threshold        = 0.45
+psc_distribution       = 'uniform'
+weighted_unwrap        = 'yes'
+
+livetime_threshold     = 0.2
+peak_tolerance         = 0.9
+
+# Ps parameters
+psp_selection_method = 'ampdisp'
+psp_threshold1       = 0.4
+psp_threshold2       = []
+ps_eval_method       = 'psp'
+Namp_disp_bins       = 100
+Ndens_iterations     = 5
+densification_flag   = 'yes'
+ps_area_of_interest  = []
+dens_method          = 'orig'
+dens_check           = 'nocheck'
+Nest                 = 1
+
+# Stochastic model parameters
+std_param              = [30,0.005,1,0.02,0.01,0.01,0.005]
+defo_range             = 5000
+weighting              = 'vce'
+ts_atmo_filter         = 'gaussian'
+ts_atmo_filter_length  = 12/12
+ts_noise_filter        = 'gaussian'
+ts_noise_filter_length = 8/12
+
+# bowl parameters
+defo_method = []
+xc0         = []
+yc0         = []
+zc0         = []
+r0          = []
+r10         = []
+epoch       = []
+
+############################################
+########### DEPSI POST PARAMETERS ##########
+############################################
+# Usually does not require to change anything
+
+depsi_post_dir    = '/project/caroline/Software/caroline-prototype/plugins/depsi_post_v2.1.4.0'
+cpxfiddle_dir     = '/project/caroline/Software/caroline-prototype/plugins/cpxfiddle'
+
+dp_dlat                    = 0
+dp_dlon                    = 0
+dp_drdx                    = 0
+dp_drdy                    = 0
+dp_proj                    = 'rd'
+dp_ref_dheight             = 0
+dp_posteriori_scale_factor = 1
+
+dp_pred_model         = [1, 3, 5]
+dp_plot_mode          = 'raster' # 'raster', 'vector'
+dp_do_plots           = {'defo', 'height', 'ens_coh', 'ens_coh_local', 'stc', 'amp_disp'}
+dp_fontsize           = 16
+dp_markersize         = 1
+dp_do_print           = 1
+dp_output_format      = 1
+dp_az0                = []
+dp_azN                = []
+dp_r0                 = []
+dp_rN                 = []
+dp_result             = 1
+dp_psc_selection      = 1
+dp_do_remove_filtered = 0
+dp_which_sl_mask      = 'apriori'
+dp_shift_to_mean      = 1
+dp_new_ref_cn         = []
+dp_map_to_vert        = 1
+dp_output             = {'shape', 'csv', 'csv_web_portal'} #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
+
+dp_defo_lim          = []
+dp_height_lim        = []
+dp_ens_coh_lim       = 0.5
+dp_ens_coh_local_lim = 0.6
+dp_stc_lim           = 8
+
+dp_defo_clim          = [-10, 10]
+dp_height_clim        = [-20, 20]
+dp_ens_coh_clim       = 0
+dp_ens_coh_local_clim = 0
+dp_stc_clim           = 20

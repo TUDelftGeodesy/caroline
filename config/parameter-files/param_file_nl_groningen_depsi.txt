@@ -190,7 +190,7 @@ ifg_selection_input = []
 # ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300]} -> different behaviours for different tracks. If this option is chosen,
 #                                                                   a mode for all tracks in the .dat file must exist.
 # Recommended is 'constant'
-ref_cn              = {'s1_dsc_t047': 'constant', 's1_asc_t098': [1886,1587]}
+ref_cn              = 'constant'
 
 Ncv                 = 25
 ps_method           = 'boot'

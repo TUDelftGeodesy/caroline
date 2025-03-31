@@ -1156,6 +1156,56 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         write_directory_contents(coregistration_directory)
 
 
+def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the cleanup script to clean the directories produced by Doris v5.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "coregistration_directory",
+        "coregistration_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        coregistration_directory = format_process_folder(
+            base_folder=out_parameters["coregistration_directory"],
+            AoI_name=out_parameters["coregistration_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        write_run_file(
+            save_path=f"{coregistration_directory}/cleanup.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/"
+            "doris/cleanup-doris-s1-stack.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            other_parameters={"coregistration_directory": coregistration_directory},
+        )
+
+
 def prepare_email(parameter_file: str, do_track: int | list | None = None) -> None:
     """Create and send the completion email.
 

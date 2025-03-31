@@ -12,6 +12,7 @@ CONFIG_PARAMETERS = get_config()
 STEP_KEYS = ["coregistration", "crop", "reslc", "depsi", "depsi_post"]
 STEP_REQUIREMENTS = {
     "coregistration": None,
+    "doris_cleanup": "coregistration",
     "crop": "coregistration",
     "reslc": "coregistration",
     "depsi": "crop",
@@ -29,6 +30,7 @@ TIME_LIMITS = {
 }  # the true max is 30 days but this will cause interference with new images
 SBATCH_ARGS = {
     "doris": "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000",
+    "doris_cleanup": "--qos=long --ntasks=1 --cpus-per-task=1",
     "deinsar": "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000",
     "crop": "--qos=long --ntasks=1 --cpus-per-task=2",
     "depsi": "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000",
@@ -41,6 +43,7 @@ SBATCH_ARGS = {
 }
 SBATCH_BASH_FILE = {
     "doris": "doris_stack.sh",
+    "doris_cleanup": "cleanup.sh",
     "deinsar": "run_deinsar.sh",
     "crop": "crop.sh",
     "depsi": "depsi.sh",
@@ -53,6 +56,7 @@ SBATCH_BASH_FILE = {
 }
 SBATCH_TWO_LETTER_ID = {
     "doris": "D5",  # these will show up in the squeue
+    "doris_cleanup": "DC",
     "deinsar": "D4",
     "crop": "CR",
     "depsi": "DE",
@@ -132,6 +136,13 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
 
             # email always has to be sent
             out_parameters["do_email"] = "1"
+
+            # check if the cleanup script needs to be run
+            out_parameters["do_doris_cleanup"] = "0"
+            if out_parameters["do_coregistration"] == "1":
+                sensor = read_parameter_file(f"{parameter_file_base}_{data[0]}.txt", ["sensor"])["sensor"]
+                if sensor.upper() == "S1":
+                    out_parameters["do_doris_cleanup"] = "1"
 
             for step in out_parameters.keys():
                 if out_parameters[step] == "1":
@@ -278,7 +289,7 @@ def submit_processes(sorted_processes: list) -> None:
         # first the partition
         if job in ["coregistration", "crop", "reslc", "depsi", "depsi_post"]:
             partition = read_parameter_file(frozen_parameter_file, [f"{job}_partition"])[f"{job}_partition"]
-        elif job in ["email", "tarball", "portal_upload"]:
+        elif job in ["email", "tarball", "portal_upload", "doris_cleanup"]:
             partition = "short"
         else:  # mrm
             partition = "normal"
@@ -328,6 +339,17 @@ def submit_processes(sorted_processes: list) -> None:
                     track=eval(track.split("_")[2].lstrip("0")),
                 )
                 base_directory += "/psi"
+            elif job == "doris_cleanup":  # this one runs in the coregistration folder
+                parameters = read_parameter_file(
+                    frozen_parameter_file, ["coregistration_directory", "coregistration_AoI_name"]
+                )
+                base_directory = format_process_folder(
+                    base_folder=parameters["coregistration_directory"],
+                    AoI_name=parameters["coregistration_AoI_name"],
+                    sensor=track.split("_")[0],
+                    asc_dsc=track.split("_")[1],
+                    track=eval(track.split("_")[2].lstrip("0")),
+                )
             else:
                 parameters = read_parameter_file(frozen_parameter_file, [f"{job}_directory", f"{job}_AoI_name"])
                 base_directory = format_process_folder(
@@ -352,8 +374,14 @@ def submit_processes(sorted_processes: list) -> None:
 
         job_id = job_id.strip().split(" ")[-1]
         job_ids[f"{process[0].split('-')[0]}_{process[0].split('-')[2]}"] = job_id
+
+        if job in ["doris_cleanup", "depsi_post", "mrm"]:  # to split out the individual job ids in the same directory
+            appendix = f"_{job}"
+        else:
+            appendix = ""
+
         if base_directory is not None:
-            f = open(f"{frozen_parameter_file.split('/')[-1].split('.')[0]}_job_id.txt")
+            f = open(f"{frozen_parameter_file.split('/')[-1].split('.')[0]}_job_id{appendix}.txt")
             f.write(str(job_id))
             f.close()
 

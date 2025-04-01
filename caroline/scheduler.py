@@ -259,7 +259,7 @@ def submit_processes(sorted_processes: list) -> None:
             # freeze the configuration
             frozen_parameter_file = (
                 f"{CONFIG_PARAMETERS['FROZEN_PARAMETER_FILE_DIRECTORY']}/"
-                f"{parameter_file.split('.')[0]}_{track}_{run_timestamp}.txt"
+                f"{parameter_file.split('/')[-1].split('.')[0]}_{track}_{run_timestamp}.txt"
             )
             frozen_parameter_files[parameter_file] = frozen_parameter_file
 

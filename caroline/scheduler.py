@@ -217,6 +217,11 @@ def _generate_all_shapefiles(sorted_processes: list) -> None:
         parameter_file_parameters = read_parameter_file(
             parameter_file, ["shape_directory", "shape_AoI_name", "shape_file"]
         )
+
+        # first create the directory
+        os.makedirs(parameter_file_parameters["shape_directory"], exist_ok=True)
+
+        # then create or link the shapefile
         if not os.path.exists(
             f"{parameter_file_parameters['shape_directory']}/"
             f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"

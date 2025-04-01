@@ -23,4 +23,7 @@
 #
 # m h   dom mon dow   command
 CAROLINE=/project/caroline/Software/caroline
-0   */5 *   *   *     /project/caroline/Software/caroline/scripts/run-caroline.sh
+0   */5 *   *   *     bash ${CAROLINE}/scripts/run-caroline.sh  # every 5 hours
+0   *   *   *   *     bash ${CAROLINE}/scripts/manage-portal-upload.sh  # every hour
+0   2   *   *   *     bash ${CAROLINE}/scripts/create-overview-kml.sh  # every day at 2 am
+0   1   *   *   *     bash ${CAROLINE}/scripts/email-log.sh  # every day at 1 am

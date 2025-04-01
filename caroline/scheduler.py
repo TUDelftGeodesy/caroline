@@ -258,7 +258,7 @@ def submit_processes(sorted_processes: list) -> None:
         if f"{parameter_file}_{track}" not in frozen_parameter_files.keys():
             # freeze the configuration
             frozen_parameter_file = (
-                f"{CONFIG_PARAMETERS['FROZEN_PARAMETER_FILES_DIRECTORY']}/"
+                f"{CONFIG_PARAMETERS['FROZEN_PARAMETER_FILE_DIRECTORY']}/"
                 f"{parameter_file.split('.')[0]}_{track}_{run_timestamp}.txt"
             )
             frozen_parameter_files[parameter_file] = frozen_parameter_file

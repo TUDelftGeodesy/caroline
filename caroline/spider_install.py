@@ -56,7 +56,8 @@ def _create_config_directories() -> None:
     """Create the configuration directories that do not yet exist."""
     os.system('''echo "Creating directories..."''')
     for key in CONFIG.keys():
-        os.makedirs(CONFIG[key], exist_ok=True)
+        if not os.path.exists(CONFIG[key]):  # necessary since the sendmail path is a file
+            os.makedirs(CONFIG[key], exist_ok=True)
     os.system('''echo "Finished creating directories!"''')
 
 

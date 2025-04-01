@@ -57,6 +57,7 @@ Can one of you add the SSH key on ui-01?
 
 Kind regards,
 The CAROLINE system" | ${SENDMAIL} s.a.n.vandiepen@tudelft.nl,f.j.vanleijen@tudelft.nl,n.h.jansen@tudelft.nl
+      exit 1
     fi
   fi
 done

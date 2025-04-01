@@ -311,18 +311,20 @@ def submit_processes(sorted_processes: list) -> None:
         # then the job name
         three_letter_id = read_parameter_file(frozen_parameter_file, ["three_letter_id"])["three_letter_id"]
         sensor = track.split("_")[0]
-        if job == "coregistration":
-            if sensor.lower() == "s1":  # e.g. D5088NVE for Doris v5, track 88, AoI nl_veenweiden
-                job_name = f"{SBATCH_TWO_LETTER_ID['doris']}{track.split('_')[-1][1:]}{three_letter_id}"
+        if job == "coregistration":  # this one is different for different sensors
+            if sensor.lower() == "s1":
+                job_key = "doris"
             else:
-                job_name = f"{SBATCH_TWO_LETTER_ID['deinsar']}{track.split('_')[-1][1:]}{three_letter_id}"
+                job_key = "deinsar"
         else:
-            job_name = f"{SBATCH_TWO_LETTER_ID[job]}{track.split('_')[-1][1:]}{three_letter_id}"
+            job_key = job
+        # e.g. D5088NVE for Doris v5, track 88, AoI nl_veenweiden
+        job_name = f"{SBATCH_TWO_LETTER_ID[job_key]}{track.split('_')[-1][1:]}{three_letter_id}"
 
         # finally, combine everything
         sbatch_arguments = (
             f"--partition={partition} --job_name={job_name} "
-            f"--time={TIME_LIMITS[partition]}{dependency_string}{SBATCH_ARGS[job]}"
+            f"--time={TIME_LIMITS[partition]}{dependency_string}{SBATCH_ARGS[job_key]}"
         )
 
         # generate the arguments necessary to start the job

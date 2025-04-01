@@ -117,6 +117,15 @@ def _update_start_job() -> None:
     os.system(f"cp -p {CONFIG['CAROLINE_INSTALL_DIRECTORY']}/scripts/start_job.sh {CONFIG['SLURM_OUTPUT_DIRECTORY']}/")
 
 
+def _initialize_force_start_job() -> None:
+    """Check if force-start-runs.dat exists."""
+    os.system('''echo "Initialising force-start-runs.dat..."''')
+    if not os.path.exists(f"{CONFIG['CAROLINE_WORK_DIRECTORY']}/force-start-runs.dat"):
+        f = open(f"{CONFIG['CAROLINE_WORK_DIRECTORY']}/force-start-runs.dat", "w")
+        f.write("")
+        f.close()
+
+
 if __name__ == "__main__":
     os.system('''echo "Starting Spider installation..."''')
 
@@ -131,5 +140,7 @@ if __name__ == "__main__":
     _update_virtualenvironment()
 
     _update_start_job()
+
+    _initialize_force_start_job()
 
     os.system('''echo "Finished Spider installation!"''')

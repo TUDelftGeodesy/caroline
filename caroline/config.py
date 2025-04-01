@@ -14,14 +14,16 @@ def config_db():
 def get_config():
     """Return the path configurations for the CAROLINE environment."""
     return {
-        "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
-        "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
-        "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
         "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
-        "CAROLINE_WATER_MASK_DIRECTORY": "/project/caroline/Software/config/caroline-water-masks",
-        "FROZEN_PARAMETER_FILE_DIRECTORY": "/project/caroline/Software/run/caroline",
-        "SLURM_OUTPUT_DIRECTORY": "/project/caroline/Software/run/caroline/slurm-output",
-        "PORTAL_UPLOAD_FLAG_DIRECTORY": "/project/caroline/Software/run/caroline/portal-upload-flags",
-        "SENDMAIl_DIRECTORY": "/usr/sbin/sendmail",
+        "CAROLINE_PLUGINS_ARCHIVE_DIRECTORY": "/project/caroline/Software/archives/caroline_plugins",
+        "CAROLINE_PLUGINS_DIRECTORY": "/project/caroline/Software/caroline-plugins",
         "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY": "/project/caroline/Software/venv/caroline",
+        "CAROLINE_WATER_MASK_DIRECTORY": "/project/caroline/Software/config/caroline-water-masks",
+        "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
+        "FROZEN_PARAMETER_FILE_DIRECTORY": "/project/caroline/Software/run/caroline",
+        "PORTAL_UPLOAD_FLAG_DIRECTORY": "/project/caroline/Software/run/caroline/portal-upload-flags",
+        "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
+        "SENDMAIl_DIRECTORY": "/usr/sbin/sendmail",
+        "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
+        "SLURM_OUTPUT_DIRECTORY": "/project/caroline/Software/run/caroline/slurm-output",
     }

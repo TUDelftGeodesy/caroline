@@ -374,6 +374,20 @@ def submit_processes(sorted_processes: list) -> None:
 
         job_id = job_id.strip().split(" ")[-1]
         job_ids[f"{process[0].split('-')[0]}_{process[0].split('-')[2]}"] = job_id
+        # Finally, log that this job was submitted
+        if dependency_string == " ":
+            os.system(
+                f"""echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted job {job} """
+                f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1]}) with slurm-ID ${job_id}" """
+                f'''>> ${CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"'''
+            )
+        else:
+            os.system(
+                f"""echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted job {job} """
+                f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1]}) with slurm-ID ${job_id} """
+                f"""as dependency to slurm-ID ${dependency_job_id}" """
+                f'''>> ${CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"'''
+            )
 
         if job in ["doris_cleanup", "depsi_post", "mrm"]:  # to split out the individual job ids in the same directory
             appendix = f"_{job}"

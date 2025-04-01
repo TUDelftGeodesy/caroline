@@ -1349,10 +1349,49 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
         Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
         the parameter file
     """
-    portal_upload_file = f"{parameter_file.split('/')[-1].split('.')[0]}_upload.txt"
-    f = open(portal_upload_file, "w")
-    f.write(f"1\n{parameter_file}\n{do_track}")
-    f.close()
+    search_parameters = [
+        "depsi_directory",
+        "depsi_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+        "skygeo_customer",
+        "skygeo_viewer",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        depsi_directory = format_process_folder(
+            base_folder=out_parameters["depsi_directory"],
+            AoI_name=out_parameters["depsi_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        # The parameter file already contains a datestamp so we don't need to redo that
+        portal_upload_file = (
+            f"{CONFIG_PARAMETERS['PORTAL_UPLOAD_FLAG_DIRECTORY']}/"
+            f"{parameter_file.split('/')[-1].split('.')[0]}_t{tracks[track]:0>3d}_upload.txt"
+        )
+        f = open(portal_upload_file, "w")
+        f.write(
+            f"Status: TBD\n"
+            f"Directory: {depsi_directory}/psi\n"
+            f"Viewer: {out_parameters['skygeo_viewer']}\n"
+            f"Customer: {out_parameters['skygeo_customer']}"
+        )
+        f.close()
 
 
 def prepare_reslc(parameter_file: str, do_track: int | list | None = None) -> None:

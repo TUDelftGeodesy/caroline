@@ -1,4 +1,5 @@
 import os
+import sys
 
 
 def config_db():
@@ -20,10 +21,15 @@ def get_config():
         "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY": "/project/caroline/Software/venv/caroline",
         "CAROLINE_WATER_MASK_DIRECTORY": "/project/caroline/Software/config/caroline-water-masks",
         "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
-        "FROZEN_PARAMETER_FILE_DIRECTORY": "/project/caroline/Software/run/caroline",
+        "FROZEN_PARAMETER_FILE_DIRECTORY": "/project/caroline/Software/run/caroline/frozen-parameter-files",
         "PORTAL_UPLOAD_FLAG_DIRECTORY": "/project/caroline/Software/run/caroline/portal-upload-flags",
         "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
         "SENDMAIl_DIRECTORY": "/usr/sbin/sendmail",
         "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
         "SLURM_OUTPUT_DIRECTORY": "/project/caroline/Software/run/caroline/slurm-output",
     }
+
+
+if __name__ == "__main__":
+    _, requested_parameter = sys.argv
+    print(get_config()[requested_parameter])

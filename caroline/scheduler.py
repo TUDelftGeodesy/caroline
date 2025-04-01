@@ -261,13 +261,13 @@ def submit_processes(sorted_processes: list) -> None:
                 f"{CONFIG_PARAMETERS['FROZEN_PARAMETER_FILE_DIRECTORY']}/"
                 f"{parameter_file.split('/')[-1].split('.')[0]}_{track}_{run_timestamp}.txt"
             )
-            frozen_parameter_files[parameter_file] = frozen_parameter_file
+            frozen_parameter_files[f"{parameter_file}_{track}"] = frozen_parameter_file
 
             # fill in the correct track
             f = open(parameter_file)
             parameter_file_data = f.read()
             f.close()
-            track_number = track.split("_")[-1].lstrip("0")
+            track_number = track.split("_")[-1][1:].lstrip("0")  # 1: to cut off the t
             track_direction = track.split("_")[1]
 
             parameter_file_data = re.sub(
@@ -313,11 +313,11 @@ def submit_processes(sorted_processes: list) -> None:
         sensor = track.split("_")[0]
         if job == "coregistration":
             if sensor.lower() == "s1":  # e.g. D5088NVE for Doris v5, track 88, AoI nl_veenweiden
-                job_name = f"{SBATCH_TWO_LETTER_ID['doris']}{track.split('_')[-1]}{three_letter_id}"
+                job_name = f"{SBATCH_TWO_LETTER_ID['doris']}{track.split('_')[-1][1:]}{three_letter_id}"
             else:
-                job_name = f"{SBATCH_TWO_LETTER_ID['deinsar']}{track.split('_')[-1]}{three_letter_id}"
+                job_name = f"{SBATCH_TWO_LETTER_ID['deinsar']}{track.split('_')[-1][1:]}{three_letter_id}"
         else:
-            job_name = f"{SBATCH_TWO_LETTER_ID[job]}{track.split('_')[-1]}{three_letter_id}"
+            job_name = f"{SBATCH_TWO_LETTER_ID[job]}{track.split('_')[-1][1:]}{three_letter_id}"
 
         # finally, combine everything
         sbatch_arguments = (
@@ -328,7 +328,7 @@ def submit_processes(sorted_processes: list) -> None:
         # generate the arguments necessary to start the job
         if SBATCH_BASH_FILE[job] is None:  # no bash job is necessary
             start_job_arguments = (
-                f"{frozen_parameter_file} {eval(track.split('_')[2].lstrip('0'))} {job} "
+                f"{frozen_parameter_file} {track.split('_')[-1][1:].lstrip('0')} {job} "
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
                 f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}"
             )
@@ -341,7 +341,7 @@ def submit_processes(sorted_processes: list) -> None:
                     AoI_name=parameters["depsi_AoI_name"],
                     sensor=track.split("_")[0],
                     asc_dsc=track.split("_")[1],
-                    track=eval(track.split("_")[2].lstrip("0")),
+                    track=eval(track.split("_")[2][1:].lstrip("0")),
                 )
                 base_directory += "/psi"
             elif job == "doris_cleanup":  # this one runs in the coregistration folder
@@ -353,7 +353,7 @@ def submit_processes(sorted_processes: list) -> None:
                     AoI_name=parameters["coregistration_AoI_name"],
                     sensor=track.split("_")[0],
                     asc_dsc=track.split("_")[1],
-                    track=eval(track.split("_")[2].lstrip("0")),
+                    track=eval(track.split("_")[2][1:].lstrip("0")),
                 )
             else:
                 parameters = read_parameter_file(frozen_parameter_file, [f"{job}_directory", f"{job}_AoI_name"])
@@ -362,10 +362,10 @@ def submit_processes(sorted_processes: list) -> None:
                     AoI_name=parameters[f"{job}_AoI_name"],
                     sensor=track.split("_")[0],
                     asc_dsc=track.split("_")[1],
-                    track=eval(track.split("_")[2].lstrip("0")),
+                    track=eval(track.split("_")[2][1:].lstrip("0")),
                 )
             start_job_arguments = (
-                f"{frozen_parameter_file} {eval(track.split('_')[2].lstrip('0'))} {job} "
+                f"{frozen_parameter_file} {track.split('_')[2][1:].lstrip('0')} {job} "
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
                 f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']} "
                 f"{base_directory} {SBATCH_BASH_FILE[job]}"
@@ -383,13 +383,15 @@ def submit_processes(sorted_processes: list) -> None:
         if dependency_string == " ":
             os.system(
                 f"""echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted job {job} """
-                f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1]}) with slurm-ID ${job_id}" """
+                f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
+                f"""slurm-ID {job_id}" """
                 f'''>> ${CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"'''
             )
         else:
             os.system(
                 f"""echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted job {job} """
-                f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1]}) with slurm-ID ${job_id} """
+                f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
+                f"""slurm-ID {job_id} """
                 f"""as dependency to slurm-ID ${dependency_job_id}" """
                 f'''>> ${CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"'''
             )

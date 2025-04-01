@@ -323,7 +323,7 @@ def submit_processes(sorted_processes: list) -> None:
 
         # finally, combine everything
         sbatch_arguments = (
-            f"--partition={partition} --job_name={job_name} "
+            f"--partition={partition} --job-name={job_name} "
             f"--time={TIME_LIMITS[partition]}{dependency_string}{SBATCH_ARGS[job_key]}"
         )
 
@@ -366,11 +366,23 @@ def submit_processes(sorted_processes: list) -> None:
                     asc_dsc=track.split("_")[1],
                     track=eval(track.split("_")[2][1:].lstrip("0")),
                 )
+
+            # generate the job id file
+            if job in [
+                "doris_cleanup",
+                "depsi_post",
+                "mrm",
+            ]:  # to split out the individual job ids in the same directory
+                appendix = f"_{job}"
+            else:
+                appendix = ""
+            job_id_file = f"{base_directory}/{frozen_parameter_file.split('/')[-1].split('.')[0]}_job_id{appendix}.txt"
+
             start_job_arguments = (
                 f"{frozen_parameter_file} {track.split('_')[2][1:].lstrip('0')} {job} "
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
                 f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']} "
-                f"{base_directory} {SBATCH_BASH_FILE[job_key]}"
+                f"{base_directory} {SBATCH_BASH_FILE[job_key]} {job_id_file}"
             )
 
         # finally, submit the job and save the job id in the dictionary and in a file in the output directory
@@ -397,16 +409,6 @@ def submit_processes(sorted_processes: list) -> None:
                 f"""as dependency to slurm-ID ${dependency_job_id}" """
                 f'''>> ${CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"'''
             )
-
-        if job in ["doris_cleanup", "depsi_post", "mrm"]:  # to split out the individual job ids in the same directory
-            appendix = f"_{job}"
-        else:
-            appendix = ""
-
-        if base_directory is not None:
-            f = open(f"{frozen_parameter_file.split('/')[-1].split('.')[0]}_job_id{appendix}.txt")
-            f.write(str(job_id))
-            f.close()
 
 
 if __name__ == "__main__":

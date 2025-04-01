@@ -403,7 +403,11 @@ def proper_finish_check(
         base_directory += "/psi"
 
     # Detect the new slurm file
-    job_id_file = f"{parameter_file.split('/')[-1].split('.')[0]}_job_id.txt"
+    if step_check == "depsi_post":
+        appendix = f"_{step_check}"
+    else:
+        appendix = ""
+    job_id_file = f"{parameter_file.split('/')[-1].split('.')[0]}_job_id{appendix}.txt"
     if not os.path.exists(f"{base_directory}/{job_id_file}"):
         new_slurms = []
     else:

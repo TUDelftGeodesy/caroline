@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script starts the find-new-insar-files.sh script, and submits to the scheduler
+# This script manages the portal upload
 
 # Figure out where we are installed
 CAROLINE=$(readlink -f $(dirname $BASH_SOURCE) | sed -e 's+/scripts$++')

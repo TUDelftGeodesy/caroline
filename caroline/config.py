@@ -15,6 +15,7 @@ def config_db():
 def get_config():
     """Return the path configurations for the CAROLINE environment."""
     return {
+        "AOI_OVERVIEW_DIRECTORY": "/project/caroline/Share/caroline-aoi-extents",
         "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
         "CAROLINE_PLUGINS_ARCHIVE_DIRECTORY": "/project/caroline/Software/archives/caroline_plugins",
         "CAROLINE_PLUGINS_DIRECTORY": "/project/caroline/Software/caroline-plugins",

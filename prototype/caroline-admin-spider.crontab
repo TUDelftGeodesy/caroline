@@ -22,5 +22,7 @@
 # For more information see the manual pages of crontab(5) and cron(8)
 #
 # m h   dom mon dow   command
-CAROLINE=/project/caroline/Software/caroline-prototype
-0   */5 *   *   *     /project/caroline/Software/caroline-prototype/bin/run-caroline.sh
+CAROLINE=/project/caroline/Software/caroline
+0   */5 *   *   *     bash ${CAROLINE}/scripts/run-caroline.sh  # every 5 hours
+0   *   *   *   *     bash ${CAROLINE}/scripts/manage-portal-upload.sh  # every hour
+0   2   *   *   *     bash ${CAROLINE}/scripts/create-overview-kml.sh  # every day at 2 am

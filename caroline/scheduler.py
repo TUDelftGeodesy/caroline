@@ -328,7 +328,7 @@ def submit_processes(sorted_processes: list) -> None:
         )
 
         # generate the arguments necessary to start the job
-        if SBATCH_BASH_FILE[job] is None:  # no bash job is necessary
+        if SBATCH_BASH_FILE[job_key] is None:  # no bash job is necessary
             start_job_arguments = (
                 f"{frozen_parameter_file} {track.split('_')[-1][1:].lstrip('0')} {job} "
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
@@ -370,7 +370,7 @@ def submit_processes(sorted_processes: list) -> None:
                 f"{frozen_parameter_file} {track.split('_')[2][1:].lstrip('0')} {job} "
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
                 f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']} "
-                f"{base_directory} {SBATCH_BASH_FILE[job]}"
+                f"{base_directory} {SBATCH_BASH_FILE[job_key]}"
             )
 
         # finally, submit the job and save the job id in the dictionary and in a file in the output directory

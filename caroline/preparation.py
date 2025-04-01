@@ -169,8 +169,8 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 continue
 
         assert (
-            f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}" in datadirs.keys()
-        ), f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d} is not in di_data_directories!"
+            f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}" in datadirs.keys()
+        ), f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d} is not in di_data_directories!"
 
         coregistration_directory = format_process_folder(
             base_folder=out_parameters["coregistration_directory"],
@@ -199,7 +199,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
 
         # first search for the start, end, and master dates by parsing all data in the data directory,
         # which is different per sensor
-        datadir = datadirs[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"]
+        datadir = datadirs[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"]
         if out_parameters["sensor"] in ["ALOS2", "ERS"]:
             dirs = glob.glob(f"{datadir}/[12]*")
             images = list(sorted([eval(image.split("/")[-1]) for image in dirs]))

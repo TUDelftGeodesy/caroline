@@ -124,7 +124,7 @@ do_unwrap                 = 0
 # The data directories should be in a directory with keys formatted as 'tsx_asc_t009' (#117)
 di_data_directories       = {'tsx_asc_t116': '/project/caroline/Data/radar_data/eurasia/netherlands/tsx/nl_amsterdam_tsx_asc_t116_T171816_171824_007_hh/data_backup'}
 
-deinsar_code_directory   = '/project/caroline/Software/caroline-prototype/plugins/deinsar_v0.3.4'
+deinsar_code_directory   = '/project/caroline/Software/caroline-plugins/deinsar_v0.3.4'
 doris_v4_code_directory  = '/project/caroline/Software/doris/doris_v4.13.1_cosmo2_alos2fix_tsxfix'
 
 di_do_orbit               = 1 # only for ENV, ERS, RSAT2, will turn off for other sensors automatically
@@ -155,16 +155,16 @@ di_do_geocoding           = 1
 ############## RESLC PARAMETERS ############
 ############################################
 
-reslc_code_dir    = '/project/caroline/Software/caroline-prototype/plugins/DePSI_group'
+reslc_code_dir    = '/project/caroline/Software/caroline-plugins/DePSI_group'
 
 ############################################
 ############## DEPSI PARAMETERS ############
 ############################################
 # Usually does not require to change anything
 
-depsi_code_dir    = '/project/caroline/Software/caroline-prototype/plugins/depsi_v2.2.1.1'
-rdnaptrans_dir    = '/project/caroline/Software/caroline-prototype/plugins/rdnaptrans'
-geocoding_dir     = '/project/caroline/Software/caroline-prototype/plugins/geocoding_v0.9'
+depsi_code_dir    = '/project/caroline/Software/caroline-plugins/depsi_v2.2.1.1'
+rdnaptrans_dir    = '/project/caroline/Software/caroline-plugins/rdnaptrans'
+geocoding_dir     = '/project/caroline/Software/caroline-plugins/geocoding_v0.9'
 
 max_mem_buffer    = 50e7
 visible_plots     = 'n'
@@ -266,8 +266,8 @@ epoch       = []
 ############################################
 # Usually does not require to change anything
 
-depsi_post_dir    = '/project/caroline/Software/caroline-prototype/plugins/depsi_post_v2.1.4.0'
-cpxfiddle_dir     = '/project/caroline/Software/caroline-prototype/plugins/cpxfiddle'
+depsi_post_dir    = '/project/caroline/Software/caroline-plugins/depsi_post_v2.1.4.0'
+cpxfiddle_dir     = '/project/caroline/Software/caroline-plugins/cpxfiddle'
 
 dp_dlat                    = 0
 dp_dlon                    = 0

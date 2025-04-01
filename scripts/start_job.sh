@@ -17,7 +17,8 @@ VENV_LOCATION=$5
 source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
 module load python/3.10.4 gdal/3.4.1-alma9
-source ${VENV_LOCATION}/bin/activate
+source ~/.bashrc
+conda activate ${VENV_LOCATION}
 
 python3 ${INSTALL_LOCATION}/caroline/preparation.py ${PARAMETER_FILE} ${TRACK_NUMBER} ${JOB_TYPE}
 

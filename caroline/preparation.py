@@ -1149,7 +1149,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=["coregistration_AoI_name", "doris_code_directory"],
-            config_parameters=["caroline_work_directory"],
+            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
             other_parameters={"track": tracks[track], "coregistration_directory": coregistration_directory},
         )
 
@@ -1507,7 +1507,7 @@ def prepare_reslc(parameter_file: str, do_track: int | list | None = None) -> No
                 "reslc_AoI_name",
                 "reslc_code_dir",
             ],
-            config_parameters=["caroline_work_directory"],
+            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
             other_parameters={"track": tracks[track]},
         )
 

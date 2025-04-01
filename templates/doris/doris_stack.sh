@@ -31,8 +31,9 @@
 
 source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
-module load python/3.9.6 gdal/3.4.1-alma9
-source /project/caroline/Share/users/caroline-svandiepen/virtual_envs/caroline_v2/bin/activate
+module load python/3.10.4 gdal/3.4.1-alma9
+source ~/.bashrc
+conda activate **caroline_virtual_environment_directory**
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started doris_stack.sh (AoI **coregistration_AoI_name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 

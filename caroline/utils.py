@@ -63,8 +63,8 @@ def remove_incomplete_sentinel1_images(parameter_file: str):
             out_parameters["coregistration_directory"],
             out_parameters["coregistration_AoI_name"],
             out_parameters["sensor"],
-            asc_dsc,
-            track,
+            asc_dsc[track],
+            tracks[track],
         )
         f = open(f"{base_folder}/good_images/zip_files.txt")
         data = f.read().split("\n")

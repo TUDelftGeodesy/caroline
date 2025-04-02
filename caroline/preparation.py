@@ -1570,4 +1570,4 @@ if __name__ == "__main__":
         else:
             prepare_deinsar(parameter_file, do_track=track_number)
     else:
-        eval(f"prepare_{job}({parameter_file}, do_track={track_number})")
+        eval(f"prepare_{job}('{parameter_file}', do_track={track_number})")

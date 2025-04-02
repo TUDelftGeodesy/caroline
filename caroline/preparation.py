@@ -715,10 +715,10 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             other_parameters={"depsi_base_directory": depsi_directory, "track": tracks[track]},
         )
 
-        # create param_file.txt
+        # create param_file_depsi.txt
         #
         write_run_file(
-            save_path=f"{depsi_directory}/psi/param_file.txt",
+            save_path=f"{depsi_directory}/psi/param_file_depsi.txt",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/param_file.txt",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -803,7 +803,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             },
         )
 
-        write_directory_contents(depsi_directory)
+        write_directory_contents(f"{depsi_directory}/psi")
 
 
 def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -948,7 +948,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
             other_parameters={"track": tracks[track], "depsi_base_directory": depsi_directory},
         )
 
-        write_directory_contents(depsi_directory, filename="dir_contents_depsi_post.txt")
+        write_directory_contents(f"{depsi_directory}/psi", filename="dir_contents_depsi_post.txt")
 
 
 def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1335,7 +1335,7 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             },
         )
 
-        write_directory_contents(depsi_directory, filename="dir_contents_read_mrm.txt")
+        write_directory_contents(f"{depsi_directory}/psi", filename="dir_contents_read_mrm.txt")
 
 
 def prepare_portal_upload(parameter_file: str, do_track: int | list | None = None) -> None:

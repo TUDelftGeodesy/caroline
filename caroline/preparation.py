@@ -1143,8 +1143,8 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
 
         # write doris_stack.sh
         write_run_file(
-            save_path=f"{coregistration_directory}/doris_input.xml",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris/doris_input.xml",
+            save_path=f"{coregistration_directory}/doris_stack.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris/doris_stack.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -1218,10 +1218,10 @@ def prepare_email(parameter_file: str, do_track: int | list | None = None) -> No
         the parameter file
     """
     body = generate_email(parameter_file)
-    parameters = read_parameter_file(parameter_file, ["send_completion_email", "sensor", "tracks", "asc_dsc"])
+    parameters = read_parameter_file(parameter_file, ["send_completion_email", "sensor", "track", "asc_dsc"])
     area_name = parameter_file.split("/")[-1].split(".")[0].split("param_file_")[-1]
 
-    tracks = eval(parameters["tracks"])
+    tracks = eval(parameters["track"])
     asc_dsc = eval(parameters["asc_dsc"])
     track_csv = ""
     for track in range(len(tracks)):

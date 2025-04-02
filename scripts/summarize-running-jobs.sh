@@ -20,6 +20,6 @@ do
   JOB=$(echo ${SQUEUE} | cut -d" " -f-8)
   echo "
 ${JOB}
-$(grep ${JOB_ID} ${CAROLINE_WORK}/submitted_jobs.log | cut -d: -f2-)
+$(grep ${JOB_ID} ${CAROLINE_WORK}/submitted_jobs.log)
 "
 done

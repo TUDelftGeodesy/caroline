@@ -7,7 +7,7 @@ addpath(genpath('../boxes/**rdnaptrans_version**'));
 
 %dbstop if error
 
-param_file = 'param_file.txt';
+param_file = 'param_file_depsi.txt';
 
 do_read = 1;
 do_hist_orig = 0;

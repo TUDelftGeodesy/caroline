@@ -303,7 +303,7 @@ def submit_processes(sorted_processes: list) -> None:
         if dependency_job_id is None:
             dependency_string = " "
         else:
-            if job == "email":  # we alwayw want to send an email
+            if job == "email":  # we always want to send an email
                 dependency_string = f" --dependency=after:{dependency_job_id} "
             else:  # we want to kill the other dependencies if its predecessor crashed
                 dependency_string = f" --dependency=afterok:{dependency_job_id} --kill-on-invalid-dep=yes "
@@ -399,7 +399,7 @@ def submit_processes(sorted_processes: list) -> None:
                 """echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) """
                 f"""{f"in {base_directory} " if base_directory is not None else ""}submitted job {job} """
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
-                f"""slurm-ID {job_id}" """
+                f"""slurm-ID {job_id} (process {process})" """
                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
             )
         else:
@@ -408,7 +408,7 @@ def submit_processes(sorted_processes: list) -> None:
                 f"""{f"in {base_directory} " if base_directory is not None else ""}submitted job {job} """
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
                 f"""slurm-ID {job_id} """
-                f"""as dependency to slurm-ID ${dependency_job_id}" """
+                f"""as dependency to slurm-ID {dependency_job_id} (process {process})" """
                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
             )
 

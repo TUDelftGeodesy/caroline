@@ -387,8 +387,8 @@ def submit_processes(sorted_processes: list) -> None:
 
         # finally, submit the job and save the job id in the dictionary and in a file in the output directory
         job_id = os.popen(
-            f"cd {CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}; sbatch {sbatch_arguments} start_job.sh "
-            f"{start_job_arguments}"
+            f"cd {CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}; "
+            f"sbatch {sbatch_arguments} start_job.sh {start_job_arguments}"
         ).read()
 
         job_id = job_id.strip().split(" ")[-1]

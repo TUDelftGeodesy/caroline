@@ -1564,7 +1564,7 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
 
 
 if __name__ == "__main__":
-    filename, parameter_file, track, job = sys.argv
+    _, parameter_file, track, job = sys.argv
     track_number = int(track)
     if job == "coregistration":
         sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"]

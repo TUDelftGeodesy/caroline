@@ -18,8 +18,10 @@ do
   SQUEUE=$(echo ${SQUEUE} | cut -d" " -f9-)
   JOB_ID=$(echo ${SQUEUE} | cut -d" " -f1)
   JOB=$(echo ${SQUEUE} | cut -d" " -f-8)
-  echo "
+  if [ $(echo ${JOB_ID} | wc -c) -gt 1 ]; then # a space is left at the end, which we do not want to search for
+    echo "
 ${JOB}
 $(grep ${JOB_ID} ${CAROLINE_WORK}/submitted_jobs.log)
 "
+  fi
 done

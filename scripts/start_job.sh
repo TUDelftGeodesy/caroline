@@ -31,11 +31,16 @@ module load python/3.10.4 gdal/3.4.1-alma9
 source ~/.bashrc
 source ${VENV_LOCATION}/bin/activate
 
-# add CAROLINE to the path and python path since it sometimes cannot find it in the virtual environment
-# export PATH="${INSTALL_LOCATION}:${VENV_LOCATION}/python3.10/site-packages:$PATH"
-# export PYTHONPATH="${INSTALL_LOCATION}:${VENV_LOCATION}/python3.10/site-packages:$PYTHONPATH"
+if [ $# -eq 5 ]; then  # put a note in the working directory as we're not running a bash file
+  CAROLINE_WORK=$(python3 ${INSTALL_LOCATION}/caroline/config.py "CAROLINE_WORK_DIRECTORY")
+  echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started job ${JOB_TYPE} (AoI $(echo ${PARAMETER_FILE} | rev | cut -d/ -f1 | rev | cut -d. -f1), track ${TRACK_NUMBER}) with slurm-ID $SLURM_JOB_ID)" >> ${CAROLINE_WORK}/submitted_jobs.log
+fi
 
 python3 ${INSTALL_LOCATION}/caroline/preparation.py ${PARAMETER_FILE} ${TRACK_NUMBER} ${JOB_TYPE}
+
+if [ $# -eq 5 ]; then  # put a note in the working directory as we're not running a bash file
+  echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished job ${JOB_TYPE} (AoI $(echo ${PARAMETER_FILE} | rev | cut -d/ -f1 | rev | cut -d. -f1), track ${TRACK_NUMBER}) with slurm-ID $SLURM_JOB_ID)" >> ${CAROLINE_WORK}/submitted_jobs.log
+fi
 
 if [ $# -eq 8 ]; then
   BASH_FILE_DIRECTORY=$6

@@ -25,7 +25,7 @@ def get_config():
         "FROZEN_PARAMETER_FILE_DIRECTORY": "/project/caroline/Software/run/caroline/frozen-parameter-files",
         "PORTAL_UPLOAD_FLAG_DIRECTORY": "/project/caroline/Software/run/caroline/portal-upload-flags",
         "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
-        "SENDMAIl_DIRECTORY": "/usr/sbin/sendmail",
+        "SENDMAIL_DIRECTORY": "/usr/sbin/sendmail",
         "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
         "SLURM_OUTPUT_DIRECTORY": "/project/caroline/Software/run/caroline/slurm-output",
     }

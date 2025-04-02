@@ -288,7 +288,7 @@ def submit_processes(sorted_processes: list) -> None:
             dependency_job_id = None
         else:
             # because the list is ordered, the dependency has to be there already
-            dependency_job_id = job_ids[f"{process[1].split('-')[0]}_{process[1].split('-')[2]}"]
+            dependency_job_id = job_ids[process[1]]
 
         # Generate the necessary SBATCH arguments
         # first the partition
@@ -392,14 +392,14 @@ def submit_processes(sorted_processes: list) -> None:
         ).read()
 
         job_id = job_id.strip().split(" ")[-1]
-        job_ids[f"{process[0].split('-')[0]}_{process[0].split('-')[2]}"] = job_id
+        job_ids[process[0]] = job_id
         # Finally, log that this job was submitted
         if dependency_string == " ":
             os.system(
                 """echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) """
                 f"""{f"in {base_directory} " if base_directory is not None else ""}submitted job {job} """
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
-                f"""slurm-ID {job_id} (process {process})" """
+                f"""slurm-ID {job_id}" """
                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
             )
         else:
@@ -408,7 +408,7 @@ def submit_processes(sorted_processes: list) -> None:
                 f"""{f"in {base_directory} " if base_directory is not None else ""}submitted job {job} """
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
                 f"""slurm-ID {job_id} """
-                f"""as dependency to slurm-ID {dependency_job_id} (process {process})" """
+                f"""as dependency to slurm-ID {dependency_job_id}" """
                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
             )
 

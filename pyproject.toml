@@ -14,6 +14,7 @@ dependencies = [
     "psycopg2-binary",
     "sarxarray",
     "scipy", # necessary for Doris v5
+    "osgeo", # necessary for Doris v5
     "dask_jobqueue", # necessary for re-SLC
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"

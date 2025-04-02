@@ -396,14 +396,16 @@ def submit_processes(sorted_processes: list) -> None:
         # Finally, log that this job was submitted
         if dependency_string == " ":
             os.system(
-                f"""echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted job {job} """
+                """echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) """
+                f"""{f"in {base_directory} " if base_directory is not None else ""}submitted job {job} """
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
                 f"""slurm-ID {job_id}" """
                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
             )
         else:
             os.system(
-                f"""echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted job {job} """
+                """echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) """
+                f"""{f"in {base_directory} " if base_directory is not None else ""}submitted job {job} """
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
                 f"""slurm-ID {job_id} """
                 f"""as dependency to slurm-ID ${dependency_job_id}" """

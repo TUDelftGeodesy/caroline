@@ -116,9 +116,10 @@ def remove_incomplete_sentinel1_images(parameter_file: str):
         # save the bad zips, and move the folders from good images to bad images
         f = open(f"{base_folder}/good_images/bad_zips.txt", "w")
         for zipp in bad_zips:
-            f.write(f"{zipp}\n")
-            os.system(f"rm -rf {base_folder}/bad_images/{zipp}")  # in case it already exists, otherwise mv fails
-            os.system(f"mv {base_folder}/good_images/{zipp} {base_folder}/bad_images/{zipp}")  # move it
+            if zipp.strip() != "":  # since it is possible an empty string appears
+                f.write(f"{zipp}\n")
+                os.system(f"rm -rf {base_folder}/bad_images/{zipp}")  # in case it already exists, otherwise mv fails
+                os.system(f"mv {base_folder}/good_images/{zipp} {base_folder}/bad_images/{zipp}")  # move it
         f.close()
 
     if len(status) > 0:

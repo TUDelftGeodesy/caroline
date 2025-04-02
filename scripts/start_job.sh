@@ -29,11 +29,11 @@ source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
 module load python/3.10.4 gdal/3.4.1-alma9
 source ~/.bashrc
-conda activate ${VENV_LOCATION}
+source ${VENV_LOCATION}/bin/activate
 
 # add CAROLINE to the path and python path since it sometimes cannot find it in the virtual environment
-export PATH="${INSTALL_LOCATION}:${VENV_LOCATION}/python3.10/site-packages:$PATH"
-export PYTHONPATH="${INSTALL_LOCATION}:${VENV_LOCATION}/python3.10/site-packages:$PYTHONPATH"
+# export PATH="${INSTALL_LOCATION}:${VENV_LOCATION}/python3.10/site-packages:$PATH"
+# export PYTHONPATH="${INSTALL_LOCATION}:${VENV_LOCATION}/python3.10/site-packages:$PYTHONPATH"
 
 python3 ${INSTALL_LOCATION}/caroline/preparation.py ${PARAMETER_FILE} ${TRACK_NUMBER} ${JOB_TYPE}
 

@@ -13,7 +13,7 @@ source ~/.bashrc
 #
 # Load required python environment with gdal
 VENV_LOCATION=$(python3 ${CAROLINE}/caroline/config.py "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY")
-conda activate ${VENV_LOCATION}
+source ${VENV_LOCATION}/bin/activate
 
 # Create the KML
 python3 ${CAROLINE}/scripts/create-overview-kml.py

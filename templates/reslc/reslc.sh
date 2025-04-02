@@ -10,7 +10,7 @@ source ~/.bashrc
 source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
 module load python/3.10.4 gdal/3.4.1-alma9
-conda activate **caroline_virtual_environment_directory**
+source **caroline_virtual_environment_directory**/bin/activate
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started reslc.sh (AoI **reslc_AoI_name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 

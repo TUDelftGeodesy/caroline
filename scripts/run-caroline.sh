@@ -13,7 +13,7 @@ source ~/.bashrc
 #
 # Load required python environment with gdal
 VENV_LOCATION=$(python3 ${CAROLINE}/caroline/config.py "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY")
-conda activate ${VENV_LOCATION}
+source ${VENV_LOCATION}/bin/activate
 
 # Find the work directory
 CAROLINE_WORK=$(python3 ${CAROLINE}/caroline/config.py "CAROLINE_WORK_DIRECTORY")

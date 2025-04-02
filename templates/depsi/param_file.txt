@@ -16,7 +16,7 @@ run_mode = '**run_mode**'
 
 project_id = '**depsi_AoI_name**_**sensor**_**asc_dsc**_t**track**'
 input_file = []
-processDir = '**crop_base_directory**'
+processDir = '**crop_base_directory**/cropped_stack'
 startDate = '**start_date**'
 stopDate = '**stop_date**'
 excludeDate = '**exclude_date**'

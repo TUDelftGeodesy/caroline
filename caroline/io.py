@@ -171,9 +171,9 @@ def write_run_file(
                 template_data = template_data.replace(f"**{parameter_file_parameter}**", str(value))
             elif isinstance(parameter_file_parameter, list):
                 value = read_parameter_file(parameter_file, [parameter_file_parameter[0]])[parameter_file_parameter[0]]
-                if parameter_file_parameter[1] == "force_lowercase":
+                if parameter_file_parameter[1] == "lowercase":
                     value = value.lower()
-                elif parameter_file_parameter[1] == "force_uppercase":
+                elif parameter_file_parameter[1] == "uppercase":
                     value = value.upper()
                 elif parameter_file_parameter[1] == "dictionary":
                     sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"].lower()
@@ -191,8 +191,8 @@ def write_run_file(
                         value = value.replace(strip_key, "")
                 else:
                     raise ValueError(
-                        f"Unknown parameter mode {parameter_file_parameter[1]}! Known are force_lowercase, "
-                        "force_uppercase, dictionary, strip."
+                        f"Unknown parameter mode {parameter_file_parameter[1]}! Known are lowercase, "
+                        "uppercase, dictionary, strip."
                     )
                 template_data = template_data.replace(f"**{parameter_file_parameter[0]}**", str(value))
             else:

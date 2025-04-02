@@ -565,7 +565,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
     tracks = eval(out_parameters["track"])
     asc_dsc = eval(out_parameters["asc_dsc"])
     start_date = out_parameters["start_date"].replace("-", "")
-    end_date = out_parameters["start_date"].replace("-", "")
+    end_date = out_parameters["end_date"].replace("-", "")
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -593,7 +593,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
 
         # if a previous run exists, first move it out of the way
         if os.path.exists(depsi_directory):
-            os.system(f'''mv "${depsi_directory}" "${depsi_directory}-$(date +%Y%m%dT%H%M%S)"''')
+            os.system(f'''mv "{depsi_directory}" "{depsi_directory}-$(date +%Y%m%dT%H%M%S)"''')
 
         # we need a psi and boxes folder in the depsi directory
         os.makedirs(f"{depsi_directory}/psi", exist_ok=True)

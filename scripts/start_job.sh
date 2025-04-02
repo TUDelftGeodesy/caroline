@@ -20,16 +20,20 @@ echo "Parameter file: ${PARAMETER_FILE}"
 echo "Track: ${TRACK_NUMBER}"
 echo "Job: ${JOB_TYPE}"
 echo "Caroline install location: ${INSTALL_LOCATION}"
-echo "Caroline virtual enviroment: ${VENV_LOCATION}"
+echo "Caroline virtual environment: ${VENV_LOCATION}"
 echo "-----------------------------------------------"
 echo ""
 
-# Load required python and gdal modules in case of submissions
+# Load required python and gdal modules
 source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
 module load python/3.10.4 gdal/3.4.1-alma9
 source ~/.bashrc
 conda activate ${VENV_LOCATION}
+
+# add CAROLINE to the path and python path since it sometimes cannot find it in the virtual environment
+export PATH="${INSTALL_LOCATION}:$PATH"
+export PYTHONPATH="${INSTALL_LOCATION}:$PYTHONPATH"
 
 python3 ${INSTALL_LOCATION}/caroline/preparation.py ${PARAMETER_FILE} ${TRACK_NUMBER} ${JOB_TYPE}
 

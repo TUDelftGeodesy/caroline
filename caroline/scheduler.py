@@ -304,7 +304,7 @@ def submit_processes(sorted_processes: list) -> None:
             dependency_string = " "
         else:
             if job == "email":  # we always want to send an email
-                dependency_string = f" --dependency=after:{dependency_job_id} "
+                dependency_string = f" --dependency=afterany:{dependency_job_id} "
             else:  # we want to kill the other dependencies if its predecessor crashed
                 dependency_string = f" --dependency=afterok:{dependency_job_id} --kill-on-invalid-dep=yes "
 

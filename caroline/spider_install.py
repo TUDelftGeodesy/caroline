@@ -103,7 +103,7 @@ def _update_virtualenvironment() -> None:
     os.system(
         "source /etc/profile.d/modules.sh; "
         "source /project/caroline/Software/bin/init.sh; "
-        "module load python/3.9.6 gdal/3.4.1-alma9; "
+        "module load python/3.10.4 gdal/3.4.1-alma9; "
         "source ~/.bashrc; "
         f"conda activate {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}; "
         f"pip install {CONFIG['CAROLINE_INSTALL_DIRECTORY']}"

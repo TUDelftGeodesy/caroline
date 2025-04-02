@@ -32,8 +32,8 @@ source ~/.bashrc
 conda activate ${VENV_LOCATION}
 
 # add CAROLINE to the path and python path since it sometimes cannot find it in the virtual environment
-export PATH="${INSTALL_LOCATION}:$PATH"
-export PYTHONPATH="${INSTALL_LOCATION}:$PYTHONPATH"
+export PATH="${INSTALL_LOCATION}:${VENV_LOCATION}:$PATH"
+export PYTHONPATH="${INSTALL_LOCATION}:${VENV_LOCATION}:$PYTHONPATH"
 
 python3 ${INSTALL_LOCATION}/caroline/preparation.py ${PARAMETER_FILE} ${TRACK_NUMBER} ${JOB_TYPE}
 

@@ -13,6 +13,17 @@ JOB_TYPE=$3
 INSTALL_LOCATION=$4
 VENV_LOCATION=$5
 
+echo "-----------------------------------------------"
+echo "Starting job with the following characteristics"
+echo "-----------------------------------------------"
+echo "Parameter file: ${PARAMETER_FILE}"
+echo "Track: ${TRACK_NUMBER}"
+echo "Job: ${JOB_TYPE}"
+echo "Caroline install location: ${INSTALL_LOCATION}"
+echo "Caroline virtual enviroment: ${VENV_LOCATION}"
+echo "-----------------------------------------------"
+echo ""
+
 # Load required python and gdal modules in case of submissions
 source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
@@ -27,6 +38,15 @@ if [ $# -eq 8 ]; then
   BASH_FILE=$7
 
   SLURM_FILE=$8
+
+  echo "----------------------------------------------------"
+  echo "Starting bash job with the following characteristics"
+  echo "----------------------------------------------------"
+  echo "Directory: ${BASH_FILE_DIRECTORY}"
+  echo "File: ${BASH_FILE}"
+  echo "Slurm job file: ${SLURM_FILE}"
+  echo "-----------------------------------------------"
+  echo ""
 
   echo "$SLURM_JOB_ID" > ${SLURM_FILE}
 

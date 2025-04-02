@@ -399,7 +399,7 @@ def submit_processes(sorted_processes: list) -> None:
                 f"""echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) submitted job {job} """
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
                 f"""slurm-ID {job_id}" """
-                f""">> ${CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
             )
         else:
             os.system(
@@ -407,7 +407,7 @@ def submit_processes(sorted_processes: list) -> None:
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
                 f"""slurm-ID {job_id} """
                 f"""as dependency to slurm-ID ${dependency_job_id}" """
-                f""">> ${CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
             )
 
 

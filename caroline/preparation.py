@@ -1554,13 +1554,10 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
         )
 
         project_id = depsi_directory.split("/")[-1]
-        cwd = os.popen("pwd").read()
-        os.system(f"cd {depsi_directory}")
         os.system(
-            f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/"
-            f"create_post_project_tar.sh {project_id}"
+            f"cd {depsi_directory}; "
+            f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_post_project_tar.sh {project_id}"
         )
-        os.system(f"cd {cwd}")
 
 
 if __name__ == "__main__":

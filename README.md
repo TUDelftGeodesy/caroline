@@ -6,8 +6,6 @@ CAROLINE (Contextual and Autonomous processing of satellite Radar Observations f
 
 The current documentation still mostly pertains to v0.1.0. In v2.0.0, the continuous and ad hoc product generation is functional, but the database integration with docker-compose.yml is still missing. 
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
 - [Terminology](#terminology)
@@ -30,8 +28,6 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
   - [Project Lead](#project-lead)
   - [Developers](#developers)
   - [Repository admins](#repository-admins)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Terminology
 <ul>

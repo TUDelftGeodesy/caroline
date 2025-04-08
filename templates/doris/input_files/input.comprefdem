@@ -1,0 +1,34 @@
+c Inputfile created by Doris 5.0
+c         ___          ___ 
+comment   ___COMPREFDEM___ 
+c                             
+MEMORY              	2000                	 // MB
+BEEP                	error               	 // level of beeping
+OVERWRITE           	on                  	 // overwrite existing files
+PREVIEW             	on                  	 // on
+BATCH               	on                  	 // non-interactive
+LISTINPUT           	on                  	 // prevents copy of this file to log
+SCREEN              	info                	 // level of output to standard out
+c 
+PROCESS        COMPREFDEM 
+c 
+LOGFILE             	log.out             	 // log file
+I_RESFILE           	ifgs.res            	 // interferogram parameter file
+M_RESFILE           	master.res          	 // master parameter file
+S_RESFILE           	slave.res           	 // slave parameter file
+HEIGHT              	0.0                 	 // average WGS84 height
+ORB_INTERP          	POLYFIT             	 // orbit interpolation method
+ELLIPSOID           	WGS84               	 // WGS84, GRS80, BESSEL or define major and minor axis
+c                             
+c CRD_INCLUDE_FE      	OFF                 	 // phase w.r.t. ellipsoid
+CRD_OUT_FILE        	refdem.raw          
+CRD_OUT_DEM_LP      	dem_radar.raw       
+CRD_OUT_H2PH    	h2ph_srd.raw        
+CRD_OUT_FILE        	master_slave.crd    
+CRD_IN_DEM          	**dem_file**
+CRD_IN_FORMAT       	**dem_format**
+CRD_IN_SIZE             **dem_s1** **dem_s2**
+CRD_IN_DELTA            **dem_d1** **dem_d2**
+CRD_IN_UL           	**dem_ul1** **dem_ul2**
+CRD_IN_NODATA       	**dem_nodata**
+STOP                          

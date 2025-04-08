@@ -1,0 +1,37 @@
+c **********************************************************************
+c ***
+c **********************************************************************
+ c
+ c
+ comment  ___general options___
+ c
+c SCREEN          debug                           // level of output to standard out
+c SCREEN          info                           // level of output to standard out
+SCREEN          error                           // level of output to standard out
+MEMORY          10000                             // MB
+OVERWRITE                                       // overwrite existing files
+BATCH                                           // non-interactive
+PREVIEW         on                               // on/off
+c LISTINPUT OFF                                 // prevents copy of this file to log
+ c
+PROCESS          s_crop         
+ c                                              //
+ c                                              //
+ comment  ___the general io files___            //
+ c                                              //
+LOGFILE         log.out                         // log file
+M_RESFILE       dummy.res                      // parameter file
+S_RESFILE       slave**pol**.res                      // parameter file
+I_RESFILE       ifgs**pol**.res                       // parameter file
+ c                                              //
+ c
+ c
+ comment ___CROP___
+ c
+S_CROP_IN      **img_name**                      // name of datafile
+S_CROP_OUT     image_crop**pol**.raw
+c S_DBOW        9001 22000 1 2500             // linelow hi pixellow/hi
+S_DBOW_GEO      **center_lat** **center_lon** **pix_az** **pix_r**
+ c
+ c
+STOP

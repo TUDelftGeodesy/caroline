@@ -4,13 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Caroline"
-version = "1.0.0"
+version = "2.0.0"
 requires-python = ">=3.10"
 dependencies = [
+    "apache-airflow",
     "fiona",
-    "sarxarray",
+    "geopandas",
     "matplotlib",
-    "psycopg2-binary"
+    "psycopg2-binary",
+    "sarxarray",
+    "scipy", # necessary for Doris v5
+    "gdal==3.4.1", # necessary for Doris v5, version 3.4.1 since that reflects the status of libgdal on Spider
+    "dask_jobqueue", # necessary for re-SLC
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"
 readme = "README.md"
@@ -24,7 +29,6 @@ classifiers=[
     'Intended Audience :: Developers',
     'License :: OSI Approved :: Apache Software License',
     'Natural Language :: English',
-    'Private :: Do Not Upload',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
@@ -48,7 +52,7 @@ docs = [
 ]
 
 [tool.setuptools]
-packages = ["prototype"]
+packages = ["caroline"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -78,9 +82,9 @@ lint.ignore = [
 ] # docstring style
 
 line-length = 120
-include = ["prototype/caroline/caroline_main/caroline_v1.0/**.py"]
+include = ["prototype/caroline/caroline_main/caroline_v1.0/**.py", "caroline/**", "scripts/**"]
 exclude = ["prototype/caroline/caroline_main/caroline_v1.0/files/deinsar/run_deinsar.py",
-    "prototype/caroline/caroline_main/caroline_v1.0/files/reslc/reslc.py"]
+    "prototype/caroline/caroline_main/caroline_v1.0/files/reslc/reslc.py", "*.m", "*.txt", "*.sh"]
 # Allow unused variables when underscore-prefixed.
 lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py310"

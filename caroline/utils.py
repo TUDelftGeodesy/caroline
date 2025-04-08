@@ -212,7 +212,7 @@ def _generate_email(parameter_file: str) -> str:
         tracks_formatted = tracks_formatted[0]
 
     # Extract the run name
-    run_id = parameter_file.split("_spider_")[1].split("/")[0][:-16]
+    run_id = "_".join(parameter_file.split("/")[-1].split("_")[2:-4])
 
     # Generate the logs
     log = "==========DEBUG LOGS===========\n\n"

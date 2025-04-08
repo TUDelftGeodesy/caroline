@@ -32,6 +32,6 @@ module --ignore-cache load matlab/R2021b
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started crop.sh (AoI **crop_AoI_name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
-srun matlab -nodisplay -nosplash -nodesktop -r "run('**crop_base_directory**/crop.m');exit;"
+srun matlab -nodisplay -nosplash -nodesktop -r "run('**crop_base_directory**/crop.m');exit;" || exit 5
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished crop.sh (AoI {crop_AoI_name}, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

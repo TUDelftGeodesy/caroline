@@ -36,7 +36,7 @@ if [ $# -eq 5 ]; then  # put a note in the working directory as we're not runnin
   echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started job ${JOB_TYPE} (AoI $(echo ${PARAMETER_FILE} | rev | cut -d/ -f1 | rev | cut -d. -f1), track ${TRACK_NUMBER}) with slurm-ID $SLURM_JOB_ID)" >> ${CAROLINE_WORK}/submitted_jobs.log
 fi
 
-python3 ${INSTALL_LOCATION}/caroline/preparation.py ${PARAMETER_FILE} ${TRACK_NUMBER} ${JOB_TYPE}
+python3 ${INSTALL_LOCATION}/caroline/preparation.py ${PARAMETER_FILE} ${TRACK_NUMBER} ${JOB_TYPE} || exit 4
 
 if [ $# -eq 5 ]; then  # put a note in the working directory as we're not running a bash file
   echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished job ${JOB_TYPE} (AoI $(echo ${PARAMETER_FILE} | rev | cut -d/ -f1 | rev | cut -d. -f1), track ${TRACK_NUMBER}) with slurm-ID $SLURM_JOB_ID)" >> ${CAROLINE_WORK}/submitted_jobs.log
@@ -60,5 +60,5 @@ if [ $# -eq 8 ]; then
   echo "$SLURM_JOB_ID" > ${SLURM_FILE}
 
   cd ${BASH_FILE_DIRECTORY}
-  bash ${BASH_FILE}
+  bash ${BASH_FILE} || exit 4
 fi

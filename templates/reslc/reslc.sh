@@ -17,6 +17,6 @@ echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started reslc.sh (Ao
 export PATH="**reslc_code_dir**:$PATH"
 export PYTHONPATH="**reslc_code_dir**:$PYTHONPATH"
 
-python3 reslc.py
+python3 reslc.py || exit 5
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished reslc.sh (AoI **reslc_AoI_name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

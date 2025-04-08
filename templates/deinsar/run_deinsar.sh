@@ -38,6 +38,6 @@ echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started deinsar.sh (
 export PYTHONPATH=**deinsar_code_directory**
 export PATH=**doris_v4_code_directory**:$PATH
 export SAR_ODR_DIR=**orbit_directory**
-python3 **coregistration_base_directory**/run_deinsar.py
+python3 **coregistration_base_directory**/run_deinsar.py || exit 5
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished deinsar.sh (AoI **coregistration_AoI_name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

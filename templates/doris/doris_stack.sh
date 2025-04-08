@@ -40,6 +40,6 @@ echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started doris_stack.
 source_path=**doris_code_directory**:**doris_code_directory**/doris/doris_stack/functions:**doris_code_directory**/doris/doris_stack/main_code
 export PYTHONPATH=$source_path:$PYTHONPATH 
 export PATH=**doris_code_directory**:**doris_code_directory**/doris/doris_stack/functions:**doris_code_directory**/doris/doris_stack/main_code:/project/caroline/Software/snaphu:$PATH
-python3 **doris_code_directory**/doris/doris_stack/main_code/doris_main.py -p **coregistration_directory**
+python3 **doris_code_directory**/doris/doris_stack/main_code/doris_main.py -p **coregistration_directory** || exit 5
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished doris_stack.sh (AoI **coregistration_AoI_name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

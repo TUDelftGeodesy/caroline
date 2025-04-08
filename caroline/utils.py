@@ -296,7 +296,7 @@ Notes: {out_parameters['project_notes']}
 
             directory_key = f"{key[3:]}_directory"
 
-            if key == "do_coregstration":
+            if key == "do_coregistration":
                 line_header = "Coregistration"
             elif key == "do_crop":
                 line_header = "Cropping"

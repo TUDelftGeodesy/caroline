@@ -53,7 +53,7 @@ The fourth script, `email-log.sh`, sends an email to an admin account at 1am eve
 
 On Spider, the crontab is installed on `ui-01` on the `caroline-admin` account.
 
-# Installation
+# Installation on Spider
 
 ### Installing for the first time
 
@@ -84,7 +84,7 @@ git pull
 This will store the existing configuration, and update all files, dependencies, and the virtual environment. Already running jobs are unaffected, but the changes will immediately take effect on newly starting jobs (both newly submitted and those already in the queue that have not yet started).
 
 # Development without dockers
-## Installation guide
+## Local Installation Guide
 
 It is assumed that you have `mamba` installed. If not, you can find the installation instructions [here](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). Other package managers like `conda` or `venv` can be used as well.
 
@@ -279,19 +279,19 @@ postgres=#
 
 
 
-## Contacts
+# Contacts
 
-### Project Lead
+## Project Lead
 
 - Freek van Leijen <F.J.vanLeijen@tudelft.nl>
 
-### Developers
+## Developers
 
 - Freek van Leijen <F.J.vanLeijen@tudelft.nl>
 - Simon van Diepen <S.A.N.vanDiepen@tudelft.nl>
 - Niels Jansen <N.H.Jansen@tudelft.nl>
 
-### Repository admins
+## Repository admins
 
 - Simon van Diepen <S.A.N.vanDiepen@tudelft.nl>
 - Niels Jansen <N.H.Jansen@tudelft.nl>

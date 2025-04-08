@@ -6,8 +6,32 @@ CAROLINE (Contextual and Autonomous processing of satellite Radar Observations f
 
 The current documentation still mostly pertains to v0.1.0. In v2.0.0, the continuous and ad hoc product generation is functional, but the database integration with docker-compose.yml is still missing. 
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Terminology](#terminology)
+- [The way it works: cron](#the-way-it-works-cron)
+- [Installation](#installation)
+    - [Installing for the first time](#installing-for-the-first-time)
+    - [Updating the installation](#updating-the-installation)
+- [Development without dockers](#development-without-dockers)
+  - [Installation guide](#installation-guide)
+  - [Linting and formatting](#linting-and-formatting)
+  - [Testing](#testing)
+  - [Documentation](#documentation)
+- [Development using dockers (not integrated yet)](#development-using-dockers-not-integrated-yet)
+  - [Container usage](#container-usage)
+    - [.env file](#env-file)
+    - [caroline](#caroline)
+    - [caroline-dev](#caroline-dev)
+    - [caroline-db](#caroline-db)
+  - [Contacts](#contacts)
+    - [Project Lead](#project-lead)
+    - [Developers](#developers)
+    - [Repository admins](#repository-admins)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Terminology
 <ul>

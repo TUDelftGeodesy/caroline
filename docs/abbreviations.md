@@ -47,7 +47,8 @@ None yet
 
 - `DP`: DePSI-post
 - `MR`: Read mrm
-- `PU`: Portal Upload
+- `PU`: Portal upload
+- `TB`: Tarball creation
 
 ### Push module
 

@@ -30,12 +30,11 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
   - [Repository admins](#repository-admins)
 
 # Terminology
-<ul>
-    <li>A <b>module</b> is a block in the CAROLINE architecture. An example is the <i>autonomous stack building</i> module. A module has one or more submodules.</li>
-    <li>A <b>submodule</b> is a component of a module. An example is <i>coregistration</i>, part of the <i>autonomous stack building</i> module. A submodule has one or more jobs.</li>
-    <li>A <b>job</b> is a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>coregistration</i> submodule contains three jobs: <i>Doris v5</i> (Sentinel-1 coregistration), <i>Doris v5 cleanup</i>, and <i>DeInSAR</i> (for coregistration of other sensors). A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.</li>
-    <li>A <b>function</b> is a Python function.</li>
-</ul>
+- A <b>module</b> is a block in the CAROLINE architecture. An example is the <i>autonomous stack building</i> module. A module has one or more submodules.
+- A <b>submodule</b> is a component of a module. An example is <i>coregistration</i>, part of the <i>autonomous stack building</i> module. A submodule has one or more jobs.
+- A <b>job</b> is a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>coregistration</i> submodule contains three jobs: <i>Doris v5</i> (Sentinel-1 coregistration), <i>Doris v5 cleanup</i>, and <i>DeInSAR</i> (for coregistration of other sensors). A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.
+- A <b>function</b> is a Python function.
+
 
 # The way it works: cron
 A cron job is a job that starts at a regular interval. On Spider, these can be managed with the commands `crontab -l` (for viewing the current crontab) and `crontab -e` (for editing the crontab). A cron job looks like

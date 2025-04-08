@@ -247,13 +247,19 @@ def _generate_email(parameter_file: str) -> str:
 
                 if check["successful_finish"]:
                     log += "Step finished successfully!\n\n"
-                    success_rates[key][0] += f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"
+                    success_rates[key][0].append(
+                        f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"
+                    )
                 elif check["successful_start"]:
                     log += "!!! Step did not finish properly!\n\n"
-                    success_rates[key][1] += f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"
+                    success_rates[key][1].append(
+                        f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"
+                    )
                 else:
                     log += "!!! Step did not start properly!\n\n"
-                    success_rates[key][1] += f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"
+                    success_rates[key][1].append(
+                        f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"
+                    )
 
                 if check["status_file"] is not None:
                     log += f"Status file: {check['status_file']}\nSlurm output: {check['slurm_file']}\n\n"
@@ -305,7 +311,7 @@ Notes: {out_parameters['project_notes']}
             elif key == "do_depsi":
                 line_header = "DePSI"
             elif key == "do_depsi_post":
-                line_header = "DePSI-post & poratl upload"
+                line_header = "DePSI-post & portal upload"
                 directory_key = "depsi_directory"
                 lines["portal"] = (
                     "NOTE: it can take a few hours for the results to show up in the portal.\n"
@@ -320,41 +326,41 @@ Notes: {out_parameters['project_notes']}
 
     message = f"""Dear radargroup,
     
-    A new CAROLINE run has just finished on run {run_id}! 
+A new CAROLINE run has just finished on run {run_id}! 
     
-    {project_characteristics}
-    Run characteristics:
-    Track(s): {tracks_formatted}
-    Sensor: {out_parameters['sensor']}
+{project_characteristics}
+Run characteristics:
+Track(s): {tracks_formatted}
+Sensor: {out_parameters['sensor']}
     
-    The following steps were run:
-    {lines['do_coregistration']}
+The following steps were run:
+{lines['do_coregistration']}
 
-    {lines['do_crop']}
-    {lines['do_reslc']}
+{lines['do_crop']}
+{lines['do_reslc']}
 
-    {lines['do_depsi']}
-    {lines['do_depsi_post']}
+{lines['do_depsi']}
+{lines['do_depsi_post']}
     
-    {lines['portal']}
+{lines['portal']}
     
-    In case of questions, please contact Niels at n.h.jansen@tudelft.nl or Simon at s.a.n.vandiepen@tudelft.nl
+In case of questions, please contact Niels at n.h.jansen@tudelft.nl or Simon at s.a.n.vandiepen@tudelft.nl
     
-    Kind regards,
-    The CAROLINE development team,
-    Freek, Niels, and Simon
+Kind regards,
+The CAROLINE development team,
+Freek, Niels, and Simon
     
-    =======================================
-    ===========DEBUG info==================
-    =======================================
-    First logs of the subprocesses, then the parameter file.
-    =======================================
+=======================================
+===========DEBUG info==================
+=======================================
+First logs of the subprocesses, then the parameter file.
+=======================================
     
-    {log}
+{log}
     
-    --- PARAMETER FILE: {parameter_file} ---
+--- PARAMETER FILE: {parameter_file} ---
     
-    {parameter_file_content}"""
+{parameter_file_content}"""
 
     return message
 

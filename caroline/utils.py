@@ -294,11 +294,11 @@ Notes: {out_parameters['project_notes']}
             if len(success_rates[key][1]) > 1:
                 if len(success_line) > 0:
                     success_line += ", "
-                success_line += f"Improper finish: {success_rates[key][0]}"
+                success_line += f"Improper finish: {success_rates[key][1]}"
             elif len(success_rates[key][1]) == 1:
                 if len(success_line) > 0:
                     success_line += ", "
-                success_line += f"Improper finish: {success_rates[key][0][0]}"
+                success_line += f"Improper finish: {success_rates[key][1][0]}"
 
             directory_key = f"{key[3:]}_directory"
 

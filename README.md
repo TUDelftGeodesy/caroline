@@ -41,15 +41,11 @@ A cron job is a job that starts at a regular interval. On Spider, these can be m
 ```commandline
 0   */5 *   *   *     bash /absolute/path/to/script.sh  
 ```
-The first (`0`) indicates the minute of the hour, in this case exactly at the hour. 
-
-The second (`*/5`) is the hour marker: every hour that is evenly divisible by 5 (so every 5 hours). 
-
-The third field (`*`) is the day of the month, in this case every day. 
-
-The fourth field (`*`) is the month, in this case every month. 
-
-The fifth field (`*`) is the day of the week, in this case every day.
+- The first (`0`) indicates the minute of the hour, in this case exactly at the hour.
+- The second (`*/5`) is the hour marker: every hour that is evenly divisible by 5 (so every 5 hours).
+- The third field (`*`) is the day of the month, in this case every day.
+- The fourth field (`*`) is the month, in this case every month.
+- The fifth field (`*`) is the day of the week, in this case every day.
 
 
 CAROLINE runs using four cron jobs as shown in `templates/cron/caroline-admin-spider.crontab`:
@@ -62,13 +58,10 @@ CAROLINE=/project/caroline/Software/caroline
 0   2   *   *   *     bash ${CAROLINE}/scripts/create-overview-kml.sh  # every day at 2 am
 0   1   *   *   *     bash ${CAROLINE}/scripts/email-log.sh  # every day at 1 am
 ```
-The first script, `run-caroline.sh`, checks for new downloads every 5 hours and starts the corresponding workflows as defined in the `config` directory.
-
-The second script, `manage-portal-upload.sh`, checks every hour if new jobs are ready to be pushed to the portal.
-
-The third script, `create-overview-kml.sh`, creates an overview of all available data on Spider at 2am every night.
-
-The fourth script, `email-log.sh`, sends an email to an admin account at 1am every night containing everything that happened the previous day.
+- The first script, `run-caroline.sh`, checks for new downloads every 5 hours and starts the corresponding workflows as defined in the `config` directory.
+- The second script, `manage-portal-upload.sh`, checks every hour if new jobs are ready to be pushed to the portal.
+- The third script, `create-overview-kml.sh`, creates an overview of all available data on Spider at 2am every night.
+- The fourth script, `email-log.sh`, sends an email to an admin account at 1am every night containing everything that happened the previous day.
 
 On Spider, the crontab is installed on `ui-01` on the `caroline-admin` account.
 

@@ -18,7 +18,7 @@ source ${VENV_LOCATION}/bin/activate
 # Find the portal upload flag directory, work directory and sendmail directory
 PORTAL_UPLOAD=$(python3 ${CAROLINE}/caroline/config.py "PORTAL_UPLOAD_FLAG_DIRECTORY")
 CAROLINE_WORK=$(python3 ${CAROLINE}/caroline/config.py "CAROLINE_WORK_DIRECTORY")
-SENDMAIL=$(python3 ${CAROLINE}/caroline/config.py "SENDMAIl_DIRECTORY")
+SENDMAIL=$(python3 ${CAROLINE}/caroline/config.py "SENDMAIL_DIRECTORY")
 
 # loop over all the files there
 for upload_file in `ls ${PORTAL_UPLOAD}/*`

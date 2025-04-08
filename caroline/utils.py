@@ -389,12 +389,17 @@ def proper_finish_check(
     """
     assert step_check in VALID_STEPS_TO_CHECK, f"Invalid step {step_check} provided! Valid are {VALID_STEPS_TO_CHECK}"
 
-    search_parameters = [f"{step_check}_AoI_name", f"{step_check}_directory", "sensor"]
+    if step_check == "depsi_post":
+        step_key = "depsi"
+    else:
+        step_key = step_check
+
+    search_parameters = [f"{step_key}_AoI_name", f"{step_key}_directory", "sensor"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
     base_directory = format_process_folder(
-        base_folder=out_parameters[f"{step_check}_directory"],
-        AoI_name=out_parameters[f"{step_check}_AoI_name"],
+        base_folder=out_parameters[f"{step_key}_directory"],
+        AoI_name=out_parameters[f"{step_key}_AoI_name"],
         sensor=out_parameters["sensor"],
         asc_dsc=asc_dsc,
         track=track,

@@ -12,11 +12,11 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
 
 - [Terminology](#terminology)
 - [The way it works: cron](#the-way-it-works-cron)
-- [Installation](#installation)
+- [Installation on Spider](#installation-on-spider)
     - [Installing for the first time](#installing-for-the-first-time)
     - [Updating the installation](#updating-the-installation)
 - [Development without dockers](#development-without-dockers)
-  - [Installation guide](#installation-guide)
+  - [Local Installation Guide](#local-installation-guide)
   - [Linting and formatting](#linting-and-formatting)
   - [Testing](#testing)
   - [Documentation](#documentation)
@@ -26,10 +26,10 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
     - [caroline](#caroline)
     - [caroline-dev](#caroline-dev)
     - [caroline-db](#caroline-db)
-  - [Contacts](#contacts)
-    - [Project Lead](#project-lead)
-    - [Developers](#developers)
-    - [Repository admins](#repository-admins)
+- [Contacts](#contacts)
+  - [Project Lead](#project-lead)
+  - [Developers](#developers)
+  - [Repository admins](#repository-admins)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

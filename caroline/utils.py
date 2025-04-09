@@ -419,27 +419,23 @@ def proper_finish_check(
         appendix = f"_{step_check}"
     else:
         appendix = ""
-    job_id_file = f"{parameter_file.split('/')[-1].split('.')[0]}_job_id{appendix}.txt"
-    if not os.path.exists(f"{base_directory}/{job_id_file}"):
-        new_slurms = []
+    job_id_file = f"{base_directory}/{parameter_file.split('/')[-1].split('.')[0]}_job_id{appendix}.txt"
+    dir_file = f"{base_directory}/dir_contents{appendix}.txt"
+    if not os.path.exists(job_id_file) or not os.path.exists(dir_file):
+        slurm_file = None
+        contents = []
     else:
-        f = open(f"{base_directory}/{job_id_file}")
+        f = open(job_id_file)
         job_id = f.read().strip()
         f.close()
-        new_slurms = [f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"]
+        slurm_file = f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"
 
-    if step_check == "depsi_post":
-        dir_file = f"{base_directory}/dir_contents_depsi_post.txt"
-    else:
-        dir_file = f"{base_directory}/dir_contents.txt"
-
-    f = open(dir_file)
-    contents = f.read().split("\n")
-    f.close()
-
-    if len(new_slurms) > 0:
-        slurm_file = new_slurms[0]  # it's the first one that started running after the file was generated
+    if slurm_file is not None:
         successful_start = True
+
+        f = open(dir_file)
+        contents = f.read().split("\n")
+        f.close()
 
         f = open(slurm_file)
         slurm_output = f.read()

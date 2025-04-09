@@ -423,7 +423,6 @@ def proper_finish_check(
     dir_file = f"{base_directory}/dir_contents{appendix}.txt"
     if not os.path.exists(job_id_file) or not os.path.exists(dir_file):
         slurm_file = None
-        contents = []
     else:
         f = open(job_id_file)
         job_id = f.read().strip()

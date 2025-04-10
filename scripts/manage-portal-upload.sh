@@ -43,7 +43,7 @@ do
       # and upload
       echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
       ${CAROLINE}/scripts/upload-result-csv-to-skygeo.sh ${SKYGEO_VIEWER} ${SKYGEO_CUSTOMER}
-      echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) initiated portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
+      echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
 
       # overwrite the upload so that it is only uploaded once
       echo "Status: Finished\nDirectory: ${DEPSI_DIR}\nViewer: ${SKYGEO_VIEWER}\nCustomer: ${SKYGEO_CUSTOMER}" > ${upload_file}

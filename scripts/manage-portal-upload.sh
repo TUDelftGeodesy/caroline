@@ -35,7 +35,10 @@ do
     if [ -f "${HOME}/.keychain/${HOSTNAME}-sh" ]; then
 
       # overwrite the upload so that it is only uploaded once
-      echo "Status: In Progress\nDirectory: ${DEPSI_DIR}\nViewer: ${SKYGEO_VIEWER}\nCustomer: ${SKYGEO_CUSTOMER}" > ${upload_file}
+      echo "Status: In Progress
+Directory: ${DEPSI_DIR}
+Viewer: ${SKYGEO_VIEWER}
+Customer: ${SKYGEO_CUSTOMER}" > ${upload_file}
 
       # go to the DePSI directory
       cd ${DEPSI_DIR}
@@ -46,7 +49,10 @@ do
       echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) finished portal push to portal ${SKYGEO_VIEWER}" >> ${CAROLINE_WORK}/submitted_jobs.log
 
       # overwrite the upload so that it is only uploaded once
-      echo "Status: Finished\nDirectory: ${DEPSI_DIR}\nViewer: ${SKYGEO_VIEWER}\nCustomer: ${SKYGEO_CUSTOMER}" > ${upload_file}
+      echo "Status: Finished
+Directory: ${DEPSI_DIR}
+Viewer: ${SKYGEO_VIEWER}
+Customer: ${SKYGEO_CUSTOMER}" > ${upload_file}
     else
       # The SSH key is not present, so send an email and exit
       echo "Subject: CAROLINE SSH Key missing (${upload_file})

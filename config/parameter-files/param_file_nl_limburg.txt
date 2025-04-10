@@ -8,21 +8,21 @@ project_owner          = 'Alex'
 project_owner_email    = 'a.m.lapadat@tudelft.nl'
 project_engineer       = 'Simon'
 project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
-project_objective      = 'Run DePSI over the IGRS stations in southern Limburg for further analysis with other tools.'
-project_notes          = 'Initially did not run over all tracks produced by nl_limburg_stack, hence the split.'
+project_objective      = 'Time series over the IGRS stations in southern Limburg for further analysis with other tools.'
+project_notes          = ''
 three_letter_id        = "NLB" # for in the squeue
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 
-do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
+do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
 do_crop            = 1  # Requires coregistration (here or dependency)
 do_reslc           = 0  # Requires coregistration (here or dependency)
 
 do_depsi           = 1  # Requires crop (here or dependency). Does not use reslc
 
-do_depsi_post      = 0  # Requires depsi (here or dependency)
+do_depsi_post      = 1  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 
 # The portal will be https://caroline.portal-tud.skygeo.com/portal/<skygeo_customer>/<skygeo_viewer>/viewers/basic/

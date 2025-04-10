@@ -79,12 +79,11 @@ None yet
 - `NAS`: nl_assendelft
 - `NAT`: nl_amsterdam_tsx
 - `NAX`: nl_amsterdam_extended
-- `NGD`: nl_groningen_depsi
 - `NGK`: nl_grijpskerk
 - `NGN`: nl_groningen
 - `NHT`: nl_north_holland_south_tsx
 - `NLB`: nl_limburg
-- `NLS`: nl_limburg_stack
+- `NMT`: nl_marken_tsx
 - `NNI`: nl_nieuwolda
 - `NSC`: nl_schoonebeek
 - `NTA`: TEST_nl_amsterdam (for testing)

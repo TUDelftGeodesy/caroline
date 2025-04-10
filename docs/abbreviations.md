@@ -29,7 +29,7 @@ None yet
 
 ### Recursive Parameter Estimation module
 
-#### PSI submodule
+#### PSI-batch submodule
 
 - `DE`: DePSI
 
@@ -43,7 +43,7 @@ None yet
 
 ### Interactive Interpretation Interface (Dashboard) module
 
-#### PSI submodule
+#### PSI-batch submodule
 
 - `DP`: DePSI-post
 - `MR`: Read mrm
@@ -87,7 +87,7 @@ None yet
 - `NNI`: nl_nieuwolda
 - `NSC`: nl_schoonebeek
 - `NTA`: TEST_nl_amsterdam (for testing)
-- `NVE`: nl_veenweiden
+- `NVW`: nl_veenweiden
 - `NWO`: nl_woerden (inactive)
 - `NZE`: nl_zegveld
 

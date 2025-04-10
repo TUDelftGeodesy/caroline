@@ -34,6 +34,7 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
 - A <b>submodule</b> is a component of a module. An example is <i>coregistration</i>, part of the <i>autonomous stack building</i> module. A submodule has one or more jobs.
 - A <b>job</b> is a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>coregistration</i> submodule contains three jobs: <i>Doris v5</i> (Sentinel-1 coregistration), <i>Doris v5 cleanup</i>, and <i>DeInSAR</i> (for coregistration of other sensors). A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.
 - A <b>function</b> is a Python function.
+- A <b>workflow</b> is the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a coregistered stack, the workflow is crop > DePSI > read mrm > DePSI_post > portal upload
 
 
 # The way it works: cron

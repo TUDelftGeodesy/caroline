@@ -369,7 +369,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         # for input.crop and input.resample we need to read the shapefile extent and calculate the amount of pixels
         coordinates = np.array(
             read_shp_extent(
-                f"{out_parameters['shape_directory']}/" f"{out_parameters['shape_AoI_name']}_shape.shp", mode="AoI"
+                f"{out_parameters['shape_directory']}/" f"{out_parameters['shape_AoI_name']}_shape.shp", shp_type="AoI"
             )["0"]
         )
         min_lat = min(coordinates[:, 1])

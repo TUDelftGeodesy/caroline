@@ -56,7 +56,8 @@ stopdate = "**enddate**"
 sensor = "**sensor**"  # ERS, ERSENV, ENV, TSX, TDX, PAZ, RSAT2, Cosmo, ALOS2
 polarisations = eval("**polarisation**")
 
-polarisations = [f"_{pol}" for pol in polarisations]
+# Note: this file is run in Python 2.7, in which f strings do not exist (so f"_{pol}" does not work)
+polarisations = ["_" + pol for pol in polarisations]
 if "_HH" in polarisations:
     polarisations[polarisations.index("_HH")] = ""
 
@@ -111,7 +112,7 @@ if do_orbit == "1":
     elif sensor == "RSAT2":
         orbit_RSAT2(slcs, processdir)
     else:
-        print(f"Warning: orbit requested but sensor is {sensor} (should be ENV, ERS or RSAT2). Skipping...")
+        print("Warning: orbit requested but sensor is " + sensor + " (should be ENV, ERS or RSAT2). Skipping...")
 
 if do_crop == "1":
     for pol in polarisations:
@@ -119,7 +120,7 @@ if do_crop == "1":
 
 if do_tsx_deramp == "1":
     if sensor != "TSX":
-        print(f"Warning: TSX deramp requested but sensor is {sensor}. Skipping...")
+        print("Warning: TSX deramp requested but sensor is " + sensor + ". Skipping...")
     else:
         for pol in polarisations:
             deramp_TSX(slcs, processdir, altimg=pol)
@@ -162,7 +163,7 @@ if do_resample == "1":
 
 if do_tsx_reramp == "1":
     if sensor != "TSX":
-        print(f"Warning: TSX reramp requested but sensor is {sensor}. Skipping...")
+        print("Warning: TSX reramp requested but sensor is " + sensor + ". Skipping...")
     else:
         reramp_TSX(slcs, master, processdir, altimg=polarisations[0])
 
@@ -182,7 +183,7 @@ if do_resample == "1":
 
 if do_tsx_reramp == "1":
     if sensor != "TSX":
-        print(f"Warning: TSX reramp requested but sensor is {sensor}. Skipping...")
+        print("Warning: TSX reramp requested but sensor is " + sensor + ". Skipping...")
     else:
         for pol in polarisations[1:]:
             reramp_TSX(slcs, master, processdir, altimg=pol)

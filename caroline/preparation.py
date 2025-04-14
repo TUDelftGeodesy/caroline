@@ -192,7 +192,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             parameter_file=parameter_file,
             parameter_file_parameters=["deinsar_code_directory", "doris_v4_code_directory", "coregistration_AoI_name"],
             config_parameters=["caroline_work_directory", "orbit_directory"],
-            other_parameters={"track": tracks[track], "crop_base_directory": coregistration_directory},
+            other_parameters={"track": tracks[track], "coregistration_base_directory": coregistration_directory},
         )
 
         # generate run_deinsar.py

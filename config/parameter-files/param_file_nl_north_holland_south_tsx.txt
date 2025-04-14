@@ -67,7 +67,7 @@ send_completion_email = 's.a.n.vandiepen@tudelft.nl,f.j.vanleijen@tudelft.nl'
 
 # specify the partition on which the steps will run. This is short (up to 10h, max 2 jobs), normal (up to 5 days), or infinite (up to 12 days)
 # the longer the time period, the more difficult it is to schedule
-coregistration_partition = 'normal'
+coregistration_partition = 'infinite'
 crop_partition           = 'normal'
 reslc_partition          = 'normal'
 depsi_partition          = 'infinite'

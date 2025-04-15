@@ -5,19 +5,21 @@ import sys
 
 from config import get_config
 
-CONFIG = get_config()
-CURRENT_TIME = dt.datetime.now().strftime("%Y%m%dT%H%M%S")
-GITHUB_DEPENDENCIES = {
-    "depsi_post_v2.1.4.0": {"repo": "git@bitbucket.org:grsradartudelft/depsipost.git", "branch": "v2.1.4.0"},
-    "deinsar_v0.3.4": {"repo": "git@bitbucket.org:grsradartudelft/deinsar.git", "branch": "v0.3.4"},
-    "DePSI_group": {"repo": "git@github.com:TUDelftGeodesy/DePSI_group.git", "branch": "caroline-clone-branch"},
-}
-TARBALL_DEPENDENCIES = {
-    "cpxfiddle": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/cpxfiddle.tar.gz",
-    "depsi_v2.2.1.1": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/depsi_v2.2.1.1.tar.gz",
-    "geocoding_v0.9": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/geocoding_v0.9.tar.gz",
-    "rdnaptrans": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/rdnaptrans.tar.gz",
-}
+
+def _get_plugins() -> tuple[dict, dict]:
+    """Return the GitHub and Tarball plugins."""
+    github_plugins = {
+        "depsi_post_v2.1.4.0": {"repo": "git@bitbucket.org:grsradartudelft/depsipost.git", "branch": "v2.1.4.0"},
+        "deinsar_v0.3.4": {"repo": "git@bitbucket.org:grsradartudelft/deinsar.git", "branch": "v0.3.4"},
+        "DePSI_group": {"repo": "git@github.com:TUDelftGeodesy/DePSI_group.git", "branch": "caroline-clone-branch"},
+    }
+    tarball_plugins = {
+        "cpxfiddle": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/cpxfiddle.tar.gz",
+        "depsi_v2.2.1.1": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/depsi_v2.2.1.1.tar.gz",
+        "geocoding_v0.9": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/geocoding_v0.9.tar.gz",
+        "rdnaptrans": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/rdnaptrans.tar.gz",
+    }
+    return github_plugins, tarball_plugins
 
 
 def _install_caroline() -> None:
@@ -61,31 +63,47 @@ def _create_config_directories() -> None:
     os.system('''echo "Finished creating directories!"''')
 
 
+def _copy_config_file(config_file: str) -> None:
+    """Copy the configuration file into config/installation-config.yaml.
+
+    Parameters
+    ----------
+    config_file: str
+        Full path to the configuration file that will be used.
+
+    """
+    os.system('''echo "Copying configuration file..."''')
+    os.system(f"""cp -p {config_file} {CONFIG["CAROLINE_INSTALL_DIRECTORY"]}/config/installation-config.yaml""")
+    os.system('''echo "Finished copying configuration file!"''')
+
+
 def _install_plugins() -> None:
     """Install the CAROLINE plugins."""
     os.system('''echo "Installing the tarball plugins..."''')
+    github_plugins, tarball_plugins = _get_plugins()
+
     # First the tarball dependencies
-    for dependency in TARBALL_DEPENDENCIES.keys():
+    for dependency in tarball_plugins.keys():
         os.system(f'''echo "{dependency}..."''')
         if not os.path.exists(f"{CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}"):
-            os.system(f"tar -xzf {TARBALL_DEPENDENCIES[dependency]} -C {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}")
+            os.system(f"tar -xzf {tarball_plugins[dependency]} -C {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}")
 
     os.system('''echo "Installing the Github plugins..."''')
     # then the github repositories
-    for dependency in GITHUB_DEPENDENCIES.keys():
+    for dependency in github_plugins.keys():
         os.system(f'''echo "{dependency}..."''')
         if os.path.exists(f"{CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}"):
             # if the path exists, the directory has already been cloned once before. We need to sync with git pull
             # to the right branch. This is one command as we need to change directories
             os.system(
                 f"cd {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}; git pull; "
-                f"git checkout {GITHUB_DEPENDENCIES[dependency]['branch']}; git pull"
+                f"git checkout {github_plugins[dependency]['branch']}; git pull"
             )
         else:
             # if it does not exist, simply clone the right branch into the plugins directory
             os.system(
-                f"git clone -b {GITHUB_DEPENDENCIES[dependency]['branch']} "
-                f"{GITHUB_DEPENDENCIES[dependency]['repo']} {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}"
+                f"git clone -b {github_plugins[dependency]['branch']} "
+                f"{github_plugins[dependency]['repo']} {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}"
             )
 
     os.system('''echo "Applying patches to the modules..."''')
@@ -129,11 +147,19 @@ def _initialize_force_start_job() -> None:
 if __name__ == "__main__":
     os.system('''echo "Starting Spider installation..."''')
 
-    _, CWD = sys.argv
+    CURRENT_TIME = dt.datetime.now().strftime("%Y%m%dT%H%M%S")
+
+    _, CWD, CONFIGURATION_FILE = sys.argv
+    if CONFIGURATION_FILE == "None":
+        CONFIGURATION_FILE = f"{CWD}/config/spider-config.yaml"
+
+    CONFIG = get_config(CONFIGURATION_FILE)
 
     _create_config_directories()
 
     _install_caroline()
+
+    _copy_config_file(CONFIGURATION_FILE)
 
     _install_plugins()
 

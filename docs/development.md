@@ -168,7 +168,7 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
    2. In this folder, create a template for each file that needs to be generated. Variables that need to be replaced can be indicated with `**variable_name**`.
    3. In your preparation function, call `write_run_file` from [io.py](../caroline/io.py) with all the parameters that need to be replaced. Here three flavours exist:
       1. parameter file parameters. These are read directly from the parameter file, with optional formatting (see the documentation of `write_run_file` in [io.py](../caroline/io.py))
-      2. config parameters. These are read directly from the configuration in [config.py](../caroline/config.py)
+      2. config parameters. These are read directly from the configuration in e.g. [spider-config.yaml](../config/spider-config.yaml)
       3. other parameters. These can be anything, as you provide the value in the argument.
    
 5. If the job is dependent on a plugin, add this plugin in [spider_install.py](../caroline/spider_install.py). If the plugin is a GitHub or bitbucket repository, add it to the `GITHUB_DEPENDENCIES` with the `repo` and `branch` variables. If the plugin is a tarball, add it to `TARBALL_DEPENDENCIES`.

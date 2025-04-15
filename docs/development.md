@@ -5,6 +5,7 @@ CAROLINE is a software package that is never finished. Here you can therefore re
 - [Local Installation Guide](#local-installation-guide)
 - [Linting and formatting](#linting-and-formatting)
 - [Documentation](#documentation)
+- [General GitHub management](#general-github-management)
 - [Adding a new job](#adding-a-new-job)
   - [Job architecture](#job-architecture)
     - [The preparation function](#the-preparation-function)
@@ -65,6 +66,22 @@ mkdocs serve
 ```
 
 This will build and render the documentation at a local server. Follow the link provided in the terminal to view the documentation in the browser.
+
+## General GitHub management
+
+For any changes to the repository (including AoI changes), the following steps are performed:
+
+1. Create an issue on https://github.com/TUDelftGeodesy/caroline/issues (if the issue already exists, this can be skipped). Make sure to add proper labels.
+2. Create a branch off of the issue (on the right in the Development tab)
+3. Checkout the branch in your local repository. Now you are free to change everything you want.
+4. Update the versioning. The versioning for CAROLINE consists of three numbers: `X.Y.Z` (e.g. `2.0.12`)
+   1. For minor code updates (AoI changes, bugfixes, and so on): `X.Y.Z` -> `X.Y.Z+1` (e.g. `2.0.12` -> `2.0.13`)
+   2. For documentation updates: `X.Y.Z` -> `X.Y.Z` (e.g. `2.0.12` -> `2.0.12`)
+   3. For job additions (see [Adding a new job](#adding-a-new-job)): `X.Y.Z` -> `X.Y+1.0` (e.g. `2.0.12` -> `2.1.0`)
+   4. For major architecture changes: `X.Y.Z` -> `X+1.0.0` (e.g. `2.0.12` -> `3.0.0`)
+5. Create a pull request, and ensure the ruff check passes.
+6. Pass the code review, and merge the pull request.
+7. Ask the [Admins](../README.md#contacts) to update the installation on Spider (See [Installing on Spider](../README.md#installation-on-spider))
 
 ## Adding a new job
 

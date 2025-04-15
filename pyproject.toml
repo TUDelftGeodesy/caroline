@@ -13,9 +13,6 @@ dependencies = [
     "matplotlib",
     "psycopg2-binary",
     "sarxarray",
-    "scipy", # necessary for Doris v5
-    "gdal==3.4.1", # necessary for Doris v5, version 3.4.1 since that reflects the status of libgdal on Spider
-    "dask_jobqueue", # necessary for re-SLC
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"
 readme = "README.md"
@@ -49,6 +46,11 @@ docs = [
     "mkdocs-jupyter",
     "mkdocstrings[python]",
     "mkdocs-gen-files",
+]
+plugins = [
+    "scipy", # necessary for Doris v5
+    "gdal==3.4.1", # necessary for Doris v5, version 3.4.1 since that reflects the status of libgdal on Spider
+    "dask_jobqueue", # necessary for re-SLC
 ]
 
 [tool.setuptools]

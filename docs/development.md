@@ -172,7 +172,7 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
       3. other parameters. These can be anything, as you provide the value in the argument.
    
 5. If the job is dependent on a plugin, add this plugin in [spider_install.py](../caroline/spider_install.py). If the plugin is a GitHub or bitbucket repository, add it to the `GITHUB_DEPENDENCIES` with the `repo` and `branch` variables. If the plugin is a tarball, add it to `TARBALL_DEPENDENCIES`.
-6. If the job is dependent on a Python plugin that requires packages not yet provided in the CAROLINE virtual environment, update the dependencies on line 9 of [pyproject.toml](../pyproject.toml) with a comment on which plugin it is necessary for.
+6. If the job is dependent on a Python plugin that requires packages not yet provided in the CAROLINE virtual environment, update the `plugins` dependency list on line 50 of [pyproject.toml](../pyproject.toml) with a comment on which plugin it is necessary for.
 7. If scripts are needed for the completion of the job that are not provided in the plugin, add them in [scripts](../scripts) 
 8. In <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the necessary job-specific parameters for the job in a new section.
 9. In <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the following general parameters:

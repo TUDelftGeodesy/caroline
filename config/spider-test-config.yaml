@@ -16,3 +16,5 @@ directories:
   SLURM_OUTPUT_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/run/caroline/slurm-output"
 executables:
   SENDMAIL_EXECUTABLE: "/usr/sbin/sendmail"
+run:
+  RUN_MODE: "TEST"

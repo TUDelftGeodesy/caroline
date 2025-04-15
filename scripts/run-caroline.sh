@@ -18,12 +18,19 @@ source ${VENV_LOCATION}/bin/activate
 # Find the work directory
 CAROLINE_WORK=$(python3 ${CAROLINE}/caroline/config.py "CAROLINE_WORK_DIRECTORY")
 
+# Identify the run mode
+RUN_MODE=$(python3 ${CAROLINE}/caroline/config.py "RUN_MODE")
+
 # Run script to find if any new files have been downloaded since we last checked and
 # save the list of newly downloaded files in an output file
 RUN_TS=$(date +%Y%m%dT%H%M%S)
 NEW_INSAR_FILES_FILE="${CAROLINE_WORK}/new-insar-files-${RUN_TS}.out"
-bash ${CAROLINE}/scripts/find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"
-# echo "" > "${NEW_INSAR_FILES_FILE}"
+
+if [ "${RUN_MODE}" = "LIVE" ]; then
+  bash ${CAROLINE}/scripts/find-new-insar-files.sh > "${NEW_INSAR_FILES_FILE}"
+else
+  echo "" > "${NEW_INSAR_FILES_FILE}"
+fi
 
 # Move the Force start file
 FORCE_START_FILE="${CAROLINE_WORK}/force-start-runs-${RUN_TS}.dat"

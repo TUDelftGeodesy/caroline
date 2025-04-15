@@ -74,14 +74,15 @@ For any changes to the repository (including AoI changes), the following steps a
 1. Create an issue on https://github.com/TUDelftGeodesy/caroline/issues (if the issue already exists, this can be skipped). Make sure to add proper labels.
 2. Create a branch off of the issue (on the right in the Development tab)
 3. Checkout the branch in your local repository. Now you are free to change everything you want.
-4. Update the versioning. The versioning for CAROLINE consists of three numbers: `X.Y.Z` (e.g. `2.0.12`)
+4. In case of changes beyond the parameter files and documentation, test your additions. This can generally not be done on your local laptop, so instead you can create a install a separate copy of your branch on Spider using the instructions in [README.md - Personal testing version](../README.md#installation-on-spider---personal-testing-version). You may need to create a special parameter file intended for testing, for an example see [this parameter file](../config/parameter-files/param_file_TEST_nl_amsterdam.txt).
+5. Update the versioning. The versioning for CAROLINE consists of three numbers: `X.Y.Z` (e.g. `2.0.12`)
    1. For minor code updates (AoI changes, bugfixes, and so on): `X.Y.Z` -> `X.Y.Z+1` (e.g. `2.0.12` -> `2.0.13`)
    2. For documentation updates: `X.Y.Z` -> `X.Y.Z` (e.g. `2.0.12` -> `2.0.12`)
    3. For job additions (see [Adding a new job](#adding-a-new-job)): `X.Y.Z` -> `X.Y+1.0` (e.g. `2.0.12` -> `2.1.0`)
    4. For major architecture changes: `X.Y.Z` -> `X+1.0.0` (e.g. `2.0.12` -> `3.0.0`)
-5. Create a pull request, and ensure the ruff check passes.
-6. Pass the code review, and merge the pull request.
-7. Ask the [Admins](../README.md#contacts) to update the installation on Spider (See [Installing on Spider](../README.md#installation-on-spider))
+6. Create a pull request, and ensure the ruff check passes.
+7. Pass the code review, and merge the pull request.
+8. Ask the [Admins](../README.md#contacts) to update the installation on Spider (See [Installing on Spider](../README.md#installation-on-spider))
 
 ## Adding a new job
 

@@ -13,7 +13,7 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
 - [Installation on Spider - Live version](#installation-on-spider---live-version)
     - [Installing for the first time](#installing-for-the-first-time)
     - [Updating the installation](#updating-the-installation)
-- [Installation on Spider - Testing version](#installation-on-spider---testing-version-)
+- [Installation on Spider - Testing version](#installation-on-spider---personal-testing-version)
     - [Installing for the first time](#installing-for-the-first-time-1)
     - [Updating the installation](#updating-the-installation-1)
 - [Development without dockers](#development-without-dockers)
@@ -97,9 +97,11 @@ git pull
 
 This will store the existing configuration, and update all files, dependencies, and the virtual environment. Already running jobs are unaffected, but the changes will immediately take effect on newly starting jobs (both newly submitted and those already in the queue that have not yet started).
 
-# Installation on Spider - Testing version 
+# Installation on Spider - Personal testing version
 
-Anyone can install Spider by defining their own `configuration.yaml` modeled after [config/spider-config.yaml](config/spider-config.yaml). Here you can specify all directories in e.g. your user directory in the `Share` to install. For an example of what that looks like, see [config/spider-test-config.yaml](config/spider-test-config.yaml). Store this yaml file in a separate location outside the repository.
+Anyone can install Spider by defining their own `configuration.yaml` modeled after [config/spider-test-config.yaml](config/spider-test-config.yaml). Here you can specify all directories in e.g. your user directory in the `Share` to install. 
+Store this yaml file in a separate location outside the repository. 
+<u>Important: Leave the variable </u>`RUN_MODE`<u> on </u>`TEST`<u>, so that the live installation is not impacted</u>.
 
 ### Installing for the first time
 
@@ -111,7 +113,7 @@ module load python/3.10.4  # loads the correct python environment
 python3 -m venv caroline  # create the virtual environment
 ```
 
-Now, we are ready to install CAROLINE. Clone the repository anywhere on Spider (<b>not in the directory you intend to install CAROLINE in, a different one</b>), and run
+Now, we are ready to install CAROLINE. Clone the repository anywhere on Spider (<u>not in the directory you intend to install CAROLINE in, a different one</u>), and run
 ```bash
 cd caroline
 ./spider-install.sh /full/path/to/your/yaml/file.yaml

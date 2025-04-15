@@ -24,7 +24,7 @@ def _get_plugins() -> tuple[dict, dict]:
 
 def _install_caroline() -> None:
     """Install CAROLINE in the path specified in get_config."""
-    os.system('''echo "Starting CAROLINE install on Spider using config.py"''')
+    os.system('''echo "Starting CAROLINE install..."''')
 
     # by copying instead of moving, and then removing the remaining files, the system is still able to query all files
     # at any time, thus not crashing during a new installation. We therefore copy the old one first, the copy the new
@@ -145,13 +145,13 @@ def _initialize_force_start_job() -> None:
 
 
 if __name__ == "__main__":
-    os.system('''echo "Starting Spider installation..."''')
-
     CURRENT_TIME = dt.datetime.now().strftime("%Y%m%dT%H%M%S")
 
     _, CWD, CONFIGURATION_FILE = sys.argv
     if CONFIGURATION_FILE == "None":
         CONFIGURATION_FILE = f"{CWD}/config/spider-config.yaml"
+
+    os.system(f'''echo "Starting Spider installation using config file {CONFIGURATION_FILE}..."''')
 
     CONFIG = get_config(CONFIGURATION_FILE)
 

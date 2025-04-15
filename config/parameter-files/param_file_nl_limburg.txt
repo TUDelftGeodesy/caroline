@@ -9,7 +9,7 @@ project_owner_email    = 'a.m.lapadat@tudelft.nl'
 project_engineer       = 'Simon'
 project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
 project_objective      = 'Time series over the IGRS stations in southern Limburg for further analysis with other tools.'
-project_notes          = ''
+project_notes          = 'Not projected to the vertical or shifted to the mean for GNSS comparison'
 three_letter_id        = "NLB" # for in the squeue
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
@@ -201,11 +201,11 @@ breakpoint          = []
 breakpoint2         = []
 ens_coh_threshold   = 0.5
 varfac_threshold    = 3
-detrend_method      = 'no'
+detrend_method      = 'yes'
 output_format       = 1
 stc_min_max         = [30, 100]
-do_apriori_sidelobe_mask = 'no'
-do_aposteriori_sidelobe_mask = 'yes'
+do_apriori_sidelobe_mask = 'yes'
+do_aposteriori_sidelobe_mask = 'no'
 
 # Geocoding parameters
 ref_height = 0

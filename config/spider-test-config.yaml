@@ -1,0 +1,20 @@
+---
+# spider-test-config.yaml
+
+directories:
+  AOI_OVERVIEW_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/caroline-aoi-extents"
+  CAROLINE_INSTALL_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/caroline"
+  CAROLINE_PLUGINS_ARCHIVE_DIRECTORY: "/project/caroline/Software/archives/caroline_plugins"
+  CAROLINE_PLUGINS_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/caroline-plugins"
+  CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/venv/caroline"
+  CAROLINE_WATER_MASK_DIRECTORY: "/project/caroline/Software/config/caroline-water-masks"
+  CAROLINE_WORK_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/run/caroline/work"
+  FROZEN_PARAMETER_FILE_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/run/caroline/frozen-parameter-files"
+  PORTAL_UPLOAD_FLAG_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/run/caroline/portal-upload-flags"
+  ORBIT_DIRECTORY: "/project/caroline/Data/orbits"
+  SLC_BASE_DIRECTORY: "/project/caroline/Data/radar_data/sentinel1"
+  SLURM_OUTPUT_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/run/caroline/slurm-output"
+executables:
+  SENDMAIL_EXECUTABLE: "/usr/sbin/sendmail"
+run:
+  RUN_MODE: "TEST"

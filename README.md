@@ -10,9 +10,12 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
 
 - [Terminology](#terminology)
 - [The way it works: cron](#the-way-it-works-cron)
-- [Installation on Spider](#installation-on-spider)
+- [Installation on Spider - Live version](#installation-on-spider---live-version)
     - [Installing for the first time](#installing-for-the-first-time)
     - [Updating the installation](#updating-the-installation)
+- [Installation on Spider - Testing version](#installation-on-spider---personal-testing-version)
+    - [Installing for the first time](#installing-for-the-first-time-1)
+    - [Updating the installation](#updating-the-installation-1)
 - [Development without dockers](#development-without-dockers)
 - [Development using dockers (not integrated yet)](#development-using-dockers-not-integrated-yet)
   - [Container usage](#container-usage)
@@ -64,11 +67,11 @@ CAROLINE=/project/caroline/Software/caroline
 
 On Spider, the crontab is installed on `ui-01` on the `caroline-admin` account.
 
-# Installation on Spider
+# Installation on Spider - Live version
 
 ### Installing for the first time
 
-CAROLINE is intended to be installed on a server with a SLURM manager, such as SURFSara Spider. To install on Spider, first we need to prepare the virtual environment in the directory specified in `caroline.config`. To do so, run
+CAROLINE is intended to be installed on a server with a SLURM manager, such as SURFSara Spider. To install on Spider, first we need to prepare the virtual environment in the directory specified in the configuration yaml file (e.g. [config/spider-config.yaml](config/spider-config.yaml)). To do so, run
 ```bash
 cd /path/to/the/virtual/environment/without/the/last/caroline/directory
 source /project/caroline/Software/bin/init.sh  # loads the module command
@@ -93,6 +96,42 @@ git pull
 ```
 
 This will store the existing configuration, and update all files, dependencies, and the virtual environment. Already running jobs are unaffected, but the changes will immediately take effect on newly starting jobs (both newly submitted and those already in the queue that have not yet started).
+
+# Installation on Spider - Personal testing version
+
+Anyone can install Spider by defining their own `configuration.yaml` modeled after [config/spider-test-config.yaml](config/spider-test-config.yaml). Here you can specify all directories in e.g. your user directory in the `Share` to install. 
+Store this yaml file in a separate location outside the repository. 
+<u>Important: Leave the variable </u>`RUN_MODE`<u> on </u>`TEST`<u>, so that the live installation is not impacted</u>.
+
+### Installing for the first time
+
+Again, first we need to prepare the virtual environment in the directory specified in the configuration yaml file (e.g. [config/spider-config.yaml](config/spider-config.yaml)). To do so, run
+```bash
+cd /path/to/the/virtual/environment/without/the/last/caroline/directory
+source /project/caroline/Software/bin/init.sh  # loads the module command
+module load python/3.10.4  # loads the correct python environment
+python3 -m venv caroline  # create the virtual environment
+```
+
+Now, we are ready to install CAROLINE. Clone the repository anywhere on Spider (<u>not in the directory you intend to install CAROLINE in, a different one</u>), and run
+```bash
+cd caroline
+./spider-install.sh /full/path/to/your/yaml/file.yaml
+```
+
+The installation script takes care of generating all necessary directories and updating the created virtual environment.
+
+### Updating the installation
+To update the installation of CAROLINE, go to the directory where you originally cloned the repository. Then run
+```bash
+cd caroline
+git pull
+./spider-install.sh /full/path/to/your/yaml/file.yaml
+```
+
+This will store the existing configuration, and update all files, dependencies, and the virtual environment. Already running jobs are unaffected, but the changes will immediately take effect on newly starting jobs (both newly submitted and those already in the queue that have not yet started).
+
+
 
 # Development without dockers
 

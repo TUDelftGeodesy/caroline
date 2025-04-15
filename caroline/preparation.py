@@ -1238,7 +1238,7 @@ def prepare_email(parameter_file: str, do_track: int | list | None = None) -> No
     header = f"CAROLINE: {parameters['sensor']}/{area_name}/{track_csv}"
     os.system(f"""echo "Subject: {header}
 
-{body}" | {CONFIG_PARAMETERS['SENDMAIL_DIRECTORY']} {parameters['send_completion_email']}""")
+{body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {parameters['send_completion_email']}""")
 
 
 def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None:

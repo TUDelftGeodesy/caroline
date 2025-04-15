@@ -10,7 +10,7 @@ module load python/3.10.4 gdal/3.4.1-alma9
 
 # Find the work directory
 CAROLINE_WORK=$(python3 ${CAROLINE}/caroline/config.py "CAROLINE_WORK_DIRECTORY")
-SENDMAIL=$(python3 ${CAROLINE}/caroline/config.py "SENDMAIL_DIRECTORY")
+SENDMAIL=$(python3 ${CAROLINE}/caroline/config.py "SENDMAIL_EXECUTABLE")
 
 
 DATE=$(date -d 'yesterday 12:00' '+%Y-%m-%d')

@@ -1,6 +1,8 @@
 import os
 import sys
 
+import yaml
+
 
 def config_db():
     """Return the environment variables for the database."""
@@ -12,23 +14,43 @@ def config_db():
     }
 
 
-def get_config():
-    """Return the path configurations for the CAROLINE environment."""
-    return {
-        "AOI_OVERVIEW_DIRECTORY": "/project/caroline/Share/caroline-aoi-extents",
-        "CAROLINE_INSTALL_DIRECTORY": "/project/caroline/Software/caroline",
-        "CAROLINE_PLUGINS_ARCHIVE_DIRECTORY": "/project/caroline/Software/archives/caroline_plugins",
-        "CAROLINE_PLUGINS_DIRECTORY": "/project/caroline/Software/caroline-plugins",
-        "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY": "/project/caroline/Software/venv/caroline",
-        "CAROLINE_WATER_MASK_DIRECTORY": "/project/caroline/Software/config/caroline-water-masks",
-        "CAROLINE_WORK_DIRECTORY": "/project/caroline/Software/run/caroline/work",
-        "FROZEN_PARAMETER_FILE_DIRECTORY": "/project/caroline/Software/run/caroline/frozen-parameter-files",
-        "PORTAL_UPLOAD_FLAG_DIRECTORY": "/project/caroline/Software/run/caroline/portal-upload-flags",
-        "ORBIT_DIRECTORY": "/project/caroline/Data/orbits",
-        "SENDMAIL_DIRECTORY": "/usr/sbin/sendmail",
-        "SLC_BASE_DIRECTORY": "/project/caroline/Data/radar_data/sentinel1",
-        "SLURM_OUTPUT_DIRECTORY": "/project/caroline/Software/run/caroline/slurm-output",
-    }
+def get_config(config_file: str | None = None, flatten: bool = True) -> dict:
+    """Retrieve the path configurations for the CAROLINE environment.
+
+    Parameters
+    ----------
+    config_file: str | None (optional)
+        Full path to the configuration yaml file to read the files from. If `None`, the configuration file is
+        assumed to be `config/installation-config.yaml`.
+    flatten: bool (optional)
+        Whether the configuration should be returned in its original tree format (False) or flattened (True, default)
+
+    Returns
+    -------
+    dict
+        Dictionary with as arguments the path configurations, as values the paths.
+
+    """
+    if config_file is None:
+        # NOTE: This variable is overwritten during the installation in spider-install._link_default_config_file .
+        # Please do not change it
+        config_file = "**CAROLINE_INSTALL_DIRECTORY**/config/installation-config.yaml"
+
+    assert config_file.split(".")[-1] == "yaml", f"Expected a .yaml configuration file, got {config_file}!"
+
+    with open(config_file) as f:
+        paths = yaml.safe_load(f)
+
+    if not flatten:
+        return paths
+
+    # otherwise, flatten the yaml
+    flattened_paths = {}
+    for key in paths.keys():
+        for subkey in paths[key].keys():
+            flattened_paths[subkey] = paths[key][subkey]
+
+    return flattened_paths
 
 
 if __name__ == "__main__":

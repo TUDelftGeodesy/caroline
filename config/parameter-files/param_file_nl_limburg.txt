@@ -54,7 +54,7 @@ AoI_length = 10 # km, north-south AoI size
 
 track = [37,88,139]  # Can be multiple tracks!
 asc_dsc = ['dsc','asc','dsc']
-start_date = '2023-02-14' # will search for first image after this date that exists
+start_date = '2023-01-14' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
 master_date= '2023-03-21' # will search for first image after this date that exists
 
@@ -292,18 +292,18 @@ dp_result             = 1
 dp_psc_selection      = 1
 dp_do_remove_filtered = 0
 dp_which_sl_mask      = 'apriori'
-dp_shift_to_mean      = 1
+dp_shift_to_mean      = 0
 dp_new_ref_cn         = []
-dp_map_to_vert        = 1
+dp_map_to_vert        = 0
 dp_output             = {'shape', 'csv', 'csv_web_portal'} #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
 
 dp_defo_lim          = []
 dp_height_lim        = []
-dp_ens_coh_lim       = 0.5
-dp_ens_coh_local_lim = 0.6
-dp_stc_lim           = 8
+dp_ens_coh_lim       = 0.35
+dp_ens_coh_local_lim = 0.45
+dp_stc_lim           = 10
 
-dp_defo_clim          = [-10, 10]
+dp_defo_clim          = [-30, 30]
 dp_height_clim        = [-20, 20]
 dp_ens_coh_clim       = 0
 dp_ens_coh_local_clim = 0

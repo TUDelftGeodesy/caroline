@@ -88,6 +88,23 @@ def _copy_config_file(config_file: str) -> None:
     os.system('''echo "Finished copying configuration file!"''')
 
 
+def _link_default_config_file() -> None:
+    """Overwrite the default configuration file in config.py."""
+    os.system('''echo "Linking default configuration file..."''')
+
+    f = open(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/caroline/config.py")
+    data = f.read()
+    f.close()
+
+    data = data.replace("**CAROLINE_INSTALL_DIRECTORY**", CONFIG["CAROLINE_INSTALL_DIRECTORY"])
+
+    f = open(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/caroline/config.py", "w")
+    f.write(data)
+    f.close()
+
+    os.system('''echo "Linked default configuration file!"''')
+
+
 def _install_plugins() -> None:
     """Install the CAROLINE plugins."""
     os.system('''echo "Installing the tarball plugins..."''')
@@ -171,6 +188,8 @@ if __name__ == "__main__":
     _install_caroline()
 
     _copy_config_file(CONFIGURATION_FILE)
+
+    _link_default_config_file()
 
     _install_plugins()
 

@@ -32,8 +32,9 @@ def get_config(config_file: str | None = None, flatten: bool = True) -> dict:
 
     """
     if config_file is None:
-        cwd = os.getcwd()
-        config_file = f"{cwd}/../config/installation-config.yaml"
+        # NOTE: This variable is overwritten during the installation in spider-install._link_default_config_file .
+        # Please do not change it
+        config_file = "**CAROLINE_INSTALL_DIRECTORY**/config/installation-config.yaml"
 
     assert config_file.split(".")[-1] == "yaml", f"Expected a .yaml configuration file, got {config_file}!"
 

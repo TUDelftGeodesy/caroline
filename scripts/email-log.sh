@@ -21,6 +21,6 @@ The following CAROLINE processes were logged on ${DATE}:
 
 ----------------
 
-$(grep ${DATE} ${CAROLINE_WORK}/submitted_jobs.log | cut -d: -f2- | cut -dT -f2-)
+$(grep ${DATE} ${CAROLINE_WORK}/submitted_jobs.log | cut -dT -f2-)
 
 ----------------" | ${SENDMAIL} s.a.n.vandiepen@tudelft.nl

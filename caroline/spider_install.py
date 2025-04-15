@@ -68,8 +68,8 @@ def _create_config_directories(config_file: str) -> None:
     config_directories = get_config(config_file, flatten=False)["directories"]
 
     for key in config_directories.keys():
-        if not os.path.exists(CONFIG[key]):
-            os.makedirs(CONFIG[key], exist_ok=True)
+        if not os.path.exists(config_directories[key]):
+            os.makedirs(config_directories[key], exist_ok=True)
 
     os.system('''echo "Finished creating directories!"''')
 

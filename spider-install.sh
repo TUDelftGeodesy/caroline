@@ -8,7 +8,7 @@ module load python/3.10.4 gdal/3.4.1-alma9
 
 if [ $# -eq 0 ]; then
   CONFIG_FILE="None"
-elif [$# -eq 1 ]; then
+elif [ $# -eq 1 ]; then
   CONFIG_FILE=$1
 else
   echo usage: $0 [configuration_file]

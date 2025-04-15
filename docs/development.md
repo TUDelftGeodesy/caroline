@@ -6,7 +6,10 @@ CAROLINE is a software package that is never finished. Here you can therefore re
 - [Linting and formatting](#linting-and-formatting)
 - [Documentation](#documentation)
 - [Adding a new job](#adding-a-new-job)
-
+  - [Job architecture](#job-architecture)
+    - [The preparation function](#the-preparation-function)
+    - [The bash file](#the-bash-file)
+  - [The necessary steps for adding a job](#the-necessary-steps-for-adding-a-job)
 
 ## Local Installation Guide
 
@@ -72,6 +75,18 @@ Jobs are the core of CAROLINE, as they are what submodules and modules are compo
 - A preparation function in [caroline/preparation.py](../caroline/preparation.py) called `prepare_<job>` (always)
 - A bash file from [templates](../templates) (optional)
 
+All jobs are started using [scripts/start_job.sh](../scripts/start_job.sh), which takes 5 required arguments and 3 optional arguments:
+1. the parameter file (full path)
+2. the track (integer)
+3. the job type (e.g. `depsi`)
+4. the CAROLINE installation directory
+5. the CAROLINE virtual environment directory
+6. (optional) the directory in which the bash file is located
+7. (optional) the name of the bash file (without the full path)
+8. (optional) the name of the file to which to write the SLURM job ID (for the email generation)
+
+If 5 arguments are passed, only the preparation function is run. If all 8 are passed, the preparation function is run, and then the bash file. All of this is handled by the [scheduler](../caroline/scheduler.py). 
+
 #### The preparation function
 
 This function should do everything necessary to be able to start the job. This can include
@@ -92,4 +107,59 @@ For example, the function `prepare_depsi` does the following:
 - It copies the plugins necessary from the plugins directory
 - It links the mother image and DEM
 - It identifies the start, mother, and end dates corresponding to the settings
+- It determines the values for a few parameters that have multiple options in the parameter file and cannot be directly copied
+- It writes the files necessary for running DePSI (including the bash file)
+- It writes the directory contents to a file
 
+With all these steps, DePSI can then be started from a single bash file call.
+
+#### The bash file
+
+The bash file is an optional file that loads the necessary environments (e.g. matlab), and then starts the processing. For example, the depsi template contains the two commands
+
+```commandline
+module --ignore-cache load matlab/R2021b
+
+srun matlab -nodisplay -nosplash -nodesktop -r "run('**depsi_base_directory**/psi/depsi.m');exit;" || exit 5
+```
+
+The first line loads the Matlab environment (on Spider this is called a module), the second starts the Matlab processing. Important to note is the ` || exit 5` appendix: this will ensure the bash script actually stops if an error is encountered in Matlab.
+
+In some cases (e.g. the job `email`) there is no processing to be done. In this case the bash file is not passed, and not called upon.
+
+###  The necessary steps for adding a job
+
+In order to fully integrate a new job into CAROLINE, the following steps need to be undertaken (we will use `DePSI` as an example)
+
+1. Define the job name (fully lowercase). In our example case: `depsi`
+2. In [scheduler.py](../caroline/scheduler.py):
+   1. Add the job name to the list `STEP_KEYS`
+   2. Add the job name to the dictionary `STEP_REQUIREMENTS`, where the argument is the name of the job on which the new job depends. In the example, we would add `"depsi": "crop",` 
+   3. Add the job name to the dictionary `SBATCH_ARGS`, where the arguments to be passed on to `sbatch` are listed. If no clear requirements are present, use `"--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"`, the most default one.
+   4. Add the job name to the dictionary `SBATCH_BASH_FILE`, where the name of the bash file is located. If no bash file is necessary, set the argument to `None`. In our example, we add `"depsi": "depsi.sh",`.
+   5. Add the job name to the dictionary `SBATCH_TWO_LETTER_ID`, where the abbreviation that shows up in the `squeue` is stored. This abbreviation is exactly two letters/numbers long. In our example, we add `"depsi": "DE",`.
+3. Add the two letter job ID to [abbreviations.md](abbreviations.md)
+4. In [preparation.py](../caroline/preparation.py), create the function `prepare_<jobname>` that takes exactly two arguments: 
+    
+    ```python
+    def prepare_<jobname>(parameter_file: str, do_track: int | list | None = None) -> None:
+        pass
+    ```
+    
+    this function does everything necessary to be able to complete the job with a single bash file call (or completely finishes the job if no bash file is necessary). See [The preparation function](#the-preparation-function) for an example. In our example, the function would be called `prepare_depsi`. If files need to be generated for the completion of the job:
+   1. In [templates](../templates), create a new folder named `jobname`.
+   2. In this folder, create a template for each file that needs to be generated. Variables that need to be replaced can be indicated with `**variable_name**`.
+   3. In your preparation function, call `write_run_file` from [io.py](../caroline/io.py) with all the parameters that need to be replaced. Here three flavours exist:
+      1. parameter file parameters. These are read directly from the parameter file, with optional formatting (see the documentation of `write_run_file` in [io.py](../caroline/io.py))
+      2. config parameters. These are read directly from the configuration in [config.py](../caroline/config.py)
+      3. other parameters. These can be anything, as you provide the value in the argument.
+   
+5. If the job is dependent on a plugin, add this plugin in [spider_install.py](../caroline/spider_install.py). If the plugin is a GitHub or bitbucket repository, add it to the `GITHUB_DEPENDENCIES` with the `repo` and `branch` variables. If the plugin is a tarball, add it to `TARBALL_DEPENDENCIES`.
+6. If the job is dependent on a Python plugin that requires packages not yet provided in the CAROLINE virtual environment, update the dependencies on line 9 of [pyproject.toml](../pyproject.toml) with a comment on which plugin it is necessary for.
+7. If scripts are needed for the completion of the job that are not provided in the plugin, add them in [scripts](../scripts) 
+8. In <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the necessary job-specific parameters for the job in a new section.
+9. In <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the following general parameters:
+   1. `do_<jobname>`, a 0/1 boolean switch whether or not to execute the job. Leave to 0 for all jobs you do not want this to run on.
+   2. `<jobname>_AoI_name`, the name of the AoI in that job
+   3. `<jobname>_directory`, the directory in which the job should run
+10. Finally, update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)

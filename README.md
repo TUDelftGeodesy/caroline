@@ -14,10 +14,6 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
     - [Installing for the first time](#installing-for-the-first-time)
     - [Updating the installation](#updating-the-installation)
 - [Development without dockers](#development-without-dockers)
-  - [Local Installation Guide](#local-installation-guide)
-  - [Linting and formatting](#linting-and-formatting)
-  - [Testing](#testing)
-  - [Documentation](#documentation)
 - [Development using dockers (not integrated yet)](#development-using-dockers-not-integrated-yet)
   - [Container usage](#container-usage)
     - [.env file](#env-file)
@@ -99,64 +95,8 @@ git pull
 This will store the existing configuration, and update all files, dependencies, and the virtual environment. Already running jobs are unaffected, but the changes will immediately take effect on newly starting jobs (both newly submitted and those already in the queue that have not yet started).
 
 # Development without dockers
-## Local Installation Guide
 
-It is assumed that you have `mamba` installed. If not, you can find the installation instructions [here](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). Other package managers like `conda` or `venv` can be used as well.
-
-On your local machine, clone the repository, and `cd` into the repository:
-```bash
-cd caroline
-```
-
-Create a new conda environment (here we give an example name `caroline-dev`) with `mamba`.:
-
-```bash
-mamba create -c conda-forge -n caroline-dev python=3.12
-```
-
-Here we use Python 3.12 since we aim to support python 3.10 and above.
-
-Activate the environment:
-
-```bash
-mamba activate caroline-dev
-```
-
-Install this package in development mode, with extra dependencies for development and documentation:
-
-```bash
-pip install -e ".[dev,docs]"
-```
-
-In the end, install the pre-commit hooks, which will run the code quality checks before each commit:
-```bash
-pre-commit install
-```
-## Linting and formatting
-
-We use `ruff` for linting and formatting. If the pre-commit hooks are installed, the checks will be run automatically before each commit.
-
-To manually run the checks, use the following command in the root directory of the repository:
-
-```bash
-ruff check .
-```
-
-## Testing
-
-Under development
-
-## Documentation
-
-We use `mkdocs` for documentation. 
-
-To check the documentation at local, use the following command in the root directory of the repository:
-
-```bash
-mkdocs serve
-```
-
-This will build and render the documentation at a local server. Follow the link provided in the terminal to view the documentation in the browser.
+Please follow the [Local Installation Guide](docs/development.md#local-installation-guide), and take note of the [linting and formatting](docs/development.md#linting-and-formatting) guidelines and the [documentation](docs/development.md#documentation).
 
 
 # Development using dockers (not integrated yet)

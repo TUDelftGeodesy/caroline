@@ -54,12 +54,23 @@ def _install_caroline() -> None:
     os.system('''echo "Finished CAROLINE installation!"''')
 
 
-def _create_config_directories() -> None:
-    """Create the configuration directories that do not yet exist."""
+def _create_config_directories(config_file: str) -> None:
+    """Create the configuration directories that do not yet exist.
+
+    Parameters
+    ----------
+    config_file: str
+        Full path to the configuration file that will be used.
+
+    """
     os.system('''echo "Creating directories..."''')
-    for key in CONFIG.keys():
-        if not os.path.exists(CONFIG[key]):  # necessary since the sendmail path is a file
+
+    config_directories = get_config(config_file, flatten=False)["directories"]
+
+    for key in config_directories.keys():
+        if not os.path.exists(CONFIG[key]):
             os.makedirs(CONFIG[key], exist_ok=True)
+
     os.system('''echo "Finished creating directories!"''')
 
 
@@ -155,7 +166,7 @@ if __name__ == "__main__":
 
     CONFIG = get_config(CONFIGURATION_FILE)
 
-    _create_config_directories()
+    _create_config_directories(CONFIGURATION_FILE)
 
     _install_caroline()
 

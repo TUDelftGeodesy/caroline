@@ -14,7 +14,7 @@ def config_db():
     }
 
 
-def get_config(config_file: str | None = None) -> dict:
+def get_config(config_file: str | None = None, flatten: bool = True) -> dict:
     """Retrieve the path configurations for the CAROLINE environment.
 
     Parameters
@@ -22,6 +22,8 @@ def get_config(config_file: str | None = None) -> dict:
     config_file: str | None (optional)
         Full path to the configuration yaml file to read the files from. If `None`, the configuration file is
         assumed to be `config/installation-config.yaml`.
+    flatten: bool (optional)
+        Whether the configuration should be returned in its original tree format (False) or flattened (True, default)
 
     Returns
     -------
@@ -38,7 +40,10 @@ def get_config(config_file: str | None = None) -> dict:
     with open(config_file) as f:
         paths = yaml.safe_load(f)
 
-    # flatten the yaml
+    if not flatten:
+        return paths
+
+    # otherwise, flatten the yaml
     flattened_paths = {}
     for key in paths.keys():
         for subkey in paths[key].keys():

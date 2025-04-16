@@ -72,7 +72,7 @@ def _create_config_directories(config_file: str) -> None:
             if key == "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY":  # we need to set up the virtual environment instead
                 os.system('''echo "Virtual environment does not exist, generating new one..."''')
                 venv_name = config_directories[key].split("/")[-1]
-                venv_directory = config_directories[: -len(venv_name) + 1]  # cut off the venv name, and the last /
+                venv_directory = config_directories[key][: -(len(venv_name) + 1)]  # cut off the venv name and last /
                 os.system(
                     f"cd {venv_directory}; "
                     "source /project/caroline/Software/bin/init.sh; "

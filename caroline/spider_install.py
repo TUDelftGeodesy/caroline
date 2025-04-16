@@ -69,7 +69,19 @@ def _create_config_directories(config_file: str) -> None:
 
     for key in config_directories.keys():
         if not os.path.exists(config_directories[key]):
-            os.makedirs(config_directories[key], exist_ok=True)
+            if key == "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY":  # we need to set up the virtual environment instead
+                os.system('''echo "Virtual environment does not exist, generating new one..."''')
+                venv_name = config_directories[key].split("/")[-1]
+                venv_directory = config_directories[: -len(venv_name) + 1]  # cut off the venv name, and the last /
+                os.system(
+                    f"cd {venv_directory}; "
+                    "source /project/caroline/Software/bin/init.sh; "
+                    "module load python/3.10.4; "
+                    f"python3 -m venv {venv_name}"
+                )
+                os.system('''echo "Virtual environment generated!"''')
+            else:
+                os.makedirs(config_directories[key], exist_ok=True)
 
     os.system('''echo "Finished creating directories!"''')
 

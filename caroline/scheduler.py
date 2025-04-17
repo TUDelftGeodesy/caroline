@@ -256,9 +256,11 @@ def submit_processes(sorted_processes: list) -> None:
 
         if process[1] is None:
             dependency_job_id = None
-        else:
+        elif isinstance(process[1], str):
             # because the list is ordered, the dependency has to be there already
             dependency_job_id = job_ids[process[1]]
+        else:  # it's a list
+            dependency_job_id = [job_ids[dependency] for dependency in process[1]]
 
         # Generate the necessary SBATCH arguments
         # first the partition

@@ -1,0 +1,141 @@
+# job-definitions.yaml
+# defines all necessary parameters for the scheduler to schedule the jobs
+# a list requirement will be a dependency of all that run
+# Leave empty for a None value
+
+jobs:
+  doris:
+    requirement:
+    two-letter-id: "D5"
+    parameter-file-step-key: "do_coregistration"
+    partition: "coregistration_partition"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
+    bash-file:
+      bash-file-name: "doris_stack.sh"
+      bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
+      bash-file-directory-appendix: ""
+      job-id-file-appendix: ""
+    filters:
+      sensor: "S1"
+
+  deinsar:
+    requirement:
+    two-letter-id: "D4"
+    parameter-file-step-key: "do_coregistration"
+    partition: "coregistration_partition"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
+    bash-file:
+      bash-file-name: "run_deinsar.sh"
+      bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
+      bash-file-directory-appendix: ""
+      job-id-file-appendix: ""
+    filters:
+      sensor: ["ERS", "ENV", "TSX", "TDX", "PAZ", "RSAT2", "Cosmo", "ALOS2"]
+
+  doris_cleanup:
+    requirement: "doris"
+    two-letter-id: "DC"
+    parameter-file-step-key: "do_coregistration"
+    partition: "short"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    bash-file:
+      bash-file-name: "cleanup.sh"
+      bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
+      bash-file-directory-appendix: ""
+      job-id-file-appendix: ""
+    filters:
+      sensor: "S1"
+
+  crop:
+    requirement: ["doris", "deinsar"]
+    two-letter-id: "CR"
+    parameter-file-step-key: "do_crop"
+    partition: "crop_partition"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=2"
+    bash-file:
+      bash-file-name: "crop.sh"
+      bash-file-base-directory: "crop"
+      bash-file-directory-appendix: ""
+      job-id-file-appendix: ""
+    filters:
+
+  reslc:
+    requirement: ["doris", "deinsar"]
+    two-letter-id: "RE"
+    parameter-file-step-key: "do_reslc"
+    partition: "reslc_partition"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --nodes=1"
+    bash-file:
+      bash-file-name: "reslc.sh"
+      bash-file-base-directory: "reslc"
+      bash-file-directory-appendix: ""
+      job-id-file-appendix: ""
+    filters:
+
+  depsi:
+    requirement: "crop"
+    two-letter-id: "DE"
+    parameter-file-step-key: "do_depsi"
+    partition: "depsi_partition"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"
+    bash-file:
+      bash-file-name: "depsi.sh"
+      bash-file-base-directory: "depsi"
+      bash-file-directory-appendix: "/psi"
+      job-id-file-appendix: ""
+    filters:
+
+  mrm:
+    requirement: "depsi"
+    two-letter-id: "MR"
+    parameter-file-step-key: "do_depsi_post"
+    partition: "normal"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"
+    bash-file:
+      bash-file-name: "read_mrm.sh"
+      bash-file-base-directory: "depsi"
+      bash-file-directory-appendix: "/psi"
+      job-id-file-appendix: "_mrm"
+    filters:
+
+  depsi_post:
+    requirement: "mrm"
+    two-letter-id: "DP"
+    parameter-file-step-key: "do_depsi_post"
+    partition: "depsi_post_partition"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --mem-per-cpu=8000"
+    bash-file:
+      bash-file-name: "depsi_post.sh"
+      bash-file-base-directory: "depsi"
+      bash-file-directory-appendix: "/psi"
+      job-id-file-appendix: "_depsi_post"
+    filters:
+
+  tarball:
+    requirement: "depsi_post"
+    two-letter-id: "TB"
+    parameter-file-step-key: "do_depsi_post"
+    partition: "short"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    bash-file:
+    filters:
+      depsi_post_mode: "tarball"
+
+  portal_upload:
+    requirement: "depsi_post"
+    two-letter-id: "PU"
+    parameter-file-step-key: "do_depsi_post"
+    partition: "short"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    bash-file:
+    filters:
+      depsi_post_mode: "csv"
+
+  email:
+    requirement: ["depsi_post", "depsi", "reslc", "crop", "doris", "deinsar"]
+    two-letter-id: "EM"
+    parameter-file-step-key:
+    partition: "short"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    bash-file:
+    filters:

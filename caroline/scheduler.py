@@ -9,64 +9,11 @@ from caroline.io import create_shapefile, link_shapefile, parse_start_files, rea
 from caroline.utils import format_process_folder
 
 CONFIG_PARAMETERS = get_config()
-STEP_KEYS = ["coregistration", "crop", "reslc", "depsi", "depsi_post"]
-STEP_REQUIREMENTS = {
-    "coregistration": None,
-    "doris_cleanup": "coregistration",
-    "crop": "coregistration",
-    "reslc": "coregistration",
-    "depsi": "crop",
-    "mrm": "depsi",
-    "depsi_post": "mrm",
-    "portal_upload": "depsi_post",
-    "tarball": "depsi_post",
-    # dependency is the first one that has run out of this ordered list
-    "email": ["depsi_post", "depsi", "reslc", "crop", "coregistration"],
-}
 TIME_LIMITS = {
     "short": "10:00:00",
     "normal": "5-00:00:00",
     "infinite": "12-00:00:00",
 }  # the true max is 30 days but this will cause interference with new images
-SBATCH_ARGS = {
-    "doris": "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000",
-    "doris_cleanup": "--qos=long --ntasks=1 --cpus-per-task=1",
-    "deinsar": "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000",
-    "crop": "--qos=long --ntasks=1 --cpus-per-task=2",
-    "depsi": "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000",
-    "depsi_post": "--qos=long --ntasks=1 --cpus-per-task=4 --mem-per-cpu=8000",
-    "mrm": "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000",
-    "reslc": "--qos=long --ntasks=1 --cpus-per-task=4 --nodes=1",
-    "email": "--qos=long --ntasks=1 --cpus-per-task=1",
-    "portal_upload": "--qos=long --ntasks=1 --cpus-per-task=1",
-    "tarball": "--qos=long --ntasks=1 --cpus-per-task=1",
-}
-SBATCH_BASH_FILE = {
-    "doris": "doris_stack.sh",
-    "doris_cleanup": "cleanup.sh",
-    "deinsar": "run_deinsar.sh",
-    "crop": "crop.sh",
-    "depsi": "depsi.sh",
-    "depsi_post": "depsi_post.sh",
-    "mrm": "read_mrm.sh",
-    "reslc": "reslc.sh",
-    "email": None,
-    "portal_upload": None,
-    "tarball": None,
-}
-SBATCH_TWO_LETTER_ID = {
-    "doris": "D5",  # these will show up in the squeue
-    "doris_cleanup": "DC",
-    "deinsar": "D4",
-    "crop": "CR",
-    "depsi": "DE",
-    "depsi_post": "DP",
-    "mrm": "MR",
-    "reslc": "RE",
-    "email": "EM",
-    "portal_upload": "PU",
-    "tarball": "TB",
-}
 
 
 def scheduler(new_tracks: list, force_tracks: list) -> list:
@@ -111,46 +58,53 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
     parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param_file"
 
     processes = []
+    job_definitions = get_config(
+        f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
+    )["jobs"]
+    parameter_file_step_keys = list(
+        set(
+            [
+                job_definitions[job]["parameter-file-step-key"]
+                for job in job_definitions.keys()
+                if job_definitions[job]["parameter-file-step-key"] is not None
+            ]
+        )
+    )
     for new_track in track_dict.keys():
         for data in track_dict[new_track]:
-            out_parameters = read_parameter_file(
-                f"{parameter_file_base}_{data[0]}.txt", [f"do_{step}" for step in STEP_KEYS]
-            )
+            out_parameters_raw = read_parameter_file(f"{parameter_file_base}_{data[0]}.txt", parameter_file_step_keys)
 
-            # depsi_post has 4 steps: read_mrm, depsi_post, portal_upload and tarball
-            if out_parameters["do_depsi_post"] == "1":
-                out_parameters["do_mrm"] = "1"
-                portal_upload = read_parameter_file(f"{parameter_file_base}_{data[0]}.txt", ["depsi_post_mode"])[
-                    "depsi_post_mode"
-                ]
-                if portal_upload == "csv":
-                    out_parameters["do_portal_upload"] = "1"
-                    out_parameters["do_tarball"] = "0"
-                else:
-                    out_parameters["do_portal_upload"] = "0"
-                    out_parameters["do_tarball"] = "1"
-            else:
-                out_parameters["do_mrm"] = "0"
-                out_parameters["do_portal_upload"] = "0"
-                out_parameters["do_tarball"] = "0"
+            out_parameters = {}
 
-            # email always has to be sent
-            out_parameters["do_email"] = "1"
-
-            # check if the cleanup script needs to be run
-            out_parameters["do_doris_cleanup"] = "0"
-            if out_parameters["do_coregistration"] == "1":
-                sensor = read_parameter_file(f"{parameter_file_base}_{data[0]}.txt", ["sensor"])["sensor"]
-                if sensor.upper() == "S1":
-                    out_parameters["do_doris_cleanup"] = "1"
+            for job in job_definitions.keys():
+                if job_definitions[job]["parameter-file-step-key"] is None:
+                    out_parameters[f"do_{job}"] = "1"  # always runs
+                elif out_parameters_raw[job_definitions[job]["parameter-file-step-key"]] == "0":
+                    out_parameters[f"do_{job}"] = "0"
+                else:  # the step is to be run
+                    if job_definitions[job]["filters"] is not None:  # we need to filter on the sensor
+                        for key in job_definitions[job]["filters"].keys():
+                            value_check = read_parameter_file(f"{parameter_file_base}_{data[0]}.txt", [key])[key]
+                            if isinstance(job_definitions[job]["filters"][key], str):
+                                if value_check.lower() == job_definitions[job]["filters"][key].lower():
+                                    out_parameters[f"do_{job}"] = "1"
+                                else:
+                                    out_parameters[f"do_{job}"] = "0"
+                            else:  # it's a list, so we check if it exists in the list
+                                if value_check.lower() in [s.lower() for s in job_definitions[job]["filters"][key]]:
+                                    out_parameters[f"do_{job}"] = "1"
+                                else:
+                                    out_parameters[f"do_{job}"] = "0"
+                    else:
+                        out_parameters[f"do_{job}"] = "1"
 
             for step in out_parameters.keys():
                 if out_parameters[step] == "1":
                     process_id = f"{data[0]}-{step[3:]}-{new_track}"
 
                     # we need to figure out the dependencies
-                    requirement = STEP_REQUIREMENTS[step[3:]]
-                    if STEP_REQUIREMENTS[step[3:]] is not None:
+                    requirement = job_definitions[step[3:]]["requirement"]
+                    if requirement is not None:
                         # if the step is a string, it is one option
                         if isinstance(requirement, str):
                             # if the step is run in the same parameter file, that is the dependency
@@ -163,13 +117,15 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
                             else:
                                 dependency_id = None
                         else:
-                            # for the email, multiple dependency locations are possible. We select the latest one
-                            # in the chain
-                            dependency_id = None
+                            # if multiple dependencies are possible, we want all of them
+                            dependency_id = []
                             for req in requirement:
                                 if out_parameters[f"do_{req}"] == "1":
-                                    dependency_id = f"{data[0]}-{req}-{new_track}"
-                                    break
+                                    dependency_id.append(f"{data[0]}-{req}-{new_track}")
+                            if len(dependency_id) == 0:
+                                dependency_id = None
+                            elif len(dependency_id) == 1:
+                                dependency_id = dependency_id[0]
                     else:
                         dependency_id = None
 
@@ -188,9 +144,19 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
         modified = False
         for process in processes:
             if process not in sorted_processes:
-                if process[1] in [proc[0] for proc in sorted_processes]:  # the dependency is there
-                    sorted_processes.append(process)
-                    modified = True
+                if isinstance(process[1], str):
+                    if process[1] in [proc[0] for proc in sorted_processes]:  # the dependency is there
+                        sorted_processes.append(process)
+                        modified = True
+                else:  # it's a list since the Nones cannot be here
+                    all_dependencies_present = True
+                    for process_ in process[1]:
+                        if process_ not in [proc[0] for proc in sorted_processes]:
+                            all_dependencies_present = False
+
+                    if all_dependencies_present:
+                        sorted_processes.append(process)
+                        modified = True
 
     if len(processes) != len(sorted_processes):
         for process in processes:
@@ -245,6 +211,10 @@ def submit_processes(sorted_processes: list) -> None:
 
     run_timestamp = dt.datetime.now().strftime("%Y%m%dT%H%M%S")
 
+    job_definitions = get_config(
+        f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
+    )["jobs"]
+
     # then start looping over the list, freezing the current configuration files
     frozen_parameter_files = {}
     job_ids = {}
@@ -286,103 +256,80 @@ def submit_processes(sorted_processes: list) -> None:
 
         if process[1] is None:
             dependency_job_id = None
-        else:
+        elif isinstance(process[1], str):
             # because the list is ordered, the dependency has to be there already
             dependency_job_id = job_ids[process[1]]
+        else:  # it's a list
+            dependency_job_id = [job_ids[dependency] for dependency in process[1]]
 
         # Generate the necessary SBATCH arguments
         # first the partition
-        if job in ["coregistration", "crop", "reslc", "depsi", "depsi_post"]:
-            partition = read_parameter_file(frozen_parameter_file, [f"{job}_partition"])[f"{job}_partition"]
-        elif job in ["email", "tarball", "portal_upload", "doris_cleanup"]:
-            partition = "short"
-        else:  # mrm
-            partition = "normal"
+        partition = job_definitions[job]["partition"]
+        if partition not in TIME_LIMITS.keys():  # assume it needs to be read from the parameter file
+            partition = read_parameter_file(frozen_parameter_file, [job_definitions[job]["partition"]])[
+                job_definitions[job]["partition"]
+            ]
 
         # then the dependency
         if dependency_job_id is None:
             dependency_string = " "
-        else:
+        elif isinstance(dependency_job_id, str):
             if job == "email":  # we always want to send an email
                 dependency_string = f" --dependency=afterany:{dependency_job_id} "
             else:  # we want to kill the other dependencies if its predecessor crashed
                 dependency_string = f" --dependency=afterok:{dependency_job_id} --kill-on-invalid-dep=yes "
+        else:  # it's a list
+            if job == "email":  # we always want to send an email
+                dependency_string = f" --dependency=afterany:{':'.join(dependency_job_id)} "
+            else:  # we want to kill the other dependencies if its predecessor crashed
+                dependency_string = f" --dependency=afterok:{':'.join(dependency_job_id)} --kill-on-invalid-dep=yes "
 
         # then the job name
         three_letter_id = read_parameter_file(frozen_parameter_file, ["three_letter_id"])["three_letter_id"]
-        sensor = track.split("_")[0]
-        if job == "coregistration":  # this one is different for different sensors
-            if sensor.lower() == "s1":
-                job_key = "doris"
-            else:
-                job_key = "deinsar"
-        else:
-            job_key = job
+
         # e.g. D5088NVE for Doris v5, track 88, AoI nl_veenweiden
-        job_name = f"{SBATCH_TWO_LETTER_ID[job_key]}{track.split('_')[-1][1:]}{three_letter_id}"
+        job_name = f"{job_definitions[job]['two-letter-id']}{track.split('_')[-1][1:]}{three_letter_id}"
 
         # finally, combine everything
         sbatch_arguments = (
             f"--partition={partition} --job-name={job_name} "
-            f"--time={TIME_LIMITS[partition]}{dependency_string}{SBATCH_ARGS[job_key]}"
+            f"--time={TIME_LIMITS[partition]}{dependency_string}{job_definitions[job]['sbatch-args']}"
         )
 
         # generate the arguments necessary to start the job
-        if SBATCH_BASH_FILE[job_key] is None:  # no bash job is necessary
+        if job_definitions[job]["bash-file"] is None:  # no bash job is necessary
             start_job_arguments = (
                 f"{frozen_parameter_file} {track.split('_')[-1][1:].lstrip('0')} {job} "
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
                 f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}"
             )
-            base_directory = None
-        else:  # generate the path to the bash file, then add it as the fourth argument
-            if job in ["mrm", "depsi_post", "depsi"]:  # these all run in the depsi folder, which has one extra layer
-                parameters = read_parameter_file(frozen_parameter_file, ["depsi_directory", "depsi_AoI_name"])
-                base_directory = format_process_folder(
-                    base_folder=parameters["depsi_directory"],
-                    AoI_name=parameters["depsi_AoI_name"],
-                    sensor=track.split("_")[0],
-                    asc_dsc=track.split("_")[1],
-                    track=eval(track.split("_")[2][1:].lstrip("0")),
-                )
-                base_directory += "/psi"
-            elif job == "doris_cleanup":  # this one runs in the coregistration folder
-                parameters = read_parameter_file(
-                    frozen_parameter_file, ["coregistration_directory", "coregistration_AoI_name"]
-                )
-                base_directory = format_process_folder(
-                    base_folder=parameters["coregistration_directory"],
-                    AoI_name=parameters["coregistration_AoI_name"],
-                    sensor=track.split("_")[0],
-                    asc_dsc=track.split("_")[1],
-                    track=eval(track.split("_")[2][1:].lstrip("0")),
-                )
-            else:
-                parameters = read_parameter_file(frozen_parameter_file, [f"{job}_directory", f"{job}_AoI_name"])
-                base_directory = format_process_folder(
-                    base_folder=parameters[f"{job}_directory"],
-                    AoI_name=parameters[f"{job}_AoI_name"],
-                    sensor=track.split("_")[0],
-                    asc_dsc=track.split("_")[1],
-                    track=eval(track.split("_")[2][1:].lstrip("0")),
-                )
+        else:  # generate the path to the bash file, then add it as the sixth argument
+            parameters = read_parameter_file(
+                frozen_parameter_file,
+                [
+                    f"{job_definitions[job]['bash-file']['bash-file-base-directory']}_directory",
+                    f"{job_definitions[job]['bash-file']['bash-file-base-directory']}_AoI_name",
+                ],
+            )
+            base_directory = format_process_folder(
+                base_folder=parameters[f"{job_definitions[job]['bash-file']['bash-file-base-directory']}_directory"],
+                AoI_name=parameters[f"{job_definitions[job]['bash-file']['bash-file-base-directory']}_AoI_name"],
+                sensor=track.split("_")[0],
+                asc_dsc=track.split("_")[1],
+                track=eval(track.split("_")[2][1:].lstrip("0")),
+            )
+            base_directory += job_definitions[job]["bash-file"]["bash-file-directory-appendix"]
 
-            # generate the job id file
-            if job in [
-                "doris_cleanup",
-                "depsi_post",
-                "mrm",
-            ]:  # to split out the individual job ids in the same directory
-                appendix = f"_{job}"
-            else:
-                appendix = ""
-            job_id_file = f"{base_directory}/{frozen_parameter_file.split('/')[-1].split('.')[0]}_job_id{appendix}.txt"
+            job_id_file = (
+                f"{base_directory}/{frozen_parameter_file.split('/')[-1].split('.')[0]}_"
+                f"job_id{job_definitions[job]['bash-file']['job-id-file-appendix']}.txt"
+            )
 
             start_job_arguments = (
                 f"{frozen_parameter_file} {track.split('_')[2][1:].lstrip('0')} {job} "
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
                 f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']} "
-                f"{base_directory} {SBATCH_BASH_FILE[job_key]} {job_id_file}"
+                f"{base_directory} {job_definitions[job]['bash-file']['bash-file-name']} {job_id_file}"
             )
 
         # finally, submit the job and save the job id in the dictionary and in a file in the output directory
@@ -397,7 +344,7 @@ def submit_processes(sorted_processes: list) -> None:
         if dependency_string == " ":
             os.system(
                 """echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) """
-                f"""{f"in {base_directory} " if base_directory is not None else ""}submitted job {job} """
+                f"""submitted job {job} """
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
                 f"""slurm-ID {job_id}" """
                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
@@ -405,7 +352,7 @@ def submit_processes(sorted_processes: list) -> None:
         else:
             os.system(
                 """echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) """
-                f"""{f"in {base_directory} " if base_directory is not None else ""}submitted job {job} """
+                f"""submitted job {job} """
                 f"""(AoI {process[0].split("-")[0]}, track {track.split("_")[-1][1:].lstrip("0")}) with """
                 f"""slurm-ID {job_id} """
                 f"""as dependency to slurm-ID {dependency_job_id}" """

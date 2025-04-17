@@ -8,17 +8,16 @@ from config import get_config
 
 def _get_plugins() -> tuple[dict, dict]:
     """Return the GitHub and Tarball plugins."""
-    github_plugins = {
-        "depsi_post_v2.1.4.0": {"repo": "git@bitbucket.org:grsradartudelft/depsipost.git", "branch": "v2.1.4.0"},
-        "deinsar_v0.3.4": {"repo": "git@bitbucket.org:grsradartudelft/deinsar.git", "branch": "v0.3.4"},
-        "DePSI_group": {"repo": "git@github.com:TUDelftGeodesy/DePSI_group.git", "branch": "caroline-clone-branch"},
-    }
-    tarball_plugins = {
-        "cpxfiddle": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/cpxfiddle.tar.gz",
-        "depsi_v2.2.1.1": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/depsi_v2.2.1.1.tar.gz",
-        "geocoding_v0.9": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/geocoding_v0.9.tar.gz",
-        "rdnaptrans": f"{CONFIG['CAROLINE_PLUGINS_ARCHIVE_DIRECTORY']}/rdnaptrans.tar.gz",
-    }
+    plugins = get_config(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/plugin-definitions.yaml", flatten=False)
+
+    github_plugins = plugins["github"]
+    tarball_plugins = plugins["tarball"]
+    for plugin in tarball_plugins.keys():
+        if "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**" in tarball_plugins[plugin]:
+            tarball_plugins[plugin] = tarball_plugins[plugin].replace(
+                "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**", CONFIG["CAROLINE_PLUGINS_ARCHIVE_DIRECTORY"]
+            )
+
     return github_plugins, tarball_plugins
 
 

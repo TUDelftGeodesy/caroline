@@ -82,8 +82,8 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
                 elif out_parameters_raw[job_definitions[job]["parameter-file-step-key"]] == "0":
                     out_parameters[f"do_{job}"] = "0"
                 else:  # the step is to be run
-                    if job_definitions[job]["filter"] is not None:  # we need to filter on the sensor
-                        for key in job_definitions[job]["filter"].keys():
+                    if job_definitions[job]["filters"] is not None:  # we need to filter on the sensor
+                        for key in job_definitions[job]["filters"].keys():
                             value_check = read_parameter_file(f"{parameter_file_base}_{data[0]}.txt", [key])[key]
                             if isinstance(job_definitions[job]["filters"][key], str):
                                 if value_check.lower() == job_definitions[job]["filters"][key].lower():

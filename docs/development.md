@@ -150,12 +150,21 @@ In some cases (e.g. the job `email`) there is no processing to be done. In this 
 In order to fully integrate a new job into CAROLINE, the following steps need to be undertaken (we will use `DePSI` as an example)
 
 1. Define the job name (fully lowercase). In our example case: `depsi`
-2. In [scheduler.py](../caroline/scheduler.py):
-   1. Add the job name to the list `STEP_KEYS`
-   2. Add the job name to the dictionary `STEP_REQUIREMENTS`, where the argument is the name of the job on which the new job depends. In the example, we would add `"depsi": "crop",` 
-   3. Add the job name to the dictionary `SBATCH_ARGS`, where the arguments to be passed on to `sbatch` are listed. If no clear requirements are present, use `"--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"`, the most default one.
-   4. Add the job name to the dictionary `SBATCH_BASH_FILE`, where the name of the bash file is located. If no bash file is necessary, set the argument to `None`. In our example, we add `"depsi": "depsi.sh",`.
-   5. Add the job name to the dictionary `SBATCH_TWO_LETTER_ID`, where the abbreviation that shows up in the `squeue` is stored. This abbreviation is exactly two letters/numbers long. In our example, we add `"depsi": "DE",`.
+2. In [config/job-definitions.yaml](../config/job-definitions.yaml), add an entry for the job formatted as follows:
+   1. Add the job name below the last job block, one tab in. All other keys will be one tab in from this key (so two total)
+   2. Add the necessary keys (one tab in) (leaving empty will set the value to `None`:
+      1. `requirement`: the name (`str`) or names (`list` of `str`) of the job that should finish before this job should start
+      2. `two-letter-id`: the two letter ID that will show up in the `squeue`
+      3. `parameter-file-step-key`: the key in the general section of the parameter file that should be `1` for this job to run. For `depsi`, this is `do_depsi`
+      4. `sbatch-args`: the arguments to pass on to `sbatch`. If no clear requirements are present, use `"--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"`, the most default one
+      5. `bash-file`: if no bash file is to be run, leave it empty like in the `email` job. Otherwise, move one tab in, and add four keys:
+         1. `bash-file-name`: the name of the bash file to be run.
+         2. `bash-file-base-directory`: the name of the base directory in which the job should be run. For `depsi` this is `depsi`, which then assumes `depsi_directory` and `depsi_AoI_name` exist as parameters in the parameter file.
+         3. `bash-file-directory-appendix`: a folder to add to the base directory name. In case of `depsi`, this is `/psi`, since DePSI runs in the `psi` folder within the base directory of `depsi`. If it should be empty, leave it to `""`.
+         4. `job-id-file-appendix`: an appendix to differentiate job id files that end up in the same directory. If it should be empty, set it to `""`.
+      6. `filters`: in case the job should only run if specific conditions are met, these can be specified here. If left empty, it will assume no filters are present and any parameter file can start this job. If a filter (e.g. satellite) is present, use the following syntax:
+         1. one tab in, add `<parameter-file-key>: <allowed-value(s)>`. `<allowed-value(s)>` can be either a `str` or `list` of `str`. If the value of the specified key in the parameter file is in the provided allowed values, the job will start. Otherwise, the job will not be scheduled.
+         2. If multiple filters are necessary, add the next filter using the same syntax on a new line.
 3. Add the two letter job ID to [abbreviations.md](abbreviations.md)
 4. In [preparation.py](../caroline/preparation.py), create the function `prepare_<jobname>` that takes exactly two arguments: 
     
@@ -176,8 +185,8 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
 6. If the job is dependent on a Python plugin that requires packages not yet provided in the CAROLINE virtual environment, update the `plugins` dependency list on line 50 of [pyproject.toml](../pyproject.toml) with a comment on which plugin it is necessary for.
 7. If scripts are needed for the completion of the job that are not provided in the plugin, add them in [scripts](../scripts) 
 8. In <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the necessary job-specific parameters for the job in a new section.
-9. In <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the following general parameters:
-   1. `do_<jobname>`, a 0/1 boolean switch whether or not to execute the job. Leave to 0 for all jobs you do not want this to run on.
-   2. `<jobname>_AoI_name`, the name of the AoI in that job
-   3. `<jobname>_directory`, the directory in which the job should run
+9. If in step 2 you introduced new values for `parameter-file-step-key` and `bash-file-base-directory`: in <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the following general parameters:
+   1. `do_<parameter-file-step-key>`, a 0/1 boolean switch whether or not to execute the job. Leave to 0 for all jobs you do not want this to run on.
+   2. `<bash-file-base-directory>_AoI_name`, the name of the AoI in that job
+   3. `<bash-file-base-directory>_directory`, the directory in which the job should run
 10. Finally, update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)

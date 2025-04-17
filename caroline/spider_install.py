@@ -12,6 +12,11 @@ def _get_plugins() -> tuple[dict, dict]:
 
     github_plugins = plugins["github"]
     tarball_plugins = plugins["tarball"]
+    for plugin in tarball_plugins.keys():
+        if "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**" in tarball_plugins[plugin]:
+            tarball_plugins[plugin] = tarball_plugins[plugin].replace(
+                "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**", CONFIG["CAROLINE_PLUGINS_ARCHIVE_DIRECTORY"]
+            )
 
     return github_plugins, tarball_plugins
 

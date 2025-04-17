@@ -1563,11 +1563,5 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
 if __name__ == "__main__":
     _, parameter_file, track, job = sys.argv
     track_number = int(track)
-    if job == "coregistration":
-        sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"]
-        if sensor == "S1":
-            prepare_doris(parameter_file, do_track=track_number)
-        else:
-            prepare_deinsar(parameter_file, do_track=track_number)
-    else:
-        eval(f"prepare_{job}('{parameter_file}', do_track={track_number})")
+
+    eval(f"prepare_{job}('{parameter_file}', do_track={track_number})")

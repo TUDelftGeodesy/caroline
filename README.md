@@ -71,26 +71,25 @@ On Spider, the crontab is installed on `ui-01` on the `caroline-admin` account.
 
 ### Installing for the first time
 
-CAROLINE is intended to be installed on a server with a SLURM manager, such as SURFSara Spider. To install on Spider, first we need to prepare the virtual environment in the directory specified in the configuration yaml file (e.g. [config/spider-config.yaml](config/spider-config.yaml)). To do so, run
+CAROLINE is intended to be installed on a server with a SLURM manager, such as SURFSara Spider.
+First, clone the repository:
 ```bash
-cd /path/to/the/virtual/environment/without/the/last/caroline/directory
-source /project/caroline/Software/bin/init.sh  # loads the module command
-module load python/3.10.4  # loads the correct python environment
-python3 -m venv caroline  # create the virtual environment
+cd /home/caroline-admin/Workspace
+git clone git@github.com:TUDelftGeodesy/caroline.git
 ```
 
-Now, we are ready to install CAROLINE. First, clone the repository anywhere on Spider, and run
+Since the live version will always run on the main branch, we can simply install (this uses the default [spider-config.yaml](config/spider-config.yaml)):
 ```bash
 cd caroline
 ./spider-install.sh
 ```
 
-The installation script takes care of generating all necessary directories and updating the created virtual environment.
+The installation script takes care of generating all necessary directories and creating virtual environment.
 
 ### Updating the installation
 To update the installation of CAROLINE, go to the directory where you originally cloned the repository. Then run
 ```bash
-cd caroline
+cd /home/caroline-admin/Workspace/caroline
 git pull
 ./spider-install.sh
 ```
@@ -104,29 +103,50 @@ Store this yaml file in a separate location outside the repository.
 <u>Important: Leave the variable </u>`RUN_MODE`<u> on </u>`TEST`<u>, so that the live installation is not impacted</u>.
 
 ### Installing for the first time
-
-Again, first we need to prepare the virtual environment in the directory specified in the configuration yaml file (e.g. [config/spider-config.yaml](config/spider-config.yaml)). To do so, run
+Run the following commands on Spider. First go to your home directory using
 ```bash
-cd /path/to/the/virtual/environment/without/the/last/caroline/directory
-source /project/caroline/Software/bin/init.sh  # loads the module command
-module load python/3.10.4  # loads the correct python environment
-python3 -m venv caroline  # create the virtual environment
+cd /project/caroline/Share/users/$(whoami)
+```
+Then we make the directory to pull caroline into, and go there:
+
+```bash
+mkdir caroline-pull
+cd caroline-pull
+```
+Then we clone the repository:
+```bash
+git clone git@github.com:TUDelftGeodesy/caroline.git
 ```
 
-Now, we are ready to install CAROLINE. Clone the repository anywhere on Spider (<u>not in the directory you intend to install CAROLINE in, a different one</u>), and run
+Next, we need to make our config file for local testing. We do this by taking [config/spider-test-config.yaml](config/spider-test-config.yaml) and replacing `caroline-admin` with our own user ID:
+```bash
+cp caroline/config/spider-test-config.yaml local-test-config.yaml
+sed -i "s/caroline-admin/$(whoami)/g" local-test-config.yaml
+```
+
+Now we go into the repository:
 ```bash
 cd caroline
-./spider-install.sh /full/path/to/your/yaml/file.yaml
 ```
 
-The installation script takes care of generating all necessary directories and updating the created virtual environment.
+CAROLINE is now on the main branch, which is of course installable. Optionally, if you want to install a specific branch for testing, you can do so by running
+```bash
+git checkout <branch-name>
+git pull
+```
+
+Finally, we install CAROLINE using the command
+```bash
+./spider-install.sh ../local-test-config.yaml
+```
 
 ### Updating the installation
 To update the installation of CAROLINE, go to the directory where you originally cloned the repository. Then run
 ```bash
-cd caroline
+cd /project/caroline/Share/users/$(whoami)/caroline-pull/caroline
+git checkout <branch-name>  # optionally, if you want to change to a different branch
 git pull
-./spider-install.sh /full/path/to/your/yaml/file.yaml
+./spider-install.sh ../local-test-config.yaml
 ```
 
 This will store the existing configuration, and update all files, dependencies, and the virtual environment. Already running jobs are unaffected, but the changes will immediately take effect on newly starting jobs (both newly submitted and those already in the queue that have not yet started).

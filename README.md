@@ -78,7 +78,7 @@ cd /home/caroline-admin/Workspace
 git clone git@github.com:TUDelftGeodesy/caroline.git
 ```
 
-Since the live version will always run on the main branch, we can simply install (this used the default [spider-config.yaml](config/spider-config.yaml)):
+Since the live version will always run on the main branch, we can simply install (this uses the default [spider-config.yaml](config/spider-config.yaml)):
 ```bash
 cd caroline
 ./spider-install.sh

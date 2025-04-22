@@ -34,7 +34,7 @@ coregistration_AoI_name   = 'nl_amsterdam'
 coregistration_directory  = '/project/caroline/Share/users/caroline-admin/caroline-test/test_nl_amsterdam_v3/stack'
 
 crop_to_raw_AoI_name    = 'nl_amsterdam'
-crop_to_raw__directory   = '/project/caroline/Share/users/caroline-admin/caroline-test/test_nl_amsterdam_v3/crop_raw'
+crop_to_raw_directory   = '/project/caroline/Share/users/caroline-admin/caroline-test/test_nl_amsterdam_v3/crop_raw'
 
 crop_to_zarr_AoI_name   = 'nl_amsterdam'
 crop_to_zarr_directory  = '/project/caroline/Share/users/caroline-admin/caroline-test/test_nl_amsterdam_v3/crop_zarr'

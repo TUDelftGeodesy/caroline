@@ -670,8 +670,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         "track",
         "asc_dsc",
         "sensor",
-        "crop_directory",
-        "crop_AoI_name",
+        "crop_to_raw_directory",
+        "crop_to_raw_AoI_name",
         "depsi_code_dir",
         "rdnaptrans_dir",
         "geocoding_dir",
@@ -704,8 +704,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         )
 
         crop_directory = format_process_folder(
-            base_folder=out_parameters["crop_directory"],
-            AoI_name=out_parameters["crop_AoI_name"],
+            base_folder=out_parameters["crop_to_raw_directory"],
+            AoI_name=out_parameters["crop_to_raw_AoI_name"],
             sensor=out_parameters["sensor"],
             asc_dsc=asc_dsc[track],
             track=tracks[track],

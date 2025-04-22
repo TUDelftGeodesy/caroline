@@ -46,34 +46,34 @@ jobs:
     filters:
       sensor: "S1"
 
-  crop:
+  crop_to_raw:
     requirement: ["doris", "deinsar"]
     two-letter-id: "CR"
-    parameter-file-step-key: "do_crop"
-    partition: "crop_partition"
+    parameter-file-step-key: "do_crop_to_raw"
+    partition: "crop_to_raw_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=2"
     bash-file:
-      bash-file-name: "crop.sh"
-      bash-file-base-directory: "crop"
+      bash-file-name: "crop-to-raw.sh"
+      bash-file-base-directory: "crop_to_raw"
       bash-file-directory-appendix: ""
       job-id-file-appendix: ""
     filters:
 
-  reslc:
+  crop_to_zarr:
     requirement: ["doris", "deinsar"]
-    two-letter-id: "RE"
-    parameter-file-step-key: "do_reslc"
-    partition: "reslc_partition"
+    two-letter-id: "CZ"
+    parameter-file-step-key: "do_crop_to_zarr"
+    partition: "crop_to_zarr_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --nodes=1"
     bash-file:
-      bash-file-name: "reslc.sh"
-      bash-file-base-directory: "reslc"
+      bash-file-name: "crop-to-zarr.sh"
+      bash-file-base-directory: "crop_to_zarr"
       bash-file-directory-appendix: ""
       job-id-file-appendix: ""
     filters:
 
   depsi:
-    requirement: "crop"
+    requirement: "crop_to_raw"
     two-letter-id: "DE"
     parameter-file-step-key: "do_depsi"
     partition: "depsi_partition"
@@ -132,7 +132,7 @@ jobs:
       depsi_post_mode: "csv"
 
   email:
-    requirement: ["depsi_post", "depsi", "reslc", "crop", "doris", "deinsar"]
+    requirement: ["depsi_post", "depsi", "crop_to_zarr", "crop_to_raw", "doris", "deinsar"]
     two-letter-id: "EM"
     parameter-file-step-key:
     partition: "short"

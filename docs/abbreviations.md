@@ -16,8 +16,8 @@ and `NNN` the three-letter area of interest abbreviation.
 
 #### Cropping submodule
 
-- `CR`: crop
-- `RE`: Re-SLC
+- `CR`: crop-to-raw
+- `CZ`: crop-to-zarr
 
 ### AAA Job Definition module
 

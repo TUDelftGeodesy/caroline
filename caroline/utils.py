@@ -10,7 +10,7 @@ from caroline.io import create_shapefile, link_shapefile, read_parameter_file
 
 CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
-VALID_STEPS_TO_CHECK = ["coregistration", "crop", "reslc", "depsi", "depsi_post"]
+VALID_STEPS_TO_CHECK = ["coregistration", "crop_to_raw", "crop_to_zarr", "depsi", "depsi_post"]
 
 
 def format_process_folder(
@@ -168,20 +168,20 @@ def _generate_email(parameter_file: str) -> str:
         "track",
         "asc_dsc",
         "do_coregistration",
-        "do_crop",
+        "do_crop_to_raw",
         "do_depsi",
         "do_depsi_post",
         "sensor",
         "coregistration_directory",
-        "crop_directory",
+        "crop_to_raw_directory",
         "depsi_directory",
-        "do_reslc",
-        "reslc_directory",
+        "do_crop_to_zarr",
+        "crop_to_zarr_directory",
         "skygeo_viewer",
         "coregistration_AoI_name",
-        "crop_AoI_name",
+        "crop_to_raw_AoI_name",
         "depsi_AoI_name",
-        "reslc_AoI_name",
+        "crop_to_zarr_AoI_name",
         "skygeo_customer",
         "project_owner",
         "project_owner_email",
@@ -219,8 +219,8 @@ def _generate_email(parameter_file: str) -> str:
 
     success_rates = {
         "do_coregistration": [[], []],
-        "do_crop": [[], []],
-        "do_reslc": [[], []],
+        "do_crop_to_raw": [[], []],
+        "do_crop_to_zarr": [[], []],
         "do_depsi": [[], []],
         "do_depsi_post": [[], []],
     }
@@ -232,14 +232,14 @@ def _generate_email(parameter_file: str) -> str:
                     log += "\n\n---------DORIS v5--------\n\n"
                 else:
                     log += "\n\n---------DeInSAR---------\n\n"
-            elif key == "do_crop":
-                log += "\n\n---------Cropping----------\n\n"
-            elif key == "do_reslc":
-                log += "\n\n---------Re-SLC------------\n\n"
+            elif key == "do_crop_to_raw":
+                log += "\n\n------Cropping to .RAW-------\n\n"
+            elif key == "do_crop_to_zarr":
+                log += "\n\n-----Cropping to .ZARR-------\n\n"
             elif key == "do_depsi":
-                log += "\n\n---------DePSI-------------\n\n"
+                log += "\n\n-----------DePSI-------------\n\n"
             elif key == "do_depsi_post":
-                log += "\n\n---------DePSI-post--------\n\n"
+                log += "\n\n---------DePSI-post----------\n\n"
             for track in range(len(tracks)):
                 log += f"---Track {out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}---\n\n"
 
@@ -304,10 +304,10 @@ Notes: {out_parameters['project_notes']}
 
             if key == "do_coregistration":
                 line_header = "Coregistration"
-            elif key == "do_crop":
-                line_header = "Cropping"
-            elif key == "do_reslc":
-                line_header = "Re-SLC"
+            elif key == "do_crop_to_raw":
+                line_header = "Cropping to .RAW"
+            elif key == "do_crop_to_zarr":
+                line_header = "Cropping to .ZARR"
             elif key == "do_depsi":
                 line_header = "DePSI"
             elif key == "do_depsi_post":
@@ -336,8 +336,8 @@ Sensor: {out_parameters['sensor']}
 The following steps were run:
 {lines['do_coregistration']}
 
-{lines['do_crop']}
-{lines['do_reslc']}
+{lines['do_crop_to_raw']}
+{lines['do_crop_to_zarr']}
 
 {lines['do_depsi']}
 {lines['do_depsi_post']}
@@ -367,7 +367,7 @@ First logs of the subprocesses, then the parameter file.
 
 def proper_finish_check(
     parameter_file: str,
-    step_check: Literal["coregistration", "crop", "reslc", "depsi", "depsi_post"],
+    step_check: Literal["coregistration", "crop_to_raw", "crop_to_zarr", "depsi", "depsi_post"],
     asc_dsc: Literal["asc", "dsc"],
     track: int,
 ) -> dict:
@@ -377,7 +377,7 @@ def proper_finish_check(
     ----------
     parameter_file: str
         full path to the CAROLINE parameter file
-    step_check: Literal["coregistration", "crop", "reslc", "depsi", "depsi_post"]
+    step_check: Literal["coregistration", "crop_to_raw", "crop_to_zarr", "depsi", "depsi_post"]
         which step to check
     asc_dsc: Literal["asc", "dsc"]
         whether track is an ascending or descending track
@@ -469,7 +469,7 @@ def proper_finish_check(
                 else:
                     successful_finish = True
 
-        elif step_check == "crop":
+        elif step_check == "crop_to_raw":
             status_file = None
 
             # this is a Matlab-based module, so 'Error in ' in the slurm file indicates something went wrong
@@ -478,7 +478,7 @@ def proper_finish_check(
             else:
                 successful_finish = True
 
-        elif step_check == "reslc":
+        elif step_check == "crop_to_zarr":
             status_file = None
 
             # This is a Python-based module with a clear end logging

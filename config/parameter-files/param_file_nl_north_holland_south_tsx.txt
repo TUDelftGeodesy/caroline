@@ -17,10 +17,10 @@ polarisation       = ['HH']  # For Sentinel-1 only ['VVVH'] (others not implemen
 
 do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
-do_crop            = 0  # Requires coregistration (here or dependency)
-do_reslc           = 0  # Requires coregistration (here or dependency)
+do_crop_to_raw     = 0  # Requires coregistration (here or dependency)
+do_crop_to_zarr    = 0  # Requires coregistration (here or dependency)
 
-do_depsi           = 0  # Requires crop (here or dependency). Does not use reslc
+do_depsi           = 0  # Requires crop_to_raw (here or dependency). Does not use crop_to_zarr
 
 do_depsi_post      = 0  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
@@ -33,11 +33,11 @@ skygeo_viewer      = 'nl_amsterdam'
 coregistration_AoI_name   = 'nl_north_holland_south_tsx'
 coregistration_directory  = '/project/caroline/Share/stacks'
 
-crop_AoI_name    = 'nl_north_holland_south_tsx'
-crop_directory   = '/project/caroline/Share/crops'
+crop_to_raw_AoI_name    = 'nl_north_holland_south_tsx'
+crop_to_raw_directory   = '/project/caroline/Share/crops'
 
-reslc_AoI_name   = 'nl_north_holland_south_tsx'
-reslc_directory  = '/project/caroline/Share/stacks_zarr'
+crop_to_zarr_AoI_name   = 'nl_north_holland_south_tsx'
+crop_to_zarr_directory  = '/project/caroline/Share/stacks_zarr'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'nl_north_holland_s_tsx'
@@ -68,8 +68,8 @@ send_completion_email = 's.a.n.vandiepen@tudelft.nl,f.j.vanleijen@tudelft.nl'
 # specify the partition on which the steps will run. This is short (up to 10h, max 2 jobs), normal (up to 5 days), or infinite (up to 12 days)
 # the longer the time period, the more difficult it is to schedule
 coregistration_partition = 'infinite'
-crop_partition           = 'normal'
-reslc_partition          = 'normal'
+crop_to_raw_partition    = 'normal'
+crop_to_zarr_partition   = 'normal'
 depsi_partition          = 'infinite'
 depsi_post_partition     = 'normal'
 
@@ -152,10 +152,10 @@ di_do_coherence           = 1
 di_do_geocoding           = 1
 
 ############################################
-############## RESLC PARAMETERS ############
+########## CROP_TO_ZARR PARAMETERS #########
 ############################################
 
-reslc_code_dir    = '/project/caroline/Software/caroline-plugins/DePSI_group'
+crop_to_zarr_code_dir    = '/project/caroline/Software/caroline-plugins/DePSI_group'
 
 ############################################
 ############## DEPSI PARAMETERS ############

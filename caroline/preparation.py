@@ -92,7 +92,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
 
         # generate crop.m
         write_run_file(
-            save_path=f"{crop_directory}/crop-to-raw.m",
+            save_path=f"{crop_directory}/crop_to_raw.m",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop-to-raw/crop-to-raw.m",
             asc_dsc=asc_dsc[track],
             track=tracks[track],

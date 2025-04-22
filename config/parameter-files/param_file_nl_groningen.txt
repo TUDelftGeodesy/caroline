@@ -232,7 +232,7 @@ peak_tolerance         = 0.9
 
 # Ps parameters
 psp_selection_method = 'ampdisp'
-psp_threshold1       = 0.5
+psp_threshold1       = 0.35
 psp_threshold2       = []
 ps_eval_method       = 'psp'
 Namp_disp_bins       = 100

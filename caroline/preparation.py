@@ -18,7 +18,7 @@ from caroline.utils import (
 CONFIG_PARAMETERS = get_config()
 
 
-def prepare_crop(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for cropping.
 
     Parameters
@@ -34,8 +34,8 @@ def prepare_crop(parameter_file: str, do_track: int | list | None = None) -> Non
         "coregistration_AoI_name",
         "track",
         "asc_dsc",
-        "crop_directory",
-        "crop_AoI_name",
+        "crop_to_raw_directory",
+        "crop_to_raw_AoI_name",
         "sensor",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
@@ -52,8 +52,8 @@ def prepare_crop(parameter_file: str, do_track: int | list | None = None) -> Non
                 continue
 
         crop_directory = format_process_folder(
-            base_folder=out_parameters["crop_directory"],
-            AoI_name=out_parameters["crop_AoI_name"],
+            base_folder=out_parameters["crop_to_raw_directory"],
+            AoI_name=out_parameters["crop_to_raw_AoI_name"],
             sensor=out_parameters["sensor"],
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -80,20 +80,20 @@ def prepare_crop(parameter_file: str, do_track: int | list | None = None) -> Non
 
         # generate crop.sh
         write_run_file(
-            save_path=f"{crop_directory}/crop.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop/crop.sh",
+            save_path=f"{crop_directory}/crop-to-raw.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop-to-raw/crop-to-raw.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["crop_AoI_name"],
+            parameter_file_parameters=["crop_to_raw_AoI_name"],
             config_parameters=["caroline_work_directory"],
             other_parameters={"track": tracks[track], "crop_base_directory": crop_directory},
         )
 
         # generate crop.m
         write_run_file(
-            save_path=f"{crop_directory}/crop.m",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop/crop.m",
+            save_path=f"{crop_directory}/crop_to_raw.m",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop-to-raw/crop-to-raw.m",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -102,6 +102,126 @@ def prepare_crop(parameter_file: str, do_track: int | list | None = None) -> Non
         )
 
         write_directory_contents(crop_directory)
+
+
+def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for re-SLC.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+
+    Raises
+    ------
+    ValueError
+        If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
+    """
+    search_parameters = [
+        "crop_to_zarr_directory",
+        "crop_to_zarr_AoI_name",
+        "coregistration_directory",
+        "coregistration_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        crop_to_zarr_directory = format_process_folder(
+            base_folder=out_parameters["crop_to_zarr_directory"],
+            AoI_name=out_parameters["crop_to_zarr_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        coregistration_directory = format_process_folder(
+            base_folder=out_parameters["coregistration_directory"],
+            AoI_name=out_parameters["coregistration_AoI_name"],
+            sensor=out_parameters["sensor"],
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+        )
+
+        os.makedirs(crop_to_zarr_directory, exist_ok=True)
+
+        # detect the mother image
+        if out_parameters["sensor"].lower() == "s1":
+            f = open(f"{coregistration_directory}/doris_input.xml")
+            data = f.read().split("\n")
+            f.close()
+            mother = None
+            for line in data:
+                if "<master_date>" in line:
+                    mother = line.split(">")[1].split("<")[0].replace("-", "")
+                    break
+
+            if mother is None:
+                raise ValueError(f"Failed to detect mother in {coregistration_directory}/doris_input.xml!")
+
+        else:
+            f = open(f"{coregistration_directory}/run_deinsar.py")
+            data = f.read().split("\n")
+            f.close()
+            mother = None
+            for line in data:
+                if "master = " in line:
+                    mother = line.split("'")[1]
+                    break
+
+            if mother is None:
+                raise ValueError(f"Failed to detect mother in {coregistration_directory}/run_deinsar.py !")
+
+        # generate crop-to-zarr.py
+        crop_to_zarr_output_name = crop_to_zarr_directory.split("/")[-1]
+
+        write_run_file(
+            save_path=f"{crop_to_zarr_directory}/crop-to-zarr.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop-to-zarr/crop-to-zarr.py",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["shape_AoI_name", "sensor", "shape_directory"],
+            other_parameters={
+                "coregistration_directory": coregistration_directory,
+                "stack_folder_name": "stack" if out_parameters["sensor"] == "S1" else "process",
+                "mother": mother,
+                "mother_slc_name": "slave_rsmp_reramped.raw" if out_parameters["sensor"] == "S1" else "slave_rsmp.raw",
+                "crop_to_zarr_output_filename": crop_to_zarr_output_name,
+            },
+        )
+
+        # generate crop-to-zarr.sh
+        write_run_file(
+            save_path=f"{crop_to_zarr_directory}/crop-to-zarr.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop-to-zarr/crop-to-zarr.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "crop_to_zarr_AoI_name",
+                "crop_to_zarr_code_dir",
+            ],
+            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
+            other_parameters={"track": tracks[track]},
+        )
+
+        write_directory_contents(crop_to_zarr_directory)
 
 
 def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -550,8 +670,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         "track",
         "asc_dsc",
         "sensor",
-        "crop_directory",
-        "crop_AoI_name",
+        "crop_to_raw_directory",
+        "crop_to_raw_AoI_name",
         "depsi_code_dir",
         "rdnaptrans_dir",
         "geocoding_dir",
@@ -584,8 +704,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         )
 
         crop_directory = format_process_folder(
-            base_folder=out_parameters["crop_directory"],
-            AoI_name=out_parameters["crop_AoI_name"],
+            base_folder=out_parameters["crop_to_raw_directory"],
+            AoI_name=out_parameters["crop_to_raw_AoI_name"],
             sensor=out_parameters["sensor"],
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1253,8 +1373,8 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         the parameter file
     """
     search_parameters = [
-        "crop_directory",
-        "crop_AoI_name",
+        "crop_to_raw_directory",
+        "crop_to_raw_AoI_name",
         "depsi_directory",
         "depsi_AoI_name",
         "track",
@@ -1276,8 +1396,8 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
                 continue
 
         crop_directory = format_process_folder(
-            base_folder=out_parameters["crop_directory"],
-            AoI_name=out_parameters["crop_AoI_name"],
+            base_folder=out_parameters["crop_to_raw_directory"],
+            AoI_name=out_parameters["crop_to_raw_AoI_name"],
             sensor=out_parameters["sensor"],
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1392,126 +1512,6 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
             f"Customer: {out_parameters['skygeo_customer']}"
         )
         f.close()
-
-
-def prepare_reslc(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for re-SLC.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Absolute path to the parameter file.
-    do_track: int | list | None, optional
-        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
-        the parameter file
-
-    Raises
-    ------
-    ValueError
-        If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
-    """
-    search_parameters = [
-        "reslc_directory",
-        "reslc_AoI_name",
-        "coregistration_directory",
-        "coregistration_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
-
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        reslc_directory = format_process_folder(
-            base_folder=out_parameters["reslc_directory"],
-            AoI_name=out_parameters["reslc_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-        )
-
-        coregistration_directory = format_process_folder(
-            base_folder=out_parameters["coregistration_directory"],
-            AoI_name=out_parameters["coregistration_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-        )
-
-        os.makedirs(reslc_directory, exist_ok=True)
-
-        # detect the mother image
-        if out_parameters["sensor"].lower() == "s1":
-            f = open(f"{coregistration_directory}/doris_input.xml")
-            data = f.read().split("\n")
-            f.close()
-            mother = None
-            for line in data:
-                if "<master_date>" in line:
-                    mother = line.split(">")[1].split("<")[0].replace("-", "")
-                    break
-
-            if mother is None:
-                raise ValueError(f"Failed to detect mother in {coregistration_directory}/doris_input.xml!")
-
-        else:
-            f = open(f"{coregistration_directory}/run_deinsar.py")
-            data = f.read().split("\n")
-            f.close()
-            mother = None
-            for line in data:
-                if "master = " in line:
-                    mother = line.split("'")[1]
-                    break
-
-            if mother is None:
-                raise ValueError(f"Failed to detect mother in {coregistration_directory}/run_deinsar.py !")
-
-        # generate reslc.py
-        reslc_output_name = reslc_directory.split("/")[-1]
-
-        write_run_file(
-            save_path=f"{reslc_directory}/reslc.py",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reslc/reslc.py",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=["shape_AoI_name", "sensor", "shape_directory"],
-            other_parameters={
-                "coregistration_directory": coregistration_directory,
-                "stack_folder_name": "stack" if out_parameters["sensor"] == "S1" else "process",
-                "mother": mother,
-                "mother_slc_name": "slave_rsmp_reramped.raw" if out_parameters["sensor"] == "S1" else "slave_rsmp.raw",
-                "reslc_output_filename": reslc_output_name,
-            },
-        )
-
-        # generate reslc.sh
-        write_run_file(
-            save_path=f"{reslc_directory}/reslc.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reslc/reslc.sh",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=[
-                "reslc_AoI_name",
-                "reslc_code_dir",
-            ],
-            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
-            other_parameters={"track": tracks[track]},
-        )
-
-        write_directory_contents(reslc_directory)
 
 
 def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> None:

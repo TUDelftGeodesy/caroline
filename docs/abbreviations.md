@@ -16,8 +16,9 @@ and `NNN` the three-letter area of interest abbreviation.
 
 #### Cropping submodule
 
-- `CR`: crop
-- `RE`: Re-SLC
+- `CR`: crop-to-raw
+- `CZ`: crop-to-zarr
+- `RE`: Re-SLC (deprecated)
 
 ### AAA Job Definition module
 
@@ -79,10 +80,12 @@ None yet
 - `NAS`: nl_assendelft
 - `NAT`: nl_amsterdam_tsx
 - `NAX`: nl_amsterdam_extended
+- `NGD`: nl_groningen_depsi (deprecated)
 - `NGK`: nl_grijpskerk
 - `NGN`: nl_groningen
 - `NHT`: nl_north_holland_south_tsx
 - `NLB`: nl_limburg
+- `NLS`: nl_limburg_stack (deprecated)
 - `NMT`: nl_marken_tsx
 - `NNI`: nl_nieuwolda
 - `NSC`: nl_schoonebeek

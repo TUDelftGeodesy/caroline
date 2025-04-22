@@ -187,10 +187,10 @@ if __name__ == "__main__":
     slcs_output = crop_slc_spacetime(slcs_output, aoi_filename="**shape_directory**/**shape_AoI_name**_shape.shp")
     # Rechunk and write as zarr
     slcs_output = slcs_output.chunk(writing_chunks)
-    if not os.path.exists("**reslc_output_filename**.zarr"):
-        slcs_output.to_zarr("**reslc_output_filename**.zarr", mode="w")
+    if not os.path.exists("**crop_to_zarr_output_filename**.zarr"):
+        slcs_output.to_zarr("**crop_to_zarr_output_filename**.zarr", mode="w")
     else:
-        slcs_output.to_zarr("**reslc_output_filename**.zarr", mode="w")
+        slcs_output.to_zarr("**crop_to_zarr_output_filename**.zarr", mode="w")
 
     logger.info("Finishing... Closing client.")
     # Close the client when finishing

@@ -35,7 +35,7 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
 - A <b>function</b> is a Python function.
 - A <b>plugin</b> is an external software package that is called by CAROLINE to execute a job. An example is the <i>Doris v5.0.4</i> plugin, used in the job <i>Doris v5</i> in the coregistration submodule.
 - A <b>patch</b> is an amendment to a plugin, where the original plugin code does not function as intended for CAROLINE. All patches are located in the `patches` directory, using the exact same folder structure as will be generated in the directory read from the `CAROLINE_PLUGINS_DIRECTORY` setting.
-- A <b>workflow</b> is the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a coregistered stack, the workflow is crop > DePSI > read mrm > DePSI_post > portal upload
+- A <b>workflow</b> is the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a coregistered stack, the workflow is crop_to_raw > DePSI > read mrm > DePSI_post > portal upload
 
 
 # The way it works: cron

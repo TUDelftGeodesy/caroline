@@ -251,7 +251,7 @@ def add_AoI_extent_folder(kml: KML) -> KML:
 
             # Processing info per step
             message += "Processing steps done: \n"
-            for step in ["coregistration", "crop", "reslc", "depsi", "depsi_post"]:
+            for step in ["coregistration", "crop_to_raw", "crop_to_zarr", "depsi", "depsi_post"]:
                 if param_file_data[param_file_AoI_name][f"do_{step}"] == "1":
                     if step == "depsi_post":  # also add the portal link if depsi_post ran
                         message += (
@@ -270,16 +270,19 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                         )
                 else:  # if the step did not run but further steps did, add info on where it was loaded from
                     if step == "coregistration" and any(
-                        [param_file_data[param_file_AoI_name][f"do_{step_}"] == "1" for step_ in ["crop", "reslc"]]
+                        [
+                            param_file_data[param_file_AoI_name][f"do_{step_}"] == "1"
+                            for step_ in ["crop_to_raw", "crop_to_zarr"]
+                        ]
                     ):
                         message += (
                             f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']} "
                             f"(AoI {param_file_data[param_file_AoI_name]['coregistration_AoI_name']})\n"
                         )
-                    elif step == "crop" and param_file_data[param_file_AoI_name]["do_depsi"] == "1":
+                    elif step == "crop_to_raw" and param_file_data[param_file_AoI_name]["do_depsi"] == "1":
                         message += (
                             f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']} "
-                            f"(AoI {param_file_data[param_file_AoI_name]['crop_AoI_name']})\n"
+                            f"(AoI {param_file_data[param_file_AoI_name]['crop_to_raw_AoI_name']})\n"
                         )
             # finally, add the polygon
             kml.add_polygon(coordinate_dict["0"], param_file_AoI_name, message, "AoI")
@@ -498,14 +501,14 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
                 "coregistration_directory",
                 "coregistration_AoI_name",
                 "do_coregistration",
-                "do_crop",
-                "do_reslc",
+                "do_crop_to_raw",
+                "do_crop_to_zarr",
                 "do_depsi",
                 "do_depsi_post",
                 "skygeo_customer",
                 "skygeo_viewer",
-                "crop_directory",
-                "reslc_directory",
+                "crop_to_raw_directory",
+                "crop_to_zarr_directory",
                 "depsi_directory",
                 "shape_directory",
                 "shape_AoI_name",
@@ -515,9 +518,9 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
                 "project_engineer_email",
                 "project_objective",
                 "project_notes",
-                "crop_AoI_name",
+                "crop_to_raw_AoI_name",
                 "depsi_AoI_name",
-                "reslc_AoI_name",
+                "crop_to_zarr_AoI_name",
             ],
         )
 

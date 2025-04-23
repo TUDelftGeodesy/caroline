@@ -347,7 +347,7 @@ def submit_processes(sorted_processes: list) -> None:
 
         job_id = job_id.strip().split(" ")[-1]
         job_ids[process[0]] = job_id
-        # Finally, log that this job was submitted
+        # Finally, log that this job was submitted, first in human readable, then in machine readable
         if dependency_string == " ":
             os.system(
                 """echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) """
@@ -365,6 +365,14 @@ def submit_processes(sorted_processes: list) -> None:
                 f"""as dependency to slurm-ID {dependency_job_id}" """
                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
             )
+        os.system(
+            """echo "$(date '+%Y-%m-%dT%H:%M:%S');"""
+            """$(whoami);"""
+            f"""{job};"""
+            f"""{frozen_parameter_file.split("/")[-1]};"""
+            f"""{job_id}" """
+            f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submission-log.csv"""
+        )
 
 
 if __name__ == "__main__":

@@ -10,6 +10,9 @@ jobs:
     parameter-file-step-key: "do_coregistration"
     partition: "coregistration_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
+    email:
+      include-in-email: True
+      status-file-search-key: "profile_log*"
     bash-file:
       bash-file-name: "doris_stack.sh"
       bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
@@ -24,6 +27,9 @@ jobs:
     parameter-file-step-key: "do_coregistration"
     partition: "coregistration_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
+    email:
+      include-in-email: True
+      status-file-search-key:
     bash-file:
       bash-file-name: "run_deinsar.sh"
       bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
@@ -38,6 +44,9 @@ jobs:
     parameter-file-step-key: "do_coregistration"
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    email:
+      include-in-email: False
+      status-file-search-key:
     bash-file:
       bash-file-name: "cleanup.sh"
       bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
@@ -52,6 +61,9 @@ jobs:
     parameter-file-step-key: "do_crop_to_raw"
     partition: "crop_to_raw_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=2"
+    email:
+      include-in-email: True
+      status-file-search-key:
     bash-file:
       bash-file-name: "crop-to-raw.sh"
       bash-file-base-directory: "crop_to_raw"
@@ -65,6 +77,9 @@ jobs:
     parameter-file-step-key: "do_crop_to_zarr"
     partition: "crop_to_zarr_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --nodes=1"
+    email:
+      include-in-email: True
+      status-file-search-key:
     bash-file:
       bash-file-name: "crop-to-zarr.sh"
       bash-file-base-directory: "crop_to_zarr"
@@ -78,6 +93,9 @@ jobs:
     parameter-file-step-key: "do_depsi"
     partition: "depsi_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"
+    email:
+      include-in-email: True
+      status-file-search-key: "*resfile.txt"
     bash-file:
       bash-file-name: "depsi.sh"
       bash-file-base-directory: "depsi"
@@ -91,6 +109,9 @@ jobs:
     parameter-file-step-key: "do_depsi_post"
     partition: "normal"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"
+    email:
+      include-in-email: False
+      status-file-search-key:
     bash-file:
       bash-file-name: "read_mrm.sh"
       bash-file-base-directory: "depsi"
@@ -104,6 +125,9 @@ jobs:
     parameter-file-step-key: "do_depsi_post"
     partition: "depsi_post_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --mem-per-cpu=8000"
+    email:
+      include-in-email: True
+      status-file-search-key:
     bash-file:
       bash-file-name: "depsi_post.sh"
       bash-file-base-directory: "depsi"
@@ -117,6 +141,9 @@ jobs:
     parameter-file-step-key: "do_depsi_post"
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    email:
+      include-in-email: False
+      status-file-search-key:
     bash-file:
     filters:
       depsi_post_mode: "tarball"
@@ -127,6 +154,9 @@ jobs:
     parameter-file-step-key: "do_depsi_post"
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    email:
+      include-in-email: True
+      status-file-search-key:
     bash-file:
     filters:
       depsi_post_mode: "csv"
@@ -137,5 +167,8 @@ jobs:
     parameter-file-step-key:
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    email:
+      include-in-email: False
+      status-file-search-key:
     bash-file:
     filters:

@@ -2,6 +2,7 @@
 # defines all necessary parameters for the scheduler to schedule the jobs
 # a list requirement will be a dependency of all that run
 # Leave empty for a None value
+# The order of the jobs in this file is the order in which they will appear in the email
 
 jobs:
   doris:
@@ -10,6 +11,7 @@ jobs:
     parameter-file-step-key: "do_coregistration"
     partition: "coregistration_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
+    directory-contents-file-appendix: ""
     email:
       include-in-email: True
       status-file-search-key: "profile_log*"
@@ -17,7 +19,6 @@ jobs:
       bash-file-name: "doris_stack.sh"
       bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
       bash-file-directory-appendix: ""
-      job-id-file-appendix: ""
     filters:
       sensor: "S1"
 
@@ -27,6 +28,7 @@ jobs:
     parameter-file-step-key: "do_coregistration"
     partition: "coregistration_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
+    directory-contents-file-appendix: ""
     email:
       include-in-email: True
       status-file-search-key:
@@ -34,7 +36,6 @@ jobs:
       bash-file-name: "run_deinsar.sh"
       bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
       bash-file-directory-appendix: ""
-      job-id-file-appendix: ""
     filters:
       sensor: ["ERS", "ENV", "TSX", "TDX", "PAZ", "RSAT2", "Cosmo", "ALOS2"]
 
@@ -44,6 +45,7 @@ jobs:
     parameter-file-step-key: "do_coregistration"
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    directory-contents-file-appendix: ""
     email:
       include-in-email: False
       status-file-search-key:
@@ -51,7 +53,6 @@ jobs:
       bash-file-name: "cleanup.sh"
       bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
       bash-file-directory-appendix: ""
-      job-id-file-appendix: ""
     filters:
       sensor: "S1"
 
@@ -61,6 +62,7 @@ jobs:
     parameter-file-step-key: "do_crop_to_raw"
     partition: "crop_to_raw_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=2"
+    directory-contents-file-appendix: ""
     email:
       include-in-email: True
       status-file-search-key:
@@ -68,7 +70,6 @@ jobs:
       bash-file-name: "crop-to-raw.sh"
       bash-file-base-directory: "crop_to_raw"
       bash-file-directory-appendix: ""
-      job-id-file-appendix: ""
     filters:
 
   crop_to_zarr:
@@ -77,6 +78,7 @@ jobs:
     parameter-file-step-key: "do_crop_to_zarr"
     partition: "crop_to_zarr_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --nodes=1"
+    directory-contents-file-appendix: ""
     email:
       include-in-email: True
       status-file-search-key:
@@ -84,7 +86,6 @@ jobs:
       bash-file-name: "crop-to-zarr.sh"
       bash-file-base-directory: "crop_to_zarr"
       bash-file-directory-appendix: ""
-      job-id-file-appendix: ""
     filters:
 
   depsi:
@@ -93,6 +94,7 @@ jobs:
     parameter-file-step-key: "do_depsi"
     partition: "depsi_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"
+    directory-contents-file-appendix: ""
     email:
       include-in-email: True
       status-file-search-key: "*resfile.txt"
@@ -100,7 +102,6 @@ jobs:
       bash-file-name: "depsi.sh"
       bash-file-base-directory: "depsi"
       bash-file-directory-appendix: "/psi"
-      job-id-file-appendix: ""
     filters:
 
   mrm:
@@ -109,6 +110,7 @@ jobs:
     parameter-file-step-key: "do_depsi_post"
     partition: "normal"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"
+    directory-contents-file-appendix: "_mrm"
     email:
       include-in-email: False
       status-file-search-key:
@@ -116,7 +118,6 @@ jobs:
       bash-file-name: "read_mrm.sh"
       bash-file-base-directory: "depsi"
       bash-file-directory-appendix: "/psi"
-      job-id-file-appendix: "_mrm"
     filters:
 
   depsi_post:
@@ -125,6 +126,7 @@ jobs:
     parameter-file-step-key: "do_depsi_post"
     partition: "depsi_post_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --mem-per-cpu=8000"
+    directory-contents-file-appendix: "_depsi_post"
     email:
       include-in-email: True
       status-file-search-key:
@@ -132,7 +134,6 @@ jobs:
       bash-file-name: "depsi_post.sh"
       bash-file-base-directory: "depsi"
       bash-file-directory-appendix: "/psi"
-      job-id-file-appendix: "_depsi_post"
     filters:
 
   tarball:
@@ -141,6 +142,7 @@ jobs:
     parameter-file-step-key: "do_depsi_post"
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    directory-contents-file-appendix: "_tarball"
     email:
       include-in-email: False
       status-file-search-key:
@@ -154,6 +156,7 @@ jobs:
     parameter-file-step-key: "do_depsi_post"
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    directory-contents-file-appendix: "_portalupload"
     email:
       include-in-email: True
       status-file-search-key:
@@ -167,6 +170,7 @@ jobs:
     parameter-file-step-key:
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    directory-contents-file-appendix: ""
     email:
       include-in-email: False
       status-file-search-key:

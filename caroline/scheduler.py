@@ -122,6 +122,13 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
                             for req in requirement:
                                 if out_parameters[f"do_{req}"] == "1":
                                     dependency_id.append(f"{data[0]}-{req}-{new_track}")
+                                # if not, and there is a dependency parameter file, check if it is run there
+                                elif data[1] is not None:
+                                    out_parameters_dep = read_parameter_file(
+                                        f"{parameter_file_base}_{data[1]}.txt", parameter_file_step_keys
+                                    )
+                                    if out_parameters_dep[f"do_{req}"] == "1":
+                                        dependency_id.append(f"{data[1]}-{req}-{new_track}")
                             if len(dependency_id) == 0:
                                 dependency_id = None
                             elif len(dependency_id) == 1:

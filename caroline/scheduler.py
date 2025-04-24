@@ -294,7 +294,7 @@ def submit_processes(sorted_processes: list) -> None:
         # then the job name
         three_letter_id = read_parameter_file(frozen_parameter_file, ["three_letter_id"])["three_letter_id"]
 
-        # e.g. D5088NVE for Doris v5, track 88, AoI nl_veenweiden
+        # e.g. D5088NVW for Doris v5, track 88, AoI nl_veenweiden
         job_name = f"{job_definitions[job]['two-letter-id']}{track.split('_')[-1][1:]}{three_letter_id}"
 
         # finally, combine everything

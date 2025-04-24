@@ -136,11 +136,8 @@ def write_run_file(
           - "strip" - formatted as ["parameter_name", "strip", "chars"], removes all characters in the `chars` string
             from the parameter. E.g. `{"output", "csv"}` with `chars="{} "` becomes `"output","csv"`.
     config_parameters: list
-        List of configuration parameters to be pasted into the template. Currently avalailable are
-        - `SLC_BASE_DIRECTORY`
-        - `CAROLINE_WORK_DIRECTORY`
-        - `CAROLINE_INSTALL_DIRECTORY`
-        - `ORBIT_DIRECTORY`
+        List of configuration parameters to be pasted into the template, directly from the configuration yaml
+        (e.g. config/spider-config.yaml).
     other_parameters: dict
         Dictionary with as keys the parameter name in the template, as argument the value it should be replaced by
 

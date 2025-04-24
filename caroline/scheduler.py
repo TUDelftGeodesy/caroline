@@ -327,16 +327,11 @@ def submit_processes(sorted_processes: list) -> None:
             )
             base_directory += job_definitions[job]["bash-file"]["bash-file-directory-appendix"]
 
-            job_id_file = (
-                f"{base_directory}/{frozen_parameter_file.split('/')[-1].split('.')[0]}_"
-                f"job_id{job_definitions[job]['bash-file']['job-id-file-appendix']}.txt"
-            )
-
             start_job_arguments = (
                 f"{frozen_parameter_file} {track.split('_')[2][1:].lstrip('0')} {job} "
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']} "
                 f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']} "
-                f"{base_directory} {job_definitions[job]['bash-file']['bash-file-name']} {job_id_file}"
+                f"{base_directory} {job_definitions[job]['bash-file']['bash-file-name']}"
             )
 
         # finally, submit the job and save the job id in the dictionary and in a file in the output directory
@@ -347,7 +342,7 @@ def submit_processes(sorted_processes: list) -> None:
 
         job_id = job_id.strip().split(" ")[-1]
         job_ids[process[0]] = job_id
-        # Finally, log that this job was submitted, first in human readable, then in machine readable
+        # Finally, log that this job was submitted, first in human-readable, then in machine-readable
         if dependency_string == " ":
             os.system(
                 """echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) """

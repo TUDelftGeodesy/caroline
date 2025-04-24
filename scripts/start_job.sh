@@ -40,13 +40,10 @@ python3 ${INSTALL_LOCATION}/caroline/preparation.py ${PARAMETER_FILE} ${TRACK_NU
 
 if [ $# -eq 5 ]; then  # put a note in the working directory as we're not running a bash file
   echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished job ${JOB_TYPE} (AoI $(echo ${PARAMETER_FILE} | rev | cut -d/ -f1 | rev | cut -d. -f1), track ${TRACK_NUMBER}) with slurm-ID $SLURM_JOB_ID)" >> ${CAROLINE_WORK}/submitted_jobs.log
-fi
 
-if [ $# -eq 7 ]; then
+else  # backwards compatibility
   BASH_FILE_DIRECTORY=$6
   BASH_FILE=$7
-
-  SLURM_FILE=$8
 
   echo "----------------------------------------------------"
   echo "Starting bash job with the following characteristics"

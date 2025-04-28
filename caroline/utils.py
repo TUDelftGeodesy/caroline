@@ -243,8 +243,8 @@ def _generate_email(parameter_file: str) -> str:
 
                 if jobs["jobs"][job]["bash-file"] is not None:
                     directory = read_parameter_file(
-                        parameter_file, [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}"]
-                    )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}"]
+                        parameter_file, [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
+                    )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
                 else:
                     directory = CONFIG_PARAMETERS["SLURM_OUTPUT_DIRECTORY"]
 

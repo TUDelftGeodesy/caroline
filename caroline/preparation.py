@@ -101,7 +101,10 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
             config_parameters=["caroline_install_directory"],
         )
 
-        write_directory_contents(crop_directory)
+        directory_appendix = get_config(
+            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-defintions.yaml', flatten=False
+        )["jobs"]["crop_to_raw"]["directory-contents-file-appendix"]
+        write_directory_contents(crop_directory, filename=f"dir_contents{directory_appendix}.txt")
 
 
 def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -221,7 +224,10 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             other_parameters={"track": tracks[track]},
         )
 
-        write_directory_contents(crop_to_zarr_directory)
+        directory_appendix = get_config(
+            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-defintions.yaml', flatten=False
+        )["jobs"]["crop_to_zarr"]["directory-contents-file-appendix"]
+        write_directory_contents(crop_to_zarr_directory, filename=f"dir_contents{directory_appendix}.txt")
 
 
 def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -643,7 +649,10 @@ S_IN_LEA        leader.xml"""
             other_parameters={"data_string": data_string},
         )
 
-        write_directory_contents(coregistration_directory)
+        directory_appendix = get_config(
+            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-defintions.yaml', flatten=False
+        )["jobs"]["deinsar"]["directory-contents-file-appendix"]
+        write_directory_contents(coregistration_directory, filename=f"dir_contents{directory_appendix}.txt")
 
 
 def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -923,7 +932,10 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             },
         )
 
-        write_directory_contents(f"{depsi_directory}/psi")
+        directory_appendix = get_config(
+            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-defintions.yaml', flatten=False
+        )["jobs"]["depsi"]["directory-contents-file-appendix"]
+        write_directory_contents(f"{depsi_directory}/psi", filename=f"dir_contents{directory_appendix}.txt")
 
 
 def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1068,7 +1080,10 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
             other_parameters={"track": tracks[track], "depsi_base_directory": depsi_directory},
         )
 
-        write_directory_contents(f"{depsi_directory}/psi", filename="dir_contents_depsi_post.txt")
+        directory_appendix = get_config(
+            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-defintions.yaml', flatten=False
+        )["jobs"]["depsi_post"]["directory-contents-file-appendix"]
+        write_directory_contents(f"{depsi_directory}/psi", filename=f"dir_contents{directory_appendix}.txt")
 
 
 def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1273,7 +1288,10 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
             other_parameters={"track": tracks[track], "coregistration_directory": coregistration_directory},
         )
 
-        write_directory_contents(coregistration_directory)
+        directory_appendix = get_config(
+            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-defintions.yaml', flatten=False
+        )["jobs"]["doris"]["directory-contents-file-appendix"]
+        write_directory_contents(coregistration_directory, filename=f"dir_contents{directory_appendix}.txt")
 
 
 def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1357,6 +1375,7 @@ def prepare_email(parameter_file: str, do_track: int | list | None = None) -> No
     track_csv = track_csv.strip(",")
     header = f"CAROLINE: {parameters['sensor']}/{area_name}/{track_csv}"
     os.system(f"""echo "Subject: {header}
+from:noreply@surf.nl
 
 {body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {parameters['send_completion_email']}""")
 
@@ -1455,7 +1474,10 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             },
         )
 
-        write_directory_contents(f"{depsi_directory}/psi", filename="dir_contents_read_mrm.txt")
+        directory_appendix = get_config(
+            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-defintions.yaml', flatten=False
+        )["jobs"]["mrm"]["directory-contents-file-appendix"]
+        write_directory_contents(f"{depsi_directory}/psi", filename=f"dir_contents{directory_appendix}.txt")
 
 
 def prepare_portal_upload(parameter_file: str, do_track: int | list | None = None) -> None:

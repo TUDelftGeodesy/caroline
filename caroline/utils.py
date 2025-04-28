@@ -10,7 +10,6 @@ from caroline.io import create_shapefile, link_shapefile, read_parameter_file
 
 CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
-VALID_STEPS_TO_CHECK = ["coregistration", "crop_to_raw", "crop_to_zarr", "depsi", "depsi_post"]
 
 
 def format_process_folder(
@@ -130,6 +129,32 @@ def remove_incomplete_sentinel1_images(parameter_file: str):
         print("Found no incomplete downloads.")
 
 
+def find_slurm_job_id(parameter_file: str, job: str) -> int:
+    """Find the submission ID of a job given a parameter file.
+
+    This will search for the job in submissions-log.csv
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to the frozen parameter file
+    job: str
+        Name of the job
+
+    Returns
+    -------
+    int
+        Job ID number corresponding to the requested parameter file and job
+
+    """
+    data = os.popen(
+        f"""grep ";{job};{parameter_file.split("/")[-1]};" """
+        f"""{CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submission-log.csv"""
+    ).read()
+    job_id = data.split(";")[-1].strip()
+    return eval(job_id)
+
+
 def generate_shapefile(parameter_file: str):
     """Generate a shapefile based on a CAROLINE parameter file.
 
@@ -164,25 +189,14 @@ def _generate_email(parameter_file: str) -> str:
     str
         The message that will be emailed.
     """
+    jobs = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
+
     search_parameters = [
         "track",
         "asc_dsc",
-        "do_coregistration",
-        "do_crop_to_raw",
-        "do_depsi",
-        "do_depsi_post",
-        "sensor",
-        "coregistration_directory",
-        "crop_to_raw_directory",
-        "depsi_directory",
-        "do_crop_to_zarr",
-        "crop_to_zarr_directory",
         "skygeo_viewer",
-        "coregistration_AoI_name",
-        "crop_to_raw_AoI_name",
-        "depsi_AoI_name",
-        "crop_to_zarr_AoI_name",
         "skygeo_customer",
+        "sensor",
         "project_owner",
         "project_owner_email",
         "project_engineer",
@@ -190,6 +204,7 @@ def _generate_email(parameter_file: str) -> str:
         "project_objective",
         "project_notes",
     ]
+
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
     # for appending to the email, we read the entire file anyways
@@ -208,8 +223,8 @@ def _generate_email(parameter_file: str) -> str:
     for i in range(len(tracks)):
         tracks_formatted.append(f"{asc_dsc[i]}_t{tracks[i]:0>3d}")
 
-    if len(tracks_formatted) == 1:
-        tracks_formatted = tracks_formatted[0]
+    # the email will send for each track individually
+    tracks_formatted = tracks_formatted[0]
 
     # Extract the run name
     run_id = "_".join(parameter_file.split("/")[-1].split("_")[2:-4])
@@ -217,48 +232,60 @@ def _generate_email(parameter_file: str) -> str:
     # Generate the logs
     log = "==========DEBUG LOGS===========\n\n"
 
-    success_rates = {
-        "do_coregistration": [[], []],
-        "do_crop_to_raw": [[], []],
-        "do_crop_to_zarr": [[], []],
-        "do_depsi": [[], []],
-        "do_depsi_post": [[], []],
-    }
+    status_checks = ""
+    for job in jobs["jobs"].keys():
+        if jobs["jobs"][job]["email"]["include-in-email"]:
+            do_key = jobs["jobs"][job]["parameter-file-step-key"]
+            job_ran = read_parameter_file(parameter_file, [do_key])[do_key]
 
-    for key in success_rates.keys():
-        if out_parameters[key] == "1":
-            if key == "do_coregistration":
-                if out_parameters["sensor"] == "S1":
-                    log += "\n\n---------DORIS v5--------\n\n"
+            if job_ran == "1":
+                # first check the filters
+                if jobs["jobs"][job]["filters"] is not None:  # we need to filter on the sensor
+                    for key in jobs["jobs"][job]["filters"].keys():
+                        value_check = read_parameter_file(parameter_file, [key])[key]
+                        if isinstance(jobs["jobs"][job]["filters"][key], str):
+                            if value_check.lower() != jobs["jobs"][job]["filters"][key].lower():
+                                job_ran = "0"
+                        else:  # it's a list, so we check if it exists in the list
+                            if value_check.lower() not in [s.lower() for s in jobs["jobs"][job]["filters"][key]]:
+                                job_ran = "0"
+
+            if job_ran == "1":  # if it's still 1, it ran
+                job_id = find_slurm_job_id(parameter_file, job)
+
+                if jobs["jobs"][job]["bash-file"] is not None:
+                    directory = read_parameter_file(
+                        parameter_file, [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
+                    )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
                 else:
-                    log += "\n\n---------DeInSAR---------\n\n"
-            elif key == "do_crop_to_raw":
-                log += "\n\n------Cropping to .RAW-------\n\n"
-            elif key == "do_crop_to_zarr":
-                log += "\n\n-----Cropping to .ZARR-------\n\n"
-            elif key == "do_depsi":
-                log += "\n\n-----------DePSI-------------\n\n"
-            elif key == "do_depsi_post":
-                log += "\n\n---------DePSI-post----------\n\n"
-            for track in range(len(tracks)):
-                log += f"---Track {out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}---\n\n"
+                    directory = CONFIG_PARAMETERS["SLURM_OUTPUT_DIRECTORY"]
 
-                check = proper_finish_check(parameter_file, key[3:], asc_dsc[track], tracks[track])
+                log += f"\n\n-------{job}--------\n\n"
+
+                log += f"---Track {tracks_formatted}---\n\n"
+
+                check = proper_finish_check(parameter_file, job, job_id)
 
                 if check["successful_finish"]:
                     log += "Step finished successfully!\n\n"
-                    success_rates[key][0].append(
-                        f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"
-                    )
+                    if job == "portal_upload":
+                        status_checks += (
+                            "NOTE: it can take a few hours for the results to show up in the portal.\n"
+                            + "The DePSI-post results can be accessed at "
+                            + "https://caroline.portal-tud.skygeo.com/portal/"
+                            + f"{out_parameters['skygeo_customer']}/{out_parameters['skygeo_viewer']} .\n\n"
+                        )
+                    else:
+                        status_checks += f"{job}: {tracks_formatted} finished properly! (located in {directory} )\n\n"
                 elif check["successful_start"]:
                     log += "!!! Step did not finish properly!\n\n"
-                    success_rates[key][1].append(
-                        f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"
+                    status_checks += (
+                        f"!!! {job}: {tracks_formatted} did not finish properly! " f"(located in {directory} )\n\n"
                     )
                 else:
                     log += "!!! Step did not start properly!\n\n"
-                    success_rates[key][1].append(
-                        f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_{tracks[track]:0>3d}"
+                    status_checks += (
+                        f"!!! {job}: {tracks_formatted} did not start properly! " f"(located in {directory} )\n\n"
                     )
 
                 if check["status_file"] is not None:
@@ -267,9 +294,10 @@ def _generate_email(parameter_file: str) -> str:
                     f = open(check["status_file"])
                     status = f.read()
                     f.close()
-                    log += f"Statusfile output:\n\n{status}\n\n"
+                    log += f"Status file output: \n\n{status}\n\n"
                 else:
                     log += f"Slurm output: {check['slurm_file']}\n\n"
+
     log += "================"
 
     project_characteristics = f"""Project characteristics:
@@ -278,51 +306,6 @@ Engineer: {out_parameters['project_engineer']} ({out_parameters['project_enginee
 Objective: {out_parameters['project_objective']}
 Notes: {out_parameters['project_notes']}
 """
-
-    lines = {}
-
-    for key in success_rates.keys():
-        lines[key] = ""
-        if key == "do_depsi_post":
-            lines["portal"] = ""
-        if out_parameters[key] == "1":
-            success_line = ""
-            if len(success_rates[key][0]) > 1:
-                success_line += f"Proper finish: {success_rates[key][0]}"
-            elif len(success_rates[key][0]) == 1:
-                success_line += f"Proper finish: {success_rates[key][0][0]}"
-            if len(success_rates[key][1]) > 1:
-                if len(success_line) > 0:
-                    success_line += ", "
-                success_line += f"Improper finish: {success_rates[key][1]}"
-            elif len(success_rates[key][1]) == 1:
-                if len(success_line) > 0:
-                    success_line += ", "
-                success_line += f"Improper finish: {success_rates[key][1][0]}"
-
-            directory_key = f"{key[3:]}_directory"
-
-            if key == "do_coregistration":
-                line_header = "Coregistration"
-            elif key == "do_crop_to_raw":
-                line_header = "Cropping to .RAW"
-            elif key == "do_crop_to_zarr":
-                line_header = "Cropping to .ZARR"
-            elif key == "do_depsi":
-                line_header = "DePSI"
-            elif key == "do_depsi_post":
-                line_header = "DePSI-post & portal upload"
-                directory_key = "depsi_directory"
-                lines["portal"] = (
-                    "NOTE: it can take a few hours for the results to show up in the portal.\n"
-                    + "The DePSI-post results can be accessed at "
-                    + "https://caroline.portal-tud.skygeo.com/portal/"
-                    + f"{out_parameters['skygeo_customer']}/{out_parameters['skygeo_viewer']} ."
-                )
-            else:
-                raise ValueError(f"Unknown key {key} for line header!")
-
-            lines[key] = f"{line_header}: {success_line} (located in {out_parameters[directory_key]} )"
 
     message = f"""Dear radargroup,
     
@@ -334,15 +317,7 @@ Track(s): {tracks_formatted}
 Sensor: {out_parameters['sensor']}
     
 The following steps were run:
-{lines['do_coregistration']}
-
-{lines['do_crop_to_raw']}
-{lines['do_crop_to_zarr']}
-
-{lines['do_depsi']}
-{lines['do_depsi_post']}
-    
-{lines['portal']}
+{status_checks}
     
 In case of questions, please contact Niels at n.h.jansen@tudelft.nl or Simon at s.a.n.vandiepen@tudelft.nl
     
@@ -365,24 +340,17 @@ First logs of the subprocesses, then the parameter file.
     return message
 
 
-def proper_finish_check(
-    parameter_file: str,
-    step_check: Literal["coregistration", "crop_to_raw", "crop_to_zarr", "depsi", "depsi_post"],
-    asc_dsc: Literal["asc", "dsc"],
-    track: int,
-) -> dict:
+def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
     """Check if a process started and finished correctly, and supply the relevant parameter files.
 
     Parameters
     ----------
     parameter_file: str
         full path to the CAROLINE parameter file
-    step_check: Literal["coregistration", "crop_to_raw", "crop_to_zarr", "depsi", "depsi_post"]
-        which step to check
-    asc_dsc: Literal["asc", "dsc"]
-        whether track is an ascending or descending track
-    track: int
-        which track to check
+    job: str
+        which job to check
+    job_id: int
+        SLURM job ID of the job
 
     Returns
     -------
@@ -391,140 +359,96 @@ def proper_finish_check(
             successful_start: boolean indicating if the job started correctly
             successful_finish: boolean indicating if the job finished correctly
             slurm_file: identified slurm file belonging to the job (None if it doesn't exist)
-            status_file: profile_log for Doris v5, resfile.txt for DePSI, None otherwise (also None if it was not found)
+            status_file: file as defined by `status-file-search-key` in `job-definitions.yaml`. None if it does not
+                exist
     """
-    assert step_check in VALID_STEPS_TO_CHECK, f"Invalid step {step_check} provided! Valid are {VALID_STEPS_TO_CHECK}"
+    status_file = None
+    slurm_file = f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"
+    successful_finish = True
+    successful_start = True
 
-    if step_check == "depsi_post":
-        step_key = "depsi"
-    else:
-        step_key = step_check
-
-    search_parameters = [f"{step_key}_AoI_name", f"{step_key}_directory", "sensor"]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    base_directory = format_process_folder(
-        base_folder=out_parameters[f"{step_key}_directory"],
-        AoI_name=out_parameters[f"{step_key}_AoI_name"],
-        sensor=out_parameters["sensor"],
-        asc_dsc=asc_dsc,
-        track=track,
-    )
-
-    if step_check in ["depsi", "depsi_post"]:
-        base_directory += "/psi"
-
-    # Detect the new slurm file
-    if step_check == "depsi_post":
-        appendix = f"_{step_check}"
-    else:
-        appendix = ""
-    job_id_file = f"{base_directory}/{parameter_file.split('/')[-1].split('.')[0]}_job_id{appendix}.txt"
-    dir_file = f"{base_directory}/dir_contents{appendix}.txt"
-    if not os.path.exists(job_id_file) or not os.path.exists(dir_file):
-        slurm_file = None
-    else:
-        f = open(job_id_file)
-        job_id = f.read().strip()
-        f.close()
-        slurm_file = f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"
-
-    if slurm_file is not None:
-        successful_start = True
-
-        f = open(dir_file)
-        contents = f.read().split("\n")
-        f.close()
-
-        f = open(slurm_file)
-        slurm_output = f.read()
-        f.close()
-
-        if step_check == "coregistration":
-            if out_parameters["sensor"] == "S1":
-                # We need to check the profile logs of Doris v5
-                profile_logs = glob.glob(f"{base_directory}/profile_log*")
-                new_pls = [pl for pl in list(sorted(list(profile_logs))) if pl.split("/")[-1] not in contents]
-
-                if len(new_pls) > 0:  # it started
-                    status_file = new_pls[0]
-                    f = open(status_file)
-                    status = f.read()
-                    f.close()
-                    if " : end" in status:  # this is the last step, so it finished properly
-                        successful_finish = True
-                    else:
-                        successful_finish = False
-                else:  # it did not start
-                    status_file = None
-                    successful_start = False
-                    successful_finish = False
-
-            else:  # we need to check the output of Doris v4
-                status_file = None
-
-                # This is a Python/C-based module, so Traceback or EXCEPTION class indicate something went wrong
-                if "Traceback (most recent call last):" in slurm_output or "EXCEPTION class" in slurm_output:
-                    successful_finish = False
-                else:
-                    successful_finish = True
-
-        elif step_check == "crop_to_raw":
-            status_file = None
-
-            # this is a Matlab-based module, so 'Error in ' in the slurm file indicates something went wrong
-            if "Error in " in slurm_output:
-                successful_finish = False
-            else:
-                successful_finish = True
-
-        elif step_check == "crop_to_zarr":
-            status_file = None
-
-            # This is a Python-based module with a clear end logging
-            if "Finishing... Closing client." in slurm_output:
-                successful_finish = True
-            else:
-                successful_finish = False
-
-        elif step_check == "depsi":
-            resfiles = glob.glob(f"{base_directory}/*resfile.txt")
-            new_resfiles = [res for res in list(sorted(list(resfiles))) if res.split("/")[-1] not in contents]
-
-            if len(new_resfiles) > 0:
-                status_file = new_resfiles[0]  # it's the first one
-
-                f = open(status_file)
-                status = f.read()
-                f.close()
-
-                # this is a matlab-based module with a clear end
-                if "group8, end spatio-temporal consistency." in status:
-                    successful_finish = True
-                else:
-                    successful_finish = False
-            else:
-                status_file = None
-                successful_start = False
-                successful_finish = False
-
-        elif step_check == "depsi_post":
-            status_file = None
-
-            # This is a matlab-based module with a clear end
-            if "Write csv web portal file ..." in slurm_output:
-                successful_finish = True
-            else:
-                successful_finish = False
-
-        else:
-            raise ValueError(f"step {step_check} has no handling of checking...")
-
-    else:
-        slurm_file = None
+    if not os.path.exists(slurm_file):  # if the slurm file output does not exist, thus the job did not start
+        # Return immediately
         successful_start = False
         successful_finish = False
-        status_file = None
+        slurm_file = None
+
+        output = {
+            "successful_start": successful_start,
+            "successful_finish": successful_finish,
+            "slurm_file": slurm_file,
+            "status_file": status_file,
+        }
+
+        return output
+
+    data = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)[
+        "jobs"
+    ][job]
+
+    # first find the status file
+    if data["email"]["status-file-search-key"] is not None:  # search for the status file
+        assert data["bash-file"] is not None, (
+            f"Requested status file search for job {job} but there "
+            "is no bash file call that could have generated it!"
+        )
+
+        # find the directory
+        parameters = read_parameter_file(
+            parameter_file,
+            [
+                f"{data['bash-file']['bash-file-base-directory']}_directory",
+                f"{data['bash-file']['bash-file-base-directory']}_AoI_name",
+                "sensor",
+                "track",
+                "asc_dsc",
+            ],
+        )
+        track = eval(parameters["track"])[0]  # as there is only one
+        asc_dsc = eval(parameters["asc_dsc"])[0]
+        base_directory = (
+            format_process_folder(
+                base_folder=parameters[f"{data['bash-file']['bash-file-base-directory']}_directory"],
+                AoI_name=parameters[f"{data['bash-file']['bash-file-base-directory']}_AoI_name"],
+                sensor=parameters["sensor"],
+                asc_dsc=asc_dsc,
+                track=track,
+            )
+            + data["bash-file"]["bash-file-directory-appendix"]
+        )
+
+        dir_file = f"{base_directory}/dir_contents{data['directory-contents-file-appendix-file']}.txt"
+        if os.path.exists(dir_file):
+            f = open(dir_file)
+            contents = f.read().split("\n")
+            f.close()
+
+            # Find the status files
+            status_files = glob.glob(f"{base_directory}/{data['email']['status-file-search-key']}")
+            new_sfs = [sf for sf in list(sorted(list(status_files))) if sf.split("/")[-1] not in contents]
+
+            if len(new_sfs) > 0:  # it started
+                status_file = new_sfs[0]
+
+    # we check for the status using the sacct command, which if successful will return exit code 0:0 and status
+    # COMPLETED
+    job_status = os.popen(f"""sacct --jobs={job_id}""").read().split("\n")[2:]
+
+    for status_line in job_status:
+        status_data = status_line.split(" ")  # remove all the spacess
+        status_data = [st for st in status_data if st != ""]
+        if len(status_data) > 0:  # ignore empty lines
+            if status_data[-1] != "0:0":  # wrong exit code
+                successful_finish = False
+            elif status_data[-2] != "COMPLETED":  # wrong exit message (CANCELLED still returns 0:0 exit code)
+                successful_finish = False
+            elif status_data[2] == "matlab":  # Matlab can return a zero exit code while still experiencing an error
+                # So we need to check for a matlab error in the SLURM output
+                f = open(slurm_file)
+                slurm_output = f.read()
+                f.close()
+                if "Error in " in slurm_output:  # this means Matlab has in fact encountered an error
+                    successful_finish = False
 
     output = {
         "successful_start": successful_start,

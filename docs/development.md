@@ -151,19 +151,22 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
 
 1. Define the job name (fully lowercase). In our example case: `depsi`
 2. In [config/job-definitions.yaml](../config/job-definitions.yaml), add an entry for the job formatted as follows:
-   1. Add the job name below the last job block, one tab in. All other keys will be one tab in from this key (so two total)
+   1. Add the job name in between the jobs between which the job should appear in the email, one tab in. All other keys will be one tab in from this key (so two total)
    2. Add the necessary keys (one tab in) (leaving empty will set the value to `None`:
       1. `requirement`: the name (`str`) or names (`list` of `str`) of the job that should finish before this job should start
       2. `two-letter-id`: the two letter ID that will show up in the `squeue`
       3. `partition`: either `short` (10 hours), `normal` (5 days), `infinite` (12 days), or user-specified (e.g. for `depsi`, `depsi_partition` will search for this name in the parameter file)
       4. `parameter-file-step-key`: the key in the general section of the parameter file that should be `1` for this job to run. For `depsi`, this is `do_depsi`
       5. `sbatch-args`: the arguments to pass on to `sbatch`. If no clear requirements are present, use `"--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"`, the most default one
-      6. `bash-file`: if no bash file is to be run, leave it empty like in the `email` job. Otherwise, move one tab in, and add four keys:
+      6. `directory-contents-file-appendix`: if multiple jobs run in the same directory, this appendix can be used to separate them. (e.g. for `depsi` this is `""`, for `depsi_post`, this is `_depsi_post`)
+      7. `email`: always has two keys:
+         1. `include-in-email`: if `True` (without quotes), the job will show up in the email. If `False`, it will not show up.
+         2. `status-file-search-key`: the search key for the job resfile. For `depsi`, this is `"*resfile.txt"`, as this is where the results of the job are stored. If left empty, it is assumed no such status file exists.
+      8. `bash-file`: if no bash file is to be run, leave it empty like in the `email` job. Otherwise, move one tab in, and add three keys:
          1. `bash-file-name`: the name of the bash file to be run.
          2. `bash-file-base-directory`: the name of the base directory in which the job should be run. For `depsi` this is `depsi`, which then assumes `depsi_directory` and `depsi_AoI_name` exist as parameters in the parameter file.
          3. `bash-file-directory-appendix`: a folder to add to the base directory name. In case of `depsi`, this is `/psi`, since DePSI runs in the `psi` folder within the base directory of `depsi`. If it should be empty, leave it to `""`.
-         4. `job-id-file-appendix`: an appendix to differentiate job id files that end up in the same directory. If it should be empty, set it to `""`.
-      7. `filters`: in case the job should only run if specific conditions are met, these can be specified here. If left empty, it will assume no filters are present and any parameter file can start this job. If a filter (e.g. satellite) is present, use the following syntax:
+      9. `filters`: in case the job should only run if specific conditions are met, these can be specified here. If left empty, it will assume no filters are present and any parameter file can start this job. If a filter (e.g. satellite) is present, use the following syntax:
          1. one tab in, add `<parameter-file-key>: <allowed-value(s)>`. `<allowed-value(s)>` can be either a `str` or `list` of `str`. If the value of the specified key in the parameter file is in the provided allowed values, the job will start. Otherwise, the job will not be scheduled.
          2. If multiple filters are necessary, add the next filter using the same syntax on a new line.
 3. Add the two letter job ID to [abbreviations.md](abbreviations.md)

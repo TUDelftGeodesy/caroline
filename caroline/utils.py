@@ -10,7 +10,6 @@ from caroline.io import create_shapefile, link_shapefile, read_parameter_file
 
 CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
-VALID_STEPS_TO_CHECK = ["coregistration", "crop_to_raw", "crop_to_zarr", "depsi", "depsi_post"]
 
 
 def format_process_folder(
@@ -149,7 +148,7 @@ def find_slurm_job_id(parameter_file: str, job: str) -> int:
 
     """
     data = os.popen(
-        f"""grep ";{parameter_file.split("/")[-1]};{job};" """
+        f"""grep ";{job};{parameter_file.split("/")[-1]};" """
         f"""{CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submission-log.csv"""
     ).read()
     job_id = data.split(";")[-1].strip()
@@ -226,7 +225,20 @@ def _generate_email(parameter_file: str) -> str:
         if jobs["jobs"][job]["email"]["include-in-email"]:
             do_key = jobs["jobs"][job]["parameter-file-step-key"]
             job_ran = read_parameter_file(parameter_file, [do_key])[do_key]
+
             if job_ran == "1":
+                # first check the filters
+                if jobs["jobs"][job]["filters"] is not None:  # we need to filter on the sensor
+                    for key in jobs["jobs"][job]["filters"].keys():
+                        value_check = read_parameter_file(parameter_file, [key])[key]
+                        if isinstance(jobs["jobs"][job]["filters"][key], str):
+                            if value_check.lower() != jobs["jobs"][job]["filters"][key].lower():
+                                job_ran = "0"
+                        else:  # it's a list, so we check if it exists in the list
+                            if value_check.lower() not in [s.lower() for s in jobs["jobs"][job]["filters"][key]]:
+                                job_ran = "0"
+
+            if job_ran == "1":  # if it's still 1, it ran
                 job_id = find_slurm_job_id(parameter_file, job)
 
                 if jobs["jobs"][job]["bash-file"] is not None:

@@ -1375,6 +1375,7 @@ def prepare_email(parameter_file: str, do_track: int | list | None = None) -> No
     track_csv = track_csv.strip(",")
     header = f"CAROLINE: {parameters['sensor']}/{area_name}/{track_csv}"
     os.system(f"""echo "Subject: {header}
+from:noreply@surf.nl
 
 {body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {parameters['send_completion_email']}""")
 

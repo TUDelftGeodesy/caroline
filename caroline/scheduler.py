@@ -36,7 +36,7 @@ def _job_schedule_check(parameter_file: str, job: str, job_definitions: dict) ->
     if job_definitions[job]["parameter-file-step-key"] is None:  # always runs
         return True
 
-    out_parameters = read_parameter_file(parameter_file, job_definitions[job]["parameter-file-step-key"])
+    out_parameters = read_parameter_file(parameter_file, [job_definitions[job]["parameter-file-step-key"]])
 
     if out_parameters[job_definitions[job]["parameter-file-step-key"]] == "0":  # it is not requested
         return False

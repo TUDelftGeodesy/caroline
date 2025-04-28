@@ -150,7 +150,7 @@ def find_slurm_job_id(parameter_file: str, job: str) -> int:
     """
     data = os.popen(
         f"""grep ";{parameter_file.split("/")[-1]};{job};" """
-        """{CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submission-log.csv"""
+        f"""{CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submission-log.csv"""
     ).read()
     job_id = data.split(";")[-1].strip()
     return eval(job_id)

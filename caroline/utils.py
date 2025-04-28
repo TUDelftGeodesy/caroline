@@ -191,7 +191,19 @@ def _generate_email(parameter_file: str) -> str:
     """
     jobs = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
 
-    search_parameters = ["track", "asc_dsc", "skygeo_viewer", "skygeo_customer", "sensor"]
+    search_parameters = [
+        "track",
+        "asc_dsc",
+        "skygeo_viewer",
+        "skygeo_customer",
+        "sensor",
+        "project_owner",
+        "project_owner_email",
+        "project_engineer",
+        "project_engineer_email",
+        "project_objective",
+        "project_notes",
+    ]
 
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 

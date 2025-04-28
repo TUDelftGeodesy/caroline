@@ -16,6 +16,47 @@ TIME_LIMITS = {
 }  # the true max is 30 days but this will cause interference with new images
 
 
+def _job_schedule_check(parameter_file: str, job: str, job_definitions: dict) -> bool:
+    """Check if a job should be scheduled based on the parameter file and the job definitions.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to the parameter file
+    job: str
+        Name of the job to be scheduled
+    job_definitions: dict
+        Dictionary readout of `job-definitions.yaml`
+
+    Returns
+    -------
+    bool
+        Boolean indicating if the job should be scheduled or not.
+    """
+    if job_definitions[job]["parameter-file-step-key"] is None:  # always runs
+        return True
+
+    out_parameters = read_parameter_file(parameter_file, job_definitions[job]["parameter-file-step-key"])
+
+    if out_parameters[job_definitions[job]["parameter-file-step-key"]] == "0":  # it is not requested
+        return False
+
+    # if we make it here, the step is requested
+    if job_definitions[job]["filters"] is not None:  # we first need to check the filters. Return False if one filter
+        # is not met
+        for key in job_definitions[job]["filters"].keys():
+            value_check = read_parameter_file(parameter_file, [key])[key]
+            if isinstance(job_definitions[job]["filters"][key], str):
+                if value_check.lower() != job_definitions[job]["filters"][key].lower():  # it meets the filter
+                    return False
+            else:  # it's a list, so we check if it exists in the list
+                if value_check.lower() not in [s.lower() for s in job_definitions[job]["filters"][key]]:
+                    return False
+
+    # if it was not kicked out by the filters, we return True
+    return True
+
+
 def scheduler(new_tracks: list, force_tracks: list) -> list:
     """Create a list of processes to be scheduled given a set of new tracks.
 
@@ -61,42 +102,16 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
     job_definitions = get_config(
         f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
     )["jobs"]
-    parameter_file_step_keys = list(
-        set(
-            [
-                job_definitions[job]["parameter-file-step-key"]
-                for job in job_definitions.keys()
-                if job_definitions[job]["parameter-file-step-key"] is not None
-            ]
-        )
-    )
+
     for new_track in track_dict.keys():
         for data in track_dict[new_track]:
-            out_parameters_raw = read_parameter_file(f"{parameter_file_base}_{data[0]}.txt", parameter_file_step_keys)
-
             out_parameters = {}
 
             for job in job_definitions.keys():
-                if job_definitions[job]["parameter-file-step-key"] is None:
-                    out_parameters[f"do_{job}"] = "1"  # always runs
-                elif out_parameters_raw[job_definitions[job]["parameter-file-step-key"]] == "0":
+                if _job_schedule_check(f"{parameter_file_base}_{data[0]}.txt", job, job_definitions):
+                    out_parameters[f"do_{job}"] = "1"
+                else:
                     out_parameters[f"do_{job}"] = "0"
-                else:  # the step is to be run
-                    if job_definitions[job]["filters"] is not None:  # we need to filter on the sensor
-                        for key in job_definitions[job]["filters"].keys():
-                            value_check = read_parameter_file(f"{parameter_file_base}_{data[0]}.txt", [key])[key]
-                            if isinstance(job_definitions[job]["filters"][key], str):
-                                if value_check.lower() == job_definitions[job]["filters"][key].lower():
-                                    out_parameters[f"do_{job}"] = "1"
-                                else:
-                                    out_parameters[f"do_{job}"] = "0"
-                            else:  # it's a list, so we check if it exists in the list
-                                if value_check.lower() in [s.lower() for s in job_definitions[job]["filters"][key]]:
-                                    out_parameters[f"do_{job}"] = "1"
-                                else:
-                                    out_parameters[f"do_{job}"] = "0"
-                    else:
-                        out_parameters[f"do_{job}"] = "1"
 
             for step in out_parameters.keys():
                 if out_parameters[step] == "1":
@@ -124,10 +139,9 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
                                     dependency_id.append(f"{data[0]}-{req}-{new_track}")
                                 # if not, and there is a dependency parameter file, check if it is run there
                                 elif data[1] is not None:
-                                    out_parameters_dep = read_parameter_file(
-                                        f"{parameter_file_base}_{data[1]}.txt", parameter_file_step_keys
-                                    )
-                                    if out_parameters_dep[f"do_{req}"] == "1":
+                                    if _job_schedule_check(
+                                        f"{parameter_file_base}_{data[1]}.txt", req, job_definitions
+                                    ):
                                         dependency_id.append(f"{data[1]}-{req}-{new_track}")
                             if len(dependency_id) == 0:
                                 dependency_id = None

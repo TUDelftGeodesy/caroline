@@ -417,7 +417,7 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
             + data["bash-file"]["bash-file-directory-appendix"]
         )
 
-        dir_file = f"{base_directory}/dir_contents{data['directory-contents-file-appendix-file']}.txt"
+        dir_file = f"{base_directory}/dir_contents{data['directory-contents-file-appendix']}.txt"
         if os.path.exists(dir_file):
             f = open(dir_file)
             contents = f.read().split("\n")

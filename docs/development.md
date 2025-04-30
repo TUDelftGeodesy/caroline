@@ -185,7 +185,7 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
       2. config parameters. These are read directly from the configuration in e.g. [spider-config.yaml](../config/spider-config.yaml)
       3. other parameters. These can be anything, as you provide the value in the argument.
    
-5. If the job is dependent on a plugin, add this plugin in [config/plugin-definitions.yaml](../config/plugin-definitions.yaml). If the plugin is a GitHub or bitbucket repository, add it to the `github` group with the `repo` and `branch` variables. If the plugin is a tarball, add it to `tarball` group.
+5. If the job is dependent on a plugin, add this plugin in [config/plugin-definitions.yaml](../config/plugin-definitions.yaml). If the plugin is a GitHub or bitbucket repository, add it to the `github` group with the `repo` variable (the git clone link), and a `branch` or `tag` variable (depending on whether you want to clone off of a branch or tag). If the plugin is a tarball, add it to `tarball` group.
 6. If the job is dependent on a Python plugin that requires packages not yet provided in the CAROLINE virtual environment, update the `plugins` dependency list on line 50 of [pyproject.toml](../pyproject.toml) with a comment on which plugin it is necessary for.
 7. If scripts are needed for the completion of the job that are not provided in the plugin, add them in [scripts](../scripts) 
 8. In <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the necessary job-specific parameters for the job in a new section.

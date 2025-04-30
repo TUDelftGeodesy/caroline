@@ -10,15 +10,15 @@ project_engineer       = 'Simon'
 project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
 project_objective      = 'Time series production over Groningen gas field for IGRS detection and comnparison with GNSS.'
 project_notes          = 'Uses quadratic cubic models.'
-three_letter_id        = "IJC" # for in the squeue
+three_letter_id        = "NGC" # for in the squeue
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 
-do_coregistration  = 1  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
+do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
-do_crop            = 1  # Requires coregistration (here or dependency)
-do_reslc           = 0  # Requires coregistration (here or dependency)
+do_crop_to_raw     = 1  # Requires coregistration (here or dependency)
+do_crop_to_zarr    = 1  # Requires coregistration (here or dependency)
 
 do_depsi           = 1  # Requires crop (here or dependency). Does not use reslc
 
@@ -33,11 +33,11 @@ skygeo_viewer      = 'nl_groningen'
 coregistration_AoI_name   = 'nl_groningen'
 coregistration_directory  = '/project/caroline/Share/stacks'
 
-crop_AoI_name    = 'nl_groningen'
-crop_directory   = '/project/caroline/Share/crops'
+crop_to_raw_AoI_name    = 'nl_groningen_cubic'
+crop_to_raw_directory   = '/project/caroline/Share/crops'
 
-reslc_AoI_name   = 'nl_groningen'
-reslc_directory  = '/project/caroline/Share/stacks_zarr'
+crop_to_zarr_AoI_name   = 'nl_groningen_cubic'
+crop_to_zarr_directory  = '/project/caroline/Share/stacks_zarr'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'nl_groningen_cubic'
@@ -52,11 +52,11 @@ center_AoI = [] # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size
 AoI_length = 1 # km, north-south AoI size
 
-track = [47,98]  # Can be multiple tracks!
-asc_dsc = ['dsc','asc']
+track = []  # Can be multiple tracks!
+asc_dsc = []
 start_date = '2018-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
-master_date= '2018-03-01' # will search for first image after this date that exists
+master_date= '2020-03-25' # will search for first image after this date that exists
 
 # send a notification to these email addresses upon completion of the Caroline script
 # examples:
@@ -68,8 +68,8 @@ send_completion_email = 's.a.n.vandiepen@tudelft.nl,a.m.lapadat@tudelft.nl'
 # specify the partition on which the steps will run. This is short (up to 10h, max 2 jobs), normal (up to 5 days), or infinite (up to 12 days)
 # the longer the time period, the more difficult it is to schedule
 coregistration_partition = 'normal'
-crop_partition           = 'normal'
-reslc_partition          = 'normal'
+crop_to_raw_partition    = 'normal'
+crop_to_zarr_partition   = 'normal'
 depsi_partition          = 'infinite'
 depsi_post_partition     = 'normal'
 
@@ -77,12 +77,12 @@ depsi_post_partition     = 'normal'
 ################# DEM PARAMETERS ############
 #############################################
 
-dem_file                  = '/project/caroline/Share/users/caroline-alapadat/projects/jakarta_s1_processing/asc_098/jakarta_dem4/jakarta_SRTMGL1Ellip.raw'
-dem_format                = 'r4'
-dem_size                  = [13389, 9886]
-dem_delta                 = [0.000277777777778, 0.000277777777778]
-dem_upperleft             = [-5.167083333341985, 105.132083333371156]
-dem_nodata                = -32768
+dem_file            = '/project/caroline/Share/dem/netherlands_srtm/netherlands_SRTM.raw'
+dem_format          = 'r4'
+dem_size            = [14400, 21600]
+dem_delta           = [0.00027778, 0.00027778]
+dem_upperleft       = [54, 3]
+dem_nodata          = -32768
 
 #############################################
 ##### DORIS v5 PARAMETERS (Sentinel-1) ######
@@ -152,10 +152,10 @@ di_do_coherence           = 1
 di_do_geocoding           = 1
 
 ############################################
-############## RESLC PARAMETERS ############
+########## CROP_TO_ZARR PARAMETERS #########
 ############################################
 
-reslc_code_dir    = '/project/caroline/Software/caroline-plugins/DePSI_group'
+crop_to_zarr_code_dir    = '/project/caroline/Software/caroline-plugins/DePSI_group'
 
 ############################################
 ############## DEPSI PARAMETERS ############
@@ -190,8 +190,7 @@ ifg_selection_input = []
 # ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300]} -> different behaviours for different tracks. If this option is chosen,
 #                                                                   a mode for all tracks in the .dat file must exist.
 # Recommended is 'constant'
-# ref_cn              = {'s1_dsc_t047': 'constant', 's1_asc_t098': [1886,1587]}
-ref_cn              = independent
+ref_cn              = 'constant'
 
 
 Ncv                 = 25
@@ -275,7 +274,7 @@ dp_dlat                    = 0
 dp_dlon                    = 0
 dp_drdx                    = 0
 dp_drdy                    = 0
-dp_proj                    = 'wgs84'
+dp_proj                    = 'rd'
 dp_ref_dheight             = 0
 dp_posteriori_scale_factor = 1
 

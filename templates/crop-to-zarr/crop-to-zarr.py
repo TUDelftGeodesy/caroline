@@ -67,7 +67,7 @@ cluster = SLURMCluster(
     walltime="10:00:00",  # Reserve each worker for X hour
     scheduler_options={
         "dashboard_address": f":{FREE_SOCKET}",  # Host Dashboard in a free socket
-        "no-worker-timeout": "3:00:00",  # If no workers are detected for 3 hours, terminate (#208)
+        "no-workers-timeout": "3:00:00",  # If no workers are detected for 3 hours, terminate (#208)
     },
 )
 ADDRESS = None

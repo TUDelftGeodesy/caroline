@@ -80,6 +80,7 @@ None yet
 - `NAS`: nl_assendelft
 - `NAT`: nl_amsterdam_tsx
 - `NAX`: nl_amsterdam_extended
+- `NGC`: nl_groningen_cubic
 - `NGD`: nl_groningen_depsi (deprecated)
 - `NGK`: nl_grijpskerk
 - `NGN`: nl_groningen

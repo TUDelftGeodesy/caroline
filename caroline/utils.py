@@ -442,7 +442,7 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
                 successful_finish = False
             elif status_data[-2] != "COMPLETED":  # wrong exit message (CANCELLED still returns 0:0 exit code)
                 successful_finish = False
-            elif status_data[2] == "matlab":  # Matlab can return a zero exit code while still experiencing an error
+            elif status_data[1] == "matlab":  # Matlab can return a zero exit code while still experiencing an error
                 # So we need to check for a matlab error in the SLURM output
                 f = open(slurm_file)
                 slurm_output = f.read()

@@ -302,9 +302,9 @@ if find(strcmp('csv_web_portal',output))
 
   if ~shift_to_mean
     ref_point_index = find(sum(abs(ps_ts_vert),2)==0);
-    if length(ref_point_index)~=1
-      error('Did not identify the reference point correctly');
-    end
+  %  if length(ref_point_index)~=1
+  %    error('Did not identify the reference point correctly');
+  %  end
   end
 
   if map_to_vert
@@ -324,7 +324,14 @@ if find(strcmp('csv_web_portal',output))
   if shift_to_mean
     fprintf(json_fid,'\t"reference_point_location": "Mean velocity",\n');
   else
-    fprintf(json_fid,'\t"reference_point_location": "%12.8f, %12.8f",\n', ps_lat(ref_point_index), ps_lon(ref_point_index));
+    fprintf(json_fid,'\t"reference_point_location": "');
+    for i = 1:length(ref_point_index)
+      fprintf(json_fid,'%12.8f, %12.8f', ps_lat(ref_point_index(i)), ps_lon(ref_point_index(i)));
+      if i < length(ref_point_index)
+        fprintf(json_fid,' ; ');
+      end
+    end
+    fprintf(json_fid,'",\n');
   end
   fprintf(json_fid,'\t"satellite_name": "%s",\n', sensor);
   fprintf(json_fid,'\t"satellite_incidence_angle": "%3.1f [deg]",\n', mean(ps_inc_angle));

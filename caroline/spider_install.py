@@ -201,8 +201,6 @@ if __name__ == "__main__":
     CURRENT_TIME = dt.datetime.now().strftime("%Y%m%dT%H%M%S")
 
     _, CWD, CONFIGURATION_FILE = sys.argv
-    if CONFIGURATION_FILE == "None":
-        CONFIGURATION_FILE = f"{CWD}/config/spider-config.yaml"
 
     os.system(f'''echo "Starting Spider installation using config file {CONFIGURATION_FILE}..."''')
 
@@ -225,3 +223,6 @@ if __name__ == "__main__":
     _initialize_force_start_job()
 
     os.system('''echo "Finished Spider installation!"''')
+
+    # Return the installation directory to spider-install.sh for the contextual data upload
+    print(CONFIG["CAROLINE_INSTALL_DIRECTORY"])

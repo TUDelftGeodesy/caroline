@@ -54,5 +54,12 @@ def get_config(config_file: str | None = None, flatten: bool = True) -> dict:
 
 
 if __name__ == "__main__":
-    _, requested_parameter = sys.argv
-    print(get_config()[requested_parameter])
+    argv = sys.argv
+    if len(argv) == 2:
+        _, requested_parameter = sys.argv
+        print(get_config()[requested_parameter])
+    elif len(argv) == 3:
+        _, requested_parameter, config_file = sys.argv
+        print(get_config(config_file)[requested_parameter])
+    else:
+        raise ValueError(f"Expected 1 or 2 argv arguments but got {len(argv) - 1}!")

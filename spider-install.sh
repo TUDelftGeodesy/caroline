@@ -16,8 +16,8 @@ fi
 
 CWD=`pwd`
 
-python3 ${CWD}/caroline/spider_install.py ${CWD} ${CONFIG_FILE}
+CAROLINE_INSTALL_DIRECTORY=$(python3 ${CWD}/caroline/spider_install.py ${CWD} ${CONFIG_FILE})
 
 echo "Updating contextual data..."
-bash ${CWD}/scripts/manage-contextual-data.sh
+bash ${CAROLINE_INSTALL_DIRECTORY}/scripts/manage-contextual-data.sh "verbose"
 echo "Finished updating contextual data!"

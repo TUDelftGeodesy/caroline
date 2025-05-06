@@ -1,5 +1,6 @@
 import datetime as dt
 import os
+import sys
 
 import requests
 
@@ -36,8 +37,15 @@ def fetch_url_contextual_data(url: str) -> list:
     return content_lines
 
 
-def update_contextual_data():
-    """Update the contextual data as defined in `config/contextual-data-definitions.yaml`."""
+def update_contextual_data(verbose: bool) -> None:
+    """Update the contextual data as defined in `config/contextual-data-definitions.yaml`.
+
+    Parameters
+    ----------
+    verbose: bool
+        Whether or not to print updates to stdout
+
+    """
     contextual_data_definitions = get_config(
         f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/contextual-data-definitions.yaml", flatten=False
     )
@@ -45,6 +53,8 @@ def update_contextual_data():
     timestamp = dt.datetime.now().strftime("%Y%M%d")
 
     for definition in contextual_data_definitions.keys():
+        if verbose:
+            os.system(f'''echo "Starting {definition} update..."''')
         os.makedirs(f"{CONFIG['CAROLINE_CONTEXTUAL_DATA_DIRECTORY']}/{definition}", exist_ok=True)
 
         if "url" in contextual_data_definitions[definition].keys():
@@ -70,6 +80,17 @@ def update_contextual_data():
                 "Unhandled contextual data mode! " f"Got keys {contextual_data_definitions[definition].keys()}"
             )
 
+        if verbose:
+            os.system(f'''echo "Finished {definition} update!"''')
+
 
 if __name__ == "__main__":
-    update_contextual_data()
+    verbose = False
+
+    argv = sys.argv
+
+    if len(argv) == 2:  # a verbose argument was passed
+        if argv[1] == "verbose":
+            verbose = True
+
+    update_contextual_data(verbose)

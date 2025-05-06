@@ -15,4 +15,4 @@ source ~/.bashrc
 VENV_LOCATION=$(python3 ${CAROLINE}/caroline/config.py "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY")
 source ${VENV_LOCATION}/bin/activate
 
-python3 ${CAROLINE}/caroline/contextual_data.py
+python3 ${CAROLINE}/caroline/contextual_data.py "$@"

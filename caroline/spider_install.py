@@ -225,3 +225,6 @@ if __name__ == "__main__":
     _initialize_force_start_job()
 
     os.system('''echo "Finished Spider installation!"''')
+
+    # Return the installation directory to spider-install.sh for the contextual data upload
+    print(CONFIG["CAROLINE_INSTALL_DIRECTORY"])

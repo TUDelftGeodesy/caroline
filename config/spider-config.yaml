@@ -3,6 +3,7 @@
 
 directories:
   AOI_OVERVIEW_DIRECTORY: "/project/caroline/Share/caroline-aoi-extents"
+  CAROLINE_CONTEXTUAL_DATA_DIRECTORY: "/project/caroline/Data/caroline-contextual-data"
   CAROLINE_INSTALL_DIRECTORY: "/project/caroline/Software/caroline"
   CAROLINE_PLUGINS_ARCHIVE_DIRECTORY: "/project/caroline/Software/archives/caroline_plugins"
   CAROLINE_PLUGINS_DIRECTORY: "/project/caroline/Software/caroline-plugins"

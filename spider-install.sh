@@ -17,3 +17,7 @@ fi
 CWD=`pwd`
 
 python3 ${CWD}/caroline/spider_install.py ${CWD} ${CONFIG_FILE}
+
+echo "Updating contextual data..."
+bash ${CWD}/scripts/manage-contextual-data.sh
+echo "Finished updating contextual data!"

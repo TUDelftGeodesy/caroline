@@ -1,0 +1,6 @@
+# contextual-data-definitions.yaml
+# defines all necessary parameters for the contextual data to be downloaded
+
+designated-target-database:
+  url: "https://docs.google.com/spreadsheets/d/1_7z-NkgSXSUaAKjsdMYRlsOjZeyLqc-v/export?format=csv&id=1_7z-NkgSXSUaAKjsdMYRlsOjZeyLqc-v&gid=1804638849"
+  output-format: "csv"

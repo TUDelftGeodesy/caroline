@@ -50,7 +50,7 @@ def update_contextual_data(verbose: bool) -> None:
         f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/contextual-data-definitions.yaml", flatten=False
     )
 
-    timestamp = dt.datetime.now().strftime("%Y%M%d")
+    timestamp = dt.datetime.now().strftime("%Y%m%d")
 
     for definition in contextual_data_definitions.keys():
         if verbose:

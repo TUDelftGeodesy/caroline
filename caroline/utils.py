@@ -632,6 +632,6 @@ def convert_shp_to_wkt(shp_filename: str) -> str:
     str
         WKT string of the shape contained in the shapefile
     """
-    shp = read_shp_extent(shp_filename, shp_type="AoI")[0]
+    shp = read_shp_extent(shp_filename, shp_type="AoI")["0"]
     wkt = f"POLYGON(({', '.join(f'{x[0]} {x[1]}' for x in shp)}))"
     return wkt

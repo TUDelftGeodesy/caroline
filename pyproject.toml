@@ -13,6 +13,7 @@ dependencies = [
     "matplotlib",
     "psycopg2-binary",
     "sarxarray",
+    "asf_search"
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"
 readme = "README.md"

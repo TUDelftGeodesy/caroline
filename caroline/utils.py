@@ -6,7 +6,7 @@ from typing import Literal
 import numpy as np
 
 from caroline.config import get_config
-from caroline.io import create_shapefile, link_shapefile, read_parameter_file
+from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent
 
 CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
@@ -617,3 +617,21 @@ def write_directory_contents(directory: str, filename: str = "dir_contents.txt")
     f = open(f"{directory}/{filename}", "w")
     f.write(save_string)
     f.close()
+
+
+def convert_shp_to_wkt(shp_filename: str) -> str:
+    """Convert a shapefile to a WKT string.
+
+    Parameters
+    ----------
+    shp_filename: str
+        Full path to the shapefile
+
+    Returns
+    -------
+    str
+        WKT string of the shape contained in the shapefile
+    """
+    shp = read_shp_extent(shp_filename, shp_type="AoI")[0]
+    wkt = f"POLYGON(({', '.join(f'{x[0]} {x[1]}' for x in shp)}))"
+    return wkt

@@ -35,6 +35,8 @@ def get_config(config_file: str | None = None, flatten: bool = True) -> dict:
         # NOTE: This variable is overwritten during the installation in spider-install._link_default_config_file .
         # Please do not change it
         config_file = "**CAROLINE_INSTALL_DIRECTORY**/config/installation-config.yaml"
+        if "**" in config_file:
+            raise ValueError("You have not installed CAROLINE on Spider. Please run spider-install.sh first.")
 
     assert config_file.split(".")[-1] == "yaml", f"Expected a .yaml configuration file, got {config_file}!"
 

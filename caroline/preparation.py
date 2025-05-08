@@ -42,7 +42,7 @@ def finish_installation() -> None:
     # Retrieve the job definition keys
     job_definitions = get_config(
         f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
-    )
+    )["jobs"]
     job_keys = list(set([job_definitions[job]["parameter-file-step-key"] for job in job_definitions.keys()]))
 
     for parameter_file in parameter_files:

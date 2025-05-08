@@ -16,6 +16,7 @@ three_letter_id        = "NVW" # for in the squeue
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
+product_type       = "SLC"
 
 dependency         = 'None'
 

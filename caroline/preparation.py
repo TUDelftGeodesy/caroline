@@ -139,7 +139,7 @@ def finish_installation() -> None:
                     asc_dsc=None,
                     track=None,
                     parameter_file=parameter_file,
-                    parameter_file_parameters=["download_product_type"],
+                    parameter_file_parameters=["product_type"],
                     other_parameters={
                         "start_date": "one month ago",
                         "wkt_file": (
@@ -1768,7 +1768,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["download_product_type", "start_date"],
+            parameter_file_parameters=["product_type", "start_date"],
             other_parameters={
                 "wkt_file": (
                     f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}/roi.wkt"

@@ -16,6 +16,7 @@ three_letter_id        = "NAT" # for in the squeue
 
 sensor             = 'TSX'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['HH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
+product_type       = "SLC"
 
 dependency         = 'nl_north_holland_south_tsx'
 

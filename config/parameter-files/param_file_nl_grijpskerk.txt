@@ -1,8 +1,10 @@
-# Parameter file for a full doris, cropping, depsi, and depsi_post run, with portal upload possibility.
+# Parameter file for all CAROLINE jobs
 
 ############################################
 ############# GENERAL PARAMETERS ###########
 ############################################
+
+active = 1
 
 project_owner          = 'Ramon'
 project_owner_email    = 'r.f.hanssen@tudelft.nl'
@@ -14,6 +16,10 @@ three_letter_id        = "NGK" # for in the squeue
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
+
+dependency         = 'nl_groningen'
+
+do_s1_download     = 0
 
 do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
@@ -52,8 +58,13 @@ center_AoI = [52.371436, 4.897088]  # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size
 AoI_length = 1 # km, north-south AoI size
 
-track = [37]  # Can be multiple tracks!
-asc_dsc = ['dsc']
+# For Sentinel-1, the tracks will be automatically detected and `track` and `asc_dsc` will be overwritten. In some cases, more tracks are detected than we want to process.
+# In these cases we can exclude them in `exclude_tracks` in the format `s1_dsc_t008`. If tracks that we want to process are not detected, they can be specified in `include_tracks`
+# For other sensors, the tracks cannot be automatically detected. Here all tracks should be specified in `include_tracks` in the format `tsx_asc_t116`
+track = []  # keep empty
+asc_dsc = []  # keep empty
+include_tracks = []
+exclude_tracks = []
 start_date = '2000-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
 master_date= '2020-03-25' # will search for first image after this date that exists

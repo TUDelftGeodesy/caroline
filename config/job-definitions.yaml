@@ -5,6 +5,20 @@
 # The order of the jobs in this file is the order in which they will appear in the email
 
 jobs:
+  s1_download:
+    requirement:
+    two-letter-id: "SD"
+    parameter-file-step-key: "do_s1_download"
+    partition: "normal"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    directory-contents-file-appendix: ""
+    email:
+      include-in-email: True
+      status-file-search-key:
+    bash-file:
+    filters:
+      sensor: "S1"
+
   doris:
     requirement:
     two-letter-id: "D5"

@@ -5,17 +5,173 @@ import sys
 import numpy as np
 
 from caroline.config import get_config
-from caroline.io import read_parameter_file, read_shp_extent, write_run_file
+from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent, write_run_file
 from caroline.utils import (
+    convert_shp_to_wkt,
     detect_sensor_pixelsize,
     format_process_folder,
     generate_email,
     haversine,
+    identify_s1_orbits_in_aoi,
     remove_incomplete_sentinel1_images,
     write_directory_contents,
 )
 
 CONFIG_PARAMETERS = get_config()
+
+
+def finish_installation() -> None:
+    """Generate the shapefiles and `area-track-lists` during installation for all AoIs."""
+    parameter_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/*")
+
+    # create the directories
+    os.makedirs(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists", exist_ok=True)
+    os.makedirs(f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic", exist_ok=True)
+    os.makedirs(f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once", exist_ok=True)
+
+    # create the generic download configuration
+    write_run_file(
+        save_path=f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/download-config.yaml",
+        template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/download-config.yaml",
+        track=None,
+        asc_dsc=None,
+        parameter_file=None,
+        config_parameters=["slc_base_directory", "caroline_work_directory"],
+    )
+
+    # Retrieve the job definition keys
+    job_definitions = get_config(
+        f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
+    )
+    job_keys = list(set([job_definitions[job]["parameter-file-step-key"] for job in job_definitions.keys()]))
+
+    for parameter_file in parameter_files:
+        aoi_name = parameter_file.split("/")[-1].split("param_file_")[-1].split(".")[0]
+
+        # first generate the shapefile if it does not yet exist
+
+        parameter_file_parameters = read_parameter_file(
+            parameter_file, ["shape_directory", "shape_AoI_name", "shape_file"]
+        )
+        # first create the directory
+        os.makedirs(parameter_file_parameters["shape_directory"], exist_ok=True)
+
+        shapefile_name = (
+            f"{parameter_file_parameters['shape_directory']}/"
+            f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"
+        )
+        # then create or link the shapefile
+        if not os.path.exists(shapefile_name):
+            if parameter_file_parameters["shape_file"] == "":
+                create_shapefile(parameter_file)
+            else:
+                link_shapefile(parameter_file)
+
+        # determine if the parameter file is active or not, if not, we skip the area-track-list generation
+
+        active_parameter_file = read_parameter_file(parameter_file, ["active"])["active"]
+
+        if active_parameter_file == "0":
+            # check if a download configuration still exists, if so, remove it
+            if os.path.exists(f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"):
+                os.system(
+                    f"rm -rf {CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"
+                )
+
+            # then skip
+            continue
+
+        # then check if the AoI is a Sentinel-1 AoI or something else
+
+        sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"]
+
+        if sensor == "S1":
+            # then determine the intersecting orbits
+            orbits = identify_s1_orbits_in_aoi(shapefile_name)
+            disallowed_orbits = eval(read_parameter_file(parameter_file, ["exclude_tracks"])["exclude_tracks"])
+            for orbit in disallowed_orbits:
+                if orbit in orbits:
+                    orbits.pop(orbits.index(orbit))
+
+            # then figure out if this is a download-only job, a non-download job, or a mix job
+            jobs_to_do = read_parameter_file(parameter_file, job_keys)
+
+            if jobs_to_do[job_definitions["download"]["parameter-file-step-key"]] == "1":
+                # This is a download job -> we want a download configuration
+                os.makedirs(
+                    f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}",
+                    exist_ok=True,
+                )
+                write_run_file(
+                    save_path=(
+                        f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}/roi.wkt"
+                    ),
+                    template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/roi.wkt",
+                    asc_dsc=None,
+                    track=None,
+                    parameter_file=None,
+                    other_parameters={"wkt_string": convert_shp_to_wkt(shapefile_name)},
+                )
+
+                write_run_file(
+                    save_path=(
+                        f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/"
+                        f"periodic/{aoi_name}/geosearch.yaml"
+                    ),
+                    template_path=(
+                        f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/geosearch.yaml"
+                    ),
+                    asc_dsc=None,
+                    track=None,
+                    parameter_file=parameter_file,
+                    parameter_file_parameters=["download_product_type"],
+                    other_parameters={
+                        "start_date": "one month ago",
+                        "wkt_file": (
+                            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/"
+                            f"periodic/{aoi_name}/roi.wkt"
+                        ),
+                        "orbits_csv": ", ".join([o.split("_t")[-1].lstrip("0") for o in orbits]),
+                    },
+                )
+
+            if "1" in [
+                jobs_to_do[job]
+                for job in jobs_to_do.keys()
+                if job != job_definitions["download"]["parameter-file-step-key"]
+            ]:
+                # This runs something else besides download -> we want an area-track-list
+                write_run_file(
+                    save_path=(
+                        f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists/{aoi_name}.dat"
+                    ),
+                    template_path=(
+                        f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/"
+                        "area-track-list/area-track-list.dat"
+                    ),
+                    asc_dsc=None,
+                    track=None,
+                    parameter_file=parameter_file,
+                    parameter_file_parameters=["dependency"],
+                    other_parameters={"tracks": "\n".join(orbits)},
+                )
+
+        else:
+            track_parameters = read_parameter_file(parameter_file, ["track", "asc_dsc"])
+            tracks = eval(track_parameters["track"])
+            asc_dsc = eval(track_parameters["asc_dsc"])
+            tracks_formatted = [f"{sensor.lower()}_{asc_dsc[i]}_t{tracks[i]:0>3d}" for i in range(len(tracks))]
+            write_run_file(
+                save_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists/{aoi_name}.dat",
+                template_path=(
+                    f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/area-track-list/area-track-list.dat"
+                ),
+                asc_dsc=None,
+                track=None,
+                parameter_file=parameter_file,
+                parameter_file_parameters=["dependency"],
+                other_parameters={"tracks": "\n".join(tracks_formatted)},
+            )
 
 
 def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1344,6 +1500,80 @@ def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = Non
         )
 
 
+def prepare_download(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Prepare the scripts for the download.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    aoi_name = parameter_file.split("/")[-1].split("param_file_")[-1].split(".")[0]
+
+    parameter_file_parameters = read_parameter_file(parameter_file, ["shape_directory", "shape_AoI_name"])
+
+    shapefile_name = (
+        f"{parameter_file_parameters['shape_directory']}/" f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"
+    )
+
+    search_parameters = [
+        "track",
+        "asc_dsc",
+        "sensor",
+        "start_date",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        os.makedirs(
+            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+            f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}",
+            exist_ok=True,
+        )
+        write_run_file(
+            save_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}/roi.wkt"
+            ),
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/roi.wkt",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            other_parameters={"wkt_string": convert_shp_to_wkt(shapefile_name)},
+        )
+
+        write_run_file(
+            save_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}/geosearch.yaml"
+            ),
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/geosearch.yaml",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["download_product_type", "start_date"],
+            other_parameters={
+                "wkt_file": (
+                    f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}/roi.wkt"
+                ),
+                "orbits_csv": tracks[track],
+            },
+        )
+
+
 def prepare_email(parameter_file: str, do_track: int | list | None = None) -> None:
     """Create and send the completion email.
 
@@ -1583,7 +1813,16 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
 
 
 if __name__ == "__main__":
-    _, parameter_file, track, job = sys.argv
-    track_number = int(track)
+    if len(sys.argv) == 4:
+        _, parameter_file, track, job = sys.argv
+        track_number = int(track)
 
-    eval(f"prepare_{job}('{parameter_file}', do_track={track_number})")
+        eval(f"prepare_{job}('{parameter_file}', do_track={track_number})")
+
+    elif len(sys.argv) == 2:
+        _, job = sys.argv
+        assert job == "installation", f"Missing parameter file and track for job {job}!"
+        finish_installation()
+
+    else:
+        raise NotImplementedError(f"Usage: preparation.py [parameter_file] [track] job, got {sys.argv}")

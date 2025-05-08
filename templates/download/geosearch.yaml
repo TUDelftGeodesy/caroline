@@ -1,0 +1,10 @@
+---
+# geosearch.yml
+
+geo_search:
+  dataset: "SENTINEL-1"
+  start: "**start_date**"
+  end: "now"
+  roi_wkt_file: "**wkt_file**"
+  relative_orbits: [**orbits_csv**]
+  product_type: "**download_product_type**"

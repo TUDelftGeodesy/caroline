@@ -100,9 +100,9 @@ def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
 def write_run_file(
     save_path: str,
     template_path: str,
-    asc_dsc: Literal["asc", "dsc"],
-    track: int,
-    parameter_file: str,
+    asc_dsc: Literal["asc", "dsc"] | None,
+    track: int | None,
+    parameter_file: str | None,
     parameter_file_parameters: list = None,
     config_parameters: list = None,
     other_parameters: dict = None,
@@ -118,12 +118,14 @@ def write_run_file(
         Path where the file should be written to
     template_path: str
         Path to the template that should be used
-    asc_dsc: Literal["asc", "dsc"]
-        Whether the file is generated for an ascending or descending track
-    track: int
-        Which track the file is generated for
-    parameter_file: str
-        Full path to the parameter file
+    asc_dsc: Literal["asc", "dsc"] | None
+        Whether the file is generated for an ascending or descending track. If `None`, using a dictionary parameter file
+        parameter will throw an AssertionError
+    track: int | None
+        Which track the file is generated for. If `None`, using a dictionary parameter file
+        parameter will throw an AssertionError
+    parameter_file: str | None
+        Full path to the parameter file. If `None`, calling `parameter_file_parameters` will throw an AssertionError
     parameter_file_parameters: list
         List of parameters to be read from the parameter file. Two options are available for each element in the list:
         - "parameter_name" - outputs the value of the parameter directly into the template
@@ -150,6 +152,7 @@ def write_run_file(
         - If an unknown configuration parameter is requested
         - If strip mode is requested, but no characters to strip are provided
         - If strip mode is requested, but the characters to strip field is not a string
+        - If `asc_dsc` is `None` or `track` is `None` and dictionary mode is requested
 
     """
     if config_parameters is not None:
@@ -162,6 +165,7 @@ def write_run_file(
     ft.close()
 
     if parameter_file_parameters is not None:
+        assert parameter_file is not None, "parameter_file_parameters is not None but parameter_file is None!"
         for parameter_file_parameter in parameter_file_parameters:
             if isinstance(parameter_file_parameter, str):
                 value = read_parameter_file(parameter_file, [parameter_file_parameter])[parameter_file_parameter]
@@ -174,6 +178,12 @@ def write_run_file(
                     value = value.upper()
                 elif parameter_file_parameter[1] == "dictionary":
                     sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"].lower()
+                    assert (
+                        asc_dsc is not None
+                    ), f"Dictionary mode requested for {parameter_file_parameter} but asc_dsc is None!"
+                    assert (
+                        track is not None
+                    ), f"Dictionary mode requested for {parameter_file_parameter} but track is None!"
                     key = f"{sensor}_{asc_dsc}_t{track:0>3d}"
                     value = eval(value)[key]
                 elif parameter_file_parameter[1] == "strip":

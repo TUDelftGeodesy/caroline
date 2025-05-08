@@ -44,7 +44,13 @@ def finish_installation() -> None:
         f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
     )["jobs"]
     job_keys = list(
-        set([job_definitions[job]["parameter-file-step-key"] for job in job_definitions.keys() if job is not None])
+        set(
+            [
+                job_definitions[job]["parameter-file-step-key"]
+                for job in job_definitions.keys()
+                if job_definitions[job]["parameter-file-step-key"] is not None
+            ]
+        )
     )
 
     for parameter_file in parameter_files:

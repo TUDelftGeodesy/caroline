@@ -8,6 +8,10 @@ and `NNN` the three-letter area of interest abbreviation.
 
 ### Autonomous Coregistered Stack Building module
 
+#### Download submodule
+
+- `SD`: Sentinel-1 Download (for one-time full-period downloads, periodic downloads of the last month are managed by [manage-s1-download.sh](../scripts/manage-s1-download.sh))
+
 #### Coregistration submodule
 
 - `D4`: DeInSAR
@@ -26,7 +30,7 @@ None yet
 
 ### Contextual Enrichment module
 
-None yet
+None yet, managed by [contextual-data-definitions.yaml](../config/contextual-data-definitions.yaml) and [manage-contextual-data.sh](../scripts/manage-contextual-data.sh)
 
 ### Recursive Parameter Estimation module
 
@@ -48,7 +52,7 @@ None yet
 
 - `DP`: DePSI-post
 - `MR`: Read mrm
-- `PU`: Portal upload
+- `PU`: Portal upload preparation (the actual upload is managed by [manage-portal-upload.sh](../scripts/manage-portal-upload.sh))
 - `TB`: Tarball creation
 
 ### Push module
@@ -63,9 +67,17 @@ None yet
 
 ## Area of Interest Abbreviations
 
+### Belgium, Luxembourg, and the Netherlands
+
+- `BLX`: be_lu_nl_benelux
+
 ### Greece
 
 - `GST`: gr_santorini
+
+### Iceland
+
+- `IIC`: is_iceland (inactive)
 
 ### Indonesia
 

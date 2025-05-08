@@ -6,54 +6,54 @@
 
 active = 1
 
-project_owner          = 'Ramon'
-project_owner_email    = 'r.f.hanssen@tudelft.nl'
+project_owner          = 'Freek'
+project_owner_email    = 'f.j.vanleijen@tudelft.nl'
 project_engineer       = 'Simon'
 project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
-project_objective      = 'Time series production over the Grijpskerk gas fields.'
-project_notes          = 'Requested together with nl_schoonebeek.'
-three_letter_id        = "NGK" # for in the squeue
+project_objective      = 'Data download over the entire Benelux.'
+project_notes          = 'Tracks 8 and 59 excluded.'
+three_letter_id        = "BLX" # for in the squeue
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
 product_type       = "SLC"
 
-dependency         = 'nl_groningen'
+dependency         = 'None'
 
-do_s1_download     = 0
+do_s1_download     = 1
 
 do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
-do_crop_to_raw     = 1  # Requires coregistration (here or dependency)
-do_crop_to_zarr    = 1  # Requires coregistration (here or dependency)
+do_crop_to_raw     = 0  # Requires coregistration (here or dependency)
+do_crop_to_zarr    = 0  # Requires coregistration (here or dependency)
 
-do_depsi           = 1  # Requires crop_to_raw (here or dependency). Does not use crop_to_zarr
+do_depsi           = 0  # Requires crop_to_raw (here or dependency). Does not use crop_to_zarr
 
-do_depsi_post      = 1  # Requires depsi (here or dependency)
+do_depsi_post      = 0  # Requires depsi (here or dependency)
 depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 
 # The portal will be https://caroline.portal-tud.skygeo.com/portal/<skygeo_customer>/<skygeo_viewer>/viewers/basic/
 skygeo_customer    = 'caroline'  # default 'caroline', only recommended to change if one wants to share data with others
-skygeo_viewer      = 'nl_grijpskerk'
+skygeo_viewer      = 'be_lu_nl_benelux'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
-coregistration_AoI_name   = 'nl_groningen'
+coregistration_AoI_name   = 'be_lu_nl_benelux'
 coregistration_directory  = '/project/caroline/Share/stacks'
 
-crop_to_raw_AoI_name    = 'nl_grijpskerk'
+crop_to_raw_AoI_name    = 'be_lu_nl_benelux'
 crop_to_raw_directory   = '/project/caroline/Share/crops'
 
-crop_to_zarr_AoI_name   = 'nl_grijpskerk'
+crop_to_zarr_AoI_name   = 'be_lu_nl_benelux'
 crop_to_zarr_directory  = '/project/caroline/Share/stacks_zarr'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
-depsi_AoI_name   = 'nl_grijpskerk'
-depsi_directory  = '/project/caroline/Share/projects/nl_grijpskerk/depsi'
+depsi_AoI_name   = 'be_lu_nl_benelux'
+depsi_directory  = '/project/caroline/Share/projects/be_nl_lu_benelux/depsi'
 
-shape_AoI_name   = 'nl_grijpskerk'
-shape_directory  = '/project/caroline/Software/config/roi/crops/nl_grijpskerk'
+shape_AoI_name   = 'be_lu_nl_benelux'
+shape_directory  = '/project/caroline/Software/config/roi/download/be_lu_nl_benelux'
 
-shape_file = '/project/caroline/Share/users/caroline-admin/caroline-aoi-shapefiles/nl_grijpskerk/Grijpskerk.shp'
+shape_file = '/project/caroline/Share/users/caroline-admin/caroline-aoi-shapefiles/be_lu_nl_benelux/Netherlands_roi.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
 center_AoI = [52.371436, 4.897088]  # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size
@@ -65,8 +65,8 @@ AoI_length = 1 # km, north-south AoI size
 track = []  # keep empty
 asc_dsc = []  # keep empty
 include_tracks = []
-exclude_tracks = ['s1_dsc_t110']
-start_date = '2000-01-01' # will search for first image after this date that exists
+exclude_tracks = ['s1_dsc_t008', 's1_asc_t059']
+start_date = '2014-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
 master_date= '2020-03-25' # will search for first image after this date that exists
 
@@ -75,7 +75,7 @@ master_date= '2020-03-25' # will search for first image after this date that exi
 # send_completion_email = ''  # empty for no email
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl'  # emails Simon
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl'  # emails Simon and Ramon
-send_completion_email = 's.a.n.vandiepen@tudelft.nl,y.a.lumbangaol@tudelft.nl,r.f.hanssen@tudelft.nl,f.j.vanleijen@tudelft.nl,l.hagenah@tudelft.nl'
+send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl'
 
 # specify the partition on which the steps will run. This is short (up to 10h, max 2 jobs), normal (up to 5 days), or infinite (up to 12 days)
 # the longer the time period, the more difficult it is to schedule
@@ -89,11 +89,11 @@ depsi_post_partition     = 'normal'
 ################# DEM PARAMETERS ############
 #############################################
 
-dem_file            = '/project/caroline/Share/dem/netherlands_srtm/netherlands_SRTM.raw'
+dem_file            = '/project/caroline/Share/dem/gr_santorini/gr_santorini.raw'
 dem_format          = 'r4'
-dem_size            = [14400, 21600]
+dem_size            = [14338, 22632]
 dem_delta           = [0.00027778, 0.00027778]
-dem_upperleft       = [54, 3]
+dem_upperleft       = [38.1, 22.2]
 dem_nodata          = -32768
 
 #############################################
@@ -182,7 +182,7 @@ max_mem_buffer    = 50e7
 visible_plots     = 'n'
 detail_plots      = 'n'
 processing_groups = []  # [7,8] to run groups 7 and 8
-run_mode          = 'validation'
+run_mode          = 'normal'
 
 exclude_date = ''
 
@@ -205,13 +205,13 @@ ifg_selection_input = []
 ref_cn              = 'constant'
 
 Ncv                 = 25
-ps_method           = 'perio'
-psc_model           = [1]
-ps_model            = [1]
-final_model         = [2]
+ps_method           = 'boot'
+psc_model           = [4]
+ps_model            = [4]
+final_model         = [4]
 breakpoint          = []
 breakpoint2         = []
-ens_coh_threshold   = 0.5
+ens_coh_threshold   = 0.40
 varfac_threshold    = 3
 detrend_method      = 'yes'
 output_format       = 1
@@ -225,10 +225,10 @@ ref_height = 0
 # Psc parameters
 amplitude_calibration  = 'yes'
 psc_selection_method   = 'threshold'
-psc_selection_gridsize = 300
+psc_selection_gridsize = 400
 psc_threshold          = 0.3
-max_arc_length         = 5000
-network_method         = 'spider'
+max_arc_length         = 8000
+network_method         = 'delaunay'
 Ncon                   = 16
 Nparts                 = 8
 Npsc_selections        = 1
@@ -244,7 +244,7 @@ peak_tolerance         = 0.9
 
 # Ps parameters
 psp_selection_method = 'ampdisp'
-psp_threshold1       = 0.5
+psp_threshold1       = 0.4
 psp_threshold2       = []
 ps_eval_method       = 'psp'
 Namp_disp_bins       = 100

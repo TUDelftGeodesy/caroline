@@ -43,10 +43,14 @@ def finish_installation() -> None:
     job_definitions = get_config(
         f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
     )["jobs"]
-    job_keys = list(set([job_definitions[job]["parameter-file-step-key"] for job in job_definitions.keys()]))
+    job_keys = list(
+        set([job_definitions[job]["parameter-file-step-key"] for job in job_definitions.keys() if job is not None])
+    )
 
     for parameter_file in parameter_files:
         aoi_name = parameter_file.split("/")[-1].split("param_file_")[-1].split(".")[0]
+
+        os.system(f'''echo "Processing AoI {aoi_name}..."''')
 
         # first generate the shapefile if it does not yet exist
 

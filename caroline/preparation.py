@@ -1,3 +1,4 @@
+import datetime as dt
 import glob
 import os
 import sys
@@ -1734,6 +1735,8 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
     tracks = eval(out_parameters["track"])
     asc_dsc = eval(out_parameters["asc_dsc"])
 
+    date = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+
     for track in range(len(tracks)):
         if isinstance(do_track, int):
             if tracks[track] != do_track:
@@ -1744,13 +1747,13 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
 
         os.makedirs(
             f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
-            f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}",
+            f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}",
             exist_ok=True,
         )
         write_run_file(
             save_path=(
                 f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
-                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}/roi.wkt"
+                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/roi.wkt"
             ),
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/roi.wkt",
             asc_dsc=asc_dsc[track],
@@ -1762,7 +1765,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
         write_run_file(
             save_path=(
                 f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
-                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}/geosearch.yaml"
+                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/geosearch.yaml"
             ),
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/geosearch.yaml",
             asc_dsc=asc_dsc[track],
@@ -1771,10 +1774,25 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
             parameter_file_parameters=["product_type", "start_date"],
             other_parameters={
                 "wkt_file": (
-                    f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}/roi.wkt"
+                    f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+                    f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/roi.wkt"
                 ),
                 "orbits_csv": tracks[track],
             },
+        )
+
+        # actually perform the download (first load the virtual environment, then run the caroline-download command)
+        os.system(
+            "source /etc/profile.d/modules.sh; "
+            "source /project/caroline/Software/bin/init.sh; "
+            "module load python/3.10.4 gdal/3.4.1-alma9; "
+            "source ~/.bashrc; "
+            f"source {CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
+            "caroline-download --config "
+            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/download-config.yaml "
+            "--geo-search "
+            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+            f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/geosearch.yaml"
         )
 
 

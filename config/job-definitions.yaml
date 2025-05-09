@@ -20,7 +20,7 @@ jobs:
       sensor: "S1"
 
   doris:
-    requirement:
+    requirement: "s1_download"
     two-letter-id: "D5"
     parameter-file-step-key: "do_coregistration"
     partition: "coregistration_partition"

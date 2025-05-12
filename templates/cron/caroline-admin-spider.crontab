@@ -25,6 +25,7 @@
 CAROLINE=/project/caroline/Software/caroline
 0   */5 *   *   *     bash ${CAROLINE}/scripts/run-caroline.sh  # every 5 hours
 0   *   *   *   *     bash ${CAROLINE}/scripts/manage-portal-upload.sh  # every hour
+0   *   *   *   *     bash ${CAROLINE}/scripts/manage-s1-download.sh   # every hour
 0   2   *   *   *     bash ${CAROLINE}/scripts/create-overview-kml.sh  # every day at 2 am
 0   2   *   *   *     bash ${CAROLINE}/scripts/manage-contextual-data.sh  # every day at 2 am
 0   1   *   *   *     bash ${CAROLINE}/scripts/email-log.sh  # every day at 1 am

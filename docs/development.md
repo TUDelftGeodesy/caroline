@@ -101,7 +101,6 @@ All jobs are started using [scripts/start_job.sh](../scripts/start_job.sh), whic
 5. the CAROLINE virtual environment directory
 6. (optional) the directory in which the bash file is located
 7. (optional) the name of the bash file (without the full path)
-8. (optional) the name of the file to which to write the SLURM job ID (for the email generation)
 
 If 5 arguments are passed, only the preparation function is run. If all 8 are passed, the preparation function is run, and then the bash file. All of this is handled by the [scheduler](../caroline/scheduler.py). 
 
@@ -149,7 +148,7 @@ In some cases (e.g. the job `email`) there is no processing to be done. In this 
 
 In order to fully integrate a new job into CAROLINE, the following steps need to be undertaken (we will use `DePSI` as an example)
 
-1. Define the job name (fully lowercase). In our example case: `depsi`
+1. Define the job name (fully lowercase without dashes, underscores are allowed). In our example case: `depsi`
 2. In [config/job-definitions.yaml](../config/job-definitions.yaml), add an entry for the job formatted as follows:
    1. Add the job name in between the jobs between which the job should appear in the email, one tab in. All other keys will be one tab in from this key (so two total)
    2. Add the necessary keys (one tab in) (leaving empty will set the value to `None`:
@@ -193,4 +192,5 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
    1. `do_<parameter-file-step-key>`, a 0/1 boolean switch whether or not to execute the job. Leave to 0 for all jobs you do not want this to run on.
    2. `<bash-file-base-directory>_AoI_name`, the name of the AoI in that job
    3. `<bash-file-base-directory>_directory`, the directory in which the job should run
-10. Finally, update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)
+10. Update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)
+11. Update the [changelog](../CHANGELOG.md) with the new version

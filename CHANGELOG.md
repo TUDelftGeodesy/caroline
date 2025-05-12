@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed:
 - `nl_groningen_cubic` now runs on the same crop as `nl_groningen`
 - Added the previous developers back in [README.md](README.md)
+- Tracks now only trigger on new images that originate in the last 30 days, to prevent repeat triggering during the running of an `s1_download` job
 
 ### Removed:
 - Deprecated `download` directory, as it is replaced by the [caroline-download](https://github.com/TUDelftGeodesy/caroline-download) package

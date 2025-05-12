@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 import os
 import xml.etree.ElementTree as ET
@@ -426,7 +427,14 @@ def parse_start_files(new_insar_files_file: str, force_start_file: str) -> tuple
         lines = data.split("\n")
         for line in lines:
             if CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"] in line:
-                new_tracks_list.append(line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[1])
+                track = line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[1]
+
+                # check if the image was acquired in the last 30 days: if not, we do not want to start
+                date = line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[2]
+                today = dt.datetime.now().strftime("%Y%m%d")
+                delta_t = dt.datetime.strptime(today, "%Y%m%d") - dt.datetime.strptime(date, "%Y%m%d")
+                if delta_t.days <= 30:
+                    new_tracks_list.append(track)
 
         new_tracks_list = list(sorted(list(set(new_tracks_list))))  # to make it unique and sorted
 

@@ -31,15 +31,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `s1_download` job
 - Periodic downloads are now part of CAROLINE proper instead of its separate environment
 - This changelog
+- AoIs `be_lu_nl_benelux` and `is_iceland`
+- area-track-lists are now directly generated, with controls to include or exclude specific tracks
+
 
 ### Changed:
 - `nl_groningen_cubic` now runs on the same crop as `nl_groningen`
 - Added the previous developers back in [README.md](README.md)
 - Tracks now only trigger on new images that originate in the last 30 days, to prevent repeat triggering during the running of an `s1_download` job
+- Whether or not an AoI is active is now specified in the parameter file
 
 ### Removed:
 - Deprecated `download` directory, as it is replaced by the [caroline-download](https://github.com/TUDelftGeodesy/caroline-download) package
-
+- Deprecated `config/area-track-lists` directory
 
 ## [v2.2.2](https://github.com/TUDelftGeodesy/caroline/tree/f9f14bd19aab322adc28f1f552b2f8a59af23fba) (07-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ffe9e7556051f9432e95c5dc0ce0d2192805fed1...f9f14bd19aab322adc28f1f552b2f8a59af23fba))
 

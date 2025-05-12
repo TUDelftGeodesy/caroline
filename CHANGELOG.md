@@ -38,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed:
 - `nl_groningen_cubic` now runs on the same crop as `nl_groningen`
 - Added the previous developers back in [README.md](README.md)
-- Tracks now only trigger on new images that originate in the last 30 days, to prevent repeat triggering during the running of an `s1_download` job
+- Tracks now only trigger on new images of VV+VH polarisation that were acquired in the last 30 days, to prevent repeat triggering during the running of an `s1_download` job
 - Whether or not an AoI is active is now specified in the parameter file
 
 ### Removed:

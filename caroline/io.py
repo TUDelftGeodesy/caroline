@@ -430,11 +430,13 @@ def parse_start_files(new_insar_files_file: str, force_start_file: str) -> tuple
                 track = line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[1]
 
                 # check if the image was acquired in the last 30 days: if not, we do not want to start
-                date = line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[2]
+                date = line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[3]
                 today = dt.datetime.now().strftime("%Y%m%d")
                 delta_t = dt.datetime.strptime(today, "%Y%m%d") - dt.datetime.strptime(date, "%Y%m%d")
                 if delta_t.days <= 30:
-                    new_tracks_list.append(track)
+                    polarisation = line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[2]
+                    if polarisation == "IW_SLC__1SDV_VVVH":
+                        new_tracks_list.append(track)
 
         new_tracks_list = list(sorted(list(set(new_tracks_list))))  # to make it unique and sorted
 

@@ -305,6 +305,11 @@ postgres=#
 - Simon van Diepen <S.A.N.vanDiepen@tudelft.nl>
 - Niels Jansen <N.H.Jansen@tudelft.nl>
 
+
+Previous developers:
+- Manuel Garcia Alvarez <M.G.GarciaAlvarez@tudelft.nl> 
+- Marc Bruna <M.F.D.Bruna@tudelft.nl> 
+
 ## Repository admins
 
 - Simon van Diepen <S.A.N.vanDiepen@tudelft.nl>

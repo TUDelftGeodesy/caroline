@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Caroline"
-version = "2.2.2"
+version = "2.3.0"
 requires-python = ">=3.10"
 dependencies = [
     "apache-airflow",
@@ -13,6 +13,7 @@ dependencies = [
     "matplotlib",
     "psycopg2-binary",
     "sarxarray",
+    "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@main"
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"
 readme = "README.md"
@@ -84,9 +85,8 @@ lint.ignore = [
 ] # docstring style
 
 line-length = 120
-include = ["prototype/caroline/caroline_main/caroline_v1.0/**.py", "caroline/**", "scripts/**"]
-exclude = ["prototype/caroline/caroline_main/caroline_v1.0/files/deinsar/run_deinsar.py",
-    "prototype/caroline/caroline_main/caroline_v1.0/files/reslc/reslc.py", "*.m", "*.txt", "*.sh"]
+include = ["caroline/**", "scripts/**"]
+exclude = ["*.m", "*.txt", "*.sh"]
 # Allow unused variables when underscore-prefixed.
 lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py310"

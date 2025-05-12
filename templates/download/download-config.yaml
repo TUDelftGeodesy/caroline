@@ -1,0 +1,9 @@
+---
+# caroline-download.yml
+
+download:
+  base_directory: "**slc_base_directory**"
+
+logging:
+  file_log:
+    file: "**caroline_work_directory**/caroline-download.log"

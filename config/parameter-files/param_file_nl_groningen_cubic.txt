@@ -1,8 +1,10 @@
-# Parameter file for a full doris, cropping, depsi, and depsi_post run, with portal upload possibility.
+# Parameter file for all CAROLINE jobs
 
 ############################################
 ############# GENERAL PARAMETERS ###########
 ############################################
+
+active = 1
 
 project_owner          = 'Alex'
 project_owner_email    = 'a.m.lapadat@tudelft.nl'
@@ -14,10 +16,15 @@ three_letter_id        = "NGC" # for in the squeue
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
 polarisation       = ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
+product_type       = "SLC"
+
+dependency         = 'nl_groningen'
+
+do_s1_download     = 0
 
 do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
-do_crop_to_raw     = 1  # Requires coregistration (here or dependency)
+do_crop_to_raw     = 0  # Requires coregistration (here or dependency)
 do_crop_to_zarr    = 1  # Requires coregistration (here or dependency)
 
 do_depsi           = 1  # Requires crop (here or dependency). Does not use reslc
@@ -44,16 +51,21 @@ depsi_AoI_name   = 'nl_groningen_cubic'
 depsi_directory  = '/project/caroline/Share/projects/nl_groningen/depsi'
 
 shape_AoI_name   = 'nl_groningen'
-shape_directory  = '/project/caroline/Software/config/roi/crops/nl_groningen_cubic'
+shape_directory  = '/project/caroline/Software/config/roi/stacks/nl_groningen'
 
-shape_file = '/project/caroline/Share/projects/igrs/groningen_igrs/polygon/polygon_igrs_gro.shp' #'/project/caroline/Share/users/caroline-alapadat/projects/jakarta_s1_processing_caroline/nl_groningen_large/Jakarta_extent_NWP.shp'
+shape_file = '/project/caroline/Share/projects/deepnl/aoi/groningen/groningen_aoi-polygon.shp'
 # above should be empty ( '' ) if you want to generate a square with parameters below, otherwise path to shape file (.shp, same directory should contain corresponding .dbf, .prj, .shx)
 center_AoI = [] # Latitude, longitude
 AoI_width  = 1 # km, east-west AoI size
 AoI_length = 1 # km, north-south AoI size
 
-track = []  # Can be multiple tracks!
-asc_dsc = []
+# For Sentinel-1, the tracks will be automatically detected and `track` and `asc_dsc` will be overwritten. In some cases, more tracks are detected than we want to process.
+# In these cases we can exclude them in `exclude_tracks` in the format `s1_dsc_t008`. If tracks that we want to process are not detected, they can be specified in `include_tracks`
+# For other sensors, the tracks cannot be automatically detected. Here all tracks should be specified in `include_tracks` in the format `tsx_asc_t116`
+track = []  # keep empty
+asc_dsc = []  # keep empty
+include_tracks = []
+exclude_tracks = []
 start_date = '2018-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
 master_date= '2020-03-25' # will search for first image after this date that exists

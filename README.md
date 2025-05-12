@@ -50,20 +50,24 @@ A cron job is a job that starts at a regular interval. On Spider, these can be m
 - The fifth field (`*`) is the day of the week, in this case every day.
 
 
-CAROLINE runs using four cron jobs as shown in `templates/cron/caroline-admin-spider.crontab`:
+CAROLINE runs using six cron jobs as shown in the [crontab](templates/cron/caroline-admin-spider.crontab):
 
 
 ```cron
 CAROLINE=/project/caroline/Software/caroline
 0   */5 *   *   *     bash ${CAROLINE}/scripts/run-caroline.sh  # every 5 hours
 0   *   *   *   *     bash ${CAROLINE}/scripts/manage-portal-upload.sh  # every hour
+0   *   *   *   *     bash ${CAROLINE}/scripts/manage-s1-download.sh   # every hour
 0   2   *   *   *     bash ${CAROLINE}/scripts/create-overview-kml.sh  # every day at 2 am
+0   2   *   *   *     bash ${CAROLINE}/scripts/manage-contextual-data.sh  # every day at 2 am
 0   1   *   *   *     bash ${CAROLINE}/scripts/email-log.sh  # every day at 1 am
 ```
-- The first script, `run-caroline.sh`, checks for new downloads every 5 hours and starts the corresponding workflows as defined in the `config` directory.
-- The second script, `manage-portal-upload.sh`, checks every hour if new jobs are ready to be pushed to the portal.
-- The third script, `create-overview-kml.sh`, creates an overview of all available data on Spider at 2am every night.
-- The fourth script, `email-log.sh`, sends an email to an admin account at 1am every night containing everything that happened the previous day.
+- [run-caroline.sh](scripts/run-caroline.sh) checks for new downloads every 5 hours and starts the corresponding workflows as defined in the `config` directory.
+- [manage-portal-upload.sh](scripts/manage-portal-upload.sh) checks every hour if new jobs are ready to be pushed to the portal.
+- [manage-s1-download.sh](scripts/manage-s1-download.sh) checks every hour if new images over all AoIs have become available, and downloads them
+- [create-overview-kml.sh](scripts/create-overview-kml.sh) creates an overview of all available data on Spider at 2am every night.
+- [manage-contextual-data.sh](scripts/manage-contextual-data.sh) updates the contextual data as defined in the [contextual data definitions](config/contextual-data-definitions.yaml) at 2am every night.
+- [email-log.sh](scripts/email-log.sh) sends an email to an admin account at 1am every night containing everything that happened the previous day.
 
 On Spider, the crontab is installed on `ui-01` on the `caroline-admin` account.
 
@@ -304,6 +308,11 @@ postgres=#
 - Freek van Leijen <F.J.vanLeijen@tudelft.nl>
 - Simon van Diepen <S.A.N.vanDiepen@tudelft.nl>
 - Niels Jansen <N.H.Jansen@tudelft.nl>
+
+
+Previous developers:
+- Manuel Garcia Alvarez <M.G.GarciaAlvarez@tudelft.nl> 
+- Marc Bruna <M.F.D.Bruna@tudelft.nl> 
 
 ## Repository admins
 

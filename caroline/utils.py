@@ -3,10 +3,11 @@ import os
 import zipfile
 from typing import Literal
 
+import asf_search as asf
 import numpy as np
 
 from caroline.config import get_config
-from caroline.io import create_shapefile, link_shapefile, read_parameter_file
+from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent
 
 CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
@@ -617,3 +618,52 @@ def write_directory_contents(directory: str, filename: str = "dir_contents.txt")
     f = open(f"{directory}/{filename}", "w")
     f.write(save_string)
     f.close()
+
+
+def convert_shp_to_wkt(shp_filename: str) -> str:
+    """Convert a shapefile to a WKT string.
+
+    Parameters
+    ----------
+    shp_filename: str
+        Full path to the shapefile
+
+    Returns
+    -------
+    str
+        WKT string of the shape contained in the shapefile
+    """
+    shp = read_shp_extent(shp_filename, shp_type="AoI")["0"]
+    wkt = f"POLYGON(({', '.join(f'{x[0]} {x[1]}' for x in shp)}))"
+    return wkt
+
+
+def identify_s1_orbits_in_aoi(shp_filename: str) -> list[str]:
+    """Identify the Sentinel-1 orbit numbers and directions crossing a AoI.
+
+    Parameters
+    ----------
+    shp_filename: str
+        Full path to the shapefile of the AoI
+
+    Returns
+    -------
+    str
+        WKT string of the shape contained in the shapefile
+    """
+    wkt = convert_shp_to_wkt(shp_filename)
+    slcs = asf.geo_search(
+        intersectsWith=wkt,
+        platform=asf.PLATFORM.SENTINEL1,
+        beamMode="IW",
+        processingLevel="SLC",
+        start="one month ago",
+        end="now",
+    )
+    orbits = [
+        f"s1_{slc.properties['flightDirection'].lower().replace('e', '')[:3]}_t{slc.properties['pathNumber']:0>3d}"
+        for slc in slcs
+    ]
+
+    filtered_orbits = list(sorted(list(set(orbits))))
+    return filtered_orbits

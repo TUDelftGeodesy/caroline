@@ -179,7 +179,7 @@ jobs:
       depsi_post_mode: "csv"
 
   email:
-    requirement: ["depsi_post", "depsi", "crop_to_zarr", "crop_to_raw", "doris", "deinsar"]
+    requirement: ["depsi_post", "depsi", "crop_to_zarr", "crop_to_raw", "doris", "deinsar", "s1_download", "portal_upload"]
     two-letter-id: "EM"
     parameter-file-step-key:
     partition: "short"

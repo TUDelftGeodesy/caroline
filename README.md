@@ -28,12 +28,12 @@ The current documentation still mostly pertains to v0.1.0. In v2.0.0, the contin
   - [Developers](#developers)
   - [Repository admins](#repository-admins)
 
-# Terminology
+# Important [terminology](docs/glossary.md)
 - A <b>module</b> is a block in the CAROLINE architecture. An example is the <i>autonomous stack building</i> module. A module has one or more submodules.
 - A <b>submodule</b> is a component of a module. An example is <i>coregistration</i>, part of the <i>autonomous stack building</i> module. A submodule has one or more jobs.
-- A <b>job</b> is a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>coregistration</i> submodule contains three jobs: <i>Doris v5</i> (Sentinel-1 coregistration), <i>Doris v5 cleanup</i>, and <i>DeInSAR</i> (for coregistration of other sensors). A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.
+- A <b>job</b> is a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>coregistration</i> submodule contains three jobs: <i>Doris</i> (Sentinel-1 coregistration), <i>Doris cleanup</i>, and <i>DeInSAR</i> (for coregistration of other sensors). A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.
 - A <b>function</b> is a Python function.
-- A <b>plugin</b> is an external software package that is called by CAROLINE to execute a job. An example is the <i>Doris v5.0.4</i> plugin, used in the job <i>Doris v5</i> in the coregistration submodule.
+- A <b>plugin</b> is an external software package that is called by CAROLINE to execute a job. An example is the <i>Doris v5.0.4</i> plugin, used in the job <i>Doris</i> in the coregistration submodule.
 - A <b>patch</b> is an amendment to a plugin, where the original plugin code does not function as intended for CAROLINE. All patches are located in the `patches` directory, using the exact same folder structure as will be generated in the directory read from the `CAROLINE_PLUGINS_DIRECTORY` setting.
 - A <b>workflow</b> is the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a coregistered stack, the workflow is crop_to_raw > DePSI > read mrm > DePSI_post > portal upload
 

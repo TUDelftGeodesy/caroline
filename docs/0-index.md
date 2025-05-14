@@ -1,15 +1,11 @@
-# CAROLINE Developer's Documentation
+# CAROLINE Documentation
 
 ## Table of Contents
 1. [Overview](overview.md)
-2. [Abbreviations](abbreviations.md)
-3. [Development](development.md)
-1. [Deployment](deployment.md)
-1. [Download Engine](download-engine.md)
-1. [Processing Engine](processing-engine.md)
-1. [Workflow Manager: Airflow](airflow.md)
-    * [Custom Operators](custom-operators.md)
-    * [Connections](connections.md)
-1. [DAGs](dags.md)
-    * [Interferogram Template](template-interferogram.md)
+2. [Glossary](glossary.md)
+3. [Architecture](architecture.md)
+4. [Management](management.md)
+   * [squeue abbreviations](abbreviations.md)
+5. [Development](development.md)
+
    

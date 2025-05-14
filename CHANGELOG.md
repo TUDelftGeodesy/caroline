@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -->
 
-## [v2.3.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (12-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/f9f14bd19aab322adc28f1f552b2f8a59af23fba...main))
+## [v2.3.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (14-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/826b716e2a7c26d8ce9858f2b567530a9e5161c8...main))
+
+### Fixed:
+- `email` will now be dependent on `portal_upload` and `s1_download` to prevent the email sending before these jobs finish
+
+## [v2.3.0](https://github.com/TUDelftGeodesy/caroline/tree/826b716e2a7c26d8ce9858f2b567530a9e5161c8) (12-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/f9f14bd19aab322adc28f1f552b2f8a59af23fba...826b716e2a7c26d8ce9858f2b567530a9e5161c8))
 
 ### Added:
 - `s1_download` job

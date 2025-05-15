@@ -25,7 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -->
 
-## [v2.3.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ce3446d783f4ff33703d94de39e7fd5bcd7b9035...main))
+## [v2.3.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b1fca0f40ad5794540efba78d1fbd787a61bd665...main))
+
+### Added:
+- `bash-file-directory-is-reusable` key in [job-definitions.yaml](config/job-definitions.yaml), indicating whether or not consecutive runs can run in the same directory. If `False`, directories will be appended with a date to make the directory unique.
+
+### Changed:
+- `DePSI` now starts to run in a date-affixed directory so that runs cannot interfere with one another any more by moving the directory.
+- `email` now has `"*"` as a requirement which will be interpreted as being a dependency to all other jobs.
+
+
+## [v2.3.2](https://github.com/TUDelftGeodesy/caroline/tree/b1fca0f40ad5794540efba78d1fbd787a61bd665) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ce3446d783f4ff33703d94de39e7fd5bcd7b9035...b1fca0f40ad5794540efba78d1fbd787a61bd665))
 
 ### Changed:
 - `nl_groningen_cubic` no longer runs `crop_to_zarr`

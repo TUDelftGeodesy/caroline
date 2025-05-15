@@ -1273,7 +1273,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
                 continue
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["coregistration"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=track
         )
 
         # we need a process folder in the coregistration directory, so we can combine that command

@@ -9,7 +9,7 @@ This file details the definitions of terms used in the [CAROLINE architecture](#
 - <b>function</b>: a Python function.
 - <b>plugin</b>: an external software package that is called by CAROLINE to execute a job. An example is the <i>Doris v5.0.4</i> plugin, used in the job <i>Doris v5</i> in the coregistration submodule.
 - <b>patch</b>: an amendment to a plugin, where the original plugin code does not function as intended for CAROLINE. All patches are located in the `patches` directory, using the exact same folder structure as will be generated in the directory read from the `CAROLINE_PLUGINS_DIRECTORY` setting.
-- <b>workflow</b>: the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a coregistered stack, the workflow is crop_to_raw > DePSI > read mrm > DePSI_post > portal upload
+- <b>workflow</b>: the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a coregistered stack, the workflow is `crop_to_raw` > `DePSI` > `mrm` > `DePSI_post` > `portal upload`
 
 - <b>status file</b>: a file detailing the status, progress, and errors of a job, produced by the job itself (so not the command line output). 
 

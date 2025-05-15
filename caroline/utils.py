@@ -44,8 +44,8 @@ def format_process_folder(job_description: dict, parameter_file: str, track: int
         parameter_file,
         [f"{directory_key}_directory", f"{directory_key}_AoI_name", "sensor", "asc_dsc", "track"],
     )
-    base_folder = f"{directory_key}_directory"
-    AoI_name = f"{directory_key}_AoI_name"
+    base_folder = parameters[f"{directory_key}_directory"]
+    AoI_name = parameters[f"{directory_key}_AoI_name"]
     sensor = parameters["sensor"]
     asc_dsc = eval(parameters["asc_dsc"])[eval(parameters["track"]).index(track)]
 

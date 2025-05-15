@@ -76,7 +76,7 @@ def remove_incomplete_sentinel1_images(parameter_file: str):
 
     for track in range(len(tracks)):
         base_folder = format_process_folder(
-            parameter_file=parameter_file, job_description=doris_job_definition, track=track
+            parameter_file=parameter_file, job_description=doris_job_definition, track=tracks[track]
         )
         f = open(f"{base_folder}/good_images/zip_files.txt")
         data = f.read().split("\n")

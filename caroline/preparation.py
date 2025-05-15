@@ -220,17 +220,17 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
                 continue
 
         crop_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
 
         if out_parameters["sensor"] == "S1":
             coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=track
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
             )
 
         else:
             coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=track
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
             )
 
         os.makedirs(crop_directory, exist_ok=True)
@@ -313,17 +313,17 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
                 continue
 
         crop_to_zarr_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
 
         if out_parameters["sensor"] == "S1":
             coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=track
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
             )
 
         else:
             coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=track
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
             )
 
         os.makedirs(crop_to_zarr_directory, exist_ok=True)
@@ -464,7 +464,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         ), f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d} is not in di_data_directories!"
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
         )
 
         # we need a process folder in the coregistration directory, so we can combine that command
@@ -866,11 +866,11 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 continue
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
         crop_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
 
         # we need a psi and boxes folder in the depsi directory
@@ -1146,7 +1146,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
                 continue
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
         # link the DePSI-post box
@@ -1273,7 +1273,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
                 continue
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
         )
 
         # we need a process folder in the coregistration directory, so we can combine that command
@@ -1466,7 +1466,7 @@ def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = Non
                 continue
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_cleanup"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_cleanup"], track=tracks[track]
         )
 
         write_run_file(
@@ -1551,11 +1551,11 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
                 continue
 
         crop_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
         # we need to run cpxfiddle first. This requires two parameters: n_lines, and the project ID
@@ -1637,7 +1637,7 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
                 continue
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
         # The parameter file already contains a datestamp so we don't need to redo that
@@ -1771,7 +1771,7 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
                 continue
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=track
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
         project_id = depsi_directory.split("/")[-2].split("-")[0]

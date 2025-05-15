@@ -25,7 +25,7 @@ do_s1_download     = 0
 do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 
 do_crop_to_raw     = 0  # Requires coregistration (here or dependency)
-do_crop_to_zarr    = 1  # Requires coregistration (here or dependency)
+do_crop_to_zarr    = 0  # Requires coregistration (here or dependency)
 
 do_depsi           = 1  # Requires crop (here or dependency). Does not use reslc
 
@@ -40,10 +40,10 @@ skygeo_viewer      = 'nl_groningen'
 coregistration_AoI_name   = 'nl_groningen'
 coregistration_directory  = '/project/caroline/Share/stacks'
 
-crop_to_raw_AoI_name    = 'nl_groningen_cubic'
+crop_to_raw_AoI_name    = 'nl_groningen'
 crop_to_raw_directory   = '/project/caroline/Share/crops'
 
-crop_to_zarr_AoI_name   = 'nl_groningen_cubic'
+crop_to_zarr_AoI_name   = 'nl_groningen'
 crop_to_zarr_directory  = '/project/caroline/Share/stacks_zarr'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)

@@ -25,7 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -->
 
-## [v2.3.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (14-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/826b716e2a7c26d8ce9858f2b567530a9e5161c8...main))
+## [v2.3.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ce3446d783f4ff33703d94de39e7fd5bcd7b9035...main))
+
+### Changed:
+- `nl_groningen_cubic` no longer runs `crop_to_zarr`
+
+### Fixed:
+- `nl_groningen_cubic` will now read the correct crop from `nl_groningen`
+
+
+## [v2.3.1](https://github.com/TUDelftGeodesy/caroline/tree/ce3446d783f4ff33703d94de39e7fd5bcd7b9035) (14-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/826b716e2a7c26d8ce9858f2b567530a9e5161c8...ce3446d783f4ff33703d94de39e7fd5bcd7b9035))
 
 ### Fixed:
 - `email` will now be dependent on `portal_upload` and `s1_download` to prevent the email sending before these jobs finish

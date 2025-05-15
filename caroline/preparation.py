@@ -19,6 +19,9 @@ from caroline.utils import (
 )
 
 CONFIG_PARAMETERS = get_config()
+JOB_DEFINITIONS = get_config(
+    f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
+)["jobs"]
 
 
 def finish_installation() -> None:
@@ -199,12 +202,8 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
         the parameter file
     """
     search_parameters = [
-        "coregistration_directory",
-        "coregistration_AoI_name",
         "track",
         "asc_dsc",
-        "crop_to_raw_directory",
-        "crop_to_raw_AoI_name",
         "sensor",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
@@ -221,19 +220,18 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
                 continue
 
         crop_directory = format_process_folder(
-            base_folder=out_parameters["crop_to_raw_directory"],
-            AoI_name=out_parameters["crop_to_raw_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
-        coregistration_directory = format_process_folder(
-            base_folder=out_parameters["coregistration_directory"],
-            AoI_name=out_parameters["coregistration_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-        )
+
+        if out_parameters["sensor"] == "S1":
+            coregistration_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
+            )
+
+        else:
+            coregistration_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
+            )
 
         os.makedirs(crop_directory, exist_ok=True)
 
@@ -270,10 +268,10 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
             config_parameters=["caroline_install_directory"],
         )
 
-        directory_appendix = get_config(
-            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
-        )["jobs"]["crop_to_raw"]["directory-contents-file-appendix"]
-        write_directory_contents(crop_directory, filename=f"dir_contents{directory_appendix}.txt")
+        write_directory_contents(
+            crop_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["crop_to_raw"]["directory-contents-file-appendix"]}.txt',
+        )
 
 
 def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -315,20 +313,18 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
                 continue
 
         crop_to_zarr_directory = format_process_folder(
-            base_folder=out_parameters["crop_to_zarr_directory"],
-            AoI_name=out_parameters["crop_to_zarr_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
 
-        coregistration_directory = format_process_folder(
-            base_folder=out_parameters["coregistration_directory"],
-            AoI_name=out_parameters["coregistration_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-        )
+        if out_parameters["sensor"] == "S1":
+            coregistration_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
+            )
+
+        else:
+            coregistration_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
+            )
 
         os.makedirs(crop_to_zarr_directory, exist_ok=True)
 
@@ -393,10 +389,10 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             other_parameters={"track": tracks[track]},
         )
 
-        directory_appendix = get_config(
-            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
-        )["jobs"]["crop_to_zarr"]["directory-contents-file-appendix"]
-        write_directory_contents(crop_to_zarr_directory, filename=f"dir_contents{directory_appendix}.txt")
+        write_directory_contents(
+            crop_to_zarr_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["crop_to_zarr"]["directory-contents-file-appendix"]}.txt',
+        )
 
 
 def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -468,11 +464,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         ), f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d} is not in di_data_directories!"
 
         coregistration_directory = format_process_folder(
-            base_folder=out_parameters["coregistration_directory"],
-            AoI_name=out_parameters["coregistration_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
         )
 
         # we need a process folder in the coregistration directory, so we can combine that command
@@ -818,10 +810,10 @@ S_IN_LEA        leader.xml"""
             other_parameters={"data_string": data_string},
         )
 
-        directory_appendix = get_config(
-            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
-        )["jobs"]["deinsar"]["directory-contents-file-appendix"]
-        write_directory_contents(coregistration_directory, filename=f"dir_contents{directory_appendix}.txt")
+        write_directory_contents(
+            coregistration_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["deinsar"]["directory-contents-file-appendix"]}.txt',
+        )
 
 
 def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -874,33 +866,21 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 continue
 
         depsi_directory = format_process_folder(
-            base_folder=out_parameters["depsi_directory"],
-            AoI_name=out_parameters["depsi_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
         crop_directory = format_process_folder(
-            base_folder=out_parameters["crop_to_raw_directory"],
-            AoI_name=out_parameters["crop_to_raw_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
 
-        # if a previous run exists, first move it out of the way
-        if os.path.exists(depsi_directory):
-            os.system(f'''mv "{depsi_directory}" "{depsi_directory}-$(date +%Y%m%dT%H%M%S)"''')
-
         # we need a psi and boxes folder in the depsi directory
-        os.makedirs(f"{depsi_directory}/psi", exist_ok=True)
-        os.makedirs(f"{depsi_directory}/boxes", exist_ok=True)
+        os.makedirs(f"{depsi_directory}", exist_ok=True)
+        os.makedirs(f"{depsi_directory}/../boxes", exist_ok=True)
 
         # link the necessary boxes
-        os.system(f"cp -Rp {out_parameters['depsi_code_dir']} {depsi_directory}/boxes")
-        os.system(f"cp -Rp {out_parameters['rdnaptrans_dir']} {depsi_directory}/boxes")
-        os.system(f"cp -Rp {out_parameters['geocoding_dir']} {depsi_directory}/boxes")
+        os.system(f"cp -Rp {out_parameters['depsi_code_dir']} {depsi_directory}/../boxes")
+        os.system(f"cp -Rp {out_parameters['rdnaptrans_dir']} {depsi_directory}/../boxes")
+        os.system(f"cp -Rp {out_parameters['geocoding_dir']} {depsi_directory}/../boxes")
 
         # detect the mother and dem_radar from the mother
         mother = glob.glob(f"{crop_directory}/*cropped_stack/2*/master.res")[0]
@@ -909,8 +889,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         mother_date = mother.split("/")[-2]
 
         # link the mother resfile and dem_radar
-        os.system(f"ln -sf {mother} {depsi_directory}/psi/slave.res")
-        os.system(f"ln -sf {dem_radar} {depsi_directory}/psi/dem_radar.raw")
+        os.system(f"ln -sf {mother} {depsi_directory}/slave.res")
+        os.system(f"ln -sf {dem_radar} {depsi_directory}/dem_radar.raw")
 
         # find the first and last valid dates within range
         if os.path.exists(f"{crop_directory}/cropped_stack/path_res_files.txt"):
@@ -962,7 +942,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             ref_cn = mode.replace(" ", "")  # remove spaces since Matlab doesn't like them
         elif mode == "constant":
             # find the old runs
-            directories = glob.glob(f"{depsi_directory}-*")
+            directories = glob.glob(f"{'-'.join(depsi_directory.split('-')[:-1])}-*")
             ref_cn = "[]"
             if len(directories) == 0:
                 # no old runs are present, so we run on mode 'independent' for the initialization
@@ -990,7 +970,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
 
         # write depsi.m
         write_run_file(
-            save_path=f"{depsi_directory}/psi/depsi.m",
+            save_path=f"{depsi_directory}/depsi.m",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/depsi.m",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1003,7 +983,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
 
         # write depsi.sh
         write_run_file(
-            save_path=f"{depsi_directory}/psi/depsi.sh",
+            save_path=f"{depsi_directory}/depsi.sh",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/depsi.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1016,7 +996,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         # create param_file_depsi.txt
         #
         write_run_file(
-            save_path=f"{depsi_directory}/psi/param_file_depsi.txt",
+            save_path=f"{depsi_directory}/param_file_depsi.txt",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/param_file.txt",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1101,10 +1081,9 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             },
         )
 
-        directory_appendix = get_config(
-            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
-        )["jobs"]["depsi"]["directory-contents-file-appendix"]
-        write_directory_contents(f"{depsi_directory}/psi", filename=f"dir_contents{directory_appendix}.txt")
+        write_directory_contents(
+            depsi_directory, filename=f'dir_contents{JOB_DEFINITIONS["depsi"]["directory-contents-file-appendix"]}.txt'
+        )
 
 
 def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1167,19 +1146,15 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
                 continue
 
         depsi_directory = format_process_folder(
-            base_folder=out_parameters["depsi_directory"],
-            AoI_name=out_parameters["depsi_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
         # link the DePSI-post box
-        os.system(f"cp -Rp {out_parameters['depsi_post_dir']} {depsi_directory}/boxes")
+        os.system(f"cp -Rp {out_parameters['depsi_post_dir']} {depsi_directory}/../boxes")
 
         # write depsi_post.m
         write_run_file(
-            save_path=f"{depsi_directory}/psi/depsi_post.m",
+            save_path=f"{depsi_directory}/depsi_post.m",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi_post/depsi_post.m",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1239,7 +1214,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
 
         # write depsi_post.sh
         write_run_file(
-            save_path=f"{depsi_directory}/psi/depsi_post.sh",
+            save_path=f"{depsi_directory}/depsi_post.sh",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi_post/depsi_post.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1249,10 +1224,10 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
             other_parameters={"track": tracks[track], "depsi_base_directory": depsi_directory},
         )
 
-        directory_appendix = get_config(
-            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
-        )["jobs"]["depsi_post"]["directory-contents-file-appendix"]
-        write_directory_contents(f"{depsi_directory}/psi", filename=f"dir_contents{directory_appendix}.txt")
+        write_directory_contents(
+            depsi_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["depsi_post"]["directory-contents-file-appendix"]}.txt',
+        )
 
 
 def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1298,11 +1273,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
                 continue
 
         coregistration_directory = format_process_folder(
-            base_folder=out_parameters["coregistration_directory"],
-            AoI_name=out_parameters["coregistration_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
         )
 
         # we need a process folder in the coregistration directory, so we can combine that command
@@ -1457,10 +1428,10 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
             other_parameters={"track": tracks[track], "coregistration_directory": coregistration_directory},
         )
 
-        directory_appendix = get_config(
-            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
-        )["jobs"]["doris"]["directory-contents-file-appendix"]
-        write_directory_contents(coregistration_directory, filename=f"dir_contents{directory_appendix}.txt")
+        write_directory_contents(
+            coregistration_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["doris"]["directory-contents-file-appendix"]}.txt',
+        )
 
 
 def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1495,11 +1466,7 @@ def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = Non
                 continue
 
         coregistration_directory = format_process_folder(
-            base_folder=out_parameters["coregistration_directory"],
-            AoI_name=out_parameters["coregistration_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_cleanup"], track=tracks[track]
         )
 
         write_run_file(
@@ -1584,18 +1551,11 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
                 continue
 
         crop_directory = format_process_folder(
-            base_folder=out_parameters["crop_to_raw_directory"],
-            AoI_name=out_parameters["crop_to_raw_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
+
         depsi_directory = format_process_folder(
-            base_folder=out_parameters["depsi_directory"],
-            AoI_name=out_parameters["depsi_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
         # we need to run cpxfiddle first. This requires two parameters: n_lines, and the project ID
@@ -1607,14 +1567,14 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         project_id = depsi_directory.split("/")[-1]
 
         # format the arguments in the correct order
-        command_args = f"{project_id} {n_lines} 1 1 {out_parameters['cpxfiddle_dir']} {depsi_directory}/psi"
+        command_args = f"{project_id} {n_lines} 1 1 {out_parameters['cpxfiddle_dir']} {depsi_directory}"
         os.system(
             f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_mrm_ras_header.sh "
             f"{command_args}"
         )
 
         write_run_file(
-            save_path=f"{depsi_directory}/psi/read_mrm.m",
+            save_path=f"{depsi_directory}/read_mrm.m",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/mrm/read_mrm.m",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1630,7 +1590,7 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         )
 
         write_run_file(
-            save_path=f"{depsi_directory}/psi/read_mrm.sh",
+            save_path=f"{depsi_directory}/read_mrm.sh",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/mrm/read_mrm.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1643,10 +1603,9 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             },
         )
 
-        directory_appendix = get_config(
-            f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
-        )["jobs"]["mrm"]["directory-contents-file-appendix"]
-        write_directory_contents(f"{depsi_directory}/psi", filename=f"dir_contents{directory_appendix}.txt")
+        write_directory_contents(
+            depsi_directory, filename=f'dir_contents{JOB_DEFINITIONS["mrm"]["directory-contents-file-appendix"]}.txt'
+        )
 
 
 def prepare_portal_upload(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1661,18 +1620,13 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
         the parameter file
     """
     search_parameters = [
-        "depsi_directory",
-        "depsi_AoI_name",
         "track",
-        "asc_dsc",
-        "sensor",
         "skygeo_customer",
         "skygeo_viewer",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
     tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1683,11 +1637,7 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
                 continue
 
         depsi_directory = format_process_folder(
-            base_folder=out_parameters["depsi_directory"],
-            AoI_name=out_parameters["depsi_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
         # The parameter file already contains a datestamp so we don't need to redo that
@@ -1698,7 +1648,7 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
         f = open(portal_upload_file, "w")
         f.write(
             f"Status: TBD\n"
-            f"Directory: {depsi_directory}/psi\n"
+            f"Directory: {depsi_directory}\n"
             f"Viewer: {out_parameters['skygeo_viewer']}\n"
             f"Customer: {out_parameters['skygeo_customer']}"
         )
@@ -1807,17 +1757,10 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
         Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
         the parameter file
     """
-    search_parameters = [
-        "depsi_directory",
-        "depsi_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
-    ]
+    search_parameters = ["track"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
     tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1828,14 +1771,10 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
                 continue
 
         depsi_directory = format_process_folder(
-            base_folder=out_parameters["depsi_directory"],
-            AoI_name=out_parameters["depsi_AoI_name"],
-            sensor=out_parameters["sensor"],
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
-        project_id = depsi_directory.split("/")[-1]
+        project_id = depsi_directory.split("/")[-2].split("-")[0]
         os.system(
             f"cd {depsi_directory}; "
             f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_post_project_tar.sh {project_id}"

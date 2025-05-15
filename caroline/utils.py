@@ -1,7 +1,6 @@
 import glob
 import os
 import zipfile
-from typing import Literal
 
 import asf_search as asf
 import numpy as np
@@ -13,30 +12,44 @@ CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
 
 
-def format_process_folder(
-    base_folder: str, AoI_name: str, sensor: str, asc_dsc: Literal["asc", "dsc"], track: int
-) -> str:
+def format_process_folder(job_description: dict, parameter_file: str, track: int) -> str:
     """Format a processing folder name based on processing characteristics.
 
     Parameters
     ----------
-    base_folder: str
-        base folder in which the process will run
-    AoI_name: str
-        Name of the process AoI
-    sensor: str
-        Name of the sensor
-    asc_dsc: Literal["asc", "dsc"]
-        Whether the track is ascending (asc) or descending (dsc)
+    job_description: dict
+        Dictionary readout from `config/job-definitions.yaml` of the job that the processing folder should be
+        generated for.
+    parameter_file: str
+        Full path to the parameter file for which the processing folder should be generated.
     track: int
-        Track number
+        Track for which the processing should be generated.
 
     Returns
     -------
     str
         Absolute path of the processing folder
     """
-    return f"{base_folder}/{AoI_name}_{sensor.lower()}_{asc_dsc.lower()}_t{track:0>3d}"
+    if job_description["bash-file"] is None:
+        raise ValueError(f"Cannot generate directory for job {job_description} as bash-file key is None!")
+
+    directory_key = job_description["bash-file"]["bash-file-base-directory"]
+    directory_appendix = job_description["bash-file"]["bash-file-directory-appendix"]
+    directory_reusable = job_description["bash-file"]["bash-file-directory-is-reusable"]
+
+    if not directory_reusable:  # we need to append a date to the file -> the date in the parameter file name
+        directory_appendix = f"""-{parameter_file.split("_")[-1].split(".")[0]}{directory_appendix}"""
+
+    parameters = read_parameter_file(
+        parameter_file,
+        [f"{directory_key}_directory", f"{directory_key}_AoI_name", "sensor", "asc_dsc", "track"],
+    )
+    base_folder = parameters[f"{directory_key}_directory"]
+    AoI_name = parameters[f"{directory_key}_AoI_name"]
+    sensor = parameters["sensor"]
+    asc_dsc = eval(parameters["asc_dsc"])[eval(parameters["track"]).index(track)]
+
+    return f"{base_folder}/{AoI_name}_{sensor.lower()}_{asc_dsc.lower()}_t{track:0>3d}{directory_appendix}"
 
 
 def remove_incomplete_sentinel1_images(parameter_file: str):
@@ -50,21 +63,20 @@ def remove_incomplete_sentinel1_images(parameter_file: str):
         Full path to the parameter file of the processing run where the images are to be filtered
 
     """
-    search_parameters = ["coregistration_directory", "coregistration_AoI_name", "track", "asc_dsc", "sensor"]
+    search_parameters = ["track"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
     tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
 
     status = []
 
+    doris_job_definition = get_config(
+        f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
+    )["jobs"]["doris"]
+
     for track in range(len(tracks)):
         base_folder = format_process_folder(
-            out_parameters["coregistration_directory"],
-            out_parameters["coregistration_AoI_name"],
-            out_parameters["sensor"],
-            asc_dsc[track],
-            tracks[track],
+            parameter_file=parameter_file, job_description=doris_job_definition, track=tracks[track]
         )
         f = open(f"{base_folder}/good_images/zip_files.txt")
         data = f.read().split("\n")
@@ -395,28 +407,10 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
         )
 
         # find the directory
-        parameters = read_parameter_file(
-            parameter_file,
-            [
-                f"{data['bash-file']['bash-file-base-directory']}_directory",
-                f"{data['bash-file']['bash-file-base-directory']}_AoI_name",
-                "sensor",
-                "track",
-                "asc_dsc",
-            ],
-        )
+        parameters = read_parameter_file(parameter_file, ["track"])
         track = eval(parameters["track"])[0]  # as there is only one
-        asc_dsc = eval(parameters["asc_dsc"])[0]
-        base_directory = (
-            format_process_folder(
-                base_folder=parameters[f"{data['bash-file']['bash-file-base-directory']}_directory"],
-                AoI_name=parameters[f"{data['bash-file']['bash-file-base-directory']}_AoI_name"],
-                sensor=parameters["sensor"],
-                asc_dsc=asc_dsc,
-                track=track,
-            )
-            + data["bash-file"]["bash-file-directory-appendix"]
-        )
+
+        base_directory = format_process_folder(parameter_file=parameter_file, job_description=data, track=track)
 
         dir_file = f"{base_directory}/dir_contents{data['directory-contents-file-appendix']}.txt"
         if os.path.exists(dir_file):

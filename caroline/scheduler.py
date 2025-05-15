@@ -120,6 +120,9 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
                     # we need to figure out the dependencies
                     requirement = job_definitions[step[3:]]["requirement"]
                     if requirement is not None:
+                        if requirement == "*":  # this one should wait for everything
+                            requirement = [step_[3:] for step_ in out_parameters.keys() if step_ != step]
+
                         # if the step is a string, it is one option
                         if isinstance(requirement, str):
                             # if the step is run in the same parameter file, that is the dependency
@@ -325,21 +328,11 @@ def submit_processes(sorted_processes: list) -> None:
                 f"{CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}"
             )
         else:  # generate the path to the bash file, then add it as the sixth argument
-            parameters = read_parameter_file(
-                frozen_parameter_file,
-                [
-                    f"{job_definitions[job]['bash-file']['bash-file-base-directory']}_directory",
-                    f"{job_definitions[job]['bash-file']['bash-file-base-directory']}_AoI_name",
-                ],
-            )
             base_directory = format_process_folder(
-                base_folder=parameters[f"{job_definitions[job]['bash-file']['bash-file-base-directory']}_directory"],
-                AoI_name=parameters[f"{job_definitions[job]['bash-file']['bash-file-base-directory']}_AoI_name"],
-                sensor=track.split("_")[0],
-                asc_dsc=track.split("_")[1],
+                parameter_file=frozen_parameter_file,
+                job_description=job_definitions[job],
                 track=eval(track.split("_")[2][1:].lstrip("0")),
             )
-            base_directory += job_definitions[job]["bash-file"]["bash-file-directory-appendix"]
 
             start_job_arguments = (
                 f"{frozen_parameter_file} {track.split('_')[2][1:].lstrip('0')} {job} "

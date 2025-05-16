@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -->
 
-## [v2.3.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b1fca0f40ad5794540efba78d1fbd787a61bd665...main))
+## [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/4ac2eec43afb2a3f99f293b036d360455e04f4b1...main))
+
+### Fixed:
+- `mrm` now reads the correct project ID again
+
+## [v2.3.3](https://github.com/TUDelftGeodesy/caroline/tree/4ac2eec43afb2a3f99f293b036d360455e04f4b1) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b1fca0f40ad5794540efba78d1fbd787a61bd665...4ac2eec43afb2a3f99f293b036d360455e04f4b1))
 
 ### Added:
 - `bash-file-directory-is-reusable` key in [job-definitions.yaml](config/job-definitions.yaml), indicating whether or not consecutive runs can run in the same directory. If `False`, directories will be appended with a date to make the directory unique.

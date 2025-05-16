@@ -1564,7 +1564,7 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         fr.close()
         n_lines = data[0]
 
-        project_id = depsi_directory.split("/")[-1]
+        project_id = depsi_directory.split("/")[-2].split("-")[0]
 
         # format the arguments in the correct order
         command_args = f"{project_id} {n_lines} 1 1 {out_parameters['cpxfiddle_dir']} {depsi_directory}"

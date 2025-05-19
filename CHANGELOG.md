@@ -392,7 +392,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AoI `nl_amsterdam` 
 
 ### Changed
-- CAROLINE now supports `SLURM`-managed HPCs instead of `Queue Submission`-managed HPCs
+- CAROLINE now supports `SLURM`-managed HPCs instead of `Torque`-managed HPCs
 - `Stack stitching` output is now stored in `cropped_stack` instead of `<AoI_name>_cropped_stack`
 - `Stack stitching` output files no longer have the `AoI_name` in the name
 - `cpxfiddle` is treated as a plugin instead of an always available command

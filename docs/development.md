@@ -6,8 +6,9 @@ CAROLINE is a software package that is never finished. Here you can therefore re
 - [Linting and formatting](#linting-and-formatting)
 - [Documentation](#documentation)
 - [General GitHub management](#general-github-management)
+- [Adding a new AoI](#adding-a-new-aoi)
 - [Adding a new job](#adding-a-new-job)
-  - [Job architecture](#job-architecture)
+  - [Job design](#job-design)
     - [The preparation function](#the-preparation-function)
     - [The bash file](#the-bash-file)
   - [The necessary steps for adding a job](#the-necessary-steps-for-adding-a-job)
@@ -84,9 +85,13 @@ For any changes to the repository (including AoI changes), the following steps a
 7. Pass the code review, and merge the pull request.
 8. Ask the [Admins](../README.md#contacts) to update the installation on Spider (See [Installing on Spider](../README.md#installation-on-spider))
 
+
+## Adding a new AoI
+
+
 ## Adding a new job
 
-### Job architecture
+### Job design
 
 Jobs are the core of CAROLINE, as they are what submodules and modules are composed of. Here we will use the `DePSI` job as an example. A job consists of one or two parts:
 
@@ -167,7 +172,7 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
          3. `bash-file-directory-appendix`: a folder to add to the base directory name. In case of `depsi`, this is `/psi`, since DePSI runs in the `psi` folder within the base directory of `depsi`. If it should be empty, leave it to `""`.
       9. `filters`: in case the job should only run if specific conditions are met, these can be specified here. If left empty, it will assume no filters are present and any parameter file can start this job. If a filter (e.g. satellite) is present, use the following syntax:
          1. one tab in, add `<parameter-file-key>: <allowed-value(s)>`. `<allowed-value(s)>` can be either a `str` or `list` of `str`. If the value of the specified key in the parameter file is in the provided allowed values, the job will start. Otherwise, the job will not be scheduled.
-         2. If multiple filters are necessary, add the next filter using the same syntax on a new line.
+         2. If multiple filters are necessary, add the next filter using the same syntax on a new line. The job will only start if _all_ filters are satisfied.
 3. Add the two letter job ID to [abbreviations.md](abbreviations.md)
 4. In [preparation.py](../caroline/preparation.py), create the function `prepare_<jobname>` that takes exactly two arguments: 
     
@@ -194,3 +199,4 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
    3. `<bash-file-base-directory>_directory`, the directory in which the job should run
 10. Update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)
 11. Update the [changelog](../CHANGELOG.md) with the new version
+12. Update the documentation (at the very least [architecture.md](architecture.md) and the [glossary](glossary.md), likely more)

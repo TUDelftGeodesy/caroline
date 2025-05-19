@@ -25,7 +25,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -->
 
-## [v2.3.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (14-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/826b716e2a7c26d8ce9858f2b567530a9e5161c8...main))
+## [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/4ac2eec43afb2a3f99f293b036d360455e04f4b1...main))
+
+### Fixed:
+- `mrm` now reads the correct project ID again
+
+## [v2.3.3](https://github.com/TUDelftGeodesy/caroline/tree/4ac2eec43afb2a3f99f293b036d360455e04f4b1) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b1fca0f40ad5794540efba78d1fbd787a61bd665...4ac2eec43afb2a3f99f293b036d360455e04f4b1))
+
+### Added:
+- `bash-file-directory-is-reusable` key in [job-definitions.yaml](config/job-definitions.yaml), indicating whether or not consecutive runs can run in the same directory. If `False`, directories will be appended with a date to make the directory unique.
+
+### Changed:
+- `DePSI` now starts to run in a date-affixed directory so that runs cannot interfere with one another any more by moving the directory.
+- `email` now has `"*"` as a requirement which will be interpreted as being a dependency to all other jobs.
+
+
+## [v2.3.2](https://github.com/TUDelftGeodesy/caroline/tree/b1fca0f40ad5794540efba78d1fbd787a61bd665) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ce3446d783f4ff33703d94de39e7fd5bcd7b9035...b1fca0f40ad5794540efba78d1fbd787a61bd665))
+
+### Changed:
+- `nl_groningen_cubic` no longer runs `crop_to_zarr`
+
+### Fixed:
+- `nl_groningen_cubic` will now read the correct crop from `nl_groningen`
+
+
+## [v2.3.1](https://github.com/TUDelftGeodesy/caroline/tree/ce3446d783f4ff33703d94de39e7fd5bcd7b9035) (14-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/826b716e2a7c26d8ce9858f2b567530a9e5161c8...ce3446d783f4ff33703d94de39e7fd5bcd7b9035))
 
 ### Fixed:
 - `email` will now be dependent on `portal_upload` and `s1_download` to prevent the email sending before these jobs finish

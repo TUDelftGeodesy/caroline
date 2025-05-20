@@ -76,20 +76,43 @@ For any changes to the repository (including AoI changes), the following steps a
 2. Create a branch off of the issue (on the right in the Development tab)
 3. Checkout the branch in your local repository. Now you are free to change everything you want.
 4. In case of changes beyond the parameter files and documentation, test your additions. This can generally not be done on your local laptop, so instead you can create a install a separate copy of your branch on Spider using the instructions in [README.md - Personal testing version](../README.md#installation-on-spider---personal-testing-version). You may need to create a special parameter file intended for testing, for an example see [this parameter file](../config/parameter-files/param_file_TEST_nl_amsterdam.txt).
-5. Update the versioning. The versioning for CAROLINE consists of three numbers: `X.Y.Z` (e.g. `2.0.12`)
+5. Update the versioning in [pyproject.toml](../pyproject.toml). The versioning for CAROLINE consists of three numbers: `X.Y.Z` (e.g. `2.0.12`)
    1. For minor code updates (AoI changes, bugfixes, and so on): `X.Y.Z` -> `X.Y.Z+1` (e.g. `2.0.12` -> `2.0.13`)
    2. For documentation updates: `X.Y.Z` -> `X.Y.Z` (e.g. `2.0.12` -> `2.0.12`)
    3. For job additions (see [Adding a new job](#adding-a-new-job)): `X.Y.Z` -> `X.Y+1.0` (e.g. `2.0.12` -> `2.1.0`)
    4. For major architecture changes: `X.Y.Z` -> `X+1.0.0` (e.g. `2.0.12` -> `3.0.0`)
-6. Create a pull request, and ensure the ruff check passes.
-7. Pass the code review, and merge the pull request.
-8. Ask the [Admins](../README.md#contacts) to update the installation on Spider (See [Installing on Spider](../README.md#installation-on-spider))
+6. Update the documentation (if necessary) and [Changelog](../CHANGELOG.md) (always necessary)
+7. Create a pull request, and ensure the ruff check passes.
+8. Pass the code review, and merge the pull request.
+9. Ask the [Admins](../README.md#contacts) to update the installation on Spider (See [Installing on Spider](../README.md#installation-on-spider---live-version))
 
 
 ## Adding a new AoI
 
+1. Following the [general GitHub management](#general-github-management) steps 1-3, create an issue and a branch, and check it out locally. 
+2. Copy [config/parameter-files/param_file_nl_amsterdam.txt](../config/parameter-files/param_file_nl_amsterdam.txt) into the same directory with the name `param_file_<2-letter-country-ID>_<region-name>.txt`.
+3. Decide on the exact AoI. There are two options for this:
+   1. Generate a rectangular AoI by following the instructions around line 57 in the parameter file.
+   2. Generate your own AoI as a shapefile:
+      1. In Google Earth, draw the polygon of the AoI
+      2. Save the polygon as `.kmz`
+      3. Using https://mygeodata.cloud/converter/kmz-to-shp , convert the `.kmz` to `.shp`, leaving all parameters unaltered. The output is a ZIP file containing five files with extensions `.cpg`, `.dbf`, `.prj`, `.shp`, `.shx`. 
+      4. Upload the five files in the folder to Spider in a location you can remember using the command `scp -i /path/to/your/ssh/key /path/to/your/unzipped/shp/file/<shapefile_name>.* caroline-<user>@spider.surfsara.nl:/project/caroline/Share/path/to/your/storage/location`. The `.*` should copy all five files to this location. Fill the full path to the `.shp` file in in the `shapefile_name` field
+4. Modify the parameters in the parameter file to your needs, see [parameter-file.md](parameter-file.md) for an explanation on all parameters. Pay special attention to:
+   - All parameters in the `General` section (Sentinel-1 tracks will be automatically detected but can be force-included or force-excluded, for other sensors all tracks need to be specified)
+   - The DEM, especially if not processing in the Netherlands. If no DEM is available in your AoI, follow the steps in [#67](https://github.com/TUDelftGeodesy/caroline/issues/67) to generate the DEM (just the DEM part) (NOTE: with [#248](https://github.com/TUDelftGeodesy/caroline/issues/248) the DEM generation will be deprecated).
+   - Note that stacks are all stored in `/project/caroline/Share/stacks`, crops in `/project/caroline/Share/crops`, zarr stacks in `/project/caroline/Share/stacks_zarr`, DePSI runs in `/project/caroline/Share/projects/<country_code>_<region_of_interest>/depsi`, and shapefiles in `/project/caroline/Software/roi/<first step that will be run out of stacks / crops / depsi>/<country_code>_<region_of_interest>` for consistency.
+5. Follow steps 5-9 of the [general GitHub management](#general-github-management). Once complete, your new AoI will be live.
 
+A few notes:
+- If you included the `s1_download` step in your processing, the download parameters will be automatically generated during the installation on Spider. The following logic is then automatically followed:
+  - The periodic download in [manage-s1-download.sh](../scripts/manage-s1-download.sh) will during its next call download the last month of data on the tracks that were detected
+  - [run-caroline.sh](../scripts/run-caroline.sh) will detect the new SLC zip files and start your new AoI
+  - The first job that is run is `s1_download`, which will per track download all SLC zip files in the period you specified before continuing to coregistration.
+- If `s1_download` is the _only_ step that is run, no `area-track-list` is generated and the AoI will never be started by [run-caroline.sh](../scripts/run-caroline.sh), as it is assumed this AoI is only to trigger the periodic download (e.g. the `be_lu_nl_benelux` AoI).
+- Download configurations are removed when an AoI is [deactivated](management.md#activating--deactivating-an-aoi).
 ## Adding a new job
+
 
 ### Job design
 
@@ -98,7 +121,7 @@ Jobs are the core of CAROLINE, as they are what submodules and modules are compo
 - A preparation function in [caroline/preparation.py](../caroline/preparation.py) called `prepare_<job>` (always)
 - A bash file from [templates](../templates) (optional)
 
-All jobs are started using [scripts/start_job.sh](../scripts/start_job.sh), which takes 5 required arguments and 3 optional arguments:
+All jobs are started using [scripts/start_job.sh](../scripts/start_job.sh), which takes 5 required arguments and 2 optional arguments:
 1. the parameter file (full path)
 2. the track (integer)
 3. the job type (e.g. `depsi`)

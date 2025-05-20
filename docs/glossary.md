@@ -32,8 +32,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * AoI in `.shp` format
     * output:
       * Original SLCs
-- <b>doris_v5</b>: this job performs the basic interferometric Sentinel-1 procedure per image pair. This includes coregistration, resampling, interferogram generation, reference DEM (including reference ellipsoid) subtraction, burst merging, and geocoding.
-FULL LIST FROM EMAIL.
+- <b>doris_v5</b>: this job performs the basic interferometric Sentinel-1 procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
     * input:
       * Original SLCs
       * AoI in `.shp` format
@@ -52,7 +51,7 @@ FULL LIST FROM EMAIL.
       * A directory in which `doris_v5` has run
     * output:
       * The removal of intermediate files not necessary for any subsequent step
-- <b>doris_v4</b>: CHECK WITH OUTPUT FROM ACTUAL FILE WHICH STEPS ARE INCLUDED AND INCLUDE THAT HERE. this job performs coregistration for `"ERS", "ENV", "TSX", "TDX", "PAZ", "RSAT2", "Cosmo", "ALOS2"`. 
+- <b>doris_v4</b>: this job performs the basic interferometric  procedure per image pair for the sensors `"ERS", "ENV", "TSX", "TDX", "PAZ", "RSAT2", "Cosmo"`, and `"ALOS2"`. This includes cropping, orbit corrections, coregistration, resampling, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, coherence estimation, and geocoding.
     * input:
       * Original SLCs
       * AoI in `.shp` format

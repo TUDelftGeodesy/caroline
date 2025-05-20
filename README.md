@@ -120,6 +120,7 @@ cd caroline-pull
 
 Then, make sure you have an active SSH key on both GitHub and Bitbucket. If you need to generate a new key, use the following command, and follow the steps on GitHub and Bitbucket to add the SSH key to your account. If you already have an active SSH key, you can ignore this step.
 ```bash
+# only if you need to set up a connection to GitHub or Bitbucket
 ssh-keygen -t ed25519
 ```
 
@@ -141,7 +142,7 @@ cd caroline
 
 CAROLINE is now on the main branch, which is of course installable. **Optionally**, if you want to install a specific branch for testing, you can do so by running
 ```bash
-# This block is optional
+# This block is optional, only run it if you want to check out a branch other than main
 git checkout <branch-name>
 git pull
 ```

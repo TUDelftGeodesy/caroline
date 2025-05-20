@@ -6,6 +6,7 @@ CAROLINE is a software package that is never finished. Here you can therefore re
 - [Linting and formatting](#linting-and-formatting)
 - [Documentation](#documentation)
 - [General GitHub management](#general-github-management)
+- [Running tests](#running-tests)
 - [Adding a new AoI](#adding-a-new-aoi)
 - [Adding a new job](#adding-a-new-job)
   - [Job design](#job-design)
@@ -87,7 +88,7 @@ For any changes to the repository (including AoI changes), the following steps a
 9. Ask the [Admins](../README.md#contacts) to update the live installation on Spider (See [Installing on Spider](../README.md#installation-on-spider---live-version))
 
 ## Running tests
-Before running a test, make sure you have a local installation of Caroline on Spider (See [Installing on Spider - personal testing version](../README.md#installation-on-spider---personal-testing-version)).
+Due to the nature of Caroline, tests can generally not be done on a local installation as a SLURM-manager is required. Caroline should therefore be tested on the HPC. Before running a test, make sure you have a personal testing installation of Caroline on Spider (See [Installing on Spider - personal testing version](../README.md#installation-on-spider---personal-testing-version)).
 
 If during your testing you need to perform updates to your local installation, follow [updating the local installation](../README.md#updating-the-installation-1).
 
@@ -108,11 +109,11 @@ cd /project/caroline/Share/users/$(whoami)/caroline-test/run/caroline/work
 cd /project/caroline/Share/users/$(whoami)/caroline-test/caroline/scripts
 bash run-caroline.sh
 ```
-Once this command completes, your jobs are visible using the command `squeue --me`. You will receive an email when all jobs have finished. If you want to push layers to a portal, please ensure to add the portal manager cronjob to your [crontab](../README.md#the-way-it-works-cron).
+Once this command completes, your jobs are visible using the command `squeue --me`. You will receive an email when all jobs have finished with links to the log files. If you want to push layers to a portal, please ensure to add the portal manager cronjob to your [crontab](../README.md#the-way-it-works-cron).
 
 ## Adding a new AoI
 
-1. Following the [general GitHub management](#general-github-management) steps 1-3, create an issue and a branch, and check it out locally. 
+1. Following the [general GitHub management](#general-github-management) steps 1-3: create an issue and a branch, and check it out locally. 
 2. Copy [config/parameter-files/param_file_nl_amsterdam.txt](../config/parameter-files/param_file_nl_amsterdam.txt) into the same directory with the name `param_file_<2-letter-country-ID>_<region-name>.txt`.
 3. Decide on the exact AoI. There are two options for this:
    1. Generate a rectangular AoI by following the instructions around line 57 in the parameter file.

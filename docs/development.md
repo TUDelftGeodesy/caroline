@@ -75,7 +75,7 @@ For any changes to the repository (including AoI changes), the following steps a
 1. Create an issue on https://github.com/TUDelftGeodesy/caroline/issues (if the issue already exists, this can be skipped). Make sure to add proper labels.
 2. Create a branch off of the issue (on the right in the Development tab)
 3. Checkout the branch in your local repository. Now you are free to change everything you want.
-4. In case of changes beyond the parameter files and documentation, test your additions. This can generally not be done on your local laptop, so instead you can create a install a separate copy of your branch on Spider using the instructions in [README.md - Personal testing version](../README.md#installation-on-spider---personal-testing-version). You may need to create a special parameter file intended for testing, for an example see [this parameter file](../config/parameter-files/param_file_TEST_nl_amsterdam.txt).
+4. In case of changes beyond the parameter files and documentation, [test your additions in a testing environment](#running-tests).
 5. Update the versioning in [pyproject.toml](../pyproject.toml). The versioning for CAROLINE consists of three numbers: `X.Y.Z` (e.g. `2.0.12`)
    1. For minor code updates (AoI changes, bugfixes, and so on): `X.Y.Z` -> `X.Y.Z+1` (e.g. `2.0.12` -> `2.0.13`)
    2. For documentation updates: `X.Y.Z` -> `X.Y.Z` (e.g. `2.0.12` -> `2.0.12`)
@@ -84,8 +84,31 @@ For any changes to the repository (including AoI changes), the following steps a
 6. Update the documentation (if necessary) and [Changelog](../CHANGELOG.md) (always necessary)
 7. Create a pull request, and ensure the ruff check passes.
 8. Pass the code review, and merge the pull request.
-9. Ask the [Admins](../README.md#contacts) to update the installation on Spider (See [Installing on Spider](../README.md#installation-on-spider---live-version))
+9. Ask the [Admins](../README.md#contacts) to update the live installation on Spider (See [Installing on Spider](../README.md#installation-on-spider---live-version))
 
+## Running tests
+Before running a test, make sure you have a local installation of Caroline on Spider (See [Installing on Spider - personal testing version](../README.md#installation-on-spider---personal-testing-version)).
+
+If during your testing you need to perform updates to your local installation, follow [updating the local installation](../README.md#updating-the-installation-1).
+
+Then, follow these steps to start a test:
+1. Create an AoI you want to test on. There are two ways to do this:
+   1. Add a new parameter file to the codebase intended for testing, for an example see [this parameter file](../config/parameter-files/param_file_TEST_nl_amsterdam.txt).
+   2. Modify an existing parameter file. If you take this route, pay close attention to these things:
+      1. Make sure to move all processing directories away from the live version to your personal directories.
+      2. Make sure to update the `send_completion_email` field to only send emails to yourself (and optionally an admin)
+      3. Updating the installation will remove your modifications.
+2. (This assumes you followed the steps on [Installing on Spider - personal testing version](../README.md#installation-on-spider---personal-testing-version)) run the following command to go to the `work` directory:
+```bash
+cd /project/caroline/Share/users/$(whoami)/caroline-test/run/caroline/work
+```
+3. Add the AoI and track you want to test on to the force-starting AoIs by following the steps in [force-starting an AoI](management.md#force-starting-an-aoi).
+4. Run
+```bash
+cd /project/caroline/Share/users/$(whoami)/caroline-test/caroline/scripts
+bash run-caroline.sh
+```
+Once this command completes, your jobs are visible using the command `squeue --me`. You will receive an email when all jobs have finished. If you want to push layers to a portal, please ensure to add the portal manager cronjob to your [crontab](../README.md#the-way-it-works-cron).
 
 ## Adding a new AoI
 

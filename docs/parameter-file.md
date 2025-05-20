@@ -1,6 +1,6 @@
 # The CAROLINE parameter file
 
-## General paramteres
+## General parameters
 
 ## DEM parameters
 

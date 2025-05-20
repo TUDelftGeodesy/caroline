@@ -3,6 +3,7 @@
 ## Current architecture overview
 ![Architecture_v2.3.4](assets/Caroline_v2.3.4.png)
 
+
 ## Modules
 There are nine modules:
 1. The autonomous coregistered stack building module

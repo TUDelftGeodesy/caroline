@@ -25,10 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -->
 
-## [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/4ac2eec43afb2a3f99f293b036d360455e04f4b1...main))
+## [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (22-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/4ac2eec43afb2a3f99f293b036d360455e04f4b1...main))
+
+### Added:
+- Proper documentation on the [architecture](docs/architecture.md), a [glossary](docs/glossary.md), the [parameter files](docs/parameter-file.md), Caroline [management](docs/management.md)
 
 ### Fixed:
 - `mrm` now reads the correct project ID again
+- The [development](docs/development.md) now includes AoI management and documentation update references.
 
 ## [v2.3.3](https://github.com/TUDelftGeodesy/caroline/tree/4ac2eec43afb2a3f99f293b036d360455e04f4b1) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b1fca0f40ad5794540efba78d1fbd787a61bd665...4ac2eec43afb2a3f99f293b036d360455e04f4b1))
 

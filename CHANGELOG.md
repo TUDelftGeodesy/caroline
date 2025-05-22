@@ -25,10 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -->
 
-## [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/4ac2eec43afb2a3f99f293b036d360455e04f4b1...main))
+## [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (22-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/4ac2eec43afb2a3f99f293b036d360455e04f4b1...main))
+
+### Added:
+- Proper documentation on the [architecture](docs/architecture.md), a [glossary](docs/glossary.md), the [parameter files](docs/parameter-file.md), Caroline [management](docs/management.md)
 
 ### Fixed:
 - `mrm` now reads the correct project ID again
+- The [development](docs/development.md) now includes AoI management and documentation update references.
 
 ## [v2.3.3](https://github.com/TUDelftGeodesy/caroline/tree/4ac2eec43afb2a3f99f293b036d360455e04f4b1) (15-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b1fca0f40ad5794540efba78d1fbd787a61bd665...4ac2eec43afb2a3f99f293b036d360455e04f4b1))
 
@@ -392,7 +396,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AoI `nl_amsterdam` 
 
 ### Changed
-- CAROLINE now supports `SLURM`-managed HPCs instead of `Queue Submission`-managed HPCs
+- CAROLINE now supports `SLURM`-managed HPCs instead of `Torque`-managed HPCs
 - `Stack stitching` output is now stored in `cropped_stack` instead of `<AoI_name>_cropped_stack`
 - `Stack stitching` output files no longer have the `AoI_name` in the name
 - `cpxfiddle` is treated as a plugin instead of an always available command

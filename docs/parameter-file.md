@@ -1,0 +1,366 @@
+# The CAROLINE parameter file
+
+## General parameters
+- `active`
+  - Function: indicate whether an AoI should be processed. `1` will include the AoI in the live Caroline run, `0` will exclude it.
+  - Possible values: `0`, `1`
+- `project_owner`
+  - Function: indicate the owner (i.e., the one responsible for this AoI)
+  - Possible values: any `string`
+- `project_owner_email`
+  - Function: indicate the email of `project_owner`
+  - Possible values: any `string`
+- `project_engineer`
+  - Function: indicate the engineer (i.e., the one responsible for the settings for this AoI)
+  - Possible values: any `string`
+- `project_engineer_email`
+  - Function: indicate the email of `project_engineer`
+  - Possible values: any `string`
+- `project_objective`
+  - Function: indicate the objective that is achieved by processing this AoI
+  - Possible values: any `string`
+- `project_notes`
+  - Function: indicate any noteworthy settings that are not immediately obvious from `project_objective` but are relevant for interpretation.
+  - Possible values: any `string`
+- `three_letter_id`
+  - Function: provide an identification means in the [squeue](glossary.md#hpc-functionality) for this AoI when it is processing
+  - Possible values: any `string` of exactly three uppercase alphanumeric characters
+- `sensor`
+  - Function: specify the satellite sensor that should be used
+  - Possible values: `'S1'`, `'TSX'`, `'ERS'`, `'ENV'`, `'TDX'`, `'PAZ'`, `'RSAT2'`, `'Cosmo'`, `'ALOS2'`
+- `polarisation`
+  - Function: specify the polarisations that should be processed
+  - Possible values: `list` containing a set of the values `'VVVH'` (only Sentinel-1), `'HH'`, `'HV'`, `'VH'`, `'VV'` (non-Sentinel-1). Example `['VVVH']` or `['HH', 'VV']`.
+- `product_type`
+  - Function: specify the product that should be downloaded in case the job `s1_download` is requested. 
+  - Possible values: Default is `"SLC"` since this is what further steps work with, other options can be passed as string. All options are documented by ASF [here](https://github.com/asfadmin/Discovery-asf_search/blob/master/asf_search/constants/PRODUCT_TYPE.py).
+- `dependency`
+  - Function: allow cross-AoI dependencies (e.g., one coregistration for multiple AoIs)
+  - Possible values: `'None'`, or any other AoI where the parameter file `param_file_<AoI>.txt` exists in [config/parameter-files](../config/parameter-files), formatted as `'<AoI>'`
+- `do_s1_download`
+  - Function: switch to enable the [job](glossary.md#jobs) `s1_download` in the Download submodule
+  - Possible values: `0`, `1`
+- `do_coregistration`
+  - Function: switch to enable the [jobs](glossary.md#jobs) `doris` and `doris_cleanup`, or `deinsar`, in the Coregistration submodule
+  - Possible values: `0`, `1`
+- `do_crop_to_raw`
+  - Function: switch to enable the [job](glossary.md#jobs) `crop_to_raw` in the Cropping submodule
+  - Possible values: `0`, `1`
+- `do_crop_to_zarr`
+  - Function: switch to enable the [job](glossary.md#jobs) `crop_to_zarr` in the Cropping submodule
+  - Possible values: `0`, `1`
+- `do_depsi`
+  - Function: switch to enable the [job](glossary.md#jobs) `depsi` in the PSI-batch submodule
+  - Possible values: `0`, `1`
+- `do_depsi_post`
+  - Function: switch to enable the [jobs](glossary.md#jobs) `mrm`, `depsi_post`, and (`portal_upload` or `tarball`) in the PSI-batch submodule
+  - Possible values: `0`, `1`
+- `depsi_post_mode`
+  - Function: switch to select either the [job](glossary.md#jobs) `portal_upload` or `tarball` after running `depsi_post`
+  - Possible values: `'csv'` (for `portal_upload`), `'tarball'` (for `tarball`)
+- `skygeo_customer`:
+  - Function: select the `customer` in the URL of the SkyGeo portal. The portal link is https://caroline.portal-tud.skygeo.com/portal/<skygeo_customer>/<skygeo_viewer>/viewers/basic/ . Switching away from the default `caroline` allows sharing specific datasets with customers.
+  - Possible values: any `string` containing only alphanumeric lowercase characters, default `'caroline'`
+- `skygeo_viewer`:
+  - Function: select the `viewer` in the URL of the SkyGeo portal. The portal link is https://caroline.portal-tud.skygeo.com/portal/<skygeo_customer>/<skygeo_viewer>/viewers/basic/ .
+  - Possible values: any `string` containing only alphanumeric lowercase characters
+- `coregistration_AoI_name`
+  - Function: specify the AoI name for the directory naming in the [jobs](glossary.md#jobs) `doris` and `doris_cleanup`, or `deinsar` in the Coregistration submodule. For cross-AoI dependencies, specify the same AoI name as the dependency.
+  - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
+- `coregistration_directory`
+  - Function: specify the base directory where the [jobs](glossary.md#jobs) `doris` and `doris_cleanup`, or `deinsar`, should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
+- `crop_to_raw_AoI_name`
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `crop_to_raw` in the Cropping submodule. For cross-AoI dependencies, specify the same AoI name as the dependency.
+  - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
+- `crop_to_raw_directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `crop_to_raw` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/crops'`
+- `crop_to_zarr_AoI_name`
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `crop_to_zarr` in the Cropping submodule. For cross-AoI dependencies, specify the same AoI name as the dependency.
+  - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
+- `crop_to_zarr_directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `crop_to_zarr` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks_zarr'`
+- `depsi_AoI_name`
+  - Function: specify the AoI name for the directory naming in the [jobs](glossary.md#jobs) `depsi`, `mrm`, `depsi_post`, and `tarball` in the PSI-batch submodule. For cross-AoI dependencies, specify the same AoI name as the dependency.
+  - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
+- `depsi_directory`
+  - Function: specify the base directory where the [jobs](glossary.md#jobs) `depsi`, `mrm`, `depsi_post`, and `tarball` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/projects/<AoI_name>/depsi'`
+- `shape_AoI_name`
+  - Function: specify the AoI name for the shapefile, typically the same as the AoI name. The shapefile will be saved as `<shapefile_name>_shape.shp`
+  - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
+- `shape_directory`
+  - Function: specify the base directory where the shapefile should be stored. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Software/roi/<first step that will be run out of stacks / crops / depsi>/<country_code>_<region_of_interest>'`, where `stacks` indicates `coregistration` and `crops` indicates `crop_to_raw`.
+- `shape_file`
+  - Function: provide a link to a predetermined shapefile
+  - Possible values: `''` for rectangular AoI generation, or `string` with any valid path to a shapefile on Spider, including the name of the shapefile itself ending in `.shp`. It is assumed the corresponding `.dbf`, `.prj` and `.shx` also exist with the same name (except the format) in the same directory.
+- `center_AoI`
+  - Function: provide the center coordinate in latitude/longitude for rectangular shapefile generation. Ignored if a shapefile is provided in `shape_file`.
+  - Possible values: `list` of two numbers, the first the latitude, the second the longitude. E.g. `[52.371436, 4.897088]` for central Amsterdam.
+- `AoI_width`
+  - Function: specify the east-west AoI size in kilometers for rectangular shapefile generation. Ignored if a shapefile is provided in `shape_file`.
+  - Possible values: any positive number, below `50` is recommended for processing time reasons.
+- `AoI_length`
+  - Function: specify the north-south AoI size in kilometers for rectangular shapefile generation. Ignored if a shapefile is provided in `shape_file`.
+  - Possible values: any positive number, below `50` is recommended for processing time reasons.
+- `track`:
+  - Function: this parameter exists for the [scheduler](../caroline/scheduler.py). Any value will be overwritten, so keep it empty.
+  - Possible values: `[]` (anything else is overwritten)
+- `asc_dsc`
+  - Function: this parameter exists for the [scheduler](../caroline/scheduler.py). Any value will be overwritten, so keep it empty.
+  - Possible values: `[]` (anything else is overwritten)
+- `include_tracks`
+  - Function: Add any tracks not automatically detected by querying the ASF servers for Sentinel-1 track overlap in the last month. For non-Sentinel-1, add all tracks here.
+  - Possible values: `[]`, or list of tracks formatted as `['s1_dsc_t037']`
+- `exclude_tracks`
+  - Function: Remove any tracks automatically detected by querying the ASF servers for Sentinel-1 track overlap in the last month, but one is not interested in.
+  - Possible values: `[]`, or list of tracks formatted as `['s1_dsc_t037']`
+- `start_date`
+  - Function: specify the beginning of the processing interval. This date does not have to be present in the imaging stack, but will be included if it is present.
+  - Possible values: `'YYYY-MM-DD'`
+- `end_date`
+  - Function: specify the end of the processing interval. This date does not have to be present in the imaging stack, but will be included if it is present. 
+  - Possible values: `'YYYY-MM-DD'`, set to `'9999-12-31'` for live processing.
+- `master_date`
+  - Function: specify the mother (previously master) of the coregistered image stack. This date does not have to be present in the imaging stack, Caroline will use the first image on or after this date as mother.
+  - Possible values: `'YYYY-MM-DD'`
+- `send_completion_email`
+  - Function: specify the email addresses of everyone that should be notified of a finished run of this AoI
+  - Possible values: `'<email_1>(,<email_2>)*'`, comma-separated emails without spaces. Set to `''` for no email.
+- `coregistration_partition`
+  - Function: specify the partition on which the [jobs](glossary.md#jobs) `doris` or `deinsar` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
+- `crop_to_raw_partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `crop_to_raw` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
+- `crop_to_zarr_partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `crop_to_zarr` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
+- `depsi_partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `depsi` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
+- `depsi_post_partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `depsi_post` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
+
+
+## DEM parameters
+Note: all parameters are fixed for a specific DEM. Most DEMs on Spider are accompanied by a `CAROLINE_input.txt` file containing all parameters in this section.
+- `dem_file`
+  - Function: specify the absolute path to the DEM file in `.raw` format. This DEM should cover the entire coregistration area (note: this is burstwise for Sentinel-1, so a lot larger than your AoI)
+  - Possible values: `string` with absolute path to the DEM file, including the DEM filename in `.raw` format
+- `dem_format`
+  - Function: specify the format in which the DEM file is saved.
+  - Possible values: `string` with the format, generally `'r4'` (real-4)
+- `dem_size`
+  - Function: specify the number of rows and columns in the DEM
+  - Possible values: `list` with two integers: as first element the number of columns (north-south), as second element the number of rows (east-west)
+- `dem_delta`
+  - Function: specify the pixel size of the DEM in degrees
+  - Possible values: `list` of two floats: `[delta_latitude, delta_longitude]`
+- `dem_upperleft`
+  - Function: specify the latitude and longitude of the upperleft corner of the DEM.
+  - Possible values: `list` of two floats: `[latitude, longitude]`
+- `dem_nodata`
+  - Function: specify the filler value that should be interpreted as 'No data'
+  - Possible values: Any number, generally -32768
+
+## Doris parameters
+These parameters are used in the job `doris`
+
+- `doris_code_directory`
+  - Function: specify the location of the Doris code.
+  - Possible values: `string` with absolute path to the base of the Doris code
+- `do_deramp`
+  - Function: specify whether the Doris step `deramp` should be run
+  - Possible values: `0`, `1`
+- `do_reramp`
+  - Function: specify whether the Doris step `reramp` should be run
+  - Possible values: `0`, `1`
+- `do_fake_fine_coreg_bursts`
+  - Function: specify whether the Doris step `fake_fine_coreg_bursts` should be run
+  - Possible values: `0`, `1`
+- `do_fake_master_resample`
+  - Function: specify whether the Doris step `fake_master_resample` should be run
+  - Possible values: `0`, `1`
+- `do_dac_bursts`
+  - Function: specify whether the Doris step `dac_bursts` should be run
+  - Possible values: `0`, `1`
+- `do_fake_coreg_bursts`
+  - Function: specify whether the Doris step `fake_coreg_bursts` should be run
+  - Possible values: `0`, `1`
+- `do_resample`
+  - Function: specify whether the Doris step `resample` should be run
+  - Possible values: `0`, `1`
+- `do_reramp2`
+  - Function: specify whether the Doris step `reramp` should be run (the second time it appears in the parameter file)
+  - Possible values: `0`, `1`
+- `do_interferogram`
+  - Function: specify whether the Doris step `interferogram` should be run
+  - Possible values: `0`, `1`
+- `do_compref_phase`
+  - Function: specify whether the Doris step `compref_phase` should be run
+  - Possible values: `0`, `1`
+- `do_compref_dem`
+  - Function: specify whether the Doris step `compref_dem` should be run
+  - Possible values: `0`, `1`
+- `do_coherence`
+  - Function: specify whether the Doris step `coherence` should be run
+  - Possible values: `0`, `1`
+- `do_esd`
+  - Function: specify whether the Doris step `esd` should be run
+  - Possible values: `0`, `1`
+- `do_network_esd`
+  - Function: specify whether the Doris step `network_esd` should be run
+  - Possible values: `0`, `1`
+- `do_ESD_correct`
+  - Function: specify whether the Doris step `ESD_correct` should be run
+  - Possible values: `0`, `1`
+- `do_combine_master`
+  - Function: specify whether the Doris step `combine_master` should be run
+  - Possible values: `0`, `1`
+- `do_combine_slave`
+  - Function: specify whether the Doris step `combine_slave` should be run
+  - Possible values: `0`, `1`
+- `do_ref_phase`
+  - Function: specify whether the Doris step `ref_phase` should be run
+  - Possible values: `0`, `1`
+- `do_ref_dem`
+  - Function: specify whether the Doris step `ref_dem` should be run
+  - Possible values: `0`, `1`
+- `do_phasefilt`
+  - Function: specify whether the Doris step `phasefilt` should be run
+  - Possible values: `0`, `1`
+- `do_calc_coordinates`
+  - Function: specify whether the Doris step `calc_coordinates` should be run
+  - Possible values: `0`, `1`
+- `do_multilooking`
+  - Function: specify whether the Doris step `multilooking` should be run
+  - Possible values: `0`, `1`
+- `do_unwrap`
+  - Function: specify whether the Doris step `unwrap` should be run
+  - Possible values: `0`, `1`
+
+## DeInSAR parameters
+- `di_data_directories`
+  - Function: specify the data directories where the original images are stored (as the non-Sentinel-1 data archive is not sorted in a machine-readable way)
+  - Possible values: e.g. `{'tsx_asc_t116': '/project/caroline/Data/radar_data/eurasia/netherlands/tsx/nl_amsterdam_tsx_asc_t116_T171816_171824_007_hh/data_backup'}`, a `dict` with as keys the tracks, as argumetns the full path to the data directory.
+- `deinsar_code_directory`
+  - Function: specify the absolute path to the DeINSAR code
+  - Possible values: `string` with the absolute path to the base directory of `DeInSAR`
+- `doris_v4_code_directory`
+  - Function: specify the absolute path to the Doris v4 code
+  - Possible values: `string` with the absolute path to the base directory of `doris_v4`
+- `di_do_orbit`
+  - Function: specify whether the step `orbit` should be run (note: only for ENV, ERS and RSAT2)
+  - Possible values: `0`, `1`
+- `di_do_crop`
+  - Function: specify whether the step `crop` should be run
+  - Possible values: `0`, `1`
+- `di_do_tsx_deramp`
+  - Function: specify whether the step `tsx_deramp` should be run (note: only for TSX)
+  - Possible values: `0`, `1`
+- `di_do_simamp`
+  - Function: specify whether the step `simamp` should be run
+  - Possible values: `0`, `1`
+- `di_do_mtiming`
+  - Function: specify whether the step `mtiming` should be run
+  - Possible values: `0`, `1`
+- `di_do_ovs`
+  - Function: specify whether the step `ovs` should be run
+  - Possible values: `0`, `1`
+- `di_do_choose_master`
+  - Function: specify whether the step `choose_master` should be run
+  - Possible values: `0`, `1`
+- `di_do_coarseorb`
+  - Function: specify whether the step `coarseorb` should be run
+  - Possible values: `0`, `1`
+- `di_do_coarsecorr`
+  - Function: specify whether the step `coarsecorr` should be run
+  - Possible values: `0`, `1`
+- `di_do_finecoreg`
+  - Function: specify whether the step `finecoreg` should be run
+  - Possible values: `0`, `1`
+- `di_finecoreg_mode`
+  - Function: specify which version of `finecoreg` should be run
+  - Possible values: `'simple'`, `'normal'`
+- `di_do_reltiming`
+  - Function: specify whether the step `reltiming` should be run
+  - Possible values: `0`, `1`
+- `di_do_dembased`
+  - Function: specify whether the step `dembased` should be run
+  - Possible values: `0`, `1`
+- `di_do_coregpm`
+  - Function: specify whether the step `coregpm` should be run
+  - Possible values: `0`, `1`
+- `di_do_resample`
+  - Function: specify whether the step `resample` should be run
+  - Possible values: `0`, `1`
+- `di_do_tsx_reramp`
+  - Function: specify whether the step `tsx_reramp` should be run (note: only for TSX)
+  - Possible values: `0`, `1`
+- `di_do_comprefpha`
+  - Function: specify whether the step `comprefpha` should be run
+  - Possible values: `0`, `1`
+- `di_do_comprefdem`
+  - Function: specify whether the step `comprefdem` should be run
+  - Possible values: `0`, `1`
+- `di_do_interferogram`
+  - Function: specify whether the step `interferogram` should be run
+  - Possible values: `0`, `1`
+- `di_do_subtrrefpha`
+  - Function: specify whether the step `subtrrefpha` should be run
+  - Possible values: `0`, `1`
+- `di_do_subtrrefdem`
+  - Function: specify whether the step `subtrrefdem` should be run
+  - Possible values: `0`, `1`
+- `di_do_coherence`
+  - Function: specify whether the step `coherence` should be run
+  - Possible values: `0`, `1`
+- `di_do_geocoding`
+  - Function: specify whether the step `geocoding` should be run
+  - Possible values: `0`, `1`
+
+## Crop_to_zarr parameters
+
+- `crop_to_zarr_code_dir`
+  - Function: specify where the DePSI_group code is, containing the functionality for `crop_to_zarr`
+  - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
+
+## DePSI parameters
+
+Most parameters are explained in the [PhD thesis of Freek](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e). Those that aren't:
+
+- `depsi_code_dir`
+  - Function: specify where the DePSI code is
+  - Possible values: `string` with the absolute path to the base directory of `depsi`
+- `rdnaptrans_dir`
+  - Function: specify where the [RDNAPtrans](https://www.nsgi.nl/coordinatenstelsels-en-transformaties/coordinatentransformaties/rdnap-etrs89-rdnaptrans) code is
+  - Possible values: `string` with the absolute path to the base directory of RDNAPtrans
+- `geocoding_dir`
+  - Function: specify where the Geocoding code is
+  - Possible values: `string` with the absolute path to the base directory of Geocoding
+- `ref_cn`
+  - Function: specify the mode of how the reference point in DePSI should be determined
+  - Possible values:
+    - `[]` or `'independent'`: consecutive runs are treated as completely independent, and can therefore have different reference points. This can have unintended consequences as the behaviour of the reference point can change drastically. The reference point is determined using the NAD metric.
+    - `'constant'`: consecutive runs on the same track use the same reference point, where the first run runs on mode `'independent'` to select a reference point, and further runs retain this point.
+    - `[azimuth, range]`: all runs are forced to the specified reference point regardless of what is there. If the reference point is not in the selection, DePSI will throw an error
+    - `{'s1_asc_t088': 'constant', 's1_dsc_t110': [100, 300]}`: different behaviours are specified for different tracks. This is almost always necessary for the `[azimuth, range]` mode. If tracks are missing from this specification, Caroline will throw an error.
+- `do_water_mask`
+  - Function: specify whether a water mask should be applied. If it should be applied, a water mask named `water_mask_<depsi_AoI_name>_<sensor>_<asc_dsc>_t<track:0>3d>.raw` is expected in the water-mask directory in the [configuration file](../config/spider-config.yaml).
+  - Possible values: `'yes'`, `'no'`
+
+## DePSI_post parameters
+
+Most parameters are explained in [How to DePSI-post](https://sites.google.com/site/radarcitg/resources/software/howto-depsi-post-proc?authuser=0) (without the `dp_` prefix). Note that some of these settings are preset for the Caroline processing flow and are thus not in the Caroline parameter file. Those that aren't in the Howto:
+
+- `depsi_post_dir`
+  - Function: specify where the DePSI_post code is
+  - Possible values: `string` with the absolute path to the base directory of `depsi_post`
+- `cpxfiddle_dir`
+  - Function: specify where the cpxfiddle executable is
+  - Possible values: `string` with the absolute path to `cpxfiddle`

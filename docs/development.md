@@ -6,8 +6,10 @@ CAROLINE is a software package that is never finished. Here you can therefore re
 - [Linting and formatting](#linting-and-formatting)
 - [Documentation](#documentation)
 - [General GitHub management](#general-github-management)
+- [Running tests](#running-tests)
+- [Adding a new AoI](#adding-a-new-aoi)
 - [Adding a new job](#adding-a-new-job)
-  - [Job architecture](#job-architecture)
+  - [Job design](#job-design)
     - [The preparation function](#the-preparation-function)
     - [The bash file](#the-bash-file)
   - [The necessary steps for adding a job](#the-necessary-steps-for-adding-a-job)
@@ -74,26 +76,76 @@ For any changes to the repository (including AoI changes), the following steps a
 1. Create an issue on https://github.com/TUDelftGeodesy/caroline/issues (if the issue already exists, this can be skipped). Make sure to add proper labels.
 2. Create a branch off of the issue (on the right in the Development tab)
 3. Checkout the branch in your local repository. Now you are free to change everything you want.
-4. In case of changes beyond the parameter files and documentation, test your additions. This can generally not be done on your local laptop, so instead you can create a install a separate copy of your branch on Spider using the instructions in [README.md - Personal testing version](../README.md#installation-on-spider---personal-testing-version). You may need to create a special parameter file intended for testing, for an example see [this parameter file](../config/parameter-files/param_file_TEST_nl_amsterdam.txt).
-5. Update the versioning. The versioning for CAROLINE consists of three numbers: `X.Y.Z` (e.g. `2.0.12`)
+4. In case of changes beyond the parameter files and documentation, [test your additions in a testing environment](#running-tests).
+5. Update the versioning in [pyproject.toml](../pyproject.toml). The versioning for CAROLINE consists of three numbers: `X.Y.Z` (e.g. `2.0.12`)
    1. For minor code updates (AoI changes, bugfixes, and so on): `X.Y.Z` -> `X.Y.Z+1` (e.g. `2.0.12` -> `2.0.13`)
    2. For documentation updates: `X.Y.Z` -> `X.Y.Z` (e.g. `2.0.12` -> `2.0.12`)
    3. For job additions (see [Adding a new job](#adding-a-new-job)): `X.Y.Z` -> `X.Y+1.0` (e.g. `2.0.12` -> `2.1.0`)
    4. For major architecture changes: `X.Y.Z` -> `X+1.0.0` (e.g. `2.0.12` -> `3.0.0`)
-6. Create a pull request, and ensure the ruff check passes.
-7. Pass the code review, and merge the pull request.
-8. Ask the [Admins](../README.md#contacts) to update the installation on Spider (See [Installing on Spider](../README.md#installation-on-spider))
+6. Update the documentation (if necessary) and [Changelog](../CHANGELOG.md) (always necessary)
+7. Create a pull request, and ensure the ruff check passes.
+8. Pass the code review, and merge the pull request.
+9. Ask the [Admins](../README.md#contacts) to update the live installation on Spider (See [Installing on Spider](../README.md#installation-on-spider---live-version))
 
+## Running tests
+Due to the nature of Caroline, tests can generally not be done on a local installation as a SLURM-manager is required. Caroline should therefore be tested on the HPC. Before running a test, make sure you have a personal testing installation of Caroline on Spider (See [Installing on Spider - personal testing version](../README.md#installation-on-spider---personal-testing-version)).
+
+If during your testing you need to perform updates to your local installation, follow [updating the local installation](../README.md#updating-the-installation-1).
+
+Then, follow these steps to start a test:
+1. Create an AoI you want to test on. There are two ways to do this:
+   1. Add a new parameter file to the codebase intended for testing, for an example see [this parameter file](../config/parameter-files/param_file_TEST_nl_amsterdam.txt).
+   2. Modify an existing parameter file. If you take this route, pay close attention to these things:
+      1. Make sure to move all processing directories away from the live version to your personal directories.
+      2. Make sure to update the `send_completion_email` field to only send emails to yourself (and optionally an admin)
+      3. Updating the installation will remove your modifications.
+2. (This assumes you followed the steps on [Installing on Spider - personal testing version](../README.md#installation-on-spider---personal-testing-version)) run the following command to go to the `work` directory:
+```bash
+cd /project/caroline/Share/users/$(whoami)/caroline-test/run/caroline/work
+```
+3. Add the AoI and track you want to test on to the force-starting AoIs by following the steps in [force-starting an AoI](management.md#force-starting-an-aoi).
+4. Run
+```bash
+cd /project/caroline/Share/users/$(whoami)/caroline-test/caroline/scripts
+bash run-caroline.sh
+```
+Once this command completes, your jobs are visible using the command `squeue --me`. You will receive an email when all jobs have finished with links to the log files. If you want to push layers to a portal, please ensure to add the portal manager cronjob to your [crontab](../README.md#the-way-it-works-cron).
+
+## Adding a new AoI
+
+1. Following the [general GitHub management](#general-github-management) steps 1-3: create an issue and a branch, and check it out locally. 
+2. Copy [config/parameter-files/param_file_nl_amsterdam.txt](../config/parameter-files/param_file_nl_amsterdam.txt) into the same directory with the name `param_file_<2-letter-country-ID>_<region-name>.txt`.
+3. Decide on the exact AoI. There are two options for this:
+   1. Generate a rectangular AoI by following the instructions around line 57 in the parameter file.
+   2. Generate your own AoI as a shapefile:
+      1. In Google Earth, draw the polygon of the AoI
+      2. Save the polygon as `.kmz`
+      3. Using https://mygeodata.cloud/converter/kmz-to-shp , convert the `.kmz` to `.shp`, leaving all parameters unaltered. The output is a ZIP file containing five files with extensions `.cpg`, `.dbf`, `.prj`, `.shp`, `.shx`. 
+      4. Upload the five files in the folder to Spider in a location you can remember using the command `scp -i /path/to/your/ssh/key /path/to/your/unzipped/shp/file/<shapefile_name>.* caroline-<user>@spider.surfsara.nl:/project/caroline/Share/path/to/your/storage/location`. The `.*` should copy all five files to this location. Fill the full path to the `.shp` file in in the `shapefile_name` field
+4. Modify the parameters in the parameter file to your needs, see [parameter-file.md](parameter-file.md) for an explanation on all parameters. Pay special attention to:
+   - All parameters in the `General` section (Sentinel-1 tracks will be automatically detected but can be force-included or force-excluded, for other sensors all tracks need to be specified)
+   - The DEM, especially if not processing in the Netherlands. If no DEM is available in your AoI, follow the steps in [#67](https://github.com/TUDelftGeodesy/caroline/issues/67) to generate the DEM (just the DEM part) (NOTE: with [#248](https://github.com/TUDelftGeodesy/caroline/issues/248) the DEM generation will be deprecated).
+   - Note that stacks are all stored in `/project/caroline/Share/stacks`, crops in `/project/caroline/Share/crops`, zarr stacks in `/project/caroline/Share/stacks_zarr`, DePSI runs in `/project/caroline/Share/projects/<country_code>_<region_of_interest>/depsi`, and shapefiles in `/project/caroline/Software/roi/<first step that will be run out of stacks / crops / depsi>/<country_code>_<region_of_interest>` for consistency.
+5. Follow steps 5-9 of the [general GitHub management](#general-github-management). Once complete, your new AoI will be live.
+
+A few notes:
+- If you included the `s1_download` step in your processing, the download parameters will be automatically generated during the installation on Spider. The following logic is then automatically followed:
+  - The periodic download in [manage-s1-download.sh](../scripts/manage-s1-download.sh) will during its next call download the last month of data on the tracks that were detected
+  - [run-caroline.sh](../scripts/run-caroline.sh) will detect the new SLC zip files and start your new AoI
+  - The first job that is run is `s1_download`, which will per track download all SLC zip files in the period you specified before continuing to coregistration.
+- If `s1_download` is the _only_ step that is run, no `area-track-list` is generated and the AoI will never be started by [run-caroline.sh](../scripts/run-caroline.sh), as it is assumed this AoI is only to trigger the periodic download (e.g. the `be_lu_nl_benelux` AoI).
+- Download configurations are removed when an AoI is [deactivated](management.md#activating--deactivating-an-aoi).
 ## Adding a new job
 
-### Job architecture
+
+### Job design
 
 Jobs are the core of CAROLINE, as they are what submodules and modules are composed of. Here we will use the `DePSI` job as an example. A job consists of one or two parts:
 
 - A preparation function in [caroline/preparation.py](../caroline/preparation.py) called `prepare_<job>` (always)
 - A bash file from [templates](../templates) (optional)
 
-All jobs are started using [scripts/start_job.sh](../scripts/start_job.sh), which takes 5 required arguments and 3 optional arguments:
+All jobs are started using [scripts/start_job.sh](../scripts/start_job.sh), which takes 5 required arguments and 2 optional arguments:
 1. the parameter file (full path)
 2. the track (integer)
 3. the job type (e.g. `depsi`)
@@ -167,7 +219,7 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
          3. `bash-file-directory-appendix`: a folder to add to the base directory name. In case of `depsi`, this is `/psi`, since DePSI runs in the `psi` folder within the base directory of `depsi`. If it should be empty, leave it to `""`.
       9. `filters`: in case the job should only run if specific conditions are met, these can be specified here. If left empty, it will assume no filters are present and any parameter file can start this job. If a filter (e.g. satellite) is present, use the following syntax:
          1. one tab in, add `<parameter-file-key>: <allowed-value(s)>`. `<allowed-value(s)>` can be either a `str` or `list` of `str`. If the value of the specified key in the parameter file is in the provided allowed values, the job will start. Otherwise, the job will not be scheduled.
-         2. If multiple filters are necessary, add the next filter using the same syntax on a new line.
+         2. If multiple filters are necessary, add the next filter using the same syntax on a new line. The job will only start if _all_ filters are satisfied.
 3. Add the two letter job ID to [abbreviations.md](abbreviations.md)
 4. In [preparation.py](../caroline/preparation.py), create the function `prepare_<jobname>` that takes exactly two arguments: 
     
@@ -194,3 +246,4 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
    3. `<bash-file-base-directory>_directory`, the directory in which the job should run
 10. Update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)
 11. Update the [changelog](../CHANGELOG.md) with the new version
+12. Update the documentation (at the very least [architecture.md](architecture.md) and the [glossary](glossary.md), likely more)

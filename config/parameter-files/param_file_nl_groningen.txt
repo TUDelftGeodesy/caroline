@@ -34,7 +34,7 @@ depsi_post_mode    = 'csv' # either 'tarball' or 'csv'
 
 # The portal will be https://caroline.portal-tud.skygeo.com/portal/<skygeo_customer>/<skygeo_viewer>/viewers/basic/
 skygeo_customer    = 'caroline'  # default 'caroline', only recommended to change if one wants to share data with others
-skygeo_viewer      = 'nl_grijpskerk'
+skygeo_viewer      = 'nl_groningen'
 
 # Specify the AoI name and directory of each step, as well as the shapefile
 coregistration_AoI_name   = 'nl_groningen'

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--
 ## Example template!! (For the newest version, NEWHASH = main. Don't forget to update the previous versions hash too)
+( The hash can be accessed from https://github.com/TUDelftGeodesy/caroline/network by clicking on the latest merge into main)
 
 ## [version](https://github.com/TUDelftGeodesy/caroline/tree/NEWHASH) (DD-MMM-YYYY, [diff](https://github.com/TUDelftGeodesy/caroline/compare/OLDHASH...NEWHASH))
 
@@ -24,8 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
+## [v2.3.5](https://github.com/TUDelftGeodesy/caroline/tree/main) (22-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/52193011493b2681a7264a3a2be6f6458f940b59...main))
 
-## [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (22-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/4ac2eec43afb2a3f99f293b036d360455e04f4b1...main))
+### Changed:
+- `nl_groningen` now submits its portal layers to the `nl_groningen` portal instead of `nl_grijpskerk`
+
+## [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/52193011493b2681a7264a3a2be6f6458f940b59) (22-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/4ac2eec43afb2a3f99f293b036d360455e04f4b1...52193011493b2681a7264a3a2be6f6458f940b59))
 
 ### Added:
 - Proper documentation on the [architecture](docs/architecture.md), a [glossary](docs/glossary.md), the [parameter files](docs/parameter-file.md), Caroline [management](docs/management.md)

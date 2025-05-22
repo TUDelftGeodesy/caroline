@@ -32,7 +32,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * AoI in `.shp` format
     * output:
       * Original SLCs
-- <b>doris_v5</b>: this job performs the basic interferometric Sentinel-1 procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
+- <b>doris</b>: this job performs the basic interferometric Sentinel-1 procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
     * input:
       * Original SLCs
       * AoI in `.shp` format
@@ -46,12 +46,12 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * Burstwise resampled reramped SLC of the mother image with the reference DEM subtracted (`slave_rsmp_reramped.raw`)
       * Burstwise radarcoded DEM (`dem_radar.raw`)
       * All above products, but merged into one rectangular file instead of per burst
-- <b>doris_v5_cleanup</b>: this job removes excess files produced by `doris_v5`
+- <b>doris_cleanup</b>: this job removes excess files produced by `doris_v5`
     * input:
       * A directory in which `doris_v5` has run
     * output:
       * The removal of intermediate files not necessary for any subsequent step
-- <b>doris_v4</b>: this job performs the basic interferometric  procedure per image pair for the sensors `"ERS", "ENV", "TSX", "TDX", "PAZ", "RSAT2", "Cosmo"`, and `"ALOS2"`. This includes cropping, orbit corrections, coregistration, resampling, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, coherence estimation, and geocoding.
+- <b>deinsar</b>: this job performs the basic interferometric  procedure per image pair for the sensors `"ERS", "ENV", "TSX", "TDX", "PAZ", "RSAT2", "Cosmo"`, and `"ALOS2"`. This includes cropping, orbit corrections, coregistration, resampling, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, coherence estimation, and geocoding.
     * input:
       * Original SLCs
       * AoI in `.shp` format
@@ -63,7 +63,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * Geocoded pixel coordinates cropped to the AoI (`lam.raw` and `phi.raw`)
       * Resampled SLC of the mother image with the reference DEM subtracted cropped to the AoI (`slave_rsmp.raw`)
       * Radarcoded DEM (`dem_radar.raw`)
-- <b>matlab_preparation</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
+- <b>crop_to_raw</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `deinsar` or `doris` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)
     * Height-to-phase screens with the reference DEM subtracted (`h2ph_srd.raw`)
@@ -79,7 +79,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * Height-to-phase screens with reference DEM subtracted cropped to the AoI (`h2ph_srd.raw`)
     * Reduced SLCs with reference DEM subtracted cropped to the AoI (`slc_srd.raw`)
     * Line and pixel specification of the crop (`nlines_crop.txt` and `npixels_crop.txt`)
-- <b>python_preparation</b>: this job converts the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris` or `DeInSAR` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. Finally, it creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
+- <b>crop_to_zarr</b>: this job converts the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris` or `deinsar` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. Finally, it creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)
     * Height-to-phase screens with the reference DEM subtracted (`h2ph_srd.raw`)
@@ -100,7 +100,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * `lat`: latitude coordinates cropped to the AoI
         * `lon`: longitude coordinates cropped to the AoI
         * `time`: epochs of the acquisitions
-- <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `matlab_preparation`.
+- <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `crop_to_raw`.
     * input:
       * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)
       * Geocoded pixel coordinates cropped to the AoI (`lam.raw` and `phi.raw`)
@@ -111,7 +111,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * output:
       * Estimated time series of identified persistent scatterers with respect to a reference point provided in `<AoI_name>_ref_sel1.raw`
       * Multi-image Reflectivity Map (MRM) of the AoI (`<AoI_name>_mrm.raw`)
-- <b>mrm_to_ras</b>: this job converts the MRM produced by `depsi` into `.ras` format for usage in `depsi_post`.
+- <b>mrm</b>: this job converts the MRM produced by `depsi` into `.ras` format for usage in `depsi_post`.
     * input:
       * Multi-image Reflectivity Map (MRM) of the AoI (`<AoI_name>_mrm.raw`) as produced by `depsi`
     * output:
@@ -123,12 +123,12 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * output:
       * `<AoI_name>_portal.csv` & `<AoI_name>_portal.json`, the two files that will be uploaded to the SkyGeo portal containing the estimated displacement time series per scatterer.
       * A Matlab archive containing the estimated displacement time series and amplitude time series per scatterer.
-- <b>set_portal_upload_flag</b>: this job creates a flag for [manage-portal-upload.sh](../scripts/manage-portal-upload.sh) to notify it that a portal layer is ready to be uploaded.
+- <b>portal_upload</b>: this job creates a flag for [manage-portal-upload.sh](../scripts/manage-portal-upload.sh) to notify it that a portal layer is ready to be uploaded.
   * input:
     * A directory containing `depsi_post` output
   * output:
     * A `.txt` file in `PORTAL_UPLOAD_FLAG_DIRECTORY` containing a status (`TBD`, To Be Done), the directory containing the output, and the details of the viewer to which the layer should be uploaded.
-- <b>create_tarball</b>: this job stores the output of `depsi_post` in a `.tar.gz` tarball archive for convenient downloading and further analysis on a local computer.
+- <b>tarball</b>: this job stores the output of `depsi_post` in a `.tar.gz` tarball archive for convenient downloading and further analysis on a local computer.
   * input:
      * A directory containing `depsi_post` output
   * output:

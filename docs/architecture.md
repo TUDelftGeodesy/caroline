@@ -31,9 +31,9 @@ There are nine modules:
 - Download submodule
   - Goal: download radar data from all satellites.
 - Coregistration submodule
-  - Goal: perform burst-wise coregistration on the raw SLCs
+  - Goal: perform the basic interferometric procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
 - Cropping submodule
-  - Goal: crop the burst-wise coregistered interferograms to the AoI
+  - Goal: create reduced SLCs of the AoI, and crop as preparation for the Recursive parameter estimation module.
 
 ### Recursive parameter estimation module
 - PSI batch submodule
@@ -48,7 +48,7 @@ There are nine modules:
 - Email submodule
   - Goal: Send email notifications to designated end users
 - Portal upload submodule
-  - Goal: Upload prepared datasets to the Skygeo portal
+  - Goal: Upload prepared datasets to the SkyGeo portal
 
 ## Jobs
 See [the specificatins in the glossary](glossary.md#jobs)

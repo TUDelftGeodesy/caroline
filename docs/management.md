@@ -9,7 +9,7 @@
 - `pip` for Python installation
 - Internet access on the HPC for querying the ASF servers, GitHub, Bitbucket, and contextual data
 - Valid SSH keys for GitHub and Bitbucket
-- A working installation of [Doris v5.0.4](http://doris.tudelft.nl/)
+- A working installation of [Doris v5.0.4](http://doris.tudelft.nl/) and [Doris v4.13.1](http://doris.tudelft.nl/)
 
 ## Activating / Deactivating an AoI
 In each parameter file, at the very top there is a parameter `active`. If `1`, the parameter file is active and processed. If `0`, the parameter file is inactive and not processed. This also affect the periodic download setup. 

@@ -11,7 +11,7 @@ project_owner_email    = 'f.j.vanleijen@tudelft.nl'
 project_engineer       = 'Simon'
 project_engineer_email = 's.a.n.vandiepen@tudelft.nl'
 project_objective      = 'Data download over the entire Benelux.'
-project_notes          = 'Tracks 8 and 59 excluded.'
+project_notes          = 'Tracks 8 and 59 and 117 excluded.'
 three_letter_id        = "BLX" # for in the squeue
 
 sensor             = 'S1'  # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
@@ -65,7 +65,7 @@ AoI_length = 1 # km, north-south AoI size
 track = []  # keep empty
 asc_dsc = []  # keep empty
 include_tracks = []
-exclude_tracks = ['s1_dsc_t008', 's1_asc_t059']
+exclude_tracks = ['s1_dsc_t008', 's1_asc_t059', 's1_asc_t117']
 start_date = '2014-01-01' # will search for first image after this date that exists
 end_date   = '9999-12-31' # will search for last image before this date that exists
 master_date= '2020-03-25' # will search for first image after this date that exists

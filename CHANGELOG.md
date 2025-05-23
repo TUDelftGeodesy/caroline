@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed:
 - The scheduler now takes into account the ground coverage of newly downloaded SLCs so that the download of an original SLC in e.g. France will not trigger AoIs in the Netherlands on the same track.
-
+- Track `s1_asc_t117` (which overlaps with the AoI for about 9 square km near Simonswolde, Germany) is now excluded from the `be_lu_nl_benelux` AoI
 
 ## [v2.3.5](https://github.com/TUDelftGeodesy/caroline/tree/ff1906c0fe7a2a6c5c1b1446e38cc722b6e078c4) (22-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/52193011493b2681a7264a3a2be6f6458f940b59...ff1906c0fe7a2a6c5c1b1446e38cc722b6e078c4))
 

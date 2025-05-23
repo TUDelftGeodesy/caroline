@@ -4,8 +4,17 @@ import os
 import re
 from sys import argv
 
+from shapely.geometry import Polygon
+
 from caroline.config import get_config
-from caroline.io import create_shapefile, link_shapefile, parse_start_files, read_area_track_list, read_parameter_file
+from caroline.io import (
+    create_shapefile,
+    link_shapefile,
+    parse_start_files,
+    read_area_track_list,
+    read_parameter_file,
+    read_shp_extent,
+)
 from caroline.utils import format_process_folder
 
 CONFIG_PARAMETERS = get_config()
@@ -57,13 +66,14 @@ def _job_schedule_check(parameter_file: str, job: str, job_definitions: dict) ->
     return True
 
 
-def scheduler(new_tracks: list, force_tracks: list) -> list:
+def scheduler(new_tracks: dict, force_tracks: list) -> list:
     """Create a list of processes to be scheduled given a set of new tracks.
 
     Parameters
     ----------
-    new_tracks: list
-        list of tracks with new images, formatted as `s1_dsc_t037`
+    new_tracks: dict
+        dictionary with new image tracks as keys formatted as 's1_dsc_t037', and their geographic extents in a list
+        as arguments
     force_tracks: list
         list of tracks formatted as `[`s1_dsc_t037`, 'nl_grijpskerk']` for specific AoIs
 
@@ -74,17 +84,31 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
         The list is sorted in such a way that if process x depends on process y, process y will be earlier in the list.
     """
     area_track_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists/*.dat")
+    parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param_file"
 
     track_dict = {}
-    for new_track in new_tracks:
+    for new_track in new_tracks.keys():
         track_dict[new_track] = []
+        new_tracks[new_track] = [Polygon(new_tracks[new_track][poly]) for poly in range(len(new_tracks[new_track]))]
 
     # figure out which parameter files should be triggered
     for area_track_file in area_track_files:
         dependency, tracks = read_area_track_list(area_track_file)
-        for new_track in new_tracks:
+        for new_track in new_tracks.keys():
             if new_track in tracks:
-                track_dict[new_track].append([area_track_file.split("/")[-1].split(".")[0], dependency])
+                AoI_name = area_track_file.split("/")[-1].split(".")[0]
+                # check the AoI overlap first. The AoIs are already generated during installation so we can just proceed
+                parameter_file = f"{parameter_file_base}_{AoI_name}.txt"
+                parameters = read_parameter_file(parameter_file, ["shape_directory", "shape_AoI_name"])
+
+                shapefile_extent = Polygon(
+                    read_shp_extent(
+                        f"{parameters['shape_directory']}/{parameters['shape_AoI_name']}_shape.shp", shp_type="AoI"
+                    )[0]
+                )
+                if any([shapefile_extent.intersects(poly) for poly in new_tracks[new_track]]):
+                    # the AoI overlaps with at least one of the new track polygons, so we start
+                    track_dict[new_track].append([area_track_file.split("/")[-1].split(".")[0], dependency])
 
     # add the forced parameter files
     for track in force_tracks:
@@ -95,8 +119,6 @@ def scheduler(new_tracks: list, force_tracks: list) -> list:
                 track_dict[track[0]].append([track[1], None])
         else:
             track_dict[track[0]] = [[track[1], None]]
-
-    parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param_file"
 
     processes = []
     job_definitions = get_config(

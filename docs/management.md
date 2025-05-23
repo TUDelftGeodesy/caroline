@@ -60,8 +60,8 @@ Sometimes jobs will crash. If this happens, follow the following steps:
 7. If you have changed something in the repository, follow [the GitHub management](development.md#general-github-management) steps. This will automatically close your issue. If not, close your issue manually.
 8. Restart the job using one of these options:
    - if you downloaded a new SLC zip-file, Caroline will automatically restart
-   - if an entire track crashed (e.g. all AoIs on track 88), you can call `/project/caroline/Software/caroline/scripts/find-new-insar-files.sh --reset-timestamp "YYYY-MM-DDTHH:MM:SS"` to turn back the detection clock to before the image was ingested. Generally this should be at most a day before the current time.
-   - [force-starting](#force-starting-an-aoi)
+   - if an entire track crashed (e.g. all AoIs on track 161), go to the most recent image of that track (e.g. `cd /project/caroline/Data/radar_data/sentinel1/s1_asc_t161/IW_SLC__1SDV_VVVH/20250521/`). In this directory, run `touch *.json`. This will trigger the redetection, and start _all_ AoIs on this track. 
+   - if you do not want to start all AoIs on a single track, the AoIs you do want to start should be [force-started](#force-starting-an-aoi).
    - waiting for a new acquisition (if it's less than a day away)
 
 

@@ -89,7 +89,10 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
     track_dict = {}
     for new_track in new_tracks.keys():
         track_dict[new_track] = []
-        new_tracks[new_track] = [Polygon(new_tracks[new_track][poly]) for poly in range(len(new_tracks[new_track]))]
+        new_tracks[new_track] = [
+            [new_tracks[new_track][poly][0], Polygon(new_tracks[new_track][poly][1])]
+            for poly in range(len(new_tracks[new_track]))
+        ]
 
     # figure out which parameter files should be triggered
     for area_track_file in area_track_files:
@@ -106,7 +109,18 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
                         f"{parameters['shape_directory']}/{parameters['shape_AoI_name']}_shape.shp", shp_type="AoI"
                     )[0]
                 )
-                if any([shapefile_extent.intersects(poly) for poly in new_tracks[new_track]]):
+                if any([shapefile_extent.intersects(poly[1]) for poly in new_tracks[new_track]]):
+                    overlap_SLC_names = [
+                        poly[0] for poly in new_tracks[new_track] if shapefile_extent.intersects(poly[1])
+                    ]
+                    os.system(
+                        """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
+                        f"""detected overlap between AoI {AoI_name} and """
+                        f"""original SLC{'s' if len(overlap_SLC_names) != 1 else ''} """
+                        f"""{overlap_SLC_names[0] if len(overlap_SLC_names) == 1 else overlap_SLC_names} on track """
+                        f"""{new_track}, and will start this AoI on this track." """
+                        f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                    )
                     # the AoI overlaps with at least one of the new track polygons, so we start
                     track_dict[new_track].append([area_track_file.split("/")[-1].split(".")[0], dependency])
 
@@ -117,8 +131,20 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
                 pass
             else:
                 track_dict[track[0]].append([track[1], None])
+                os.system(
+                    """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
+                    f"""is force-starting AoI {track[1]}  on track """
+                    f"""{track[0]}." """
+                    f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                )
         else:
             track_dict[track[0]] = [[track[1], None]]
+            os.system(
+                """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
+                f"""is force-starting AoI {track[1]}  on track """
+                f"""{track[0]}." """
+                f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+            )
 
     processes = []
     job_definitions = get_config(

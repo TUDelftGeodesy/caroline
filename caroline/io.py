@@ -12,7 +12,9 @@ import numpy as np
 
 from caroline.config import get_config
 
+ALLOWED_S1_POLARISATIONS = ["IW_SLC__1SDV_VVVH"]  # allowed polarisations for S1 to trigger Caroline
 CONFIG_PARAMETERS = get_config()
+DELTA_T_SLC_LIMIT = 30  # maximum number of days an acquisition between acquisition date and Caroline trigger
 EARTH_RADIUS = 6378136  # m
 
 
@@ -439,9 +441,9 @@ def parse_start_files(new_insar_files_file: str, force_start_file: str) -> tuple
                 date = line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[3]
                 today = dt.datetime.now().strftime("%Y%m%d")
                 delta_t = dt.datetime.strptime(today, "%Y%m%d") - dt.datetime.strptime(date, "%Y%m%d")
-                if delta_t.days <= 30:
+                if delta_t.days <= DELTA_T_SLC_LIMIT:
                     polarisation = line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[2]
-                    if polarisation == "IW_SLC__1SDV_VVVH":
+                    if polarisation in ALLOWED_S1_POLARISATIONS:
                         # date and polarisation are okay, let's check if this track has not been previously started
                         json_file = line.split(".")[0] + ".json"
                         json_timestamp = time.ctime(os.path.getmtime(json_file))
@@ -450,7 +452,12 @@ def parse_start_files(new_insar_files_file: str, force_start_file: str) -> tuple
                             if track not in new_tracks_dict.keys():
                                 new_tracks_dict[track] = []
 
-                            new_tracks_dict[track].append(read_SLC_json(json_file))
+                            new_tracks_dict[track].append(
+                                [
+                                    line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[4],
+                                    read_SLC_json(json_file),
+                                ]
+                            )
 
                             os.system(
                                 """echo "$(date '+%Y-%m-%dT%H:%M:%S');"""
@@ -459,6 +466,37 @@ def parse_start_files(new_insar_files_file: str, force_start_file: str) -> tuple
                                 f"""{json_timestamp} """
                                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/slcs-detected.csv"""
                             )
+                            os.system(
+                                """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
+                                f"""detected original SLC {line} """
+                                """and has accepted it as a new original SLC, """
+                                """so its overlapping AoIs will start." """
+                                f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                            )
+                        else:
+                            os.system(
+                                """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
+                                f"""detected original SLC {line} """
+                                """but this original SLC has already been logged as detected, """
+                                """so original SLC is ignored." """
+                                f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                            )
+                    else:
+                        os.system(
+                            """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
+                            f"""detected original SLC {line} """
+                            f"""but polarisation of {polarisation} is not in {ALLOWED_S1_POLARISATIONS}, """
+                            """so original SLC is ignored." """
+                            f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                        )
+                else:
+                    os.system(
+                        """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
+                        f"""detected original SLC {line} """
+                        f"""but Delta T of {delta_t} exceeds limit of {DELTA_T_SLC_LIMIT}, """
+                        """so original SLC is ignored." """
+                        f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                    )
 
     f = open(force_start_file)
     data = f.read().split("\n")

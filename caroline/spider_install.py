@@ -188,13 +188,18 @@ def _update_start_job() -> None:
     os.system(f"cp -p {CONFIG['CAROLINE_INSTALL_DIRECTORY']}/scripts/start_job.sh {CONFIG['SLURM_OUTPUT_DIRECTORY']}/")
 
 
-def _initialize_force_start_job() -> None:
+def _initialize_work_directory() -> None:
     """Check if force-start-runs.dat exists."""
-    os.system('''echo "Initialising force-start-runs.dat..."''')
+    os.system('''echo "Initialising work directory..."''')
     if not os.path.exists(f"{CONFIG['CAROLINE_WORK_DIRECTORY']}/force-start-runs.dat"):
         f = open(f"{CONFIG['CAROLINE_WORK_DIRECTORY']}/force-start-runs.dat", "w")
         f.write("")
         f.close()
+    if not os.path.exists(f"{CONFIG['CAROLINE_WORK_DIRECTORY']}/slcs-detected.csv"):
+        f = open(f"{CONFIG['CAROLINE_WORK_DIRECTORY']}/slcs-detected.csv", "w")
+        f.write("Date;Account;SLC;JSON-timestamp\n")
+        f.close()
+    os.system('''echo "Work directory initialized!"''')
 
 
 if __name__ == "__main__":
@@ -220,9 +225,6 @@ if __name__ == "__main__":
 
     _update_start_job()
 
-    _initialize_force_start_job()
+    _initialize_work_directory()
 
     os.system('''echo "Finished Spider installation!"''')
-
-    # Return the installation directory to spider-install.sh for the contextual data upload
-    print(CONFIG["CAROLINE_INSTALL_DIRECTORY"])

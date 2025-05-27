@@ -52,7 +52,7 @@ def format_process_folder(job_description: dict, parameter_file: str, track: int
     return f"{base_folder}/{AoI_name}_{sensor.lower()}_{asc_dsc.lower()}_t{track:0>3d}{directory_appendix}"
 
 
-def remove_incomplete_sentinel1_images(parameter_file: str):
+def remove_incomplete_sentinel1_images(parameter_file: str) -> None:
     """Identify and remove incomplete Sentinel-1 image downloads to prevent Doris v5 crashing.
 
     The identified files are printed to a `bad_zips.txt`.
@@ -168,7 +168,7 @@ def find_slurm_job_id(parameter_file: str, job: str) -> int:
     return eval(job_id)
 
 
-def generate_shapefile(parameter_file: str):
+def generate_shapefile(parameter_file: str) -> None:
     """Generate a shapefile based on a CAROLINE parameter file.
 
     If `shape_file` is a shapefile, this file will be linked. Otherwise a square is shapefile is generated.
@@ -632,7 +632,7 @@ def convert_shp_to_wkt(shp_filename: str) -> str:
     return wkt
 
 
-def identify_s1_orbits_in_aoi(shp_filename: str) -> list[str]:
+def identify_s1_orbits_in_aoi(shp_filename: str) -> tuple[list[str], dict]:
     """Identify the Sentinel-1 orbit numbers and directions crossing a AoI.
 
     Parameters
@@ -642,8 +642,10 @@ def identify_s1_orbits_in_aoi(shp_filename: str) -> list[str]:
 
     Returns
     -------
-    str
-        WKT string of the shape contained in the shapefile
+    list
+        The orbits overlapping with the AoI
+    dict
+        The footprints of the overlapping SLCs per track
     """
     wkt = convert_shp_to_wkt(shp_filename)
     slcs = asf.geo_search(
@@ -658,6 +660,14 @@ def identify_s1_orbits_in_aoi(shp_filename: str) -> list[str]:
         f"s1_{slc.properties['flightDirection'].lower().replace('e', '')[:3]}_t{slc.properties['pathNumber']:0>3d}"
         for slc in slcs
     ]
-
     filtered_orbits = list(sorted(list(set(orbits))))
-    return filtered_orbits
+
+    extents = [slc.geojson()["geometry"]["coordinates"][0] for slc in slcs]
+    footprints = {}
+    for orbit in filtered_orbits:
+        footprints[orbit] = []
+
+    for extent in range(len(extents)):
+        footprints[orbits[extent]].append(extents[extent])
+
+    return filtered_orbits, footprints

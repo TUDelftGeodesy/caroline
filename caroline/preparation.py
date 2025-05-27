@@ -7,6 +7,7 @@ import numpy as np
 
 from caroline.config import get_config
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent, write_run_file
+from caroline.kml import KML
 from caroline.utils import (
     convert_shp_to_wkt,
     detect_sensor_pixelsize,
@@ -101,16 +102,54 @@ def finish_installation() -> None:
 
         if sensor == "S1":
             # then determine the intersecting orbits
-            orbits = identify_s1_orbits_in_aoi(shapefile_name)
+            orbits, footprints = identify_s1_orbits_in_aoi(shapefile_name)
+            allowed_footprints = {}
+            disallowed_footprints = {}
             disallowed_orbits = eval(read_parameter_file(parameter_file, ["exclude_tracks"])["exclude_tracks"])
             forced_orbits = eval(read_parameter_file(parameter_file, ["include_tracks"])["include_tracks"])
             for orbit in disallowed_orbits:
                 if orbit in orbits:
                     orbits.pop(orbits.index(orbit))
+                    disallowed_footprints[orbit] = footprints[orbit]
             for orbit in forced_orbits:
                 if orbit not in orbits:
                     orbits.append(orbit)
+                    allowed_footprints[orbit] = []
+            for orbit in orbits:
+                if orbit not in allowed_footprints.keys():
+                    allowed_footprints[orbit] = footprints[orbit]
             orbits = list(sorted(orbits))
+
+            # generate the overlap KML
+            now = dt.datetime.now()
+            now_str = now.strftime("%Y%m%d")
+
+            kml = KML(f"{CONFIG_PARAMETERS['AOI_OVERVIEW_DIRECTORY']}/SLC_overlap_{aoi_name}_{now_str}.kml")
+            kml.open_folder("AoI", "Extent of the AoI")
+            kml.add_polygon(read_shp_extent(shapefile_name, shp_type="AoI")["0"], f"{aoi_name}", "", "stack")
+            kml.close_folder()
+
+            kml.open_folder("Accepted tracks", "Extents of the original SLCs on the accepted tracks")
+            for key in list(sorted(list(allowed_footprints.keys()))):
+                if len(allowed_footprints[key]) == 0:
+                    kml.open_folder(key, f"Track {key} was forced and has no footprints.")
+                else:
+                    kml.open_folder(key, "")
+                    for n, footprint in enumerate(allowed_footprints[key]):
+                        kml.add_polygon(footprint, f"Footprint {n+1}", f"Extent of detected original SLC {n+1}", "AoI")
+
+                kml.close_folder()
+            kml.close_folder()
+
+            kml.open_folder("Rejected tracks", "Extents of the original SLCs on the rejected tracks")
+            for key in list(sorted(list(allowed_footprints.keys()))):
+                kml.open_folder(key, "")
+                for n, footprint in enumerate(allowed_footprints[key]):
+                    kml.add_polygon(footprint, f"Footprint {n + 1}", f"Extent of detected original SLC {n + 1}", "SLC")
+
+                kml.close_folder()
+            kml.close_folder()
+            kml.save()
 
             # then figure out if this is a download-only job, a non-download job, or a mix job
             jobs_to_do = read_parameter_file(parameter_file, job_keys)

@@ -261,7 +261,7 @@ def add_AoI_extent_folder(kml: KML) -> KML:
             for job in JOB_DEFINITIONS["jobs"].keys():
                 if job_schedule_check(param_file_data[param_file_AoI_name]["full_name"], job, JOB_DEFINITIONS["jobs"]):
                     jobs += f"{job}, "
-
+                else:
                     if JOB_DEFINITIONS["jobs"][job]["requirement"] is not None:
                         if isinstance(JOB_DEFINITIONS["jobs"][job]["requirement"], str):
                             if not job_schedule_check(

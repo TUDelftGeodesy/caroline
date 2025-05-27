@@ -463,7 +463,7 @@ def parse_start_files(new_insar_files_file: str, force_start_file: str) -> tuple
                                 """echo "$(date '+%Y-%m-%dT%H:%M:%S');"""
                                 """$(whoami);"""
                                 f"""{line};"""
-                                f"""{json_timestamp} """
+                                f"""{json_timestamp}" """
                                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/slcs-detected.csv"""
                             )
                             os.system(

@@ -107,7 +107,7 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
                 shapefile_extent = Polygon(
                     read_shp_extent(
                         f"{parameters['shape_directory']}/{parameters['shape_AoI_name']}_shape.shp", shp_type="AoI"
-                    )[0]
+                    )["0"]
                 )
                 if any([shapefile_extent.intersects(poly[1]) for poly in new_tracks[new_track]]):
                     overlap_SLC_names = [

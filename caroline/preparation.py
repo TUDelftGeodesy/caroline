@@ -142,9 +142,9 @@ def finish_installation() -> None:
             kml.close_folder()
 
             kml.open_folder("Rejected tracks", "Extents of the original SLCs on the rejected tracks")
-            for key in list(sorted(list(allowed_footprints.keys()))):
+            for key in list(sorted(list(disallowed_footprints.keys()))):
                 kml.open_folder(key, "")
-                for n, footprint in enumerate(allowed_footprints[key]):
+                for n, footprint in enumerate(disallowed_footprints[key]):
                     kml.add_polygon(footprint, f"Footprint {n + 1}", f"Extent of detected original SLC {n + 1}", "SLC")
 
                 kml.close_folder()

@@ -648,14 +648,22 @@ def identify_s1_orbits_in_aoi(shp_filename: str) -> tuple[list[str], dict]:
         The footprints of the overlapping SLCs per track
     """
     wkt = convert_shp_to_wkt(shp_filename)
-    slcs = asf.geo_search(
-        intersectsWith=wkt,
-        platform=asf.PLATFORM.SENTINEL1,
-        beamMode="IW",
-        processingLevel="SLC",
-        start="one month ago",
-        end="now",
-    )
+    slcs = None
+    counter = 0
+    while slcs is None:
+        try:
+            slcs = asf.geo_search(
+                intersectsWith=wkt,
+                platform=asf.PLATFORM.SENTINEL1,
+                beamMode="IW",
+                processingLevel="SLC",
+                start="one month ago",
+                end="now",
+            )
+        except asf.exceptions.ASFSearch5xxError:
+            counter += 1
+            os.system(f'''echo "ASF encountered an internal error. Retrying... (#{counter})"''')
+
     orbits = [
         f"s1_{slc.properties['flightDirection'].lower().replace('e', '')[:3]}_t{slc.properties['pathNumber']:0>3d}"
         for slc in slcs

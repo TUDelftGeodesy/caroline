@@ -1,6 +1,7 @@
 import glob
 import os
 import zipfile
+from math import log
 
 import asf_search as asf
 import numpy as np
@@ -8,6 +9,7 @@ import numpy as np
 from caroline.config import get_config
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent
 
+BYTE_PREFIX = " kMGTPEZYRQ"
 CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
 
@@ -679,3 +681,39 @@ def identify_s1_orbits_in_aoi(shp_filename: str) -> tuple[list[str], dict]:
         footprints[orbits[extent]].append(extents[extent])
 
     return filtered_orbits, footprints
+
+
+def get_path_bytesize(path: str) -> int:
+    """Retrieve the number of bytes in a file, or a folder and all its subdirectories.
+
+    Parameters
+    ----------
+    path: str
+        Absolute path to the file or folder of which the datasize is requested
+
+    Returns
+    -------
+    int
+        Filesize / folder size in bytes
+    """
+    data = os.popen(f"du -B 1 -d 0 {path}").read()
+    bytesize = int(data.split(" ")[0])
+    return bytesize
+
+
+def convert_bytesize_to_humanreadable(bytesize: int) -> str:
+    """Convert a number of bytes into human-readable format.
+
+    Parameters
+    ----------
+    bytesize: int
+        Number of bytes
+
+    Returns
+    -------
+    str
+        Number of bytes in human-readable format
+    """
+    level = int(log(bytesize, 1024))
+    humanreadable = f"{round(bytesize/1024**level, 2)} {BYTE_PREFIX[level]}B"
+    return humanreadable

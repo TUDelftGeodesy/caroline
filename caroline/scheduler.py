@@ -25,7 +25,7 @@ TIME_LIMITS = {
 }  # the true max is 30 days but this will cause interference with new images
 
 
-def _job_schedule_check(parameter_file: str, job: str, job_definitions: dict) -> bool:
+def job_schedule_check(parameter_file: str, job: str, job_definitions: dict) -> bool:
     """Check if a job should be scheduled based on the parameter file and the job definitions.
 
     Parameters
@@ -156,7 +156,7 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
             out_parameters = {}
 
             for job in job_definitions.keys():
-                if _job_schedule_check(f"{parameter_file_base}_{data[0]}.txt", job, job_definitions):
+                if job_schedule_check(f"{parameter_file_base}_{data[0]}.txt", job, job_definitions):
                     out_parameters[f"do_{job}"] = "1"
                 else:
                     out_parameters[f"do_{job}"] = "0"
@@ -178,7 +178,14 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
                                 dependency_id = f"{data[0]}-{requirement}-{new_track}"
                             # if not, and there is a dependency parameter file, it is run there
                             elif data[1] is not None:
-                                dependency_id = f"{data[1]}-{requirement}-{new_track}"
+                                # Check if the dependency is actually active or not
+                                if (
+                                    f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
+                                    f"area-track-lists/{data[1]}.dat"
+                                ) in area_track_files:
+                                    dependency_id = f"{data[1]}-{requirement}-{new_track}"
+                                else:
+                                    dependency_id = None
                             # if not either, the dependency will not run and we assume it already ran
                             else:
                                 dependency_id = None
@@ -190,10 +197,13 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
                                     dependency_id.append(f"{data[0]}-{req}-{new_track}")
                                 # if not, and there is a dependency parameter file, check if it is run there
                                 elif data[1] is not None:
-                                    if _job_schedule_check(
-                                        f"{parameter_file_base}_{data[1]}.txt", req, job_definitions
-                                    ):
-                                        dependency_id.append(f"{data[1]}-{req}-{new_track}")
+                                    if job_schedule_check(f"{parameter_file_base}_{data[1]}.txt", req, job_definitions):
+                                        # Check if the dependency is actually active or not
+                                        if (
+                                            f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
+                                            f"area-track-lists/{data[1]}.dat"
+                                        ) in area_track_files:
+                                            dependency_id.append(f"{data[1]}-{req}-{new_track}")
                             if len(dependency_id) == 0:
                                 dependency_id = None
                             elif len(dependency_id) == 1:

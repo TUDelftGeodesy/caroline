@@ -285,7 +285,7 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                                 ]
                             ):
                                 dependency = (
-                                    f'Previous step {JOB_DEFINITIONS["jobs"][job]["requirement"].join("/")} loaded '
+                                    f'Previous step {"/".join(JOB_DEFINITIONS["jobs"][job]["requirement"])} loaded '
                                     f'from AoI {param_file_data[param_file_AoI_name]["dependency"]}\n'
                                 )
 

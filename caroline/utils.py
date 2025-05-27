@@ -696,8 +696,9 @@ def get_path_bytesize(path: str) -> int:
     int
         Filesize / folder size in bytes
     """
-    data = os.popen(f"du -B 1 -d 0 {path}").read()
-    bytesize = int(data.split("\t")[0])
+    data = os.popen(f"ls -ld {path}").read().split(" ")
+    data = [d for d in data if d != ""]
+    bytesize = int(data[4])
     return bytesize
 
 

@@ -8,6 +8,7 @@ import numpy as np
 
 from caroline.config import get_config
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent
+from caroline.scheduler import job_schedule_check
 
 BYTE_PREFIX = " kMGTPEZYRQ"
 CONFIG_PARAMETERS = get_config()
@@ -222,11 +223,6 @@ def _generate_email(parameter_file: str) -> str:
 
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    # for appending to the email, we read the entire file anyways
-    f = open(parameter_file)
-    parameter_file_content = f.read()
-    f.close()
-
     if out_parameters["skygeo_customer"] is None:  # backwards compatibility for #12
         out_parameters["skygeo_customer"] = "caroline"
 
@@ -245,44 +241,50 @@ def _generate_email(parameter_file: str) -> str:
     run_id = "_".join(parameter_file.split("/")[-1].split("_")[2:-4])
 
     # Generate the logs
-    log = "==========DEBUG LOGS===========\n\n"
+    log_folder_name = (
+        f'{CONFIG_PARAMETERS["CAROLINE_PUBLIC_LOG_DIRECTORY"]}/{"_".join(parameter_file.split("/")[-1].split("_")[2:])}'
+    )
+
+    os.makedirs(f"{log_folder_name}/parameter-file")
+    os.system(f"ln -sfd {parameter_file} {log_folder_name}/parameter-file/{parameter_file.split('/')[-1]}")
 
     status_checks = ""
     for job in jobs["jobs"].keys():
-        if jobs["jobs"][job]["email"]["include-in-email"]:
-            do_key = jobs["jobs"][job]["parameter-file-step-key"]
-            job_ran = read_parameter_file(parameter_file, [do_key])[do_key]
+        if job_schedule_check(parameter_file, job, jobs["jobs"]):  # it has run
+            job_id = find_slurm_job_id(parameter_file, job)
+            check = proper_finish_check(parameter_file, job, job_id)
 
-            if job_ran == "1":
-                # first check the filters
-                if jobs["jobs"][job]["filters"] is not None:  # we need to filter on the sensor
-                    for key in jobs["jobs"][job]["filters"].keys():
-                        value_check = read_parameter_file(parameter_file, [key])[key]
-                        if isinstance(jobs["jobs"][job]["filters"][key], str):
-                            if value_check.lower() != jobs["jobs"][job]["filters"][key].lower():
-                                job_ran = "0"
-                        else:  # it's a list, so we check if it exists in the list
-                            if value_check.lower() not in [s.lower() for s in jobs["jobs"][job]["filters"][key]]:
-                                job_ran = "0"
+            os.makedirs(f"{log_folder_name}/{job}")
 
-            if job_ran == "1":  # if it's still 1, it ran
-                job_id = find_slurm_job_id(parameter_file, job)
+            if check["successful_finish"]:
+                f = open(f"{log_folder_name}/{job}/STATUS-job-finished-successfully.log", "w")
+                f.close()
+                os.system(f"ln -sfd {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
+                if check["status_file"] is not None:
+                    os.system(
+                        f"ln -sfd {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
+                    )
+            elif check["successful_start"]:
+                if job != "email":
+                    f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-finish-successfully.log", "w")
+                    f.close()
+                os.system(f"ln -sfd {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
+                if check["status_file"] is not None:
+                    os.system(
+                        f"ln -sfd {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
+                    )
+            else:
+                f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-start-successfully.log", "w")
+                f.close()
 
+            if jobs["jobs"][job]["email"]["include-in-email"]:
                 if jobs["jobs"][job]["bash-file"] is not None:
                     directory = read_parameter_file(
                         parameter_file, [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
                     )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
                 else:
                     directory = CONFIG_PARAMETERS["SLURM_OUTPUT_DIRECTORY"]
-
-                log += f"\n\n-------{job}--------\n\n"
-
-                log += f"---Track {tracks_formatted}---\n\n"
-
-                check = proper_finish_check(parameter_file, job, job_id)
-
                 if check["successful_finish"]:
-                    log += "Step finished successfully!\n\n"
                     if job == "portal_upload":
                         status_checks += (
                             "NOTE: it can take a few hours for the results to show up in the portal.\n"
@@ -293,27 +295,13 @@ def _generate_email(parameter_file: str) -> str:
                     else:
                         status_checks += f"{job}: {tracks_formatted} finished properly! (located in {directory} )\n\n"
                 elif check["successful_start"]:
-                    log += "!!! Step did not finish properly!\n\n"
                     status_checks += (
                         f"!!! {job}: {tracks_formatted} did not finish properly! " f"(located in {directory} )\n\n"
                     )
                 else:
-                    log += "!!! Step did not start properly!\n\n"
                     status_checks += (
                         f"!!! {job}: {tracks_formatted} did not start properly! " f"(located in {directory} )\n\n"
                     )
-
-                if check["status_file"] is not None:
-                    log += f"Status file: {check['status_file']}\nSlurm output: {check['slurm_file']}\n\n"
-
-                    f = open(check["status_file"])
-                    status = f.read()
-                    f.close()
-                    log += f"Status file output: \n\n{status}\n\n"
-                else:
-                    log += f"Slurm output: {check['slurm_file']}\n\n"
-
-    log += "================"
 
     project_characteristics = f"""Project characteristics:
 Owner: {out_parameters['project_owner']} ({out_parameters['project_owner_email']})
@@ -343,14 +331,10 @@ Freek, Niels, and Simon
 =======================================
 ===========DEBUG info==================
 =======================================
-First logs of the subprocesses, then the parameter file.
-=======================================
-    
-{log}
-    
---- PARAMETER FILE: {parameter_file} ---
-    
-{parameter_file_content}"""
+All debug logs, SLURM output and the parameter file can be accessed at 
+https://public.spider.surfsara.nl{log_folder_name.replace("Public/", "")} .
+
+"""
 
     return message
 

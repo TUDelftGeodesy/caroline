@@ -8,6 +8,7 @@ directories:
   CAROLINE_INSTALL_DIRECTORY: "/project/caroline/Software/caroline"
   CAROLINE_PLUGINS_ARCHIVE_DIRECTORY: "/project/caroline/Software/archives/caroline_plugins"
   CAROLINE_PLUGINS_DIRECTORY: "/project/caroline/Software/caroline-plugins"
+  CAROLINE_PUBLIC_LOG_DIRECTORY: "/project/caroline/Public/caroline/logs"
   CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY: "/project/caroline/Software/venv/caroline"
   CAROLINE_WATER_MASK_DIRECTORY: "/project/caroline/Software/config/caroline-water-masks"
   CAROLINE_WORK_DIRECTORY: "/project/caroline/Software/run/caroline/work"

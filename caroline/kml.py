@@ -4,8 +4,18 @@ from typing import Literal
 
 from caroline.config import get_config
 from caroline.io import read_parameter_file, read_shp_extent, read_SLC_json, read_SLC_xml
+from caroline.scheduler import job_schedule_check
+from caroline.utils import (
+    convert_bytesize_to_humanreadable,
+    get_path_bytesize,
+    get_processing_time,
+    identify_s1_orbits_in_aoi,
+)
 
 CONFIG_PARAMETERS = get_config()
+JOB_DEFINITIONS = get_config(
+    f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
+)
 
 
 class KML:
@@ -236,7 +246,8 @@ def add_AoI_extent_folder(kml: KML) -> KML:
 
             # Next, combine all info into the message that will be shown when clicking
             # General info
-            message = f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n\n"
+            message = f"Active: {param_file_data[param_file_AoI_name]['active']}\n\n"
+            message += f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n\n"
             message += (
                 f"Project owner: {param_file_data[param_file_AoI_name]['project_owner']} ("
                 f"{param_file_data[param_file_AoI_name]['project_owner_email']})\n"
@@ -251,39 +262,101 @@ def add_AoI_extent_folder(kml: KML) -> KML:
 
             # Processing info per step
             message += "Processing steps done: \n"
-            for step in ["coregistration", "crop_to_raw", "crop_to_zarr", "depsi", "depsi_post"]:
-                if param_file_data[param_file_AoI_name][f"do_{step}"] == "1":
-                    if step == "depsi_post":  # also add the portal link if depsi_post ran
-                        message += (
-                            f"{step}: done in {param_file_data[param_file_AoI_name]['depsi_directory']}\n"
-                            f"(AoI {param_file_data[param_file_AoI_name]['depsi_AoI_name']})\n"
+            jobs = ""
+            dependency = "\n"
+            size_check_keys = []
+            for job in JOB_DEFINITIONS["jobs"].keys():
+                if job_schedule_check(param_file_data[param_file_AoI_name]["full_name"], job, JOB_DEFINITIONS["jobs"]):
+                    jobs += f"{job}, "
+
+                    if JOB_DEFINITIONS["jobs"][job]["bash-file"] is not None:
+                        if JOB_DEFINITIONS["jobs"][job]["bash-file"]["bash-file-base-directory"] not in size_check_keys:
+                            size_check_keys.append(
+                                JOB_DEFINITIONS["jobs"][job]["bash-file"]["bash-file-base-directory"]
+                            )
+
+                    # check if the dependency also runs here, if not, we will specify it
+                    if JOB_DEFINITIONS["jobs"][job]["requirement"] not in [None, "*"]:
+                        if isinstance(JOB_DEFINITIONS["jobs"][job]["requirement"], str):
+                            if not job_schedule_check(
+                                param_file_data[param_file_AoI_name]["full_name"],
+                                JOB_DEFINITIONS["jobs"][job]["requirement"],
+                                JOB_DEFINITIONS["jobs"],
+                            ):
+                                dependency = (
+                                    f'Previous step {JOB_DEFINITIONS["jobs"][job]["requirement"]} loaded from AoI '
+                                    f'{param_file_data[param_file_AoI_name]["dependency"]}\n'
+                                )
+                        else:  # it's a list:
+                            if not any(
+                                [
+                                    job_schedule_check(
+                                        param_file_data[param_file_AoI_name]["full_name"],
+                                        JOB_DEFINITIONS["jobs"][job]["requirement"][i],
+                                        JOB_DEFINITIONS["jobs"],
+                                    )
+                                    for i in range(len(JOB_DEFINITIONS["jobs"][job]["requirement"]))
+                                ]
+                            ):
+                                dependency = (
+                                    f'Previous step {"/".join(JOB_DEFINITIONS["jobs"][job]["requirement"])} loaded '
+                                    f'from AoI {param_file_data[param_file_AoI_name]["dependency"]}\n'
+                                )
+
+            if len(jobs) > 0:  # then we need to cut off the last ,
+                jobs = jobs[:-2]
+            message += dependency
+            message += f"{jobs}\n\n"
+
+            # determine the data size and processing time
+            if param_file_data[param_file_AoI_name]["tracks"] == "Unknown":
+                data_size_fmt = "Unknown"
+                processing_time_fmt = "Unknown"
+            else:
+                tracks = param_file_data[param_file_AoI_name]["tracks"].strip().strip(",").split(", ")
+                data_size = []
+                for key in size_check_keys:
+                    data_size.append(0)
+                    locations = read_parameter_file(
+                        param_file_data[param_file_AoI_name]["full_name"], [f"{key}_directory", f"{key}_AoI_name"]
+                    )
+                    for track in tracks:
+                        directories = glob.glob(
+                            f"{locations[f'{key}_directory']}/{locations[f'{key}_AoI_name']}_{track}*"
                         )
-                        message += (
-                            f"Portal: https://caroline.portal-tud.skygeo.com/portal/"
-                            f"{param_file_data[param_file_AoI_name]['skygeo_customer']}/"
-                            f"{param_file_data[param_file_AoI_name]['skygeo_viewer']}/viewers/basic/"
-                        )
-                    else:
-                        message += (
-                            f"{step}: done in {param_file_data[param_file_AoI_name][f'{step}_directory']} "
-                            f"(AoI {param_file_data[param_file_AoI_name][f'{step}_AoI_name']})\n"
-                        )
-                else:  # if the step did not run but further steps did, add info on where it was loaded from
-                    if step == "coregistration" and any(
-                        [
-                            param_file_data[param_file_AoI_name][f"do_{step_}"] == "1"
-                            for step_ in ["crop_to_raw", "crop_to_zarr"]
-                        ]
-                    ):
-                        message += (
-                            f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']} "
-                            f"(AoI {param_file_data[param_file_AoI_name]['coregistration_AoI_name']})\n"
-                        )
-                    elif step == "crop_to_raw" and param_file_data[param_file_AoI_name]["do_depsi"] == "1":
-                        message += (
-                            f"{step}: loaded from {param_file_data[param_file_AoI_name][f'{step}_directory']} "
-                            f"(AoI {param_file_data[param_file_AoI_name]['crop_to_raw_AoI_name']})\n"
-                        )
+                        for directory in directories:
+                            data_size[-1] += get_path_bytesize(directory)
+                data_size_fmt = [
+                    f"{size_check_keys[byte]}: {convert_bytesize_to_humanreadable(data_size[byte])}"
+                    for byte in range(len(data_size))
+                ]
+                data_size_fmt = " / ".join(data_size_fmt)
+                data_size_fmt += f" (total {convert_bytesize_to_humanreadable(sum(data_size))})"
+
+                processing_time = 0
+
+                for track in tracks:
+                    track_processes = os.popen(
+                        f"""grep "{param_file_AoI_name}_{track}" """
+                        f"""{CONFIG_PARAMETERS['CAROLINE_WORK_DIRECTORY']}/submission-log.csv"""
+                    ).read()
+                    for line in track_processes.split("\n"):
+                        if ";" in line:  # filter out empty lines
+                            process_id = eval(line.split(";")[-1])
+                            processing_time += get_processing_time(process_id)
+                ndays = int(processing_time / (60 * 60 * 24))
+                nhours = int(processing_time / (60 * 60)) % 24
+                nminutes = int(processing_time / 60) % 60
+                nseconds = processing_time % 60
+                processing_time_fmt = (
+                    f"{ndays} days, {nhours:0>2d}:{nminutes:0>2d}:{nseconds:0>2d} ({round(processing_time/3600, 2)} h)"
+                )
+
+            message += f"Storage size: {data_size_fmt}\n\n"
+            message += f"Total used computation time (since 28 April 2025): {processing_time_fmt}\n"
+
+            # determine the processing time
+
             # finally, add the polygon
             kml.add_polygon(coordinate_dict["0"], param_file_AoI_name, message, "AoI")
 
@@ -316,6 +389,8 @@ def add_SLC_folder(kml: KML) -> KML:
     SLC_folders = list(sorted(glob.glob(f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/s1*")))
 
     for SLC_folder in SLC_folders:
+        size = convert_bytesize_to_humanreadable(get_path_bytesize(SLC_folder))
+
         name_pt1 = SLC_folder.split("/")[-1]  # this is e.g. s1_asc_t088
 
         # collect the dates
@@ -324,7 +399,7 @@ def add_SLC_folder(kml: KML) -> KML:
 
         if len(dates) > 0:
             # start a folder in the KML
-            kml.open_folder(name_pt1)
+            kml.open_folder(name_pt1, f"Storage size: {size}")
 
             # gather the statistics
             first_date = min(dates)
@@ -340,7 +415,8 @@ def add_SLC_folder(kml: KML) -> KML:
                     kml.add_polygon(
                         coordinates,
                         f"{name_pt1}_img{n + 1}",
-                        f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                        f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
+                        f'Total track storage size: {size}',
                         "SLC",
                     )
             else:
@@ -358,7 +434,8 @@ def add_SLC_folder(kml: KML) -> KML:
                                 kml.add_polygon(
                                     coordinates,
                                     f"{name_pt1}_img{n + 1}",
-                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
+                                    f'Total track storage size: {size}',
                                     "SLC",
                                 )
                         elif len(xmls) > 0:  # in the past xmls were downloaded, so those are supported too
@@ -368,7 +445,8 @@ def add_SLC_folder(kml: KML) -> KML:
                                 kml.add_polygon(
                                     coordinates,
                                     f"{name_pt1}_img{n + 1}",
-                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})'
+                                    f'Total track storage size: {size}',
                                     "SLC",
                                 )
                         break  # to only add each track once, stop when one is found with jsons or xmls
@@ -437,7 +515,9 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
             stack_folder = AoI_name_zipped[1]
             AoI_name = AoI_name_zipped[0]
             if os.path.exists(f"{stack_folder}/stackswath_coverage.shp"):
-                kml.open_folder(AoI_name)
+                size = convert_bytesize_to_humanreadable(get_path_bytesize(stack_folder))
+
+                kml.open_folder(AoI_name, f"Storage size: {size}")
 
                 coordinate_dict = read_shp_extent(f"{stack_folder}/stackswath_coverage.shp")
 
@@ -454,7 +534,8 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
                     n_dates = 0
 
                 message = f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
-                message += f"Located in {stack_folder}\n"
+                message += f"Storage size: {size}\n\n"
+                message += f"Located in {stack_folder}\n\n"
 
                 # Gather which caroline workflows this coregistered stack is part of
                 check_coreg_directory = stack_folder.split("/" + AoI_name + "_s1_")[0]
@@ -500,16 +581,6 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
                 "sensor",
                 "coregistration_directory",
                 "coregistration_AoI_name",
-                "do_coregistration",
-                "do_crop_to_raw",
-                "do_crop_to_zarr",
-                "do_depsi",
-                "do_depsi_post",
-                "skygeo_customer",
-                "skygeo_viewer",
-                "crop_to_raw_directory",
-                "crop_to_zarr_directory",
-                "depsi_directory",
                 "shape_directory",
                 "shape_AoI_name",
                 "project_owner",
@@ -518,38 +589,46 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
                 "project_engineer_email",
                 "project_objective",
                 "project_notes",
-                "crop_to_raw_AoI_name",
-                "depsi_AoI_name",
-                "crop_to_zarr_AoI_name",
+                "dependency",
+                "active",
             ],
         )
 
-        if out["sensor"] == "S1":  # for now, we only consider Sentinel-1
-            param_file_AoI_name = param_file.split("param_file_")[-1].split(".")[0]
+        param_file_AoI_name = param_file.split("param_file_")[-1].split(".")[0]
 
-            # retrieve the tracks
-            track_list_file = (
-                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
-                f"area-track-lists/{param_file_AoI_name}.dat"
+        # retrieve the tracks
+        track_list_file = (
+            f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists/{param_file_AoI_name}.dat"
+        )
+        if os.path.exists(track_list_file):
+            f = open(track_list_file)
+            data = f.read().split("\n")
+            f.close()
+            out["tracks"] = ", ".join(data[1:])
+        elif os.path.exists(
+            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/"
+            f"{param_file_AoI_name}/geosearch.yaml"
+        ):  # a download configuration exists, we can use it
+            filtered_orbits, _ = identify_s1_orbits_in_aoi(
+                f"{out['shape_directory']}/{out['shape_AoI_name']}_shape.shp"
             )
-            if os.path.exists(track_list_file):
-                f = open(track_list_file)
-                data = f.read().split("\n")
-                f.close()
-                out["tracks"] = ", ".join(data[1:])
-            elif param_file_AoI_name == "TEST_nl_amsterdam":  # this test AoI does not have a parameter file
-                out["tracks"] = "s1_dsc_t037"
-            else:  # if it has not yet been found, it might be inactive, which we need to check for
-                track_list_file = (
-                    f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
-                    f"INACTIVE_area-track-lists/{param_file_AoI_name}.dat"
+            allowed_orbits = eval(
+                os.popen(
+                    f"""grep "relative_orbits" {CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/"""
+                    f"""periodic/{param_file_AoI_name}/geosearch.yaml"""
                 )
-                if os.path.exists(track_list_file):
-                    f = open(track_list_file)
-                    data = f.read().split("\n")
-                    f.close()
-                    out["tracks"] = ", ".join(data[1:])
-                else:  # if we cannot find that either, leave it as unknown
-                    out["tracks"] = "Unknown"
-            param_file_data[param_file_AoI_name] = out
+                .read()
+                .split(": ")[1]
+            )
+
+            tracks = []
+            for track in list(sorted(list(filtered_orbits))):
+                if eval(track.split("_")[-1][1:].lstrip("0")) in allowed_orbits:
+                    tracks.append(track)
+            out["tracks"] = ", ".join(tracks)
+
+        else:  # if we cannot find that either, leave it as unknown
+            out["tracks"] = "Unknown"
+        param_file_data[param_file_AoI_name] = out
+        param_file_data[param_file_AoI_name]["full_name"] = param_file
     return param_file_data

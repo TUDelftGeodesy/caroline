@@ -25,7 +25,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.3.6](https://github.com/TUDelftGeodesy/caroline/tree/main) (26-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ff1906c0fe7a2a6c5c1b1446e38cc722b6e078c4...main))
+## [v2.3.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (26-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/a0cb0dbe64b7a73229e049185f95b3843eb956da...main))
+
+### Added:
+- The coverage of the detected original SLCs intersecting with the AoI during the determination of the intersecting tracks during installation is now plotted in a KML.
+- Non-Sentinel-1 AoIs now show up in the overview KML
+- The overview KML now specifies storage space used for SLCs, coregistered stacks, and AoIs (including all jobs)
+- The overview KML now specifies total processing time for AoIs
+- The overview KML now specifies if an AoI is active or not
+
+### Changed:
+- The live run now stores its overview KMLs in the `Public` repository accessible from https://public.spider.surfsara.nl/project/caroline/caroline
+- The overview KML now specifies what is happening much more concisely
+- The [Adding an AoI](docs/development.md#adding-a-new-aoi) section now specifies to look for already coregistered stacks in the KML in the Public folder
+
+### Fixed:
+- The scheduler now ignores dependencies on inactive and download-only AoIs when submitting new jobs
+- AoIs `nl_limburg`, `nl_groningen`, `nl_veenweiden` and `nl_schoonebeek` now properly reflect their dependency on AoI `be_lu_nl_benelux`
+
+## [v2.3.6](https://github.com/TUDelftGeodesy/caroline/tree/a0cb0dbe64b7a73229e049185f95b3843eb956da) (26-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ff1906c0fe7a2a6c5c1b1446e38cc722b6e078c4...a0cb0dbe64b7a73229e049185f95b3843eb956da))
 
 ### Changed:
 - The scheduler now takes into account the ground coverage of newly downloaded SLCs so that the download of an original SLC in e.g. France will not trigger AoIs in the Netherlands on the same track.

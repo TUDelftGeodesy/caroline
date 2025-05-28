@@ -1,6 +1,7 @@
 import glob
 import os
 import zipfile
+from math import log
 
 import asf_search as asf
 import numpy as np
@@ -8,6 +9,7 @@ import numpy as np
 from caroline.config import get_config
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent
 
+BYTE_PREFIX = " kMGTPEZYRQ"
 CONFIG_PARAMETERS = get_config()
 EARTH_RADIUS = 6378136  # m
 
@@ -52,7 +54,7 @@ def format_process_folder(job_description: dict, parameter_file: str, track: int
     return f"{base_folder}/{AoI_name}_{sensor.lower()}_{asc_dsc.lower()}_t{track:0>3d}{directory_appendix}"
 
 
-def remove_incomplete_sentinel1_images(parameter_file: str):
+def remove_incomplete_sentinel1_images(parameter_file: str) -> None:
     """Identify and remove incomplete Sentinel-1 image downloads to prevent Doris v5 crashing.
 
     The identified files are printed to a `bad_zips.txt`.
@@ -168,7 +170,7 @@ def find_slurm_job_id(parameter_file: str, job: str) -> int:
     return eval(job_id)
 
 
-def generate_shapefile(parameter_file: str):
+def generate_shapefile(parameter_file: str) -> None:
     """Generate a shapefile based on a CAROLINE parameter file.
 
     If `shape_file` is a shapefile, this file will be linked. Otherwise a square is shapefile is generated.
@@ -632,7 +634,7 @@ def convert_shp_to_wkt(shp_filename: str) -> str:
     return wkt
 
 
-def identify_s1_orbits_in_aoi(shp_filename: str) -> list[str]:
+def identify_s1_orbits_in_aoi(shp_filename: str) -> tuple[list[str], dict]:
     """Identify the Sentinel-1 orbit numbers and directions crossing a AoI.
 
     Parameters
@@ -642,22 +644,107 @@ def identify_s1_orbits_in_aoi(shp_filename: str) -> list[str]:
 
     Returns
     -------
-    str
-        WKT string of the shape contained in the shapefile
+    list
+        The orbits overlapping with the AoI
+    dict
+        The footprints of the overlapping SLCs per track
     """
     wkt = convert_shp_to_wkt(shp_filename)
-    slcs = asf.geo_search(
-        intersectsWith=wkt,
-        platform=asf.PLATFORM.SENTINEL1,
-        beamMode="IW",
-        processingLevel="SLC",
-        start="one month ago",
-        end="now",
-    )
+    slcs = None
+    counter = 0
+    while slcs is None:
+        try:
+            slcs = asf.geo_search(
+                intersectsWith=wkt,
+                platform=asf.PLATFORM.SENTINEL1,
+                beamMode="IW",
+                processingLevel="SLC",
+                start="one month ago",
+                end="now",
+            )
+        except asf.exceptions.ASFSearch5xxError:
+            counter += 1
+            os.system(f'''echo "ASF encountered an internal error. Retrying... (#{counter})"''')
+
     orbits = [
         f"s1_{slc.properties['flightDirection'].lower().replace('e', '')[:3]}_t{slc.properties['pathNumber']:0>3d}"
         for slc in slcs
     ]
-
     filtered_orbits = list(sorted(list(set(orbits))))
-    return filtered_orbits
+
+    extents = [slc.geojson()["geometry"]["coordinates"][0] for slc in slcs]
+    footprints = {}
+    for orbit in filtered_orbits:
+        footprints[orbit] = []
+
+    for extent in range(len(extents)):
+        footprints[orbits[extent]].append(extents[extent])
+
+    return filtered_orbits, footprints
+
+
+def get_path_bytesize(path: str) -> int:
+    """Retrieve the number of bytes in a file, or a folder and all its subdirectories.
+
+    Parameters
+    ----------
+    path: str
+        Absolute path to the file or folder of which the datasize is requested
+
+    Returns
+    -------
+    int
+        Filesize / folder size in bytes
+    """
+    data = os.popen(f"ls -ld {path}").read().split(" ")
+    data = [d for d in data if d != ""]
+    bytesize = int(data[4])
+    return bytesize
+
+
+def convert_bytesize_to_humanreadable(bytesize: int) -> str:
+    """Convert a number of bytes into human-readable format.
+
+    Parameters
+    ----------
+    bytesize: int
+        Number of bytes
+
+    Returns
+    -------
+    str
+        Number of bytes in human-readable format
+    """
+    if bytesize == 0:
+        level = 0
+    else:
+        level = int(log(bytesize, 1024))
+    humanreadable = f"{round(bytesize/1024**level, 2)} {BYTE_PREFIX[level]}B"
+    return humanreadable
+
+
+def get_processing_time(job_id: int) -> int:
+    """Retrieve the seconds of processing time of a job given its job_id.
+
+    Parameters
+    ----------
+    job_id: int
+        The SLURM job-ID of the job
+
+    Returns
+    -------
+    int
+        The processing time of the job in seconds
+    """
+    data = os.popen(f"sacct --format=Elapsed --jobs={job_id}").read()
+    elapsed = data.split("\n")[2]
+    total_time = 0
+    if "-" in elapsed:  # number of days is included:
+        total_time += eval(elapsed.split("-")[0].strip().lstrip("0")) * 24 * 60 * 60
+        elapsed = elapsed.split("-")[1]
+    elapsed = elapsed.split(":")
+    for n, mult in enumerate([3600, 60, 1]):
+        time_elapsed = elapsed[n].strip().lstrip("0")
+        if time_elapsed != "":  # 0 will be stripped completely, but adds nothing anyways so we can ignore it
+            total_time += mult * eval(time_elapsed)
+    return total_time

@@ -413,7 +413,7 @@ def add_SLC_folder(kml: KML) -> KML:
                         coordinates,
                         f"{name_pt1}_img{n + 1}",
                         f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
-                        f'Storage size: {size}',
+                        f'Total track storage size: {size}',
                         "SLC",
                     )
             else:
@@ -431,8 +431,8 @@ def add_SLC_folder(kml: KML) -> KML:
                                 kml.add_polygon(
                                     coordinates,
                                     f"{name_pt1}_img{n + 1}",
-                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"}, '
-                                    f'track total size {size})',
+                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
+                                    f'Total track storage size: {size}',
                                     "SLC",
                                 )
                         elif len(xmls) > 0:  # in the past xmls were downloaded, so those are supported too
@@ -442,7 +442,8 @@ def add_SLC_folder(kml: KML) -> KML:
                                 kml.add_polygon(
                                     coordinates,
                                     f"{name_pt1}_img{n + 1}",
-                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                                    f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})'
+                                    f'Total track storage size: {size}',
                                     "SLC",
                                 )
                         break  # to only add each track once, stop when one is found with jsons or xmls

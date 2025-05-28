@@ -715,7 +715,10 @@ def convert_bytesize_to_humanreadable(bytesize: int) -> str:
     str
         Number of bytes in human-readable format
     """
-    level = int(log(bytesize, 1024))
+    if bytesize == 0:
+        level = 0
+    else:
+        level = int(log(bytesize, 1024))
     humanreadable = f"{round(bytesize/1024**level, 2)} {BYTE_PREFIX[level]}B"
     return humanreadable
 

@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed:
 - The live run now stores its overview KMLs in the `Public` repository accessible from https://public.spider.surfsara.nl/project/caroline/caroline
 - The overview KML now specifies what is happening much more concisely
+- The [Adding an AoI](docs/development.md#adding-a-new-aoi) section now specifies to look for already coregistered stacks in the KML in the Public folder
 
 ### Fixed:
 - The scheduler now ignores dependencies on inactive and download-only AoIs when submitting new jobs

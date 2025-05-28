@@ -619,7 +619,7 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
 
             tracks = []
             for track in list(sorted(list(filtered_orbits))):
-                if eval(track.split("_")[-1].lstrip("0")) in allowed_orbits:
+                if eval(track.split("_")[-1][1:].lstrip("0")) in allowed_orbits:
                     tracks.append(track)
             out["tracks"] = ", ".join(tracks)
 

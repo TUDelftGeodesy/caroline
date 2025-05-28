@@ -348,9 +348,12 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                 nhours = int(processing_time / (60 * 60)) % 24
                 nminutes = int(processing_time / 60) % 60
                 nseconds = processing_time % 60
-                processing_time_fmt = f"{ndays} days, {nhours}:{nminutes}:{nseconds}"
+                processing_time_fmt = (
+                    f"{ndays} days, {nhours:0>2d}:{nminutes:0>2d}:{nseconds:0>2d} ({round(processing_time/3600, 2)} h)"
+                )
 
-            message += f"Storage size: {data_size_fmt}\n\nTotal used computation time: {processing_time_fmt}\n"
+            message += f"Storage size: {data_size_fmt}\n\n"
+            message += f"Total used computation time (since 28 April 2025): {processing_time_fmt}\n"
 
             # determine the processing time
 

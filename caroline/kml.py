@@ -5,7 +5,12 @@ from typing import Literal
 from caroline.config import get_config
 from caroline.io import read_parameter_file, read_shp_extent, read_SLC_json, read_SLC_xml
 from caroline.scheduler import job_schedule_check
-from caroline.utils import convert_bytesize_to_humanreadable, get_path_bytesize
+from caroline.utils import (
+    convert_bytesize_to_humanreadable,
+    get_path_bytesize,
+    get_processing_time,
+    identify_s1_orbits_in_aoi,
+)
 
 CONFIG_PARAMETERS = get_config()
 JOB_DEFINITIONS = get_config(
@@ -241,7 +246,8 @@ def add_AoI_extent_folder(kml: KML) -> KML:
 
             # Next, combine all info into the message that will be shown when clicking
             # General info
-            message = f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n\n"
+            message = f"Active: {param_file_data[param_file_AoI_name]['active']}\n\n"
+            message += f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n\n"
             message += (
                 f"Project owner: {param_file_data[param_file_AoI_name]['project_owner']} ("
                 f"{param_file_data[param_file_AoI_name]['project_owner_email']})\n"
@@ -258,11 +264,19 @@ def add_AoI_extent_folder(kml: KML) -> KML:
             message += "Processing steps done: \n"
             jobs = ""
             dependency = "\n"
+            size_check_keys = []
             for job in JOB_DEFINITIONS["jobs"].keys():
                 if job_schedule_check(param_file_data[param_file_AoI_name]["full_name"], job, JOB_DEFINITIONS["jobs"]):
                     jobs += f"{job}, "
-                else:
-                    if JOB_DEFINITIONS["jobs"][job]["requirement"] is not None:
+
+                    if JOB_DEFINITIONS["jobs"][job]["bash-file"] is not None:
+                        if JOB_DEFINITIONS["jobs"][job]["bash-file"]["bash-file-base-directory"] not in size_check_keys:
+                            size_check_keys.append(
+                                JOB_DEFINITIONS["jobs"][job]["bash-file"]["bash-file-base-directory"]
+                            )
+
+                    # check if the dependency also runs here, if not, we will specify it
+                    if JOB_DEFINITIONS["jobs"][job]["requirement"] not in [None, "*"]:
                         if isinstance(JOB_DEFINITIONS["jobs"][job]["requirement"], str):
                             if not job_schedule_check(
                                 param_file_data[param_file_AoI_name]["full_name"],
@@ -292,7 +306,54 @@ def add_AoI_extent_folder(kml: KML) -> KML:
             if len(jobs) > 0:  # then we need to cut off the last ,
                 jobs = jobs[:-2]
             message += dependency
-            message += f"{jobs}\n"
+            message += f"{jobs}\n\n"
+
+            # determine the data size and processing time
+            if param_file_data[param_file_AoI_name]["tracks"] == "Unknown":
+                data_size_fmt = "Unknown"
+                processing_time_fmt = "Unknown"
+            else:
+                tracks = param_file_data[param_file_AoI_name]["tracks"].strip().strip(",").split(", ")
+                data_size = []
+                for key in size_check_keys:
+                    data_size.append(0)
+                    locations = read_parameter_file(
+                        param_file_data[param_file_AoI_name]["full_name"], [f"{key}_directory", f"{key}_AoI_name"]
+                    )
+                    for track in tracks:
+                        directories = glob.glob(
+                            f"{locations[f'{key}_directory']}/{locations[f'{key}_AoI_name']}_{track}*"
+                        )
+                        for directory in directories:
+                            data_size[-1] += get_path_bytesize(directory)
+                data_size_fmt = [
+                    f"{size_check_keys[byte]}: {convert_bytesize_to_humanreadable(data_size[byte])}"
+                    for byte in range(len(data_size))
+                ]
+                data_size_fmt = " / ".join(data_size_fmt)
+                data_size_fmt += f" (total {convert_bytesize_to_humanreadable(sum(data_size))})"
+
+                processing_time = 0
+
+                for track in tracks:
+                    track_processes = os.popen(
+                        f"""grep "{param_file_AoI_name}_{track}" """
+                        f"""{CONFIG_PARAMETERS['CAROLINE_WORK_DIRECTORY']}/submission-log.csv"""
+                    ).read()
+                    for line in track_processes.split("\n"):
+                        if ";" in line:  # filter out empty lines
+                            process_id = eval(line.split(";")[-1])
+                            processing_time += get_processing_time(process_id)
+                ndays = int(processing_time / (60 * 60 * 24))
+                nhours = int(processing_time / (60 * 60)) % 24
+                nminutes = int(processing_time / 60) % 60
+                nseconds = processing_time % 60
+                processing_time_fmt = f"{ndays} days, {nhours}:{nminutes}:{nseconds}"
+
+            message += f"Storage size: {data_size_fmt}\n\nTotal used computation time: {processing_time_fmt}\n"
+
+            # determine the processing time
+
             # finally, add the polygon
             kml.add_polygon(coordinate_dict["0"], param_file_AoI_name, message, "AoI")
 
@@ -351,7 +412,8 @@ def add_SLC_folder(kml: KML) -> KML:
                     kml.add_polygon(
                         coordinates,
                         f"{name_pt1}_img{n + 1}",
-                        f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})',
+                        f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
+                        f'Storage size: {size}',
                         "SLC",
                     )
             else:
@@ -468,8 +530,8 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
                     n_dates = 0
 
                 message = f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
-                message += f"Located in {stack_folder}\n"
-                message += f"Storage size: {size}"
+                message += f"Storage size: {size}\n\n"
+                message += f"Located in {stack_folder}\n\n"
 
                 # Gather which caroline workflows this coregistered stack is part of
                 check_coreg_directory = stack_folder.split("/" + AoI_name + "_s1_")[0]
@@ -539,6 +601,28 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
             data = f.read().split("\n")
             f.close()
             out["tracks"] = ", ".join(data[1:])
+        elif os.path.exists(
+            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/"
+            f"{param_file_AoI_name}/geosearch.yaml"
+        ):  # a download configuration exists, we can use it
+            filtered_orbits, _ = identify_s1_orbits_in_aoi(
+                f"{out['shape_directory']}/{out['shape_AoI_name']}_shape.shp"
+            )
+            allowed_orbits = eval(
+                os.popen(
+                    f"""grep "relative_orbits" {CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/"""
+                    f"""periodic/{param_file_AoI_name}/geosearch.yaml"""
+                )
+                .read()
+                .split(": ")[1]
+            )
+
+            tracks = []
+            for track in list(sorted(list(filtered_orbits))):
+                if eval(track.split("_")[-1].lstrip("0")) in allowed_orbits:
+                    tracks.append(track)
+            out["tracks"] = ", ".join(tracks)
+
         else:  # if we cannot find that either, leave it as unknown
             out["tracks"] = "Unknown"
         param_file_data[param_file_AoI_name] = out

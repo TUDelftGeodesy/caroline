@@ -718,3 +718,30 @@ def convert_bytesize_to_humanreadable(bytesize: int) -> str:
     level = int(log(bytesize, 1024))
     humanreadable = f"{round(bytesize/1024**level, 2)} {BYTE_PREFIX[level]}B"
     return humanreadable
+
+
+def get_processing_time(job_id: int) -> int:
+    """Retrieve the seconds of processing time of a job given its job_id.
+
+    Parameters
+    ----------
+    job_id: int
+        The SLURM job-ID of the job
+
+    Returns
+    -------
+    int
+        The processing time of the job in seconds
+    """
+    data = os.popen(f"sacct --format=Elapsed --jobs={job_id}").read()
+    elapsed = data.split("\n")[2]
+    total_time = 0
+    if "-" in elapsed:  # number of days is included:
+        total_time += eval(elapsed.split("-")[0].strip().lstrip("0")) * 24 * 60 * 60
+        elapsed = elapsed.split("-")[1]
+    elapsed = elapsed.split(":")
+    for n, mult in enumerate([3600, 60, 1]):
+        time_elapsed = elapsed[n].strip().lstrip("0")
+        if time_elapsed != "":  # 0 will be stripped completely, but adds nothing anyways so we can ignore it
+            total_time += mult * eval(time_elapsed)
+    return total_time

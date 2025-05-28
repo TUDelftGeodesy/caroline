@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added:
 - The coverage of the detected original SLCs intersecting with the AoI during the determination of the intersecting tracks during installation is now plotted in a KML.
 - Non-Sentinel-1 AoIs now show up in the overview KML
+- The overview KML now specifies storage space used for SLCs, coregistered stacks, and AoIs (including all jobs)
+- The overview KML now specifies total processing time for AoIs
+- The overview KML now specifies if an AoI is active or not
 
 ### Changed:
 - The live run now stores its overview KMLs in the `Public` repository accessible from https://public.spider.surfsara.nl/project/caroline/caroline

@@ -258,7 +258,7 @@ def _generate_email(parameter_file: str) -> str:
 
             os.makedirs(f"{log_folder_name}/{job}")
             if jobs["jobs"][job]["bash-file"] is not None:
-                f = open(f"{log_folder_name}/{job}/STORAGE-DIRECTORY.txt")
+                f = open(f"{log_folder_name}/{job}/STORAGE-DIRECTORY.txt", "w")
                 f.write(format_process_folder(jobs["jobs"][job], parameter_file, tracks[0]))
                 f.close()
 

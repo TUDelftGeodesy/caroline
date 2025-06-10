@@ -8,7 +8,6 @@ import numpy as np
 
 from caroline.config import get_config
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent
-from caroline.scheduler import job_schedule_check
 
 BYTE_PREFIX = " kMGTPEZYRQ"
 CONFIG_PARAMETERS = get_config()
@@ -732,3 +731,44 @@ def get_processing_time(job_id: int) -> int:
         if time_elapsed != "":  # 0 will be stripped completely, but adds nothing anyways so we can ignore it
             total_time += mult * eval(time_elapsed)
     return total_time
+
+
+def job_schedule_check(parameter_file: str, job: str, job_definitions: dict) -> bool:
+    """Check if a job should be scheduled based on the parameter file and the job definitions.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to the parameter file
+    job: str
+        Name of the job to be scheduled
+    job_definitions: dict
+        Dictionary readout of `job-definitions.yaml`
+
+    Returns
+    -------
+    bool
+        Boolean indicating if the job should be scheduled or not.
+    """
+    if job_definitions[job]["parameter-file-step-key"] is None:  # always runs
+        return True
+
+    out_parameters = read_parameter_file(parameter_file, [job_definitions[job]["parameter-file-step-key"]])
+
+    if out_parameters[job_definitions[job]["parameter-file-step-key"]] == "0":  # it is not requested
+        return False
+
+    # if we make it here, the step is requested
+    if job_definitions[job]["filters"] is not None:  # we first need to check the filters. Return False if one filter
+        # is not met
+        for key in job_definitions[job]["filters"].keys():
+            value_check = read_parameter_file(parameter_file, [key])[key]
+            if isinstance(job_definitions[job]["filters"][key], str):
+                if value_check.lower() != job_definitions[job]["filters"][key].lower():  # it meets the filter
+                    return False
+            else:  # it's a list, so we check if it exists in the list
+                if value_check.lower() not in [s.lower() for s in job_definitions[job]["filters"][key]]:
+                    return False
+
+    # if it was not kicked out by the filters, we return True
+    return True

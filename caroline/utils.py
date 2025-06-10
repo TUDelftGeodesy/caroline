@@ -248,6 +248,8 @@ def _generate_email(parameter_file: str) -> str:
     os.makedirs(f"{log_folder_name}/parameter-file")
     os.system(f"cp -p {parameter_file} {log_folder_name}/parameter-file/{parameter_file.split('/')[-1]}")
 
+    os.makedirs(f"{log_folder_name}/overview")
+
     status_checks = ""
     for job in jobs["jobs"].keys():
         if job_schedule_check(parameter_file, job, jobs["jobs"]):  # it has run
@@ -255,27 +257,36 @@ def _generate_email(parameter_file: str) -> str:
             check = proper_finish_check(parameter_file, job, job_id)
 
             os.makedirs(f"{log_folder_name}/{job}")
+            if jobs["jobs"][job]["bash-file"] is not None:
+                f = open(f"{log_folder_name}/{job}/STORAGE-DIRECTORY.txt")
+                f.write(format_process_folder(jobs["jobs"][job], parameter_file, tracks[0]))
+                f.close()
 
             if check["successful_finish"]:
-                f = open(f"{log_folder_name}/{job}/STATUS-job-finished-successfully.log", "w")
+                f = open(f"{log_folder_name}/{job}/STATUS-job-finished.log", "w")
                 f.close()
                 os.system(f"cp -p {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
+                os.system(f"""echo "{job} finished properly\n" >> {log_folder_name}/overview/STATUS-overview.txt""")
                 if check["status_file"] is not None:
                     os.system(
-                        f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
+                        f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]};"
                     )
             elif check["successful_start"]:
                 if job != "email":
-                    f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-finish-successfully.log", "w")
+                    f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-finish.log", "w")
                     f.close()
                 os.system(f"cp -p {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
+                os.system(
+                    f"""echo "{job} did not finish properly\n" >> {log_folder_name}/overview/STATUS-overview.txt"""
+                )
                 if check["status_file"] is not None:
                     os.system(
                         f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
                     )
             else:
-                f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-start-successfully.log", "w")
+                f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-start.log", "w")
                 f.close()
+                os.system(f"""echo "{job} did not start\n" >> {log_folder_name}/overview/STATUS-overview.txt""")
 
             if jobs["jobs"][job]["email"]["include-in-email"]:
                 if jobs["jobs"][job]["bash-file"] is not None:
@@ -302,6 +313,8 @@ def _generate_email(parameter_file: str) -> str:
                     status_checks += (
                         f"!!! {job}: {tracks_formatted} did not start properly! " f"(located in {directory} )\n\n"
                     )
+
+    os.system(f"chmod -R 777 {log_folder_name}")  # to make everything downloadable by everyone
 
     project_characteristics = f"""Project characteristics:
 Owner: {out_parameters['project_owner']} ({out_parameters['project_owner_email']})

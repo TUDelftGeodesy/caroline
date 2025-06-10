@@ -272,13 +272,13 @@ def _generate_email(parameter_file: str) -> str:
                         f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]};"
                     )
             elif check["successful_start"]:
-                if job != "email":
+                if job != "email":  # since this one cannot be finished (it is calling this function), ignore it
                     f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-finish.log", "w")
                     f.close()
+                    os.system(
+                        f"""echo "{job} did not finish properly" >> {log_folder_name}/overview/STATUS-overview.txt"""
+                    )
                 os.system(f"cp -p {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
-                os.system(
-                    f"""echo "{job} did not finish properly\n" >> {log_folder_name}/overview/STATUS-overview.txt"""
-                )
                 if check["status_file"] is not None:
                     os.system(
                         f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"

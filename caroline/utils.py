@@ -241,11 +241,12 @@ def _generate_email(parameter_file: str) -> str:
 
     # Generate the logs
     log_folder_name = (
-        f'{CONFIG_PARAMETERS["CAROLINE_PUBLIC_LOG_DIRECTORY"]}/{"_".join(parameter_file.split("/")[-1].split("_")[2:])}'
+        f'{CONFIG_PARAMETERS["CAROLINE_PUBLIC_LOG_DIRECTORY"]}/'
+        f'{"_".join(parameter_file.split("/")[-1].split("_")[2:]).split(".")[0]}'
     )
 
     os.makedirs(f"{log_folder_name}/parameter-file")
-    os.system(f"ln -sfd {parameter_file} {log_folder_name}/parameter-file/{parameter_file.split('/')[-1]}")
+    os.system(f"cp -p {parameter_file} {log_folder_name}/parameter-file/{parameter_file.split('/')[-1]}")
 
     status_checks = ""
     for job in jobs["jobs"].keys():
@@ -258,19 +259,19 @@ def _generate_email(parameter_file: str) -> str:
             if check["successful_finish"]:
                 f = open(f"{log_folder_name}/{job}/STATUS-job-finished-successfully.log", "w")
                 f.close()
-                os.system(f"ln -sfd {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
+                os.system(f"cp -p {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
                 if check["status_file"] is not None:
                     os.system(
-                        f"ln -sfd {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
+                        f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
                     )
             elif check["successful_start"]:
                 if job != "email":
                     f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-finish-successfully.log", "w")
                     f.close()
-                os.system(f"ln -sfd {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
+                os.system(f"cp -p {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
                 if check["status_file"] is not None:
                     os.system(
-                        f"ln -sfd {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
+                        f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
                     )
             else:
                 f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-start-successfully.log", "w")

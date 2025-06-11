@@ -4,12 +4,12 @@ from typing import Literal
 
 from caroline.config import get_config
 from caroline.io import read_parameter_file, read_shp_extent, read_SLC_json, read_SLC_xml
-from caroline.scheduler import job_schedule_check
 from caroline.utils import (
     convert_bytesize_to_humanreadable,
     get_path_bytesize,
     get_processing_time,
     identify_s1_orbits_in_aoi,
+    job_schedule_check,
 )
 
 CONFIG_PARAMETERS = get_config()

@@ -33,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed:
 - Process logs are no longer appended to the email but rather stored in the `Public` folder, to which a link is provided in the email.
 
+### Fixed:
+- The installation no longer crashes if ASF encounters a `TimeoutError` or `asf_search.exceptions.ASFSearchError`
+
+
 ## [v2.3.7](https://github.com/TUDelftGeodesy/caroline/tree/36e845e8b69cab89872f050065b3b55bbb7cf0d0) (26-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/a0cb0dbe64b7a73229e049185f95b3843eb956da...36e845e8b69cab89872f050065b3b55bbb7cf0d0))
 
 ### Added:

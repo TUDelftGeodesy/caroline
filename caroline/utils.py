@@ -661,7 +661,7 @@ def identify_s1_orbits_in_aoi(shp_filename: str) -> tuple[list[str], dict]:
                 start="one month ago",
                 end="now",
             )
-        except asf.exceptions.ASFSearch5xxError:
+        except (asf.exceptions.ASFSearch5xxError, asf.exceptions.ASFSearchError, TimeoutError):
             counter += 1
             os.system(f'''echo "ASF encountered an internal error. Retrying... (#{counter})"''')
 

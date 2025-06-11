@@ -257,6 +257,8 @@ def _generate_email(parameter_file: str) -> str:
             check = proper_finish_check(parameter_file, job, job_id)
 
             os.makedirs(f"{log_folder_name}/{job}")
+            os.system(f"sacct --jobs={job_id} >> {log_folder_name}/{job}/SACCT-STATUS.txt")  # dump sacct output
+
             if jobs["jobs"][job]["bash-file"] is not None:
                 f = open(f"{log_folder_name}/{job}/STORAGE-DIRECTORY.txt", "w")
                 f.write(format_process_folder(jobs["jobs"][job], parameter_file, tracks[0]))

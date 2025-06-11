@@ -288,7 +288,7 @@ def _generate_email(parameter_file: str) -> str:
             else:
                 f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-start.log", "w")
                 f.close()
-                os.system(f"""echo "{job} did not start\n" >> {log_folder_name}/overview/STATUS-overview.txt""")
+                os.system(f"""echo "{job} did not start" >> {log_folder_name}/overview/STATUS-overview.txt""")
 
             if jobs["jobs"][job]["email"]["include-in-email"]:
                 if jobs["jobs"][job]["bash-file"] is not None:

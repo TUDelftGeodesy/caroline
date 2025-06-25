@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.3.8](https://github.com/TUDelftGeodesy/caroline/tree/main) (11-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/36e845e8b69cab89872f050065b3b55bbb7cf0d0...main))
+## [v2.3.9](https://github.com/TUDelftGeodesy/caroline/tree/main) (25-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0024c05a028ff2454075f9a0ca51de4c50e26491...main))
+
+### Changed:
+- `depsi` and `depsi_post` now run on 8 cores instead of 1 and 4, respectively, to increase the allowed memory usage.
+
+
+## [v2.3.8](https://github.com/TUDelftGeodesy/caroline/tree/0024c05a028ff2454075f9a0ca51de4c50e26491) (11-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/36e845e8b69cab89872f050065b3b55bbb7cf0d0...0024c05a028ff2454075f9a0ca51de4c50e26491))
 
 ### Added:
 - `CAROLINE_PUBLIC_LOG_DIRECTORY` keyword to the configuration files

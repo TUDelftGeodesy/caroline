@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.3.9](https://github.com/TUDelftGeodesy/caroline/tree/main) (25-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0024c05a028ff2454075f9a0ca51de4c50e26491...main))
+## [v2.3.10](https://github.com/TUDelftGeodesy/caroline/tree/main) (30-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/932c7ef92da31256770dbacb7be084c38abc6940...main))
+
+### Changed:
+- Daniel now receives emails from the `gr_santorini` AoI.
+
+
+## [v2.3.9](https://github.com/TUDelftGeodesy/caroline/tree/932c7ef92da31256770dbacb7be084c38abc6940) (25-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0024c05a028ff2454075f9a0ca51de4c50e26491...932c7ef92da31256770dbacb7be084c38abc6940))
 
 ### Changed:
 - `depsi` and `depsi_post` now run on 8 cores instead of 1 and 4, respectively, to increase the allowed memory usage.

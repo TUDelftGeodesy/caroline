@@ -75,7 +75,7 @@ master_date= '2022-03-25' # will search for first image after this date that exi
 # send_completion_email = ''  # empty for no email
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl'  # emails Simon
 # send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl'  # emails Simon and Ramon
-send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl'
+send_completion_email = 's.a.n.vandiepen@tudelft.nl,r.f.hanssen@tudelft.nl,d.cayuelabarcham@students.uu.nl'
 
 # specify the partition on which the steps will run. This is short (up to 10h, max 2 jobs), normal (up to 5 days), or infinite (up to 12 days)
 # the longer the time period, the more difficult it is to schedule

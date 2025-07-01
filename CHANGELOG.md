@@ -25,10 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.3.11](https://github.com/TUDelftGeodesy/caroline/tree/main) (01-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0432f4e019521d70c51098950885cea481810fac...main))
+## [v2.3.12](https://github.com/TUDelftGeodesy/caroline/tree/main) (01-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/275e2c121796aae162acae6c0b183100ac5e8322...main))
 
 ### Changed:
-- Daniel now receives emails from the `gr_santorini` AoI.
+- `crop_to_raw` now runs on 8 cores instead of 2.
+- `mrm` now runs on 4 cores instead of 1.
+
+## [v2.3.11](https://github.com/TUDelftGeodesy/caroline/tree/275e2c121796aae162acae6c0b183100ac5e8322) (01-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0432f4e019521d70c51098950885cea481810fac...275e2c121796aae162acae6c0b183100ac5e8322))
+
+### Changed:
+- Memory is now restricted to 8GB per requested core per job.
 
 ## [v2.3.10](https://github.com/TUDelftGeodesy/caroline/tree/0432f4e019521d70c51098950885cea481810fac) (30-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/932c7ef92da31256770dbacb7be084c38abc6940...0432f4e019521d70c51098950885cea481810fac))
 

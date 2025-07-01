@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.3.10](https://github.com/TUDelftGeodesy/caroline/tree/main) (30-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/932c7ef92da31256770dbacb7be084c38abc6940...main))
+## [v2.3.11](https://github.com/TUDelftGeodesy/caroline/tree/main) (01-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0432f4e019521d70c51098950885cea481810fac...main))
+
+### Changed:
+- Daniel now receives emails from the `gr_santorini` AoI.
+
+## [v2.3.10](https://github.com/TUDelftGeodesy/caroline/tree/0432f4e019521d70c51098950885cea481810fac) (30-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/932c7ef92da31256770dbacb7be084c38abc6940...0432f4e019521d70c51098950885cea481810fac))
 
 ### Changed:
 - Daniel now receives emails from the `gr_santorini` AoI.

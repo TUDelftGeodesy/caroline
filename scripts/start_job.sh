@@ -7,6 +7,8 @@ if [ $# -lt 4  ]; then
   exit 127
 fi
 
+ulimit -Sv $(($SLURM_JOB_CPUS_PER_NODE * 8 * 1024 * 1024))  # limit the memory to 8GB per core
+
 PARAMETER_FILE=$1
 TRACK_NUMBER=$2
 JOB_TYPE=$3

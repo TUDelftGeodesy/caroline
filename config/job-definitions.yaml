@@ -78,7 +78,7 @@ jobs:
     two-letter-id: "CR"
     parameter-file-step-key: "do_crop_to_raw"
     partition: "crop_to_raw_partition"
-    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=2"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8"
     directory-contents-file-appendix: ""
     email:
       include-in-email: True
@@ -129,7 +129,7 @@ jobs:
     two-letter-id: "MR"
     parameter-file-step-key: "do_depsi_post"
     partition: "normal"
-    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1 --mem-per-cpu=8000"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --mem-per-cpu=8000"
     directory-contents-file-appendix: "_mrm"
     email:
       include-in-email: False

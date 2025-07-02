@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.3.12](https://github.com/TUDelftGeodesy/caroline/tree/main) (01-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/275e2c121796aae162acae6c0b183100ac5e8322...main))
+## [v2.3.13](https://github.com/TUDelftGeodesy/caroline/tree/main) (01-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b58137efb9ad9e7a497372fe7d8cb3e0d20cda46...main))
+
+### Changed:
+- `crop_to_zarr` now runs on 8 cores instead of 4.
+
+## [v2.3.12](https://github.com/TUDelftGeodesy/caroline/tree/b58137efb9ad9e7a497372fe7d8cb3e0d20cda46) (01-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/275e2c121796aae162acae6c0b183100ac5e8322...b58137efb9ad9e7a497372fe7d8cb3e0d20cda46))
 
 ### Changed:
 - `crop_to_raw` now runs on 8 cores instead of 2.

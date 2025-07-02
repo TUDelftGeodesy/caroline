@@ -318,7 +318,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
 
 
 def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for re-SLC.
+    """Set up the directories and run files for crop_to_zarr.
 
     Parameters
     ----------
@@ -356,7 +356,7 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
                 continue
 
         crop_to_zarr_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
         )
 
         if out_parameters["sensor"] == "S1":
@@ -1786,6 +1786,113 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
             "--geo-search "
             f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
             f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/geosearch.yaml"
+        )
+
+
+def prepare_stm_generation(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for STM generation.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+
+    Raises
+    ------
+    ValueError
+        If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
+    """
+    search_parameters = [
+        "stm_generation_directory",
+        "stm_generation_AoI_name",
+        "track",
+        "asc_dsc",
+        "sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = eval(out_parameters["track"])
+    asc_dsc = eval(out_parameters["asc_dsc"])
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        stm_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["stm_generation"], track=tracks[track]
+        )
+
+        crop_to_zarr_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
+        )
+
+        os.makedirs(stm_directory, exist_ok=True)
+
+        # generate stm-generation.py
+        stm_output_name = stm_directory.split("/")[-1]
+        crop_to_zarr_output_name = crop_to_zarr_directory.split("/")[-1]
+
+        write_run_file(
+            save_path=f"{stm_directory}/generate-stm.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/stm-generation/generate-stm.py",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "stm_ps_selection_mode",
+                "stm_start_date_ps_selection",
+                "stm_initialization_length",
+                "stm_nad_nmad_increment_mode",
+                "stm_nad_nmad_recalibration_jump_size",
+                "stm_ps_selection_method",
+                "stm_ps_selection_threshold",
+                "stm_do_outlier_detection",
+                "stm_outlier_detection_window_size",
+                "stm_outlier_detection_db_mode",
+                "stm_outlier_detection_n_sigma",
+                "stm_do_partitioning",
+                "stm_partitioning_search_method",
+                "stm_partitioning_cost_function",
+                "stm_partitioning_db_mode",
+                "stm_partitioning_min_partition_length",
+                "stm_single_difference_mother",
+                "stm_extra_projection",
+                "stm_partitioning_undifferenced_output_layers",
+                "stm_partitioning_single_difference_output_layers",
+            ],
+            other_parameters={
+                "crop_to_zarr_directory": crop_to_zarr_directory,
+                "crop_to_zarr_output_name": crop_to_zarr_output_name,
+                "stm_output_directory": stm_directory,
+                "stm_output_name": stm_output_name,
+            },
+        )
+
+        # generate stm-generation.sh
+        write_run_file(
+            save_path=f"{stm_directory}/generate-stm.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/stm-generation/generate-stm.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "stm_generation_AoI_name",
+                "crop_to_zarr_code_dir",
+            ],
+            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
+            other_parameters={"track": tracks[track]},
+        )
+
+        write_directory_contents(
+            crop_to_zarr_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["crop_to_zarr"]["directory-contents-file-appendix"]}.txt',
         )
 
 

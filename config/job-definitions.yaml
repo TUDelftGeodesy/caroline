@@ -95,7 +95,7 @@ jobs:
     two-letter-id: "CZ"
     parameter-file-step-key: "do_crop_to_zarr"
     partition: "crop_to_zarr_partition"
-    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --nodes=1"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --nodes=1"
     directory-contents-file-appendix: ""
     email:
       include-in-email: True

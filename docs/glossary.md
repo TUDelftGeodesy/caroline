@@ -100,6 +100,24 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * `lat`: latitude coordinates cropped to the AoI
         * `lon`: longitude coordinates cropped to the AoI
         * `time`: epochs of the acquisitions
+- <b>stm_generation</b>: this job identifies PS in a `.zarr`-archive with a stack of coregistered, resampled, reduced SLCs.
+  * input:
+    * `.zarr` archive with the following fields:
+      - variables:
+        * `h2ph`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
+        * `imag`: imaginary component of the reduced SLCs cropped to the AoI
+        * `real`: real component of the reduced SLCs cropped to the AoI
+      - coordinates:
+        * `azimuth`: azimuth coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `range`: range coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `lat`: latitude coordinates cropped to the AoI
+        * `lon`: longitude coordinates cropped to the AoI
+        * `time`: epochs of the acquisitions
+  * output:
+    * `.zarr` archive with the following fields:
+      - variables:
+        * `h2ph`...
+      - coordinates:
 - <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `crop_to_raw`.
     * input:
       * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)

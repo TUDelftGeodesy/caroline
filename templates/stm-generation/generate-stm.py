@@ -30,10 +30,10 @@ slc_path = "**crop_to_zarr_directory**/**crop_to_zarr_output_name**.zarr"
 stm_save_path = "**stm_output_directory**/**stm_output_name**.zarr"
 
 # PS Selection based on initialization
-ps_selection_mode = "**ps_selection_mode**"
+ps_selection_mode = "**stm_ps_selection_mode**"
 if ps_selection_mode == "initialization":
-    start_date_ps_selection = "**start_date_ps_selection**".replace("-", "")
-    initialization_length = int("**initialization_length**")
+    start_date_ps_selection = "**stm_start_date_ps_selection**".replace("-", "")
+    initialization_length = int("**stm_initialization_length**")
 else:
     start_date_ps_selection = None
     initialization_length = None
@@ -59,8 +59,8 @@ ps_partitioning_search_method = "**stm_partitioning_search_method**"
 ps_partitioning_cost_function = "**stm_partitioning_cost_function**"
 ps_db_partitioning = True if "**stm_partitioning_db_mode**" == "1" else False
 ps_min_obs_partition = int("**stm_partitioning_min_partition_length**")
-partitioning_output_layers = tuple(eval("**stm_partitioning_undifferenced_output_layers"))
-partitioning_sd_output_layers = tuple(eval("**stm_partitioning_single_difference_output_layers"))
+partitioning_output_layers = tuple(eval("**stm_partitioning_undifferenced_output_layers**"))
+partitioning_sd_output_layers = tuple(eval("**stm_partitioning_single_difference_output_layers**"))
 
 # Compute temporal differences
 ps_mother_epoch_sd = "**stm_single_difference_mother**".replace("-", "")

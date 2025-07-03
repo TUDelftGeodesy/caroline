@@ -51,7 +51,8 @@ docs = [
 plugins = [
     "scipy", # necessary for Doris v5
     "gdal==3.4.1", # necessary for Doris v5, version 3.4.1 since that reflects the status of libgdal on Spider
-    "dask_jobqueue", # necessary for re-SLC
+    "dask_jobqueue", # necessary for crop_to_zarr
+    "ruptures",  # necessary for stm_generation
 ]
 
 [tool.setuptools]

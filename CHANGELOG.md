@@ -25,10 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.4.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (02-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b58137efb9ad9e7a497372fe7d8cb3e0d20cda46...main))
+## [v2.4.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (03-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b58137efb9ad9e7a497372fe7d8cb3e0d20cda46...main))
 
 ### Added:
 - `stm_generation` job
+- [.pptx](docs/assets/Caroline_drawings.pptx) used to generate the image in [architecture.md](docs/architecture.md#current-architecture-overview).
 
 ### Fixed:
 - `crop_to_zarr` now generates in the correct directory instead of in `crop_to_raw`'s directories.

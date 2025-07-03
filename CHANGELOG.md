@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.4.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (03-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b58137efb9ad9e7a497372fe7d8cb3e0d20cda46...main))
+## [v2.4.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (03-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ce16194ed1fd975b497cc1e2f09137ea15a553bc...main))
 
 ### Added:
 - `stm_generation` job
@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `crop_to_zarr`'s documentation no longer refers to Re-SLC
 
 
-## [v2.3.13](https://github.com/TUDelftGeodesy/caroline/tree/main) (02-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b58137efb9ad9e7a497372fe7d8cb3e0d20cda46...main))
+## [v2.3.13](https://github.com/TUDelftGeodesy/caroline/tree/ce16194ed1fd975b497cc1e2f09137ea15a553bc) (02-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b58137efb9ad9e7a497372fe7d8cb3e0d20cda46...ce16194ed1fd975b497cc1e2f09137ea15a553bc))
 
 ### Changed:
 - `crop_to_zarr` now runs on 8 cores instead of 4.

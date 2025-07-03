@@ -119,7 +119,7 @@ jobs:
       status-file-search-key:
     bash-file:
       bash-file-name: "generate-stm.sh"
-      bash-file-base-directory: "generate_stm"
+      bash-file-base-directory: "stm_generation"
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
     filters:

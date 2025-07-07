@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--
 ## Example template!! (For the newest version, NEWHASH = main. Don't forget to update the previous versions hash too)
-( The hash can be accessed from https://github.com/TUDelftGeodesy/caroline/network by clicking on the latest merge into main)
+( The hash can be accessed from https://github.com/TUDelftGeodesy/caroline/network by clicking on the latest merge into main, it shows up in the URL)
 
 ## [version](https://github.com/TUDelftGeodesy/caroline/tree/NEWHASH) (DD-MMM-YYYY, [diff](https://github.com/TUDelftGeodesy/caroline/compare/OLDHASH...NEWHASH))
 
@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.4.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (03-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ce16194ed1fd975b497cc1e2f09137ea15a553bc...main))
+## [v2.4.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (07-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/52335f4ca962261a878fa6f571329968c03f2cd0...main))
+
+### Fixed:
+- `gr_santorini` now plots in WGS84 instead of RD on the portal.
+
+## [v2.4.0](https://github.com/TUDelftGeodesy/caroline/tree/52335f4ca962261a878fa6f571329968c03f2cd0) (07-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ce16194ed1fd975b497cc1e2f09137ea15a553bc...52335f4ca962261a878fa6f571329968c03f2cd0))
 
 ### Added:
 - `stm_generation` job

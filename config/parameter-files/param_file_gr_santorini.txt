@@ -320,7 +320,7 @@ dp_dlat                    = 0
 dp_dlon                    = 0
 dp_drdx                    = 0
 dp_drdy                    = 0
-dp_proj                    = 'rd'
+dp_proj                    = 'wgs84'
 dp_ref_dheight             = 0
 dp_posteriori_scale_factor = 1
 

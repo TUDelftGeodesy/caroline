@@ -1891,8 +1891,8 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
         )
 
         write_directory_contents(
-            crop_to_zarr_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["crop_to_zarr"]["directory-contents-file-appendix"]}.txt',
+            stm_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["stm_generation"]["directory-contents-file-appendix"]}.txt',
         )
 
 

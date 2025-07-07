@@ -49,6 +49,9 @@
 - `do_crop_to_zarr`
   - Function: switch to enable the [job](glossary.md#jobs) `crop_to_zarr` in the Cropping submodule
   - Possible values: `0`, `1`
+- `do_stm_generation`
+  - Function: switch to enable the [job](glossary.md#jobs) `stm_generation` in the PSI-batch submodule
+  - Possible values: `0`, `1`
 - `do_depsi`
   - Function: switch to enable the [job](glossary.md#jobs) `depsi` in the PSI-batch submodule
   - Possible values: `0`, `1`
@@ -82,6 +85,12 @@
 - `crop_to_zarr_directory`
   - Function: specify the base directory where the [job](glossary.md#jobs) `crop_to_zarr` should run. 
   - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks_zarr'`
+- `stm_generation_AoI_name`
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `stm_generation` in the PSI-batch submodule. For cross-AoI dependencies, specify the same AoI name as the dependency.
+  - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
+- `stm_generation_directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `stm_generation` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stms_zarr'`
 - `depsi_AoI_name`
   - Function: specify the AoI name for the directory naming in the [jobs](glossary.md#jobs) `depsi`, `mrm`, `depsi_post`, and `tarball` in the PSI-batch submodule. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
@@ -329,6 +338,69 @@ These parameters are used in the job `doris`
 - `crop_to_zarr_code_dir`
   - Function: specify where the DePSI_group code is, containing the functionality for `crop_to_zarr`
   - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
+
+## STM_generation parameters
+- `stm_ps_selection_mode`
+  - Function: specify the mode to be used for the time frame selection during the PS selection
+  - Possible values: `'full'` (full time series), `'initialization'` (using part of the time series defined by `stm_start_date_ps_selection` and `stm_initialization_length`)
+- `stm_start_date_ps_selection`
+  - Function: specify the start date of the time frame to be used for PS selection in `initialization` mode
+  - Possible values: `'YYYY-MM-DD'`
+- `stm_initialization_length`
+  - Function: specify the length of the time frame to be used for PS selection in `initialization` mode
+  - Possible values: any positive integer (# of epochs), or `'YYYY-MM-DD'` (end date)
+- `stm_ps_selection_method`
+  - Function: specify the method to be used for the PS selection
+  - Possible values: `'nmad'`, `'nad'` 
+- `stm_ps_selection_threshold`
+  - Function: set the threshold for when a point is considered a PS (all PS below the threshold are accepted)
+  - Possible values: any positive `float` 
+- `stm_nad_nmad_increment_mode`
+  - Function: specify the mode to add either the [incremental or recalibration](https://github.com/TUDelftGeodesy/DePSI_group/blob/dev/depsi/point_quality.py#L148) NAD or NMAD (based on `stm_ps_selection_method`)
+  - Possible values: `'incremental'` (update every epoch), `'recalibration'` (update every `stm_nad_nmad_recalibration_jump_size` epochs)
+- `stm_nad_nmad_recalibration_jump_size`
+  - Function: specify the jump size to be used for `recalibration` mode for the updating NAD or NMAD
+  - Possible values: any positive integer
+- `stm_single_difference_mother`
+  - Function: specify the mother epoch for single difference computations
+  - Possible values: `'auto'` (uses the mother from the input `.zarr` archive), `'YYYY-MM-DD'`
+- `stm_extra_projection`
+  - Function: specify an extra projection to project the geolocation coordinates into
+  - Possible values: `'RD'` (Dutch Rijksdriehoek, Netherlands only), `'EPSG:###'` (any code works), `''` (no new projection)
+- `stm_do_partitioning`
+  - Function: switch to do or not do partitioning in time
+  - Possible values: `0`, `1`
+- `stm_partitioning_search_method`
+  - Function: specify the method to search for the partitions
+  - Possible values: `'pelt'`, `'binseg'`
+- `stm_partitioning_cost_function`
+  - Function: specify the cost function in the partition search
+  - Possible values: `'l2'`
+- `stm_partitioning_db_mode`
+  - Function: specify whether or not to do the partition search on the Decibel scale
+  - Possible values: `0` (advised), `1`
+- `stm_partitioning_min_partition_length`
+  - Function: specify the minimum number of acquisitions per partition
+  - Possible values: any positive integer
+- `stm_partitioning_undifferenced_output_layers`
+  - Function: specify the output data layers per partition using the undifferenced input data
+  - Possible values: `list` containing a subset of the following: `'nad'`, `'nmad'`, `mad`, `'quality_nmad_2sigma'`, `'quality_nmad_mean'`, `'quality_nad_2sigma'`, `'quality_nad_mean'`, `'amplitude_mean'`, `'amplitude_sigma'`, `'amplitude_median'`.
+- `stm_partitioning_single_difference_output_layers`
+  - Function: specify the output data layers per partition using the input data with a single difference in time with respect to `stm_single_difference_mother`
+  - Possible values: `list` containing a subset of the following: `'nad'`, `'nmad'`, `mad`, `'quality_nmad_2sigma'`, `'quality_nmad_mean'`, `'quality_nad_2sigma'`, `'quality_nad_mean'`, `'amplitude_mean'`, `'amplitude_sigma'`, `'amplitude_median'`.
+- `stm_do_outlier_detection`
+  - Function: switch to do or not do outlier detection in time
+  - Possible values: `0`, `1`
+- `stm_outlier_detection_window_size`
+  - Function: specify the size of the rolling window across which the statistics are computed to determine whether or not an observation is an outlier
+  - Possible values: any positive integer
+- `stm_outlier_detection_db_mode`
+  - Function: specify whether or not to do outlier detection on the Decibel scale
+  - Possible values: `0`, `1` (advised)
+- `stm_outlier_detection_n_sigma`
+  - Function: specify the minimum number of sigma deviation from the median of the observations in the window before an observation is considered an outlier
+  - Possible values: any positive `float` (advised 3)
+
 
 ## DePSI parameters
 

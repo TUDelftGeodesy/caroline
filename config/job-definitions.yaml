@@ -107,6 +107,23 @@ jobs:
       bash-file-directory-is-reusable: True
     filters:
 
+  stm_generation:
+    requirement: "crop_to_zarr"
+    two-letter-id: "SG"
+    parameter-file-step-key: "do_stm_generation"
+    partition: "normal"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --nodes=1"
+    directory-contents-file-appendix: ""
+    email:
+      include-in-email: True
+      status-file-search-key:
+    bash-file:
+      bash-file-name: "generate-stm.sh"
+      bash-file-base-directory: "stm_generation"
+      bash-file-directory-appendix: ""
+      bash-file-directory-is-reusable: True
+    filters:
+
   depsi:
     requirement: "crop_to_raw"
     two-letter-id: "DE"

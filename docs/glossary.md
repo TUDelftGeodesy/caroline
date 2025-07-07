@@ -100,6 +100,53 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * `lat`: latitude coordinates cropped to the AoI
         * `lon`: longitude coordinates cropped to the AoI
         * `time`: epochs of the acquisitions
+- <b>stm_generation</b>: this job identifies PS in a `.zarr`-archive with a stack of coregistered, resampled, reduced SLCs.
+  * input:
+    * `.zarr` archive with the following fields:
+      - variables:
+        * `h2ph`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
+        * `imag`: imaginary component of the reduced SLCs cropped to the AoI
+        * `real`: real component of the reduced SLCs cropped to the AoI
+      - coordinates:
+        * `azimuth`: azimuth coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `range`: range coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `lat`: latitude coordinates cropped to the AoI
+        * `lon`: longitude coordinates cropped to the AoI
+        * `time`: epochs of the acquisitions
+  * output:
+    * `.zarr` archive with the following fields (note: this is in STM format, not in gridded format):
+      - variables:
+        * `amplitude`: amplitude of the reduced SLCs
+        * `complex`: complex value of the reduced SLCs
+        * `full_ts_nad`: NAD of the full time series per point
+        * `tull_ts_nmad`: NMAD of the full time series per point
+        * `h2ph`: height-to-phase screen with the reference DEM subtracted
+        * `incremental_nmad` / `recalibration_nmad` / `incremental_nad` / `recalibration_nad`: based on the settings `stm_nad_nmad_increment_mode`_`stm_ps_selection_method`, the [incremental or recalibration](https://github.com/TUDelftGeodesy/DePSI_group/blob/dev/depsi/point_quality.py#L148) NAD or NMAD per point
+        * `phase`: phase of the reduced SLCs
+        * `pnt_class`: `1` (set ID for Continuously Coherent Point Scatterers, for identification purposes in mixed runs)
+        * `sd_amplitude_unnormalized`: unnormalized multiplicative amplitude of the single differences with respect to the specified mother image
+        * `sd_complex`: complex phasor with respect to the specified mother image
+        * `sd_h2ph`: single difference height-to-phase screen
+        * `sd_phase`: phase of the single differences with respect to the specified mother image
+        * `time_selection_nad` / `time_selection_nmad`: the time frame used for the selection 
+      - optional variables:
+        * if `stm_do_partitioning=1`:
+          * `breakpoints`: boolean array with `True` if that epoch is selected as a breakpoint (i.e., at that epoch a new partition starts)
+          * `partition_id`: unique identifier of each partition
+          * other output layers prefixed with `partition` are defined by the [settings](parameter-file.md#stmgeneration-parameters) `stm_partitioning_undifferenced_output_layers` and `stm_partitioning_single_difference_output_layers`, and yield their respective values per partition (constant across each partition)
+        * if `stm_do_outlier_detection=1`:
+          * `outliers`: boolean array with `True` if that epoch is identified as an outlier
+      - coordinates:
+        * `azimuth`: azimuth coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `range`: range coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `lat`: latitude coordinates cropped to the AoI
+        * `lon`: longitude coordinates cropped to the AoI
+        * `time`: epochs of the acquisitions
+        * `days_since_first_img`: number of days of each acquisition since the first acquisition in the image stack
+        * `years_since_first_img`: same as `days_since_first_img`, but divided by 365.2425
+      - optional coordinates:
+        * `rd_x` / `epsg:xxx_x`: x coordinate of requested projection from variable `stm_extra_projection`
+        * `rd_y` / `epsg:xxx_y`: y coordinate of requested projection from variable `stm_extra_projection`
 - <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `crop_to_raw`.
     * input:
       * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)

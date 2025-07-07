@@ -27,6 +27,7 @@ do_coregistration  = 0  # DORIS v5 if sensor is Sentinel-1, DeInSAR otherwise
 do_crop_to_raw     = 0  # Requires coregistration (here or dependency)
 do_crop_to_zarr    = 0  # Requires coregistration (here or dependency)
 
+do_stm_generation  = 0  # Requires crop_to_zarr (here or dependency). Does not use crop_to_raw
 do_depsi           = 0  # Requires crop_to_raw (here or dependency). Does not use crop_to_zarr
 
 do_depsi_post      = 0  # Requires depsi (here or dependency)
@@ -45,6 +46,9 @@ crop_to_raw_directory   = '/project/caroline/Share/crops'
 
 crop_to_zarr_AoI_name   = 'is_iceland'
 crop_to_zarr_directory  = '/project/caroline/Share/stacks_zarr'
+
+stm_generation_AoI_name = 'is_iceland'
+stm_generation_directory= '/project/caroline/Share/stms_zarr'
 
 # If portal upload:'______________________' (22 characters) is the maximum allowed length for depsi_AoI_name (#28)
 depsi_AoI_name   = 'is_iceland'
@@ -168,6 +172,37 @@ di_do_geocoding           = 1
 ############################################
 
 crop_to_zarr_code_dir    = '/project/caroline/Software/caroline-plugins/DePSI_group'
+
+############################################
+######### STM_GENERATION PARAMETERS ########
+############################################
+
+stm_ps_selection_mode       = 'full'  # initialization / full
+stm_start_date_ps_selection = '2013-03-01'      # if mode is initialization, otherwise ignored
+stm_initialization_length   = 50                # if mode is initialization, otherwise ignored
+
+stm_ps_selection_method     = "nmad"            # nmad / nad
+stm_ps_selection_threshold  = 0.35
+
+stm_nad_nmad_increment_mode          = "incremental"   # incremental (every epoch) / recalibration (every jump_size epochs)
+stm_nad_nmad_recalibration_jump_size = 10
+
+stm_single_difference_mother  = "auto"  # YYYY-MM-DD or auto, latter uses already existing mother
+
+stm_extra_projection  = ""  # '' for no new projection, accepts all EPSG codes and RD for the Dutch Rijksdriehoek
+
+stm_do_partitioning                              = 1
+stm_partitioning_search_method                   = 'pelt'
+stm_partitioning_cost_function                   = 'l2'
+stm_partitioning_db_mode                         = 0
+stm_partitioning_min_partition_length            = 27
+stm_partitioning_undifferenced_output_layers     = ['nmad', 'nad', 'quality_nmad_2sigma']
+stm_partitioning_single_difference_output_layers = ['mad', 'amplitude_sigma', 'amplitude_mean', 'amplitude_median']
+
+stm_do_outlier_detection          = 1
+stm_outlier_detection_window_size = 15
+stm_outlier_detection_db_mode     = 1
+stm_outlier_detection_n_sigma     = 3  # number of sigma before something is considered an outlier
 
 ############################################
 ############## DEPSI PARAMETERS ############

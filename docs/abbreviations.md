@@ -37,6 +37,7 @@ None yet, managed by [contextual-data-definitions.yaml](../config/contextual-dat
 #### PSI-batch submodule
 
 - `DE`: DePSI
+- `SG`: STM_generation
 
 ### Autonomous Analysis module
 

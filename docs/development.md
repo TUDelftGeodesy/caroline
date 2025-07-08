@@ -99,16 +99,8 @@ Then, follow these steps to start a test:
       1. Make sure to move all processing directories away from the live version to your personal directories.
       2. Make sure to update the `send_completion_email` field to only send emails to yourself (and optionally an admin)
       3. Updating the installation will remove your modifications.
-2. (This assumes you followed the steps on [Installing on Spider - personal testing version](../README.md#installation-on-spider---personal-testing-version)) run the following command to go to the `work` directory:
-```bash
-cd /project/caroline/Share/users/$(whoami)/caroline-test/run/caroline/work
-```
-3. Add the AoI and track you want to test on to the force-starting AoIs by following the steps in [force-starting an AoI](management.md#force-starting-an-aoi).
-4. Run
-```bash
-cd /project/caroline/Share/users/$(whoami)/caroline-test/caroline/scripts
-bash run-caroline.sh
-```
+2. Start AoI and track you want to test on to the force-starting AoIs by following the steps in [force-starting an AoI from the command line](management.md#option-1-commandline-for-one-or-a-few-force-starts).
+
 Once this command completes, your jobs are visible using the command `squeue --me`. You will receive an email when all jobs have finished with links to the log files. If you want to push layers to a portal, please ensure to add the portal manager cronjob to your [crontab](../README.md#the-way-it-works-cron).
 
 ## Adding a new AoI

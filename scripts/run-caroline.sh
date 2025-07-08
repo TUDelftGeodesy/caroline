@@ -34,6 +34,13 @@ fi
 
 # Move the Force start file
 FORCE_START_FILE="${CAROLINE_WORK}/force-start-runs-${RUN_TS}.dat"
+
+if [ $# -eq 2 ]; then  # something needs to be force-started still, so let's add that one first, then move it
+  FS_AOI=$1
+  FS_TRACK=$2
+  echo "${FS_AOI};${FS_TRACK}" > "${CAROLINE_WORK}/force-start-runs.dat"
+fi
+
 mv "${CAROLINE_WORK}/force-start-runs.dat" ${FORCE_START_FILE}
 echo "" > "${CAROLINE_WORK}/force-start-runs.dat"
 

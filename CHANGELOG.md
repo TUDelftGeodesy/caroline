@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.4.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (07-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/52335f4ca962261a878fa6f571329968c03f2cd0...main))
+## [v2.4.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (08-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/a2ffe822ff927b9f04b1363e1eb573273739118a...main))
+
+### Added:
+- Force-starting can now be done from the command line when calling `run-caroline.sh` (`run-caroline.sh <AoI_name> <track>`)
+
+
+## [v2.4.1](https://github.com/TUDelftGeodesy/caroline/tree/a2ffe822ff927b9f04b1363e1eb573273739118a) (07-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/52335f4ca962261a878fa6f571329968c03f2cd0...a2ffe822ff927b9f04b1363e1eb573273739118a))
 
 ### Fixed:
 - `gr_santorini` now plots in WGS84 instead of RD on the portal.

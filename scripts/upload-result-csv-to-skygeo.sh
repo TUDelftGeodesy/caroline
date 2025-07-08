@@ -15,6 +15,7 @@ fi
 
 SKYGEO_SERVER='portal-tud.skygeo.com'
 SKYGEO_UPLOAD_PATH='/tmp'
+SKYGEO_ARCHIVE='/home/caroline/upload_archive'
 #
 # Find the json metadata file. This only works if there is just one json file in the dir,
 # which currently is the case. We make sure we only get one file in the result by running
@@ -71,5 +72,10 @@ if [ "$(echo ${VIEWER} | wc -c)" -eq "0" ]; then  # viewer does not exist
 fi
 
 ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "pmantud add_viewer_data_layer ${SKYGEO_UPLOAD_PATH}/${CSV_FILE} ${CSV_FILE%.csv} ${SKYGEO_CUSTOMER} ${SKYGEO_VIEWER}"
+
+# Cleanup file from /tmp
+ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "find ${SKYGEO_UPLOAD_PATH} -user ${SKYGEO_USER} -name \"*uploaded*.csv\" -exec mv {} ${SKYGEO_ARCHIVE} \;"
+ssh "${SKYGEO_USER}"@"${SKYGEO_SERVER}" "find ${SKYGEO_UPLOAD_PATH} -user ${SKYGEO_USER} -name \"*uploaded*.json\" -exec mv {} ${SKYGEO_ARCHIVE} \;"
+#
 #
 # Eof

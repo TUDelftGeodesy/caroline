@@ -17,7 +17,22 @@ When changing a parameter file, do not forget to follow [the GitHub management](
 
 
 ## Force-starting an AoI
-In the `CAROLINE_WORK_DIRECTORY` in the config file (e.g. [spider-config.yaml](../config/spider-config.yaml)), a file called `force-start-runs.dat` is present.
+Note: dependencies across different AoIs are ignored when force-starting. Thus: submitting both `nl_veenweiden` and `nl_amsterdam` will **not** take into account the dependency of `nl_veenweiden` on `nl_amsterdam`
+
+There are two options to force-start an AoI. 
+
+### Option 1: commandline (for one or a few force-starts)
+The first option is handy for a single force-start (or a few):
+```bash
+cd /path/to/your/caroline/install
+cd scripts
+bash run-caroline.sh "AoI_name" "track" # e.g. bash run-caroline.sh TEST_nl_amsterdam s1_dsc_t037
+```
+
+If you want to start more than one AoI, repeat the last command for each AoI (Caroline does not accept more than one at a time). If you have a lot to force-start, consider option 2:
+
+### Option 2: force-start-runs.dat (for many force-starts)
+The second option is handy for many force-starts. In the `CAROLINE_WORK_DIRECTORY` in the config file (e.g. [spider-config.yaml](../config/spider-config.yaml)), a file called `force-start-runs.dat` is present.
 To force-start an AoI, add the following to the file:
 ```text
 AoI_name;track1,track2,track3
@@ -27,7 +42,7 @@ E.g., to force start `nl_groningen_cubic`, Sentinel-1 track 88, and `nl_assendel
 nl_groningen_cubic;s1_asc_t088
 nl_assendelft;s1_dsc_t110,s1_asc_t161
 ```
-Each new AoI is on a new line. Note: dependencies across different AoIs are ignored when force-starting. Thus: submitting both `nl_veenweiden` and `nl_amsterdam` will **not** take into account the dependency of `nl_veenweiden` on `nl_amsterdam`
+Each new AoI is on a new line. 
 
 
 

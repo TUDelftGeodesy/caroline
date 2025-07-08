@@ -85,6 +85,7 @@ None yet
 - `IJC`: id_jakarta_cubic
 - `IJL`: id_jakarta_large (inactive)
 - `IJQ`: id_jakarta
+- `IJS`: id_jakarta_short
 
 ### Netherlands
 

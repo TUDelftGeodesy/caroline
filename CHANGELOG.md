@@ -25,7 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.4.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (08-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/a2ffe822ff927b9f04b1363e1eb573273739118a...main))
+## [v2.4.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (08-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/01e0d9d201657723ecd2b2bf044e662752d60536...main))
+
+### Added:
+- `id_jakarta_short` AoI
+
+### Changed:
+- `sg_singapore` now forces track `s1_dsc_t018`
+
+
+## [v2.4.2](https://github.com/TUDelftGeodesy/caroline/tree/01e0d9d201657723ecd2b2bf044e662752d60536) (08-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/a2ffe822ff927b9f04b1363e1eb573273739118a...01e0d9d201657723ecd2b2bf044e662752d60536))
 
 ### Added:
 - Force-starting can now be done from the command line when calling `run-caroline.sh` (`run-caroline.sh <AoI_name> <track>`)

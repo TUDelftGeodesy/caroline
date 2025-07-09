@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.4.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (08-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/01e0d9d201657723ecd2b2bf044e662752d60536...main))
+## [v2.4.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (09-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6352102043d95557d1bbdd025c62953eee8bdb18...main))
+
+### Fixed:
+- Portal layers that are uploaded to the SkyGeo portal are now moved away from the limited storage on `\tmp` to an archive directory with more space after they have been added to the correct portal
+
+## [v2.4.3](https://github.com/TUDelftGeodesy/caroline/tree/6352102043d95557d1bbdd025c62953eee8bdb18) (08-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/01e0d9d201657723ecd2b2bf044e662752d60536...6352102043d95557d1bbdd025c62953eee8bdb18))
 
 ### Added:
 - `id_jakarta_short` AoI

@@ -74,6 +74,10 @@ if __name__ == "__main__":
             f"Usage config.py requested_parameter [config-file] [flatten] [null-value], got {len(argv) - 1} args!"
         )
 
+    if isinstance(flatten, str):  # True/False is read in as a string
+        if flatten in ["True", "False"]:
+            flatten = eval(flatten)
+
     if ":" not in requested_parameter:
         print(get_config(config_file, flatten=flatten)[requested_parameter])
     else:

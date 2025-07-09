@@ -15,6 +15,11 @@ from depsi.io import read_slc_stack
 from depsi.point_quality import detect_outliers_stm, stm_add_incremental_recal_nad_nmad, stm_partitioning
 from depsi.utils import add_stm_time_deltas, project_stm_coordinates, stm_compute_single_time_differences
 
+from caroline.config import get_config
+
+CONFIG = get_config()
+JOB_DEFINITIONS = get_config(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
+
 # Make a logger to log the stages of processing
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -84,7 +89,9 @@ def get_free_port():
     return freesock
 
 
-N_WORKERS = 10  # Manual input: number of workers to spin-up
+N_WORKERS = JOB_DEFINITIONS["jobs"]["stm_generation"]["bash-file"]["bash-file-slurm-cluster"][
+    "slurm-cluster-n-workers"
+]  # Manual input: number of workers to spin-up
 FREE_SOCKET = get_free_port()  # Get a free port
 cluster = SLURMCluster(
     name="dask-worker",  # Name of the Slurm job
@@ -92,7 +99,9 @@ cluster = SLURMCluster(
     cores=4,  # Number of cores per worker
     memory="30 GB",  # Total amount of memory per worker
     processes=1,  # Number of Python processes per worker
-    walltime="4-00:00:00",  # Reserve each worker for X hour
+    walltime=JOB_DEFINITIONS["jobs"]["stm_generation"]["bash-file"]["bash-file-slurm-cluster"][
+        "slurm-cluster-worker-time"
+    ],  # Reserve each worker for X hour
     scheduler_options={"dashboard_address": f":{FREE_SOCKET}"},  # Host Dashboard in a free socket
 )
 

@@ -34,6 +34,7 @@ jobs:
       bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
     filters:
       sensor: "S1"
 
@@ -52,6 +53,7 @@ jobs:
       bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
     filters:
       sensor: ["ERS", "ENV", "TSX", "TDX", "PAZ", "RSAT2", "Cosmo", "ALOS2"]
 
@@ -70,6 +72,7 @@ jobs:
       bash-file-base-directory: "coregistration"  # expects coregistration_AoI_name & coregistration_directory
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
     filters:
       sensor: "S1"
 
@@ -88,6 +91,7 @@ jobs:
       bash-file-base-directory: "crop_to_raw"
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
     filters:
 
   crop_to_zarr:
@@ -105,6 +109,9 @@ jobs:
       bash-file-base-directory: "crop_to_zarr"
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
+        slurm-cluster-n-workers: 8
+        slurm-cluster-worker-time: "10:00:00"
     filters:
 
   stm_generation:
@@ -122,6 +129,9 @@ jobs:
       bash-file-base-directory: "stm_generation"
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
+        slurm-cluster-n-workers: 10
+        slurm-cluster-worker-time: "4-00:00:00"
     filters:
 
   depsi:
@@ -139,6 +149,7 @@ jobs:
       bash-file-base-directory: "depsi"
       bash-file-directory-appendix: "/psi"
       bash-file-directory-is-reusable: False
+      bash-file-slurm-cluster:
     filters:
 
   mrm:
@@ -156,6 +167,7 @@ jobs:
       bash-file-base-directory: "depsi"
       bash-file-directory-appendix: "/psi"
       bash-file-directory-is-reusable: False
+      bash-file-slurm-cluster:
     filters:
 
   depsi_post:
@@ -173,6 +185,7 @@ jobs:
       bash-file-base-directory: "depsi"
       bash-file-directory-appendix: "/psi"
       bash-file-directory-is-reusable: False
+      bash-file-slurm-cluster:
     filters:
 
   tarball:

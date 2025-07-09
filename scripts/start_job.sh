@@ -7,23 +7,21 @@ if [ $# -lt 4  ]; then
   exit 127
 fi
 
-ulimit -Sv $(($SLURM_JOB_CPUS_PER_NODE * 8 * 1024 * 1024))  # limit the memory to 8GB per core
-
 PARAMETER_FILE=$1
 TRACK_NUMBER=$2
 JOB_TYPE=$3
 INSTALL_LOCATION=$4
 VENV_LOCATION=$5
 
-echo "-----------------------------------------------"
+echo "----------------------------------------------------"
 echo "Starting job with the following characteristics"
-echo "-----------------------------------------------"
+echo "----------------------------------------------------"
 echo "Parameter file: ${PARAMETER_FILE}"
 echo "Track: ${TRACK_NUMBER}"
 echo "Job: ${JOB_TYPE}"
 echo "Caroline install location: ${INSTALL_LOCATION}"
 echo "Caroline virtual environment: ${VENV_LOCATION}"
-echo "-----------------------------------------------"
+echo "----------------------------------------------------"
 echo ""
 
 # Load required python and gdal modules
@@ -32,6 +30,18 @@ source /project/caroline/Software/bin/init.sh
 module load python/3.10.4 gdal/3.4.1-alma9
 source ~/.bashrc
 source ${VENV_LOCATION}/bin/activate
+
+# we can access the number of slurm cluster workers from the job definition script (each key split by : , not flattened, and 0 if no value found
+SLURM_CLUSTER_NODES=$(python3 ${INSTALL_LOCATION}/caroline/config.py "jobs:${JOB_TYPE}:bash-file:bash-file-slurm-cluster:slurm-cluster-n-workers" ${INSTALL_LOCATION}/config/job-definitions.yaml False 0)
+
+ulimit -Sv $((($SLURM_JOB_CPUS_PER_NODE + 4 * $SLURM_CLUSTER_NODES) * 8 * 1024 * 1024))  # limit the memory to 8GB per core + 32GB per slurm worker (they run on 4 cores each)
+
+echo "----------------------------------------------------"
+echo "Number of CPUS: $SLURM_JOB_CPUS_PER_NODE"
+echo "Number of cluster workers: ${SLURM_CLUSTER_NODES}"
+echo "Setting virtual memory limit to $((($SLURM_JOB_CPUS_PER_NODE + 4 * $SLURM_CLUSTER_NODES) * 8))GB"
+echo "----------------------------------------------------"
+echo ""
 
 if [ $# -eq 5 ]; then  # put a note in the working directory as we're not running a bash file
   CAROLINE_WORK=$(python3 ${INSTALL_LOCATION}/caroline/config.py "CAROLINE_WORK_DIRECTORY")
@@ -52,7 +62,7 @@ else  # backwards compatibility
   echo "----------------------------------------------------"
   echo "Directory: ${BASH_FILE_DIRECTORY}"
   echo "File: ${BASH_FILE}"
-  echo "-----------------------------------------------"
+  echo "----------------------------------------------------"
   echo ""
 
   cd ${BASH_FILE_DIRECTORY}

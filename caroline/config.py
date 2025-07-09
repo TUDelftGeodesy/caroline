@@ -57,11 +57,38 @@ def get_config(config_file: str | None = None, flatten: bool = True) -> dict:
 
 if __name__ == "__main__":
     argv = sys.argv
+    config_file = None
+    flatten = True
+    null_value = None
     if len(argv) == 2:
         _, requested_parameter = sys.argv
-        print(get_config()[requested_parameter])
     elif len(argv) == 3:
         _, requested_parameter, config_file = sys.argv
-        print(get_config(config_file)[requested_parameter])
+        flatten = True
+    elif len(argv) == 4:
+        _, requested_parameter, config_file, flatten = sys.argv
+    elif len(argv) == 5:
+        _, requested_parameter, config_file, flatten, null_value = sys.argv
     else:
-        raise ValueError(f"Expected 1 or 2 argv arguments but got {len(argv) - 1}!")
+        raise ValueError(
+            f"Usage config.py requested_parameter [config-file] [flatten] [null-value], got {len(argv) - 1} args!"
+        )
+
+    if isinstance(flatten, str):  # True/False is read in as a string
+        if flatten in ["True", "False"]:
+            flatten = eval(flatten)
+
+    if ":" not in requested_parameter:
+        print(get_config(config_file, flatten=flatten)[requested_parameter])
+    else:
+        data = get_config(config_file, flatten=flatten)
+        do_null = False
+        for depth in requested_parameter.split(":"):
+            if depth not in data.keys():
+                do_null = True
+            else:
+                data = data[depth]
+        if do_null:
+            print(null_value)
+        else:
+            print(data)

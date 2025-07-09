@@ -25,7 +25,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.4.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (09-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6352102043d95557d1bbdd025c62953eee8bdb18...main))
+## [v2.4.5](https://github.com/TUDelftGeodesy/caroline/tree/main) (09-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7cffe1701a72100022b91094ab6655624ec885e3...main))
+
+### Added:
+- `bash-file-slurm-cluster` key in [job-definitions.yaml](config/job-definitions.yaml), and its subkeys `slurm-cluster-n-workers` (the amount of workers) and `slurm-cluster-worker-time` (the time limit per worker)
+
+### Changed:
+- The CLI for [config.py](caroline/config.py) now allows `config.py requested_parameter [config-file] [flatten] [null-value]` instead of `config.py requested_parameter [config-file]`
+- The CLI for [config.py](caroline/config.py) now allows the `:` character in the requested parameter, which can be used to traverse through keys in configuration files (e.g. `"jobs:crop_to_zarr:bash-file:bash-file-slurm-cluster:slurm-cluster-n-workers"` will return the value of the key `slurm-cluster-n-workers` for the `crop_to_zarr` job). If the key cannot be found, the null-value (user-definable) will be returned, default `None`.
+
+### Fixed:
+- The number of SLURM cluster workers is taken into account in the 8GB per core memory limit (each worker has 4 cores, so an additional 32GB per worker is allowed)
+- `bash-file-directory-is-reusable` key from [job-definitions.yaml](config/job-definitions.yaml) is now in the documentation
+
+## [v2.4.4](https://github.com/TUDelftGeodesy/caroline/tree/7cffe1701a72100022b91094ab6655624ec885e3) (09-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6352102043d95557d1bbdd025c62953eee8bdb18...7cffe1701a72100022b91094ab6655624ec885e3))
 
 ### Fixed:
 - Portal layers that are uploaded to the SkyGeo portal are now moved away from the limited storage on `\tmp` to an archive directory with more space after they have been added to the correct portal

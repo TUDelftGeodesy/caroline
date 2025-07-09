@@ -207,13 +207,17 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
       7. `email`: always has two keys:
          1. `include-in-email`: if `True` (without quotes), the job will show up in the email. If `False`, it will not show up.
          2. `status-file-search-key`: the search key for the job resfile. For `depsi`, this is `"*resfile.txt"`, as this is where the results of the job are stored. If left empty, it is assumed no such status file exists.
-      8. `bash-file`: if no bash file is to be run, leave it empty like in the `email` job. Otherwise, move one tab in, and add three keys:
+      8. `bash-file`: if no bash file is to be run, leave it empty like in the `email` job. Otherwise, move one tab in, and add five keys:
          1. `bash-file-name`: the name of the bash file to be run.
          2. `bash-file-base-directory`: the name of the base directory in which the job should be run. For `depsi` this is `depsi`, which then assumes `depsi_directory` and `depsi_AoI_name` exist as parameters in the parameter file.
          3. `bash-file-directory-appendix`: a folder to add to the base directory name. In case of `depsi`, this is `/psi`, since DePSI runs in the `psi` folder within the base directory of `depsi`. If it should be empty, leave it to `""`.
+         4. `bash-file-directory-is-reusable`: if `True` (without quotes), consecutive runs (when new images come in) on the same AoI will always run in the same directory and build on what was already there. If `False` (without quotes), each new image will be assigned a unique folder.
+         5. `bash-file-slurm-cluster`: if no SLURM cluster is used in this job, leave it empty (like in `depsi`). If a SLURM cluster is used (NOTE: Python-only!) (e.g. in `crop_to_zarr`), move one tab in, and add two keys:
+            1. `slurm-cluster-n-workers`: The number of workers to be created by the SLURM cluster
+            2. `slurm-cluster-worker-time`: the maximum runtime allowed for each worker. Note: values of more than 5 days are not allowed! The shorter the time, the easier it is to allocate them.
       9. `filters`: in case the job should only run if specific conditions are met, these can be specified here. If left empty, it will assume no filters are present and any parameter file can start this job. If a filter (e.g. satellite) is present, use the following syntax:
-         1. one tab in, add `<parameter-file-key>: <allowed-value(s)>`. `<allowed-value(s)>` can be either a `str` or `list` of `str`. If the value of the specified key in the parameter file is in the provided allowed values, the job will start. Otherwise, the job will not be scheduled.
-         2. If multiple filters are necessary, add the next filter using the same syntax on a new line. The job will only start if _all_ filters are satisfied.
+            1. one tab in, add `<parameter-file-key>: <allowed-value(s)>`. `<allowed-value(s)>` can be either a `str` or `list` of `str`. If the value of the specified key in the parameter file is in the provided allowed values, the job will start. Otherwise, the job will not be scheduled.
+            2. If multiple filters are necessary, add the next filter using the same syntax on a new line. The job will only start if _all_ filters are satisfied.
 3. Add the two letter job ID to [abbreviations.md](abbreviations.md)
 4. In [preparation.py](../caroline/preparation.py), create the function `prepare_<jobname>` that takes exactly two arguments: 
     

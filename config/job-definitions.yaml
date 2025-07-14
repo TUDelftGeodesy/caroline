@@ -8,7 +8,7 @@ jobs:
   s1_download:
     requirement:
     two-letter-id: "SD"
-    parameter-file-step-key: "do_s1_download"
+    parameter-file-step-key: "general:steps:do-s1_download"
     partition: "normal"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
     directory-contents-file-appendix: ""
@@ -17,12 +17,14 @@ jobs:
       status-file-search-key:
     bash-file:
     filters:
-      sensor: "S1"
+      general:
+        input-data:
+          sensor: "S1"
 
   doris:
     requirement: "s1_download"
     two-letter-id: "D5"
-    parameter-file-step-key: "do_coregistration"
+    parameter-file-step-key: "general:steps:do-coregistration"
     partition: "coregistration_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
     directory-contents-file-appendix: ""
@@ -36,12 +38,14 @@ jobs:
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:
     filters:
-      sensor: "S1"
+      general:
+        input-data:
+          sensor: "S1"
 
   deinsar:
     requirement:
     two-letter-id: "D4"
-    parameter-file-step-key: "do_coregistration"
+    parameter-file-step-key: "general:steps:do-coregistration"
     partition: "coregistration_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
     directory-contents-file-appendix: ""
@@ -55,12 +59,14 @@ jobs:
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:
     filters:
-      sensor: ["ERS", "ENV", "TSX", "TDX", "PAZ", "RSAT2", "Cosmo", "ALOS2"]
+      general:
+        input-data:
+          sensor: ["ERS", "ENV", "TSX", "TDX", "PAZ", "RSAT2", "Cosmo", "ALOS2"]
 
   doris_cleanup:
     requirement: "doris"
     two-letter-id: "DC"
-    parameter-file-step-key: "do_coregistration"
+    parameter-file-step-key: "general:steps:do-coregistration"
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
     directory-contents-file-appendix: ""
@@ -74,12 +80,14 @@ jobs:
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:
     filters:
-      sensor: "S1"
+      general:
+        input-data:
+          sensor: "S1"
 
   crop_to_raw:
     requirement: ["doris", "deinsar"]
     two-letter-id: "CR"
-    parameter-file-step-key: "do_crop_to_raw"
+    parameter-file-step-key: "general:steps:do-crop_to_raw"
     partition: "crop_to_raw_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8"
     directory-contents-file-appendix: ""
@@ -97,7 +105,7 @@ jobs:
   crop_to_zarr:
     requirement: ["doris", "deinsar"]
     two-letter-id: "CZ"
-    parameter-file-step-key: "do_crop_to_zarr"
+    parameter-file-step-key: "general:steps:do-crop_to_zarr"
     partition: "crop_to_zarr_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --nodes=1"
     directory-contents-file-appendix: ""
@@ -117,7 +125,7 @@ jobs:
   stm_generation:
     requirement: "crop_to_zarr"
     two-letter-id: "SG"
-    parameter-file-step-key: "do_stm_generation"
+    parameter-file-step-key: "general:steps:do-stm_generation"
     partition: "normal"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --nodes=1"
     directory-contents-file-appendix: ""
@@ -137,7 +145,7 @@ jobs:
   depsi:
     requirement: "crop_to_raw"
     two-letter-id: "DE"
-    parameter-file-step-key: "do_depsi"
+    parameter-file-step-key: "general:steps:do-depsi"
     partition: "depsi_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
     directory-contents-file-appendix: ""
@@ -155,7 +163,7 @@ jobs:
   mrm:
     requirement: "depsi"
     two-letter-id: "MR"
-    parameter-file-step-key: "do_depsi_post"
+    parameter-file-step-key: "general:steps:do-depsi_post"
     partition: "normal"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=4 --mem-per-cpu=8000"
     directory-contents-file-appendix: "_mrm"
@@ -173,7 +181,7 @@ jobs:
   depsi_post:
     requirement: "mrm"
     two-letter-id: "DP"
-    parameter-file-step-key: "do_depsi_post"
+    parameter-file-step-key: "general:steps:do-depsi_post"
     partition: "depsi_post_partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --mem-per-cpu=8000"
     directory-contents-file-appendix: "_depsi_post"
@@ -191,7 +199,7 @@ jobs:
   tarball:
     requirement: "depsi_post"
     two-letter-id: "TB"
-    parameter-file-step-key: "do_depsi_post"
+    parameter-file-step-key: "general:steps:do-depsi_post"
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
     directory-contents-file-appendix: "_tarball"
@@ -200,12 +208,15 @@ jobs:
       status-file-search-key:
     bash-file:
     filters:
-      depsi_post_mode: "tarball"
+      general:
+        workflow:
+          filters:
+            depsi_post-output: "tarball"
 
   portal_upload:
     requirement: "depsi_post"
     two-letter-id: "PU"
-    parameter-file-step-key: "do_depsi_post"
+    parameter-file-step-key: "general:steps:do-depsi_post"
     partition: "short"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
     directory-contents-file-appendix: "_portalupload"
@@ -214,7 +225,10 @@ jobs:
       status-file-search-key:
     bash-file:
     filters:
-      depsi_post_mode: "csv"
+      general:
+        workflow:
+          filters:
+            depsi_post-output: "csv"
 
   email:
     requirement: "*"  # unique use case: this one should wait for every job except itself and is thus handled individually

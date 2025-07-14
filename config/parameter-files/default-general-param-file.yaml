@@ -1,0 +1,60 @@
+# this is the default parameter file for the general section of the Caroline parameter file
+
+general:
+  active: 1  # 1 means it will be included in the live processing, 0 means it will not be included
+
+  project:
+    owner:
+      name: "NEEDS_VALUE"
+      email: "NEEDS_VALUE"
+    engineer:
+      name: "NEEDS_VALUE"
+      email: "NEEDS_VALUE"
+    objective: "NEEDS_VALUE"
+    notes: "NEEDS_VALUE"
+    three-letter-id: "NEEDS_VALUE"
+
+  input-data:
+    sensor: "S1" # S1 / ERS / ENV / TSX / TDX / PAZ / RSAT2 / Cosmo / ALOS2
+    polarisation: ['VVVH']  # For Sentinel-1 only ['VVVH'] (others not implemented). For others, ['HH', 'HV', 'VV', 'VH'] possible (default ['HH'])
+    product-type: "SLC"
+
+  workflow:
+    dependency:
+      aoi-name: "NEEDS_VALUE"
+      input-step: "NEEDS_VALUE"
+    output-steps: "NEEDS_VALUE"  # one or more of the steps defined in job-definitions.yaml, as a list
+    filters:
+      depsi_post-output: "csv"  # csv / tarball
+
+  portal:
+    skygeo-customer: "caroline"
+    skygeo-viewer: "NEEDS_VALUE"
+
+  shape-file:
+    shape-file-link: "NEEDS_VALUE" # full path to .shp shapefile, e.g. '/project/caroline/Share/users/caroline-admin/caroline-aoi-shapefiles/be_lu_nl_benelux/Netherlands_roi.shp'
+    # if shape-file-link is left empty, rectangular-shape-file is used to generate the shapefile instead
+    rectangular-shape-file:
+      center-AoI: "NEEDS_VALUE"  # e.g. [52.371436, 4.897088] Latitude, longitude
+      AoI-width: "NEEDS_VALUE" # e.g. 1,  km, east-west AoI size
+      AoI-length: "NEEDS_VALUE" # e.g. 1 km, north-south AoI size
+
+  tracks:
+    include-tracks: []
+    exclude-tracks: []
+
+  timeframe:
+    start: '2014-01-01'
+    end: '9999-12-31'
+    mother: '2020-03-25'
+
+  email:
+    recipients: "NEEDS_VALUE"
+
+  dem:
+    file: '/project/caroline/Share/dem/netherlands_srtm_extended/netherlands_SRTM_extended.raw'  # for the Netherlands
+    format: 'r4'
+    size: [14400, 25200]
+    delta: [0.00027778, 0.00027778]
+    upperleft: [54, 2]
+    nodata: -32768

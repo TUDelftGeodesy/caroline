@@ -1,0 +1,42 @@
+# the default settings for Doris v4, running in the DeInSAR job
+
+deinsar:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/stacks'
+    partition: 'normal'
+    deinsar-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/deinsar_v0.3.4'
+    doris-v4-code-directory: '/project/caroline/Software/doris/doris_v4.13.1_cosmo2_alos2fix_tsxfix'
+
+  input:
+    data-directories:  # this one needs one line for every track you wish to run, with as key the track and as value the directory
+      tsx_asc_t116: '/project/caroline/Data/radar_data/eurasia/netherlands/tsx/nl_amsterdam_tsx_asc_t116_T171816_171824_007_hh/data_backup'
+
+  deinsar-settings:
+    do-orbit: 1  # only for ENV, ERS, RSAT2, will turn off for other sensors automatically
+    do-crop: 1
+    do-tsx-deramp: 1  # only for TSX, will turn off for other sensors automatically
+    do-simamp: 0
+    do-mtiming: 0
+    do-ovs: 0
+    do-choose-master: 1
+    do-coarseorb: 1
+    do-coarsecorr: 1
+
+    finecoreg:
+      do-finecoreg: 1
+      finecoreg-mode: 'simple'  # normal or simple
+
+    do-reltiming: 0
+    do-dembased: 1
+    do-coregpm: 1
+    do-resample: 1
+    do-tsx-reramp: 1  # only for TSX, will turn off for other sensors automatically
+    do-comprefpha: 1
+    do-comprefdem: 1
+    do-interferogram: 1
+    do-subtrrefpha: 1
+    do-subtrrefdem: 1
+    do-coherence: 1
+    do-geocoding: 1
+

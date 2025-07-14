@@ -9,6 +9,7 @@ from typing import Literal
 import fiona
 import geopandas
 import numpy as np
+import yaml
 
 from caroline.config import get_config
 
@@ -58,13 +59,14 @@ def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
     parameter_file : str
         Absolute path to the CAROLINE parameter file in .txt format
     search_parameters: list
-        Parameter names to be retrieved from the parameter file, as a list of strings
+        Parameter names to be retrieved from the parameter file, as a list of strings. The `:` character can be used
+        as separator to access variables in deeper layers (e.g. `general:shape-file:shape-file-link` will return the
+        value for `parameter_file_dict["general"]["shape-file"]["shape-file-link"]`.
 
     Returns
     -------
     dict
-        Dictionary containing the values of the requested parameters. If an invalid parameter is requested,
-        `None` is returned for that parameter.
+        Dictionary containing the values of the requested parameters.
 
     Raises
     ------
@@ -72,33 +74,38 @@ def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
         - When the parameter file does not exist
         - When the parameter file does not end in .txt
 
-    ValueError
+    KeyError
         - When a requested parameter does not exist in the parameter file
     """
     assert os.path.exists(parameter_file), f"Specified parameter file {parameter_file} does not exist!"
-    assert parameter_file.split(".")[-1] == "txt", f"Specified parameter file {parameter_file} is not a .txt file!"
+    assert parameter_file.split(".")[-1] == "yaml", f"Specified parameter file {parameter_file} is not a .yaml file!"
 
-    fp = open(parameter_file)
-    parameters = fp.read().split("\n")
-    fp.close()
+    with open(parameter_file) as f:
+        data = yaml.safe_load(f)
 
     out_parameters = {}
 
     for param in search_parameters:
-        found = False
-        for p in parameters:
-            if p.split("=")[0].strip() == param:
-                do = p.split("=")[1]
-                if "#" in do:
-                    do = do.split("#")[0]
-                do = do.strip().strip("'").strip('"')
-                out_parameters[param] = do
-                found = True
-                break
-        if not found:
-            raise ValueError(f"Parameter {param} requested but not in {parameter_file}!")
+        val = data
+        for key in param.split(":"):
+            val = val[key]
+        out_parameters[param] = val
 
     return out_parameters
+
+
+def write_parameter_file(parameter_file: str, parameters: dict) -> None:
+    """Write a parameter file to yaml.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to where the parameter file should be saved
+    parameters: dict
+        Dictionary readout of the parameters in the parameter file
+    """
+    with open(parameter_file, "w") as outfile:
+        yaml.dump(parameters, outfile)
 
 
 def write_run_file(

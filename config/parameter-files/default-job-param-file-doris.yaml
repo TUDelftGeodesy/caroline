@@ -1,0 +1,35 @@
+# the default settings for Doris v5, running in the doris job
+
+doris:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/stacks'
+    partition: 'normal'
+    code-directory: '/project/caroline/Software/doris/doris_v5_current'
+
+  doris-settings:
+    do-coarse-orbits: 1
+    do-deramp: 1
+    do-reramp: 1
+    do-fake-fine-coreg-bursts: 1
+    do-fake-master-resample: 1
+    do-dac-bursts: 1
+    do-fake-coreg-bursts: 1
+    do-resample: 1
+    do-reramp2: 1
+    do-interferogram: 1
+    do-compref-phase: 1
+    do-compref-dem: 1
+    do-coherence: 1
+    do-esd: 0
+    do-network-esd: 0
+    do-ESD-correct: 0
+    do-combine-master: 1
+    do-combine-slave: 1
+    do-ref-phase: 1
+    do-ref-dem: 1
+    do-phasefilt: 0
+    do-calc-coordinates: 1
+    do-multilooking: 0
+    do-unwrap: 0
+

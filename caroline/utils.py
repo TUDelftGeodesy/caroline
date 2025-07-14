@@ -749,13 +749,13 @@ def get_processing_time(job_id: int) -> int:
     return total_time
 
 
-def job_schedule_check(parameter_file: str, job: str, job_definitions: dict) -> bool:
+def job_schedule_check(parameter_file: str | dict, job: str, job_definitions: dict) -> bool:
     """Check if a job should be scheduled based on the parameter file and the job definitions.
 
     Parameters
     ----------
-    parameter_file: str
-        Full path to the parameter file
+    parameter_file: str | dict
+        Full path to the parameter file, or dictionary readout of the parameter file
     job: str
         Name of the job to be scheduled
     job_definitions: dict
@@ -769,22 +769,59 @@ def job_schedule_check(parameter_file: str, job: str, job_definitions: dict) -> 
     if job_definitions[job]["parameter-file-step-key"] is None:  # always runs
         return True
 
-    out_parameters = read_parameter_file(parameter_file, [job_definitions[job]["parameter-file-step-key"]])
+    if isinstance(parameter_file, str):
+        out_parameters = read_parameter_file(parameter_file, [job_definitions[job]["parameter-file-step-key"]])
+    else:
+        val = parameter_file
+        for key in job_definitions[job]["parameter-file-step-key"].split(":"):
+            val = val[key]
+        out_parameters = {job_definitions[job]["parameter-file-step-key"]: val}
 
-    if out_parameters[job_definitions[job]["parameter-file-step-key"]] == "0":  # it is not requested
+    if out_parameters[job_definitions[job]["parameter-file-step-key"]] == 0:  # it is not requested
         return False
 
     # if we make it here, the step is requested
-    if job_definitions[job]["filters"] is not None:  # we first need to check the filters. Return False if one filter
-        # is not met
-        for key in job_definitions[job]["filters"].keys():
-            value_check = read_parameter_file(parameter_file, [key])[key]
-            if isinstance(job_definitions[job]["filters"][key], str):
-                if value_check.lower() != job_definitions[job]["filters"][key].lower():  # it meets the filter
+    if job_definitions[job]["filters"] is not None:  # if there are filters, extract them and check against them
+        filters = extract_all_values_and_paths_from_dictionary(job_definitions[job]["filters"])
+        for filt in filters:
+            if isinstance(parameter_file, str):  # extract the requested value from the parameter file
+                value_check = read_parameter_file(parameter_file, [":".join(filt[1])])
+            else:
+                value_check = parameter_file  # or from the dictionary
+                for key in filt[1]:
+                    value_check = value_check[key]
+            if isinstance(filt[0], str):  # it meets the filter
+                if value_check.lower() != filt[0].lower():
                     return False
-            else:  # it's a list, so we check if it exists in the list
-                if value_check.lower() not in [s.lower() for s in job_definitions[job]["filters"][key]]:
+            elif isinstance(filt[0], list):  # it's a list, so we check if it exists in the list
+                if value_check.lower() not in [s.lower() for s in filt[0]]:
                     return False
 
     # if it was not kicked out by the filters, we return True
     return True
+
+
+def extract_all_values_and_paths_from_dictionary(dictionary: dict, cur_keys: tuple = ()) -> list:
+    """Extract all values and the paths to get there from a dictionary.
+
+    Parameters
+    ----------
+    dictionary: dict
+        Dictionary of which all values should be extracted
+    cur_keys: tuple, default ()
+        Way to keep track of the keys through recursion
+
+    Returns
+    -------
+    list
+        List of [value, [list of keys to get there]]
+    """
+    all_values = []
+    for key in dictionary.keys():
+        cur_keys = cur_keys + (key,)
+        if isinstance(dictionary[key], dict):
+            part_values = extract_all_values_and_paths_from_dictionary(dictionary[key], cur_keys)
+            all_values = [*all_values, *part_values]
+        else:
+            all_values.append([dictionary[key], cur_keys])
+    return all_values

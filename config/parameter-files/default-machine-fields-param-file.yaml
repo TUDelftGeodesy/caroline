@@ -1,0 +1,20 @@
+# these are fields that are not to be modified in the user settings, but are necessary for the workflows.
+# They will be added separately.
+
+general:
+  tracks:
+    track: []
+    asc_dsc: []
+
+  steps:
+    do-s1_download: 0
+    do-coregistration: 0
+    do-crop_to_raw: 0
+    do-crop_to_zarr: 0
+    do-stm_generation: 0
+    do-depsi: 0
+    do-depsi_post: 0
+
+  shape-file:
+    aoi-name: "**AoI_name**"
+    directory: "/project/caroline/Software/config/roi"

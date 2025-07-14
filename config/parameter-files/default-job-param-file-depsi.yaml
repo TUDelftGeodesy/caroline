@@ -1,0 +1,111 @@
+# the default settings for DePSI, running in the depsi job
+
+depsi:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/projects/**AoI_name**/depsi'
+    partition: 'normal'
+    depsi-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/depsi_v2.2.1.1'
+    rdnaptrans-directory: '**CAROLINE_PLUGINS_DIRECTORY**/rdnaptrans'
+    geocoding-directory: '**CAROLINE_PLUGINS_DIRECTORY**/geocoding_v0.9'
+
+  depsi-settings:
+    general:
+      max-mem-buffer: 50e7
+      visible-plots: 'n'
+      detail-plots: 'n'
+      processing-groups: []
+      run-mode: 'validation'
+
+      exclude-date: ''
+
+      az-spacing: 13.9
+      r-spacing: 4.0
+      slc-selection-input: []
+      ifg-selection-input: []
+
+      # ref_cn specifies the reference point of the CAROLINE DePSI analyses. The following options are available:
+      # ref_cn = 'independent'   -> DePSI chooses the reference point itself (one of the nodes of the arc with the lowest amplitude dispersion),
+      #                             this can be different between consecutive runs on the same track.
+      # ref_cn = []              -> same as 'independent'
+      # ref_cn = 'constant'      -> keep the reference point constant between runs on the same track. If no runs exist,
+      #                             the first run will run on mode 'independent'
+      # ref_cn = [azimuth,range] -> force the reference point to this coordinate regardless of what is there. If the reference point is not selected
+      #                             as PS point, DePSI will throw an error
+      # ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300]} -> different behaviours for different tracks. If this option is chosen,
+      #                                                                   a mode for all tracks in the .dat file must exist.
+      ref-cn:
+        all: 'constant'
+
+      Ncv: 25
+      ps_method: 'perio'
+      psc_model: [1]
+      ps_model: [1]
+      final_model: [2]
+      breakpoint: []
+      breakpoint2: []
+      ens-coh-threshold: 0.5
+      varfac-threshold: 3
+      detrend-method: 'yes'
+      output-format: 1
+      stc-min-max: [30, 100]
+      do-apriori-sidelobe-mask: 'no'
+      do-aposteriori-sidelobe-mask: 'no'
+
+    geocoding:
+      ref-height: 0
+
+    psc:
+      amplitude-calibration: 'yes'
+      psc-selection-method: 'threshold'
+      psc-selection-gridsize: 100
+      psc-threshold: 0.3
+      max-arc-length: 5000
+      network-method: 'spider'
+      Ncon: 16
+      Nparts: 8
+      Npsc-selections: 1
+
+      # if do_water_mask is turned to 'yes', the file '/project/caroline/Software/config/caroline-water-masks/water_mask_<depsi_AoI_name>_<sensor>_<asc_dsc>_t<track:0>3d>.raw'
+      # is expected, matching with the requested crop, see #68
+      do-water-mask: 'no'
+
+      gamma-threshold: 0.45
+      psc-distribution: 'uniform'
+      weighted-unwrap: 'yes'
+
+      livetime-threshold: 0.2
+      peak-tolerance: 0.9
+
+    psp:
+      psp-selection-method: 'ampdisp'
+      psp-threshold1: 0.5
+      psp-threshold2: []
+      ps-eval-method: 'psp'
+      Namp-disp-bins: 100
+      Ndens-iterations: 5
+      densification-flag: 'yes'
+      ps-area-of-interest: []
+      dens-method: 'orig'
+      dens-check: 'nocheck'
+      Nest: 1
+
+    stochastic-model:
+      std-param: [30, 0.005, 1, 0.02, 0.01, 0.01, 0.005]
+      defo-range: 5000
+      weighting: 'vce'
+      ts-atmo-filter: 'gaussian'
+      ts-atmo-filter-length: '12/12'
+      ts-noise-filter: 'gaussian'
+      ts-noise-filter-length: '8/12'
+
+    bowl:
+      defo-method: []
+      xc0: []
+      yc0: []
+      zc0: []
+      r0: []
+      r10: []
+      epoch: []
+
+

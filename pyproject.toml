@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Caroline"
-version = "2.4.6"
+version = "2.4.7"
 requires-python = ">=3.10"
 dependencies = [
     "apache-airflow",
@@ -13,7 +13,7 @@ dependencies = [
     "matplotlib",
     "psycopg2-binary",
     "sarxarray",
-    "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@main"
+    "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc1"
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"
 readme = "README.md"

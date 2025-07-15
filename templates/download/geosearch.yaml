@@ -7,4 +7,4 @@ geo_search:
   end: "now"
   roi_wkt_file: "**wkt_file**"
   relative_orbits: [**orbits_csv**]
-  product_type: "**product_type**"
+  product_type: "**general:input-data:product-type**"

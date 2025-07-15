@@ -14,10 +14,10 @@ addpath(genpath('**caroline_install_directory**/scripts/crop'));
 folder = 'cropped_stack';
 
 % full path to crop shapefile
-crop_file = '**shape_directory**/**shape_AoI_name**_shape.shp';
+crop_file = '**general:shape-file:directory**/**general:shape-file:aoi-name**_shape.shp';
 
 % which sensor was used
-sensor = '**sensor**';
+sensor = '**general:input-data:sensor**';
 
 %%% END OF USER SETTINGS %%%
 

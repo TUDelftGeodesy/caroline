@@ -66,27 +66,28 @@ def finish_installation() -> None:
         # first generate the shapefile if it does not yet exist
 
         parameter_file_parameters = read_parameter_file(
-            parameter_file, ["shape_directory", "shape_AoI_name", "shape_file"]
+            parameter_file,
+            ["general:shape-file:directory", "general:shape-file:aoi-name", "general:shape-file:shape-file-link"],
         )
         # first create the directory
-        os.makedirs(parameter_file_parameters["shape_directory"], exist_ok=True)
+        os.makedirs(parameter_file_parameters["general:shape-file:directory"], exist_ok=True)
 
         shapefile_name = (
-            f"{parameter_file_parameters['shape_directory']}/"
-            f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"
+            f"{parameter_file_parameters['general:shape-file:directory']}/"
+            f"{parameter_file_parameters['general:shape-file:aoi-name']}_shape.shp"
         )
         # then create or link the shapefile
         if not os.path.exists(shapefile_name):
-            if parameter_file_parameters["shape_file"] == "":
+            if parameter_file_parameters["general:shape-file:shape-file-link"] in [None, ""]:
                 create_shapefile(parameter_file)
             else:
                 link_shapefile(parameter_file)
 
         # determine if the parameter file is active or not, if not, we skip the area-track-list generation
 
-        active_parameter_file = read_parameter_file(parameter_file, ["active"])["active"]
+        active_parameter_file = read_parameter_file(parameter_file, ["general:active"])["general:active"]
 
-        if active_parameter_file == "0":
+        if active_parameter_file == 0:
             # check if a download configuration still exists, if so, remove it
             if os.path.exists(f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"):
                 os.system(
@@ -98,15 +99,19 @@ def finish_installation() -> None:
 
         # then check if the AoI is a Sentinel-1 AoI or something else
 
-        sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"]
+        sensor = read_parameter_file(parameter_file, ["general:input-data:sensor"])["general:input-data:sensor"]
 
         if sensor == "S1":
             # then determine the intersecting orbits
             orbits, footprints = identify_s1_orbits_in_aoi(shapefile_name)
             allowed_footprints = {}
             disallowed_footprints = {}
-            disallowed_orbits = eval(read_parameter_file(parameter_file, ["exclude_tracks"])["exclude_tracks"])
-            forced_orbits = eval(read_parameter_file(parameter_file, ["include_tracks"])["include_tracks"])
+            disallowed_orbits = read_parameter_file(parameter_file, ["general:tracks:exclude-tracks"])[
+                "general:tracks:exclude-tracks"
+            ]
+            forced_orbits = read_parameter_file(parameter_file, ["general:tracks:include-tracks"])[
+                "general:tracks:include-tracks"
+            ]
             for orbit in disallowed_orbits:
                 if orbit in orbits:
                     orbits.pop(orbits.index(orbit))
@@ -186,7 +191,7 @@ def finish_installation() -> None:
                     asc_dsc=None,
                     track=None,
                     parameter_file=parameter_file,
-                    parameter_file_parameters=["product_type"],
+                    parameter_file_parameters=["general:input-data:product-type"],
                     other_parameters={
                         "start_date": "one month ago",
                         "wkt_file": (
@@ -214,7 +219,7 @@ def finish_installation() -> None:
                     asc_dsc=None,
                     track=None,
                     parameter_file=parameter_file,
-                    parameter_file_parameters=["dependency"],
+                    parameter_file_parameters=["general:workflow:dependency:aoi-name"],
                     other_parameters={"tracks": "\n".join(orbits)},
                 )
 
@@ -228,7 +233,7 @@ def finish_installation() -> None:
                 asc_dsc=None,
                 track=None,
                 parameter_file=parameter_file,
-                parameter_file_parameters=["dependency"],
+                parameter_file_parameters=["general:workflow:dependency:aoi-name"],
                 other_parameters={"tracks": "\n".join(include_tracks)},
             )
 
@@ -245,14 +250,14 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
         the parameter file
     """
     search_parameters = [
-        "track",
-        "asc_dsc",
-        "sensor",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -266,7 +271,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
 
-        if out_parameters["sensor"] == "S1":
+        if out_parameters["general:input-data:sensor"] == "S1":
             coregistration_directory = format_process_folder(
                 parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
             )
@@ -280,7 +285,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
 
         # soft-link the processing directory without job_id.txt, dir_contents.txt and queue.txt
         # Sentinel-1 has more files starting with d as Doris-v5 output, other sensors do not have that
-        if out_parameters["sensor"] == "S1":
+        if out_parameters["general:input-data:sensor"] == "S1":
             link_keys = ["[bgiprs]*", "doris*", "dem"]
         else:
             link_keys = ["[bgiprs]*"]
@@ -295,7 +300,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["crop_to_raw_AoI_name"],
+            parameter_file_parameters=["crop_to_raw:general:AoI-name"],
             config_parameters=["caroline_work_directory"],
             other_parameters={"track": tracks[track], "crop_base_directory": crop_directory},
         )
@@ -307,7 +312,11 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["shape_AoI_name", "shape_directory", "sensor"],
+            parameter_file_parameters=[
+                "general:shape-file:aoi-name",
+                "general:shape-file:directory",
+                "general:input-data:sensor",
+            ],
             config_parameters=["caroline_install_directory"],
         )
 
@@ -334,19 +343,14 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
         If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
     """
     search_parameters = [
-        "crop_to_zarr_directory",
-        "crop_to_zarr_AoI_name",
-        "coregistration_directory",
-        "coregistration_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
-
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
     for track in range(len(tracks)):
         if isinstance(do_track, int):
             if tracks[track] != do_track:
@@ -359,7 +363,7 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
         )
 
-        if out_parameters["sensor"] == "S1":
+        if out_parameters["general:input-data:sensor"] == "S1":
             coregistration_directory = format_process_folder(
                 parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
             )
@@ -372,7 +376,7 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
         os.makedirs(crop_to_zarr_directory, exist_ok=True)
 
         # detect the mother image
-        if out_parameters["sensor"].lower() == "s1":
+        if out_parameters["general:input-data:sensor"].lower() == "s1":
             f = open(f"{coregistration_directory}/doris_input.xml")
             data = f.read().split("\n")
             f.close()
@@ -407,12 +411,18 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["shape_AoI_name", "sensor", "shape_directory"],
+            parameter_file_parameters=[
+                "general:shape-file:aoi-name",
+                "general:input-data:sensor",
+                "general:shape-file:directory",
+            ],
             other_parameters={
                 "coregistration_directory": coregistration_directory,
-                "stack_folder_name": "stack" if out_parameters["sensor"] == "S1" else "process",
+                "stack_folder_name": "stack" if out_parameters["general:input-data:sensor"] == "S1" else "process",
                 "mother": mother,
-                "mother_slc_name": "slave_rsmp_reramped.raw" if out_parameters["sensor"] == "S1" else "slave_rsmp.raw",
+                "mother_slc_name": "slave_rsmp_reramped.raw"
+                if out_parameters["general:input-data:sensor"] == "S1"
+                else "slave_rsmp.raw",
                 "crop_to_zarr_output_filename": crop_to_zarr_output_name,
             },
         )
@@ -425,8 +435,8 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "crop_to_zarr_AoI_name",
-                "crop_to_zarr_code_dir",
+                "crop_to_zarr:general:AoI-name",
+                "crop_to_zarr:general:crop_to_zarr-code-directory",
             ],
             config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
             other_parameters={"track": tracks[track]},
@@ -457,42 +467,40 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         If an unknown sensor is provided in the parameter file
     """
     search_parameters = [
-        "coregistration_directory",
-        "coregistration_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
-        "di_data_directories",
-        "start_date",
-        "end_date",
-        "master_date",
-        "dem_size",
-        "dem_upperleft",
-        "dem_delta",
-        "shape_directory",
-        "shape_AoI_name",
-        "di_finecoreg_mode",
-        "polarisation",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "deinsar:input:data-directories",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "general:timeframe:mother",
+        "general:dem:file",
+        "general:dem:upperleft",
+        "general:dem:delta",
+        "general:shape-file:directory",
+        "general:shape-file:aoi-name",
+        "deinsar:deinsar-settings:finecoreg:finecoreg-mode",
+        "default:input-data:polarisation",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
-    datadirs = eval(out_parameters["di_data_directories"])
+    datadirs = out_parameters["deinsar:input:data-directories"]
 
-    start_date = eval(out_parameters["start_date"].replace("-", ""))
-    master_date = eval(out_parameters["master_date"].replace("-", ""))
-    end_date = eval(out_parameters["end_date"].replace("-", ""))
+    start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
+    master_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
+    end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
 
-    polarisation = eval(out_parameters["polarisation"])
+    polarisation = out_parameters["general:input-data:polarisation"]
     polarisation = [f"_{pol}" for pol in polarisation]
     if "_HH" in polarisation:
         polarisation[polarisation.index("_HH")] = ""
 
-    dem_delta = eval(out_parameters["dem_delta"])
-    dem_size = eval(out_parameters["dem_size"])
-    dem_upperleft = eval(out_parameters["dem_upperleft"])
+    dem_delta = out_parameters["general:dem:delta"]
+    dem_size = out_parameters["general:dem:size"]
+    dem_upperleft = out_parameters["general:dem:upperleft"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -503,8 +511,12 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 continue
 
         assert (
-            f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}" in datadirs.keys()
-        ), f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d} is not in di_data_directories!"
+            f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
+            in datadirs.keys()
+        ), (
+            f"{out_parameters['general:input-data:sensor'].lower()}_"
+            f"{asc_dsc[track]}_t{tracks[track]:0>3d} is not in deinsar:input:data-directories!"
+        )
 
         coregistration_directory = format_process_folder(
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
@@ -520,7 +532,11 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["deinsar_code_directory", "doris_v4_code_directory", "coregistration_AoI_name"],
+            parameter_file_parameters=[
+                "deinsar:general:deinsar-code-directory",
+                "deinsar:general:doris-v4-code-directory",
+                "deinsar:general:AoI-name",
+            ],
             config_parameters=["caroline_work_directory", "orbit_directory"],
             other_parameters={"track": tracks[track], "coregistration_base_directory": coregistration_directory},
         )
@@ -529,20 +545,22 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
 
         # first search for the start, end, and master dates by parsing all data in the data directory,
         # which is different per sensor
-        datadir = datadirs[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"]
-        if out_parameters["sensor"] in ["ALOS2", "ERS"]:
+        datadir = datadirs[
+            f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
+        ]
+        if out_parameters["general:input-data:sensor"] in ["ALOS2", "ERS"]:
             dirs = glob.glob(f"{datadir}/[12]*")
             images = list(sorted([eval(image.split("/")[-1]) for image in dirs]))
-        elif out_parameters["sensor"] in ["RSAT2"]:
+        elif out_parameters["general:input-data:sensor"] in ["RSAT2"]:
             dirs = glob.glob(f"{datadir}/RS2*")
             images = list(sorted([eval(image.split("/")[-1].split("FQ2_")[1].split("_")[0]) for image in dirs]))
-        elif out_parameters["sensor"] in ["TSX"]:
+        elif out_parameters["general:input-data:sensor"] in ["TSX"]:
             dirs = glob.glob(f"{datadir}/*/iif/*")
             images = list(sorted([eval(image.split("/")[-1].split("SRA_")[1].split("T")[0]) for image in dirs]))
-        elif out_parameters["sensor"] in ["SAOCOM"]:
+        elif out_parameters["general:input-data:sensor"] in ["SAOCOM"]:
             dirs = glob.glob(f"{datadir}/*/*.xemt")
             images = list(sorted([eval(image.split("/")[-1].split("OLF_")[1].split("T")[0]) for image in dirs]))
-        elif out_parameters["sensor"] in ["ENV"]:
+        elif out_parameters["general:input-data:sensor"] in ["ENV"]:
             # 2 different formats for some reason
             dirs1 = glob.glob(f"{datadir}/*.N1")
             dirs2 = glob.glob(f"{datadir}/*/*.N1")
@@ -553,7 +571,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 dirs.append(d)
             images = list(sorted([eval(image.split("/")[-1].split("PA")[1].split("_")[0]) for image in dirs]))
         else:
-            raise ValueError(f'Unknown directory format for sensor {out_parameters["sensor"]}!')
+            raise ValueError(f'Unknown directory format for sensor {out_parameters["general:input-data:sensor"]}!')
 
         # then select the start, end, and master dates
         act_start_date = str(min([image for image in images if image >= start_date]))
@@ -568,31 +586,31 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                ["di_data_directories", "dictionary"],
-                "sensor",
-                "polarisation",
-                "di_do_orbit",
-                "di_do_crop",
-                "di_do_tsx_deramp",
-                "di_do_simamp",
-                "di_do_mtiming",
-                "di_do_ovs",
-                "di_do_choose_master",
-                "di_do_coarseorb",
-                "di_do_coarsecorr",
-                "di_do_finecoreg",
-                "di_do_reltiming",
-                "di_do_dembased",
-                "di_do_coregpm",
-                "di_do_comprefpha",
-                "di_do_comprefdem",
-                "di_do_resample",
-                "di_do_tsx_reramp",
-                "di_do_interferogram",
-                "di_do_subtrrefpha",
-                "di_do_subtrrefdem",
-                "di_do_coherence",
-                "di_do_geocoding",
+                ["deinsar:input:data-directories", "dictionary"],
+                "general:input-data:sensor",
+                "general:input-data:polarisation",
+                "deinsar:deinsar-settings:do-orbit",
+                "deinsar:deinsar-settings:do-crop",
+                "deinsar:deinsar-settings:do-tsx-deramp",
+                "deinsar:deinsar-settings:do-simamp",
+                "deinsar:deinsar-settings:do-mtiming",
+                "deinsar:deinsar-settings:do-ovs",
+                "deinsar:deinsar-settings:do-choose-master",
+                "deinsar:deinsar-settings:do-coarseorb",
+                "deinsar:deinsar-settings:do-coarsecorr",
+                "deinsar:deinsar-settings:finecoreg:do-finecoreg",
+                "deinsar:deinsar-settings:do-reltiming",
+                "deinsar:deinsar-settings:do-dembased",
+                "deinsar:deinsar-settings:do-coregpm",
+                "deinsar:deinsar-settings:do-comprefpha",
+                "deinsar:deinsar-settings:do-comprefdem",
+                "deinsar:deinsar-settings:do-resample",
+                "deinsar:deinsar-settings:do-tsx-reramp",
+                "deinsar:deinsar-settings:do-interferogram",
+                "deinsar:deinsar-settings:do-subtrrefpha",
+                "deinsar:deinsar-settings:do-subtrrefdem",
+                "deinsar:deinsar-settings:do-coherence",
+                "deinsar:deinsar-settings:do-geocoding",
             ],
             other_parameters={"master": act_master_date, "startdate": act_start_date, "enddate": act_end_date},
         )
@@ -639,7 +657,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 asc_dsc=asc_dsc[track],
                 track=tracks[track],
                 parameter_file=parameter_file,
-                parameter_file_parameters=["dem_file", "dem_format", "dem_nodata"],
+                parameter_file_parameters=["general:dem:file", "general:dem:format", "general:dem:nodata"],
                 other_parameters={
                     "dem_s1": dem_size[0],
                     "dem_s2": dem_size[1],
@@ -651,7 +669,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             )
 
         # finecoreg changes based on the fine coregistration mode
-        if out_parameters["di_finecoreg_mode"] == "simple":
+        if out_parameters["deinsar:deinsar-settings:finecoreg:finecoreg-mode"] == "simple":
             write_run_file(
                 save_path=f"{coregistration_directory}/process/input.finecoreg_simple",
                 template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
@@ -673,7 +691,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             )
 
         # porbit is only necessary for ERS and ENV
-        if out_parameters["sensor"] == "ERS":
+        if out_parameters["general:input-data:sensor"] == "ERS":
             # this one requires two copies
             for satellite in [1, 2]:
                 write_run_file(
@@ -685,7 +703,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                     parameter_file=parameter_file,
                     other_parameters={"directory": f"ERS{satellite}"},
                 )
-        elif out_parameters["sensor"] == "ENV":
+        elif out_parameters["general:input-data:sensor"] == "ENV":
             write_run_file(
                 save_path=f"{coregistration_directory}/process/input.porbit",
                 template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
@@ -699,7 +717,9 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         # for input.crop and input.resample we need to read the shapefile extent and calculate the amount of pixels
         coordinates = np.array(
             read_shp_extent(
-                f"{out_parameters['shape_directory']}/" f"{out_parameters['shape_AoI_name']}_shape.shp", shp_type="AoI"
+                f"{out_parameters['general:shape-file:directory']}/"
+                f"{out_parameters['general:shape-file:aoi-name']}_shape.shp",
+                shp_type="AoI",
             )["0"]
         )
         min_lat = min(coordinates[:, 1])
@@ -725,29 +745,31 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         dist_lon = haversine(ref_lat, ref_lat, min_lon, max_lon)  # calculated at the widest part of the AoI
 
         # determine the number of pixels
-        d_az, d_r = detect_sensor_pixelsize(out_parameters["sensor"])
+        d_az, d_r = detect_sensor_pixelsize(out_parameters["general:input-data:sensor"])
         pix_dr = int(np.ceil(dist_lon / d_r * 1.05))
         pix_daz = int(np.ceil(dist_lat / d_az * 1.05))
 
         # for input.crop we will add 500 to eliminate edge effects
-        if out_parameters["sensor"] == "ALOS2":
+        if out_parameters["general:input-data:sensor"] == "ALOS2":
             img_name = "IMG.1"
-        elif out_parameters["sensor"] == "Cosmo":
+        elif out_parameters["general:input-data:sensor"] == "Cosmo":
             img_name = "image.h5"
-        elif out_parameters["sensor"] == "ENV":
+        elif out_parameters["general:input-data:sensor"] == "ENV":
             img_name = "image.N1"
-        elif out_parameters["sensor"] == "ERS":
+        elif out_parameters["general:input-data:sensor"] == "ERS":
             img_name = "DAT_01.001"
-        elif out_parameters["sensor"] == "RSAT2":
+        elif out_parameters["general:input-data:sensor"] == "RSAT2":
             img_name = "imagery{pol}.tif"
             # requires loop over polarisations to get additional crop files
-        elif out_parameters["sensor"] == "TSX":
+        elif out_parameters["general:input-data:sensor"] == "TSX":
             img_name = "image.cos"
         else:
-            raise ValueError(f'Unknown sensor {out_parameters["sensor"]}!')
+            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]}!')
 
         # write input.crop
-        if out_parameters["sensor"] == "RSAT2":  # for RSAT2 this is per polarisation, otherwise there just is one
+        if (
+            out_parameters["general:input-data:sensor"] == "RSAT2"
+        ):  # for RSAT2 this is per polarisation, otherwise there just is one
             for pol in polarisation:
                 write_run_file(
                     save_path=f"{coregistration_directory}/process/input.crop{pol}",
@@ -802,46 +824,46 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             )
 
         # finally, we need input.readfiles, which requires a data string composed of sensor-specific data
-        if out_parameters["sensor"] == "ALOS2":
+        if out_parameters["general:input-data:sensor"] == "ALOS2":
             data_string = """S_IN_METHOD     ALOS2
 S_IN_DAT        IMG.1
 S_IN_LEA        LED.1
 S_IN_VOL        VOL.1"""
 
-        elif out_parameters["sensor"] == "Cosmo":
+        elif out_parameters["general:input-data:sensor"] == "Cosmo":
             data_string = """S_IN_METHOD     CSK
 S_IN_DAT        image.h5"""
 
-        elif out_parameters["sensor"] == "ERS":
+        elif out_parameters["general:input-data:sensor"] == "ERS":
             data_string = """S_IN_METHOD     ERS
 S_IN_VOL        VRD_DAT.001
 S_IN_DAT        DAT_01.001
 S_IN_LEA        LEA_01.001
 S_IN_NULL       dummy"""
 
-        elif out_parameters["sensor"] == "ENV":
+        elif out_parameters["general:input-data:sensor"] == "ENV":
             data_string = """S_IN_METHOD     ASAR
 S_IN_DAT        image.N1"""
 
-        elif out_parameters["sensor"] == "RSAT":
+        elif out_parameters["general:input-data:sensor"] == "RSAT":
             data_string = """S_IN_METHOD     RSAT
 S_IN_VOL        VDF_DAT.001
 S_IN_DAT        DAT_01.001
 S_IN_LEA        LEA_01.001
 S_IN_NULL       dummy"""
 
-        elif out_parameters["sensor"] == "RSAT2":
+        elif out_parameters["general:input-data:sensor"] == "RSAT2":
             data_string = """S_IN_METHOD     RADARSAT-2
 S_IN_DAT        imagery_HH.tif
 S_IN_LEA        product.xml"""
 
-        elif out_parameters["sensor"] == "TSX":
+        elif out_parameters["general:input-data:sensor"] == "TSX":
             data_string = """S_IN_METHOD     TSX
 S_IN_DAT        image.cos
 S_IN_LEA        leader.xml"""
 
         else:
-            raise ValueError(f'Unknown sensor {out_parameters["sensor"]}!')
+            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]}!')
 
         write_run_file(
             save_path=f"{coregistration_directory}/process/input.readfiles",

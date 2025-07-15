@@ -28,11 +28,11 @@ I_RESFILE       ifgs.res                         // parameter file
  c         ___                           ___  //
  comment   ___DEM ASSISTED COREGISTRATION___  //
  c                                            //
-DAC_IN_DEM          	**dem_file**
-DAC_IN_FORMAT       	**dem_format**
+DAC_IN_DEM          	**general:dem:file**
+DAC_IN_FORMAT       	**general:dem:format**
 DAC_IN_SIZE             **dem_s1** **dem_s2**
 DAC_IN_DELTA            **dem_d1** **dem_d2**
 DAC_IN_UL           	**dem_ul1** **dem_ul2**
-DAC_IN_NODATA       	**dem_nodata**
+DAC_IN_NODATA       	**general:dem:nodata**
 
 STOP

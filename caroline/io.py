@@ -51,7 +51,9 @@ def read_area_track_list(area_track_list_file: str) -> tuple[str | None, list]:
     return dependency, tracks
 
 
-def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
+def read_parameter_file(
+    parameter_file: str, search_parameters: list, nonexistent_key_handling: Literal["Error", "Ignore"] = "Error"
+) -> dict:
     """Read parameters from a CAROLINE parameter file into a dictionary.
 
     Parameters
@@ -62,6 +64,8 @@ def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
         Parameter names to be retrieved from the parameter file, as a list of strings. The `:` character can be used
         as separator to access variables in deeper layers (e.g. `general:shape-file:shape-file-link` will return the
         value for `parameter_file_dict["general"]["shape-file"]["shape-file-link"]`.
+    nonexistent_key_handling: Literal["Error", "Ignore"], default "Error"
+        Whether to throw an error or ignore keys that do not exist
 
     Returns
     -------
@@ -75,7 +79,7 @@ def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
         - When the parameter file does not end in .txt
 
     KeyError
-        - When a requested parameter does not exist in the parameter file
+        - When a requested parameter does not exist in the parameter file and `nonexistent_key_handling` = "Error"
     """
     assert os.path.exists(parameter_file), f"Specified parameter file {parameter_file} does not exist!"
     assert parameter_file.split(".")[-1] == "yaml", f"Specified parameter file {parameter_file} is not a .yaml file!"
@@ -87,9 +91,17 @@ def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
 
     for param in search_parameters:
         val = data
+        encountered_error = False
         for key in param.split(":"):
-            val = val[key]
-        out_parameters[param] = val
+            try:
+                val = val[key]
+            except KeyError as e:
+                if nonexistent_key_handling == "Error":
+                    raise KeyError(f"Key {param} requested but not found, nonexistent_key_handling set to Error") from e
+                else:
+                    encountered_error = True
+        if not encountered_error:
+            out_parameters[param] = val
 
     return out_parameters
 
@@ -188,7 +200,9 @@ def write_run_file(
                 elif parameter_file_parameter[1] == "uppercase":
                     value = value.upper()
                 elif parameter_file_parameter[1] == "dictionary":
-                    sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"].lower()
+                    sensor = read_parameter_file(parameter_file, ["general:input-data:sensor"])[
+                        "general:input-data:sensor"
+                    ].lower()
                     assert (
                         asc_dsc is not None
                     ), f"Dictionary mode requested for {parameter_file_parameter} but asc_dsc is None!"
@@ -350,17 +364,26 @@ def link_shapefile(parameter_file: str):
         Full path to the CAROLINE parameter file.
 
     """
-    search_parameters = ["shape_file", "shape_directory", "shape_AoI_name"]
+    search_parameters = [
+        "general:shape-file:shape-file-link",
+        "general:shape-file:directory",
+        "general:shape-file:aoi-name",
+    ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
     assert (
-        out_parameters["shape_file"].split(".")[-1] == "shp"
-    ), f"Provided shapefile {out_parameters['shape_file']} does not end in .shp!"
+        out_parameters["general:shape-file:shape-file-link"].split(".")[-1] == "shp"
+    ), f"Provided shapefile {out_parameters['general:shape-file:shape-file-link']} does not end in .shp!"
 
-    export_shp = f"{out_parameters['shape_directory']}/{out_parameters['shape_AoI_name']}_shape.shp"
+    export_shp = (
+        f"{out_parameters['general:shape-file:directory']}/"
+        f"{out_parameters['general:shape-file:aoi-name']}_shape.shp"
+    )
 
     for appendix in ["shp", "prj", "shx", "dbf"]:
-        os.system(f"ln -s {out_parameters['shape_file'][:-4]}.{appendix} {export_shp[:-4]}.{appendix}")
+        os.system(
+            f"ln -s {out_parameters['general:shape-file:shape-file-link'][:-4]}.{appendix} {export_shp[:-4]}.{appendix}"
+        )
 
 
 def create_shapefile(parameter_file: str):
@@ -372,14 +395,23 @@ def create_shapefile(parameter_file: str):
         Full path to the CAROLINE parameter file.
 
     """
-    search_parameters = ["center_AoI", "AoI_length", "AoI_width", "shape_directory", "shape_AoI_name"]
+    search_parameters = [
+        "general:shape-file:rectangular-shape-file:center-AoI",
+        "general:shape-file:rectangular-shape-file:AoI-length",
+        "general:shape-file:rectangular-shape-file:AoI-width",
+        "general:shape-file:directory",
+        "general:shape-file:aoi-name",
+    ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    export_shp = f"{out_parameters['shape_directory']}/{out_parameters['shape_AoI_name']}_shape.shp"
+    export_shp = (
+        f"{out_parameters['general:shape-file:directory']}/"
+        f"{out_parameters['general:shape-file:aoi-name']}_shape.shp"
+    )
 
-    central_coord = eval(out_parameters["center_AoI"])
-    crop_length = eval(out_parameters["AoI_length"])
-    crop_width = eval(out_parameters["AoI_width"])
+    central_coord = eval(out_parameters["general:shape-file:rectangular-shape-file:center-AoI"])
+    crop_length = eval(out_parameters["general:shape-file:rectangular-shape-file:AoI-length"])
+    crop_width = eval(out_parameters["general:shape-file:rectangular-shape-file:AoI-width"])
 
     # Calculate the limits of the AoI
     Dlat_m = 2 * pi * EARTH_RADIUS / 360  # m per degree of latitude

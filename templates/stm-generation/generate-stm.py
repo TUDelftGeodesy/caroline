@@ -35,42 +35,56 @@ slc_path = "**crop_to_zarr_directory**/**crop_to_zarr_output_name**.zarr"
 stm_save_path = "**stm_output_directory**/**stm_output_name**.zarr"
 
 # PS Selection based on initialization
-ps_selection_mode = "**stm_ps_selection_mode**"
+ps_selection_mode = "**stm_generation:stm_generation-settings:ps-selection:mode**"
 if ps_selection_mode == "initialization":
-    start_date_ps_selection = "**stm_start_date_ps_selection**".replace("-", "")
-    initialization_length = int("**stm_initialization_length**")
+    start_date_ps_selection = (
+        "**stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:start-date**".replace(
+            "-", ""
+        )
+    )
+    initialization_length = int(
+        "**stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:initialization-length**"
+    )
 else:
     start_date_ps_selection = None
     initialization_length = None
 
 # Recalibrated NAD and NMAD settings
-increment_mode = "**stm_nad_nmad_increment_mode**"
-recalibration_jump_size = eval("**stm_nad_nmad_recalibration_jump_size**")
+increment_mode = "**stm_generation:stm_generation-settings:incremental-statistics:increment-mode**"
+recalibration_jump_size = eval(
+    "**stm_generation:stm_generation-settings:incremental-statistics:recalibration-jump-size**"
+)
 
 # PS selection method
-ps_selection_method = "**stm_ps_selection_method**"
-threshold = eval("**stm_ps_selection_threshold**")
+ps_selection_method = "**stm_generation:stm_generation-settings:ps-selection:method**"
+threshold = eval("**stm_generation:stm_generation-settings:ps-selection:threshold**")
 chunks_ps_selection = 1000
 
 # Input variables for the outlier detection
-do_ps_outlier_detection = True if "**stm_do_outlier_detection**" == "1" else False
-ps_window_size_outliers = int("**stm_outlier_detection_window_size**")
-ps_outlier_detection_db = True if "**stm_outlier_detection_db_mode**" == "1" else False
-ps_n_sigma_outliers = int("**stm_outlier_detection_n_sigma**")
+do_ps_outlier_detection = (
+    True if "**stm_generation:stm_generation-settings:outlier-detection:do-outlier-detection**" == 1 else False
+)
+ps_window_size_outliers = int("**stm_generation:stm_generation-settings:outlier-detection:window-size**")
+ps_outlier_detection_db = True if "**stm_generation:stm_generation-settings:outlier-detection:db-mode**" == 1 else False
+ps_n_sigma_outliers = int("**stm_generation:stm_generation-settings:outlier-detection:n-sigma**")
 
 # Input variables for the partitioning
-do_ps_partitioning = True if "**stm_do_partitioning**" == "1" else False
-ps_partitioning_search_method = "**stm_partitioning_search_method**"
-ps_partitioning_cost_function = "**stm_partitioning_cost_function**"
-ps_db_partitioning = True if "**stm_partitioning_db_mode**" == "1" else False
-ps_min_obs_partition = int("**stm_partitioning_min_partition_length**")
-partitioning_output_layers = tuple(eval("**stm_partitioning_undifferenced_output_layers**"))
-partitioning_sd_output_layers = tuple(eval("**stm_partitioning_single_difference_output_layers**"))
+do_ps_partitioning = True if "**stm_generation:stm_generation-settings:partitioning:do-partitioning**" == 1 else False
+ps_partitioning_search_method = "**stm_generation:stm_generation-settings:partitioning:search-method**"
+ps_partitioning_cost_function = "**stm_generation:stm_generation-settings:partitioning:cost-function**"
+ps_db_partitioning = True if "**stm_generation:stm_generation-settings:partitioning:db-mode**" == 1 else False
+ps_min_obs_partition = int("**stm_generation:stm_generation-settings:partitioning:min-partition-length**")
+partitioning_output_layers = tuple(
+    eval("**stm_generation:stm_generation-settings:partitioning:undifferenced-output-layers**")
+)
+partitioning_sd_output_layers = tuple(
+    eval("**stm_generation:stm_generation-settings:partitioning:single-difference-output-layers**")
+)
 
 # Compute temporal differences
-ps_mother_epoch_sd = "**stm_single_difference_mother**".replace("-", "")
+ps_mother_epoch_sd = "**stm_generation:stm_generation-settings:single-differences:mother**".replace("-", "")
 
-projection = "**stm_extra_projection**"
+projection = "**stm_generation:stm_generation-settings:extra-projection**"
 do_projection = False
 if projection not in ["", "None"]:
     do_projection = True

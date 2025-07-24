@@ -193,7 +193,7 @@ def finish_installation() -> None:
                     parameter_file=parameter_file,
                     parameter_file_parameters=["general:input-data:product-type"],
                     other_parameters={
-                        "start_date": "one month ago",
+                        "general:timeframe:start": "one month ago",
                         "wkt_file": (
                             f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/"
                             f"periodic/{aoi_name}/roi.wkt"
@@ -1234,7 +1234,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
                 "depsi_post:depsi_post-settings:drdx",
                 "depsi_post:depsi_post-settings:drdy",
                 "general:input-data:sensor",
-                "depsi_post:general:AoI-name",
+                "depsi:general:AoI-name",
                 "depsi_post:depsi_post-settings:proj",
                 "depsi_post:depsi_post-settings:ref-dheight",
                 "depsi_post:depsi_post-settings:posteriori-scale-factor",
@@ -1290,7 +1290,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["depsi_post:general:AoI-name"],
+            parameter_file_parameters=["depsi:general:AoI-name"],
             config_parameters=["caroline_work_directory"],
             other_parameters={"track": tracks[track], "depsi_base_directory": depsi_directory},
         )
@@ -1515,16 +1515,13 @@ def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = Non
         the parameter file
     """
     search_parameters = [
-        "coregistration_directory",
-        "coregistration_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1561,28 +1558,36 @@ def prepare_email(parameter_file: str, do_track: int | list | None = None) -> No
         the parameter file
     """
     body = generate_email(parameter_file)
-    parameters = read_parameter_file(parameter_file, ["send_completion_email", "sensor", "track", "asc_dsc"])
+
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "general:email:recipients",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
     area_name = parameter_file.split("/")[-1].split(".")[0].split("param_file_")[-1]
 
-    tracks = eval(parameters["track"])
-    asc_dsc = eval(parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
     track_csv = ""
     for track in range(len(tracks)):
         if isinstance(do_track, int):
             if do_track == tracks[track]:
-                track_csv += f"{parameters['sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
+                track_csv += f"{out_parameters['general:input-data:sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
         elif isinstance(do_track, list):
             if tracks[track] in do_track:
-                track_csv += f"{parameters['sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
+                track_csv += f"{out_parameters['general:input-data:sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
         else:
-            track_csv += f"{parameters['sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
+            track_csv += f"{out_parameters['general:input-data:sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
 
     track_csv = track_csv.strip(",")
-    header = f"CAROLINE: {parameters['sensor']}/{area_name}/{track_csv}"
+    header = f"CAROLINE: {out_parameters['general:input-data:sensor']}/{area_name}/{track_csv}"
     os.system(f"""echo "Subject: {header}
 from:noreply@surf.nl
 
-{body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {parameters['send_completion_email']}""")
+{body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {out_parameters['general:email:recipients']}""")
 
 
 def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1597,19 +1602,14 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         the parameter file
     """
     search_parameters = [
-        "crop_to_raw_directory",
-        "crop_to_raw_AoI_name",
-        "depsi_directory",
-        "depsi_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
-        "cpxfiddle_dir",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "depsi_post:general:cpxfiddle-directory",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1636,7 +1636,9 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         project_id = depsi_directory.split("/")[-2].split("-")[0]
 
         # format the arguments in the correct order
-        command_args = f"{project_id} {n_lines} 1 1 {out_parameters['cpxfiddle_dir']} {depsi_directory}"
+        command_args = (
+            f"{project_id} {n_lines} 1 1 {out_parameters['depsi_post:general:cpxfiddle-directory']} {depsi_directory}"
+        )
         os.system(
             f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_mrm_ras_header.sh "
             f"{command_args}"
@@ -1649,8 +1651,8 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "depsi_AoI_name",
-                ["sensor", "lowercase"],
+                "depsi:general:AoI-name",
+                ["general:input-data:sensor", "lowercase"],
             ],
             other_parameters={
                 "fill_track": f"{tracks[track]:0>3d}",
@@ -1664,7 +1666,7 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["depsi_AoI_name"],
+            parameter_file_parameters=["depsi:general:AoI-name"],
             config_parameters=["caroline_work_directory"],
             other_parameters={
                 "track": tracks[track],
@@ -1689,13 +1691,13 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
         the parameter file
     """
     search_parameters = [
-        "track",
-        "skygeo_customer",
-        "skygeo_viewer",
+        "general:tracks:track",
+        "general:portal:skygeo-customer",
+        "general:portal:skygeo-viewer",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
+    tracks = out_parameters["general:tracks:track"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1718,8 +1720,8 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
         f.write(
             f"Status: TBD\n"
             f"Directory: {depsi_directory}\n"
-            f"Viewer: {out_parameters['skygeo_viewer']}\n"
-            f"Customer: {out_parameters['skygeo_customer']}"
+            f"Viewer: {out_parameters['general:portal:skygeo-viewer']}\n"
+            f"Customer: {out_parameters['general:portal:skygeo-customer']}"
         )
         f.close()
 
@@ -1737,22 +1739,20 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
     """
     aoi_name = parameter_file.split("/")[-1].split("param_file_")[-1].split(".")[0]
 
-    parameter_file_parameters = read_parameter_file(parameter_file, ["shape_directory", "shape_AoI_name"])
-
-    shapefile_name = (
-        f"{parameter_file_parameters['shape_directory']}/" f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"
-    )
-
     search_parameters = [
-        "track",
-        "asc_dsc",
-        "sensor",
-        "start_date",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:shape-file:directory",
+        "general:shape-file:aoi-name",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    shapefile_name = (
+        f"{out_parameters['general:shape-file:directory']}/{out_parameters['general:shape-file:aoi-name']}_shape.shp"
+    )
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     date = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
 
@@ -1790,7 +1790,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["product_type", "start_date"],
+            parameter_file_parameters=["general:input-data:product-type", "general:timeframe:start"],
             other_parameters={
                 "wkt_file": (
                     f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
@@ -1832,16 +1832,16 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
         If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
     """
     search_parameters = [
-        "stm_generation_directory",
-        "stm_generation_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
+        "stm_generation:general:AoI-name",
+        "stm_generation:general:directory",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1872,26 +1872,26 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "stm_ps_selection_mode",
-                "stm_start_date_ps_selection",
-                "stm_initialization_length",
-                "stm_nad_nmad_increment_mode",
-                "stm_nad_nmad_recalibration_jump_size",
-                "stm_ps_selection_method",
-                "stm_ps_selection_threshold",
-                "stm_do_outlier_detection",
-                "stm_outlier_detection_window_size",
-                "stm_outlier_detection_db_mode",
-                "stm_outlier_detection_n_sigma",
-                "stm_do_partitioning",
-                "stm_partitioning_search_method",
-                "stm_partitioning_cost_function",
-                "stm_partitioning_db_mode",
-                "stm_partitioning_min_partition_length",
-                "stm_single_difference_mother",
-                "stm_extra_projection",
-                "stm_partitioning_undifferenced_output_layers",
-                "stm_partitioning_single_difference_output_layers",
+                "stm_generation:stm_generation-settings:ps-selection:mode",
+                "stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:start-date",
+                "stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:initialization-length",
+                "stm_generation:stm_generation-settings:incremental-statistics:increment-mode",
+                "stm_generation:stm_generation-settings:incremental-statistics:recalibration-jump-size",
+                "stm_generation:stm_generation-settings:ps-selection:method",
+                "stm_generation:stm_generation-settings:ps-selection:threshold",
+                "stm_generation:stm_generation-settings:outlier-detection:do-outlier-detection",
+                "stm_generation:stm_generation-settings:outlier-detection:window-size",
+                "stm_generation:stm_generation-settings:outlier-detection:db-mode",
+                "stm_generation:stm_generation-settings:outlier-detection:n-sigma",
+                "stm_generation:stm_generation-settings:partitioning:do-partitioning",
+                "stm_generation:stm_generation-settings:partitioning:search-method",
+                "stm_generation:stm_generation-settings:partitioning:cost-function",
+                "stm_generation:stm_generation-settings:partitioning:db-mode",
+                "stm_generation:stm_generation-settings:partitioning:min-partition-length",
+                "stm_generation:stm_generation-settings:single-differences:mother",
+                "stm_generation:stm_generation-settings:extra-projection",
+                "stm_generation:stm_generation-settings:partitioning:undifferenced-output-layers",
+                "stm_generation:stm_generation-settings:partitioning:single-difference-output-layers",
             ],
             other_parameters={
                 "crop_to_zarr_directory": crop_to_zarr_directory,
@@ -1909,8 +1909,8 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "stm_generation_AoI_name",
-                "crop_to_zarr_code_dir",
+                "stm_generation:general:AoI-name",
+                "crop_to_zarr:general:crop_to_zarr-code-directory",
             ],
             config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
             other_parameters={"track": tracks[track]},
@@ -1936,7 +1936,7 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
     search_parameters = ["track"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
+    tracks = out_parameters["track"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):

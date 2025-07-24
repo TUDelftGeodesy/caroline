@@ -44,12 +44,18 @@ def format_process_folder(job_description: dict, parameter_file: str, track: int
 
     parameters = read_parameter_file(
         parameter_file,
-        [f"{directory_key}_directory", f"{directory_key}_AoI_name", "sensor", "asc_dsc", "track"],
+        [
+            f"{directory_key}:general:directory",
+            f"{directory_key}:general:AoI-name",
+            "general:input-data:sensor",
+            "general:tracks:asc_dsc",
+            "general:tracks:track",
+        ],
     )
-    base_folder = parameters[f"{directory_key}_directory"]
-    AoI_name = parameters[f"{directory_key}_AoI_name"]
-    sensor = parameters["sensor"]
-    asc_dsc = eval(parameters["asc_dsc"])[eval(parameters["track"]).index(track)]
+    base_folder = parameters[f"{directory_key}:general:directory"]
+    AoI_name = parameters[f"{directory_key}:general:AoI-name"]
+    sensor = parameters["general:input-data:sensor"]
+    asc_dsc = parameters["general:tracks:asc_dsc"][parameters["general:tracks:track"].index(track)]
 
     return f"{base_folder}/{AoI_name}_{sensor.lower()}_{asc_dsc.lower()}_t{track:0>3d}{directory_appendix}"
 
@@ -65,10 +71,10 @@ def remove_incomplete_sentinel1_images(parameter_file: str) -> None:
         Full path to the parameter file of the processing run where the images are to be filtered
 
     """
-    search_parameters = ["track"]
+    search_parameters = ["general:tracks:track"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
+    tracks = out_parameters["general:tracks:track"]
 
     status = []
 

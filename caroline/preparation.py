@@ -8,6 +8,7 @@ import numpy as np
 from caroline.config import get_config
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent, write_run_file
 from caroline.kml import KML
+from caroline.parameter_file import generate_full_parameter_file
 from caroline.utils import (
     convert_shp_to_wkt,
     detect_sensor_pixelsize,
@@ -27,7 +28,7 @@ JOB_DEFINITIONS = get_config(
 
 def finish_installation() -> None:
     """Generate the shapefiles and `area-track-lists` during installation for all AoIs."""
-    parameter_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/*")
+    parameter_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param_file*")
 
     # create the directories
     os.makedirs(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists", exist_ok=True)
@@ -64,28 +65,25 @@ def finish_installation() -> None:
         os.system(f'''echo "Processing AoI {aoi_name}..."''')
 
         # first generate the shapefile if it does not yet exist
+        parameter_file_parameters = generate_full_parameter_file(parameter_file, 0, "asc", "dummy.yaml" "dict")
 
-        parameter_file_parameters = read_parameter_file(
-            parameter_file,
-            ["general:shape-file:directory", "general:shape-file:aoi-name", "general:shape-file:shape-file-link"],
-        )
         # first create the directory
-        os.makedirs(parameter_file_parameters["general:shape-file:directory"], exist_ok=True)
+        os.makedirs(parameter_file_parameters["general"]["shape-file"]["directory"], exist_ok=True)
 
         shapefile_name = (
-            f"{parameter_file_parameters['general:shape-file:directory']}/"
-            f"{parameter_file_parameters['general:shape-file:aoi-name']}_shape.shp"
+            f"{parameter_file_parameters['general']['shape-file']['directory']}/"
+            f"{parameter_file_parameters['general']['shape-file']['aoi-name']}_shape.shp"
         )
         # then create or link the shapefile
         if not os.path.exists(shapefile_name):
-            if parameter_file_parameters["general:shape-file:shape-file-link"] in [None, ""]:
+            if parameter_file_parameters["general"]["shape-file"]["shape-file-link"] in [None, "", "None"]:
                 create_shapefile(parameter_file)
             else:
                 link_shapefile(parameter_file)
 
         # determine if the parameter file is active or not, if not, we skip the area-track-list generation
 
-        active_parameter_file = read_parameter_file(parameter_file, ["general:active"])["general:active"]
+        active_parameter_file = parameter_file_parameters["general"]["active"]
 
         if active_parameter_file == 0:
             # check if a download configuration still exists, if so, remove it
@@ -99,19 +97,15 @@ def finish_installation() -> None:
 
         # then check if the AoI is a Sentinel-1 AoI or something else
 
-        sensor = read_parameter_file(parameter_file, ["general:input-data:sensor"])["general:input-data:sensor"]
+        sensor = parameter_file_parameters["general"]["input-data"]["sensor"]
 
         if sensor == "S1":
             # then determine the intersecting orbits
             orbits, footprints = identify_s1_orbits_in_aoi(shapefile_name)
             allowed_footprints = {}
             disallowed_footprints = {}
-            disallowed_orbits = read_parameter_file(parameter_file, ["general:tracks:exclude-tracks"])[
-                "general:tracks:exclude-tracks"
-            ]
-            forced_orbits = read_parameter_file(parameter_file, ["general:tracks:include-tracks"])[
-                "general:tracks:include-tracks"
-            ]
+            disallowed_orbits = parameter_file_parameters["general"]["tracks"]["exclude-tracks"]
+            forced_orbits = parameter_file_parameters["general"]["tracks"]["include-tracks"]
             for orbit in disallowed_orbits:
                 if orbit in orbits:
                     orbits.pop(orbits.index(orbit))
@@ -160,10 +154,16 @@ def finish_installation() -> None:
             kml.close_folder()
             kml.save()
 
+            jobs_to_do = {}
             # then figure out if this is a download-only job, a non-download job, or a mix job
-            jobs_to_do = read_parameter_file(parameter_file, job_keys)
+            for job_key in job_keys:
+                keys = job_key.split(":")
+                value = parameter_file_parameters
+                for key in keys:
+                    value = value[key]
+                jobs_to_do[job_key] = value
 
-            if jobs_to_do[job_definitions["s1_download"]["parameter-file-step-key"]] == "1":
+            if jobs_to_do[job_definitions["s1_download"]["parameter-file-step-key"]] == 1:
                 # This is a download job -> we want a download configuration
                 os.makedirs(
                     f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}",
@@ -190,8 +190,7 @@ def finish_installation() -> None:
                     ),
                     asc_dsc=None,
                     track=None,
-                    parameter_file=parameter_file,
-                    parameter_file_parameters=["general:input-data:product-type"],
+                    parameter_file=None,
                     other_parameters={
                         "general:timeframe:start": "one month ago",
                         "wkt_file": (
@@ -199,10 +198,13 @@ def finish_installation() -> None:
                             f"periodic/{aoi_name}/roi.wkt"
                         ),
                         "orbits_csv": ", ".join([o.split("_t")[-1].lstrip("0") for o in orbits]),
+                        "general:input-data:product-type": parameter_file_parameters["general"]["input-data"][
+                            "product-type"
+                        ],
                     },
                 )
 
-            if "1" in [
+            if 1 in [
                 jobs_to_do[job]
                 for job in jobs_to_do.keys()
                 if job != job_definitions["s1_download"]["parameter-file-step-key"]
@@ -220,11 +222,16 @@ def finish_installation() -> None:
                     track=None,
                     parameter_file=parameter_file,
                     parameter_file_parameters=["general:workflow:dependency:aoi-name"],
-                    other_parameters={"tracks": "\n".join(orbits)},
+                    other_parameters={
+                        "tracks": "\n".join(orbits),
+                        "general:workflow:dependency:aoi-name": parameter_file_parameters["general"]["workflow"][
+                            "dependency"
+                        ]["aoi-name"],
+                    },
                 )
 
         else:
-            include_tracks = eval(read_parameter_file(parameter_file, ["include_tracks"])["include_tracks"])
+            include_tracks = parameter_file_parameters["general"]["tracks"]["include-tracks"]
             write_run_file(
                 save_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists/{aoi_name}.dat",
                 template_path=(
@@ -234,7 +241,12 @@ def finish_installation() -> None:
                 track=None,
                 parameter_file=parameter_file,
                 parameter_file_parameters=["general:workflow:dependency:aoi-name"],
-                other_parameters={"tracks": "\n".join(include_tracks)},
+                other_parameters={
+                    "tracks": "\n".join(include_tracks),
+                    "general:workflow:dependency:aoi-name": parameter_file_parameters["general"]["workflow"][
+                        "dependency"
+                    ]["aoi-name"],
+                },
             )
 
 

@@ -18,8 +18,8 @@ def generate_full_parameter_file(
     track: int,
     asc_dsc: Literal["asc", "dsc"],
     output_file: str,
-    mode: Literal["write", "test"] = "write",
-) -> None | tuple[bool, list]:
+    mode: Literal["write", "test", "dict"] = "write",
+) -> None | tuple[bool, list] | dict:
     """Generate the full parameter file based on a user-generated parameter file and the default settings.
 
     Parameters
@@ -32,8 +32,9 @@ def generate_full_parameter_file(
         Corresponding ascending / descending of the track
     output_file: str
         Full path to the .yaml full parameter file
-    mode: Literal["write", "test"], default "write"
-        Whether to actually write the file to the output file or simply test if the user file works
+    mode: Literal["write", "test", "dict"], default "write"
+        Whether to actually write the file to the output file, simply test if the user file works, or return the
+        generated parameter file as dictionary
 
     Returns
     -------
@@ -42,6 +43,8 @@ def generate_full_parameter_file(
         list: list of failed keys
     If mode = "write": (default)
         None
+    If mode = "dict":
+        Dictionary containing the generated parameter file
     """
     job_definitions = get_config(
         f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
@@ -162,6 +165,9 @@ def generate_full_parameter_file(
 
     if not validated:
         raise ValueError(f"The keys {failed_keys} are not specified in {user_parameter_file} but have to be!")
+
+    if mode == "dict":
+        return user_settings
 
     write_parameter_file(output_file, user_settings)
 

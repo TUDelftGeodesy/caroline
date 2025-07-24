@@ -5,7 +5,7 @@ import yaml
 
 from caroline.config import get_config
 from caroline.io import write_parameter_file
-from caroline.utils import extract_all_values_and_paths_from_dictionary, job_schedule_check
+from caroline.utils import extract_all_values_and_paths_from_dictionary
 
 CONFIG_PARAMETERS = get_config()
 # Only in the following list of keys, new keys in the configuration are allowed (as here tracks can be added)
@@ -14,8 +14,12 @@ NEW_CONFIG_KEYS_ALLOWED = ["deinsar:input:data-directories", "depsi:depsi-settin
 
 
 def generate_full_parameter_file(
-    user_parameter_file: str, track: int, asc_dsc: Literal["asc", "dsc"], output_file: str
-) -> None:
+    user_parameter_file: str,
+    track: int,
+    asc_dsc: Literal["asc", "dsc"],
+    output_file: str,
+    mode: Literal["write", "test"] = "write",
+) -> None | tuple[bool, list]:
     """Generate the full parameter file based on a user-generated parameter file and the default settings.
 
     Parameters
@@ -28,6 +32,16 @@ def generate_full_parameter_file(
         Corresponding ascending / descending of the track
     output_file: str
         Full path to the .yaml full parameter file
+    mode: Literal["write", "test"], default "write"
+        Whether to actually write the file to the output file or simply test if the user file works
+
+    Returns
+    -------
+    If mode = "test":
+        bool: whether the test passed
+        list: list of failed keys
+    If mode = "write": (default)
+        None
     """
     job_definitions = get_config(
         f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
@@ -112,17 +126,15 @@ def generate_full_parameter_file(
                             )
 
     for job in job_definitions["jobs"].keys():
-        if job_schedule_check(general_user_settings, job, job_definitions["jobs"]):
-            # if the job is supposed to run, we add the parameters from this job into the configuration
-            if (
+        if (
+            f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/"
+            f"default-job-param-file-{job}.yaml" in default_parameter_files
+        ):
+            with open(
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/"
-                f"default-job-param-file-{job}.yaml" in default_parameter_files
-            ):
-                with open(
-                    f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/"
-                    f"default-job-param-file-{job}.yaml"
-                ) as f:
-                    general_user_settings.update(yaml.safe_load(f))
+                f"default-job-param-file-{job}.yaml"
+            ) as f:
+                general_user_settings.update(yaml.safe_load(f))
 
     # then we update the user settings of all sections once more
     user_settings = _merge_user_settings(general_user_settings, user_parameter_file)
@@ -144,6 +156,10 @@ def generate_full_parameter_file(
 
     # finally we validate if the user has properly set all fields that need values
     validated, failed_keys = _validate_user_settings(user_settings)
+
+    if mode == "test":
+        return validated, list(failed_keys)
+
     if not validated:
         raise ValueError(f"The keys {failed_keys} are not specified in {user_parameter_file} but have to be!")
 

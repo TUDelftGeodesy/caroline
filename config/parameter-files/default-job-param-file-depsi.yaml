@@ -35,13 +35,13 @@ depsi:
       # ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300]} -> different behaviours for different tracks. If this option is chosen,
       #                                                                   a mode for all tracks in the .dat file must exist.
       ref-cn:
-        all: 'constant'
+        all: 'constant'  # the default for all tracks. Adding different tracks will overwrite the 'all' mode for those specific tracks
 
       Ncv: 25
-      ps_method: 'perio'
-      psc_model: [1]
-      ps_model: [1]
-      final_model: [2]
+      ps-method: 'perio'
+      psc-model: [1]
+      ps-model: [1]
+      final-model: [2]
       breakpoint: []
       breakpoint2: []
       ens-coh-threshold: 0.5

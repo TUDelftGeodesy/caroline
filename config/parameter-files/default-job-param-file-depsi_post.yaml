@@ -3,7 +3,7 @@
 depsi_post:
   general:  # this job runs in the DePSI directories
     partition: 'normal'
-    depsi-post-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/depsi_post_v2.1.4.0'
+    depsi_post-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/depsi_post_v2.1.4.0'
     cpxfiddle-directory: '**CAROLINE_PLUGINS_DIRECTORY**/cpxfiddle'
     mode: 'csv'
 

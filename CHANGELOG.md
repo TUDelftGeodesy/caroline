@@ -25,7 +25,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.4.5](https://github.com/TUDelftGeodesy/caroline/tree/main) (09-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7cffe1701a72100022b91094ab6655624ec885e3...main))
+## [v2.4.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d4b82b3e99c06fa298fcd95b3ff748160da07f00...main))
+
+### Changed:
+- Updated `caroline-download` to `v0.2.0rc2`, prioritising EODAG over ASF_search.
+
+
+## [v2.4.6](https://github.com/TUDelftGeodesy/caroline/tree/d4b82b3e99c06fa298fcd95b3ff748160da07f00) (14-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7ad01c464f9eca051728a30fb2a9923454eacfee...d4b82b3e99c06fa298fcd95b3ff748160da07f00))
+
+### Changed:
+- Shapefile output is disabled in `depsi_post` on all AoIs to prevent memory errors
+
+
+## [v2.4.5](https://github.com/TUDelftGeodesy/caroline/tree/7ad01c464f9eca051728a30fb2a9923454eacfee) (09-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7cffe1701a72100022b91094ab6655624ec885e3...7ad01c464f9eca051728a30fb2a9923454eacfee))
 
 ### Added:
 - `bash-file-slurm-cluster` key in [job-definitions.yaml](config/job-definitions.yaml), and its subkeys `slurm-cluster-n-workers` (the amount of workers) and `slurm-cluster-worker-time` (the time limit per worker)

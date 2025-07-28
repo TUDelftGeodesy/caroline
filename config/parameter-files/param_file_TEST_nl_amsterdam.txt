@@ -342,7 +342,7 @@ dp_which_sl_mask      = 'apriori'
 dp_shift_to_mean      = 1
 dp_new_ref_cn         = []
 dp_map_to_vert        = 1
-dp_output             = {'shape', 'csv', 'csv_web_portal'} #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
+dp_output             = {'csv', 'csv_web_portal'} #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
 
 dp_defo_lim          = []
 dp_height_lim        = []

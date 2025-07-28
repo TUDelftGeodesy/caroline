@@ -1,5 +1,6 @@
 import glob
 import os
+import traceback
 import zipfile
 from math import log
 
@@ -187,10 +188,10 @@ def generate_shapefile(parameter_file: str) -> None:
         Full path to the parameter file
 
     """
-    search_parameters = ["shape_file"]
+    search_parameters = ["general:shape-file:shape-file-link"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    if len(out_parameters["shape_file"]) == 0:
+    if out_parameters["general:shape-file:shape-file-link"] in [None, "None", ""]:
         # no shapefile is generated --> we need a new one
         create_shapefile(parameter_file)
     else:
@@ -213,27 +214,24 @@ def _generate_email(parameter_file: str) -> str:
     jobs = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
 
     search_parameters = [
-        "track",
-        "asc_dsc",
-        "skygeo_viewer",
-        "skygeo_customer",
-        "sensor",
-        "project_owner",
-        "project_owner_email",
-        "project_engineer",
-        "project_engineer_email",
-        "project_objective",
-        "project_notes",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:portal:skygeo-viewer",
+        "general:portal:skygeo-customer",
+        "general:input-data:sensor",
+        "general:project:owner:name",
+        "general:project:owner:email",
+        "general:project:engineer:name",
+        "general:project:engineer:email",
+        "general:project:objective",
+        "general:project:notes",
     ]
 
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    if out_parameters["skygeo_customer"] is None:  # backwards compatibility for #12
-        out_parameters["skygeo_customer"] = "caroline"
-
     # Format the tracks nicely
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     tracks_formatted = []
     for i in range(len(tracks)):
@@ -299,8 +297,9 @@ def _generate_email(parameter_file: str) -> str:
             if jobs["jobs"][job]["email"]["include-in-email"]:
                 if jobs["jobs"][job]["bash-file"] is not None:
                     directory = read_parameter_file(
-                        parameter_file, [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
-                    )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
+                        parameter_file,
+                        [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}:general:directory"],
+                    )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}:general:directory"]
                 else:
                     directory = CONFIG_PARAMETERS["SLURM_OUTPUT_DIRECTORY"]
                 if check["successful_finish"]:
@@ -309,7 +308,8 @@ def _generate_email(parameter_file: str) -> str:
                             "NOTE: it can take a few hours for the results to show up in the portal.\n"
                             + "The DePSI-post results can be accessed at "
                             + "https://caroline.portal-tud.skygeo.com/portal/"
-                            + f"{out_parameters['skygeo_customer']}/{out_parameters['skygeo_viewer']} .\n\n"
+                            + f"{out_parameters['general:portal:skygeo-customer']}/"
+                            + f"{out_parameters['general:portal:skygeo-viewer']} .\n\n"
                         )
                     else:
                         status_checks += f"{job}: {tracks_formatted} finished properly! (located in {directory} )\n\n"
@@ -325,10 +325,10 @@ def _generate_email(parameter_file: str) -> str:
     os.system(f"chmod -R 777 {log_folder_name}")  # to make everything downloadable by everyone
 
     project_characteristics = f"""Project characteristics:
-Owner: {out_parameters['project_owner']} ({out_parameters['project_owner_email']})
-Engineer: {out_parameters['project_engineer']} ({out_parameters['project_engineer_email']})
-Objective: {out_parameters['project_objective']}
-Notes: {out_parameters['project_notes']}
+Owner: {out_parameters['general:project:owner:name']} ({out_parameters['general:project:owner:email']})
+Engineer: {out_parameters['general:project:engineer:name']} ({out_parameters['general:project:engineer:email']})
+Objective: {out_parameters['general:project:objective']}
+Notes: {out_parameters['general:project:notes']}
 """
 
     message = f"""Dear radargroup,
@@ -338,7 +338,7 @@ A new CAROLINE run has just finished on run {run_id}!
 {project_characteristics}
 Run characteristics:
 Track(s): {tracks_formatted}
-Sensor: {out_parameters['sensor']}
+Sensor: {out_parameters['general:input-data:sensor']}
     
 The following steps were run:
 {status_checks}
@@ -414,8 +414,8 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
         )
 
         # find the directory
-        parameters = read_parameter_file(parameter_file, ["track"])
-        track = eval(parameters["track"])[0]  # as there is only one
+        parameters = read_parameter_file(parameter_file, ["general:tracks:track"])
+        track = parameters["general:tracks:track"][0]  # as there is only one
 
         base_directory = format_process_folder(parameter_file=parameter_file, job_description=data, track=track)
 
@@ -483,7 +483,7 @@ https://github.com/TUDelftGeodesy/caroline/issues mentioning:
 2) the subject of this mail
 3) the following error message:
 
-{error}
+{''.join(traceback.format_exception(error))}
 
 
 Please add the labels Priority-0 and bug, and assign Simon.

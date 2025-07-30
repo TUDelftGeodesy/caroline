@@ -29,7 +29,7 @@ general:
 
   portal:
     skygeo-customer: "caroline"
-    skygeo-viewer: "NEEDS_VALUE"
+    skygeo-viewer: "**AoI_name**"
 
   shape-file:
     shape-file-link: "NEEDS_VALUE" # full path to .shp shapefile, e.g. '/project/caroline/Share/users/caroline-admin/caroline-aoi-shapefiles/be_lu_nl_benelux/Netherlands_roi.shp'

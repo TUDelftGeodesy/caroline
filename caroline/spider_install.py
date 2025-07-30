@@ -21,6 +21,15 @@ def _get_plugins() -> tuple[dict, dict]:
     return github_plugins, tarball_plugins
 
 
+def _copy_parameter_files() -> None:
+    """Copy the parameter files to the correct location."""
+    os.system('''echo "Copying parameter files..."''')
+    os.system(
+        f"cp -p {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/parameter-files/parameter-files/*.yaml "
+        f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files"
+    )
+
+
 def _install_caroline() -> None:
     """Install CAROLINE in the path specified in get_config."""
     os.system('''echo "Starting CAROLINE install..."''')
@@ -220,6 +229,8 @@ if __name__ == "__main__":
     _link_default_config_file()
 
     _install_plugins()
+
+    _copy_parameter_files()
 
     _update_virtualenvironment()
 

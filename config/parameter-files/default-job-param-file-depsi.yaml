@@ -15,7 +15,7 @@ depsi:
       visible-plots: 'n'
       detail-plots: 'n'
       processing-groups: []
-      run-mode: 'validation'
+      run-mode: 'normal'
 
       exclude-date: ''
 

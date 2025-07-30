@@ -17,4 +17,4 @@ general:
 
   shape-file:
     aoi-name: "**AoI_name**"
-    directory: "/project/caroline/Software/config/roi"
+    directory: "/project/caroline/Software/config/roi/**AoI_name**"

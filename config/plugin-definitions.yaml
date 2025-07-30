@@ -3,6 +3,10 @@
 # **CAROLINE_PLUGINS_ARCHIVE_DIRECTORY** will be replaced by the installer with the actual plugins archive directory
 
 github:
+  parameter-files:
+    repo: "git@github.com:TUDelftGeodesy/caroline-parameter-files.git"
+    branch: "main"
+
   depsi_post_v2.1.4.0:
     repo: "git@bitbucket.org:grsradartudelft/depsipost.git"
     tag: "v2.1.4.0"

@@ -262,7 +262,12 @@ def _merge_user_settings(
 
     for key in user_settings.keys():
         if key not in default_parameter_file.keys():
-            if ":".join(trace_keys) not in NEW_CONFIG_KEYS_ALLOWED:
+            if trace_keys is None:
+                check_traceback = ""
+            else:
+                check_traceback = ":".join(trace_keys)
+
+            if check_traceback not in NEW_CONFIG_KEYS_ALLOWED:
                 if nonexistent_keys_handling == "Error":
                     raise ValueError(
                         f"Attempting to locate key {' : '.join(trace_keys) + ' : ' if trace_keys is not None else ''}"
@@ -276,6 +281,8 @@ def _merge_user_settings(
                 elif nonexistent_keys_handling == "Always-add":
                     # override the NEW_CONFIG_KEYS_ALLOWED section (only for the default parameter files)
                     default_parameter_file[key] = user_settings[key]
+            else:
+                default_parameter_file[key] = user_settings[key]
 
         elif isinstance(user_settings[key], dict):
             if trace_keys is None:

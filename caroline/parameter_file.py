@@ -270,7 +270,7 @@ def _merge_user_settings(
             if check_traceback not in NEW_CONFIG_KEYS_ALLOWED:
                 if nonexistent_keys_handling == "Error":
                     raise ValueError(
-                        f"Attempting to locate key {' : '.join(trace_keys) + ' : ' if trace_keys is not None else ''}"
+                        f"Attempting to locate key {check_traceback} : "
                         f"{key} from parameter file {user_settings_file}, but it is not in the default parameter file, "
                         f"and adding new keys is only allowed at the keys {NEW_CONFIG_KEYS_ALLOWED}!"
                     )
@@ -289,7 +289,11 @@ def _merge_user_settings(
                 trace_keys = []
             trace_keys.append(key)
             default_parameter_file[key] = _merge_user_settings(
-                default_parameter_file[key], user_settings_file, trace_keys, user_settings[key]
+                default_parameter_file[key],
+                user_settings_file,
+                trace_keys,
+                user_settings[key],
+                nonexistent_keys_handling,
             )
         else:
             default_parameter_file[key] = user_settings[key]

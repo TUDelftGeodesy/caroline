@@ -25,6 +25,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
+## [v3.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (31-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d4b82b3e99c06fa298fcd95b3ff748160da07f00...main))
+
+### Added:
+- Default parameter files per job (and a general one for general settings and a machine one for fields you are not supposed to touch)
+- An example user [parameter file](config/parameter-files/example-user-param-file-nl_amsterdam.yaml) for Amsterdam
+- The installation will verify the parameter files and throw errors if required fields are missing
+
+### Changed:
+- Parameter files are now in `YAML` format instead of `txt`
+- The `read_parameter_file` function now traverses through the YAML keys with the `:` separator (e.g. given the parameter file `p={'a': {'b': 1}}`, submitting the key `a:b` will return `p['a']['b']`, in this case `1`)
+
+
+### Removed:
+- The live parameter files (migrated to https://github.com/TUDelftGeodesy/caroline-parameter-files (a private repo))
+
 ## [v2.4.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d4b82b3e99c06fa298fcd95b3ff748160da07f00...main))
 
 ### Changed:

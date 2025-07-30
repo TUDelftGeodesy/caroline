@@ -41,7 +41,7 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
         The list is sorted in such a way that if process x depends on process y, process y will be earlier in the list.
     """
     area_track_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists/*.dat")
-    parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param_file"
+    parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param-file"
 
     track_dict = {}
     for new_track in new_tracks.keys():
@@ -56,9 +56,9 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
         dependency, tracks = read_area_track_list(area_track_file)
         for new_track in new_tracks.keys():
             if new_track in tracks:
-                AoI_name = area_track_file.split("/")[-1].split(".")[0]
+                AoI_name = area_track_file.split("/")[-1].split(".")[0].replace("_", "-")
                 # check the AoI overlap first. The AoIs are already generated during installation so we can just proceed
-                parameter_file = f"{parameter_file_base}_{AoI_name}.yaml"
+                parameter_file = f"{parameter_file_base}-{AoI_name}.yaml"
                 parameters = generate_full_parameter_file(
                     parameter_file,
                     eval(new_track.split("_")[2][1:].lstrip("0")),

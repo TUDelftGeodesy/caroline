@@ -28,7 +28,7 @@ JOB_DEFINITIONS = get_config(
 
 def finish_installation() -> None:
     """Generate the shapefiles and `area-track-lists` during installation for all AoIs."""
-    parameter_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param_file*")
+    parameter_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param-file*")
 
     # create the directories
     os.makedirs(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists", exist_ok=True)
@@ -60,7 +60,7 @@ def finish_installation() -> None:
     )
 
     for parameter_file in parameter_files:
-        aoi_name = parameter_file.split("/")[-1].split("param_file_")[-1].split(".")[0]
+        aoi_name = parameter_file.split("/")[-1].split("param-file-")[-1].split(".")[0].replace("-", "_")
 
         os.system(f'''echo "Processing AoI {aoi_name}..."''')
 

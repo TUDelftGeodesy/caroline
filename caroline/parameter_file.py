@@ -78,9 +78,7 @@ def generate_full_parameter_file(
                 general_user_settings["general"]["steps"][
                     job_definitions["jobs"][requirement]["parameter-file-step-key"]
                 ] = 1
-                requirement = general_user_settings["general"]["steps"][
-                    job_definitions["jobs"][requirement]["requirement"]
-                ]
+                requirement = job_definitions["jobs"][requirement]["requirement"]
 
             elif requirement is None:
                 if dependency is not None:

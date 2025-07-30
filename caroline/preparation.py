@@ -65,9 +65,8 @@ def finish_installation() -> None:
         os.system(f'''echo "Processing AoI {aoi_name}..."''')
 
         # first generate the shapefile if it does not yet exist
-        parameter_file_parameters = generate_full_parameter_file(parameter_file, 0, "asc", "dummy.yaml" "dict")
+        parameter_file_parameters = generate_full_parameter_file(parameter_file, 0, "asc", "dummy.yaml", "dict")
 
-        os.system(f'''echo "Data: {parameter_file_parameters}"''')
         # first create the directory
         os.makedirs(parameter_file_parameters["general"]["shape-file"]["directory"], exist_ok=True)
 

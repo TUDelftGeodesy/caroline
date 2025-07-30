@@ -69,14 +69,16 @@ def generate_full_parameter_file(
     # set the correct step parameters:
     dependency = general_user_settings["general"]["workflow"]["dependency"]["input-step"]
     for output in general_user_settings["general"]["workflow"]["output-steps"]:
-        general_user_settings["general"]["steps"][job_definitions["jobs"][output]["parameter-file-step-key"]] = 1
+        general_user_settings["general"]["steps"][
+            job_definitions["jobs"][output]["parameter-file-step-key"].split(":")[-1]
+        ] = 1
         requirement = job_definitions["jobs"][output]["requirement"]
 
         # trace back the requirements until the dependency is hit
         while requirement != dependency:
             if isinstance(requirement, str):
                 general_user_settings["general"]["steps"][
-                    job_definitions["jobs"][requirement]["parameter-file-step-key"]
+                    job_definitions["jobs"][requirement]["parameter-file-step-key"].split(":")[-1]
                 ] = 1
                 requirement = job_definitions["jobs"][requirement]["requirement"]
 

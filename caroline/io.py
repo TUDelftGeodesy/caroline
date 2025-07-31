@@ -355,63 +355,55 @@ def read_shp_extent(filename: str, shp_type: str = "swath") -> dict:
     return coordinate_dict
 
 
-def link_shapefile(parameter_file: str):
+def link_shapefile(output_directory: str, output_aoi_name: str, shape_file_path: str) -> None:
     """Link a shapefile based on provided parameters in the CAROLINE parameter file.
 
     Parameters
     ----------
-    parameter_file: str
-        Full path to the CAROLINE parameter file.
+    output_directory: str
+        Directory where to link the shapefile in
+    output_aoi_name: str
+        Name of the output shapefile
+    shape_file_path: str
+        Location of the shapefile
+
+    Raises
+    ------
+    AssertionError
+        When the provided shape_file_path does not end in '.shp'
 
     """
-    search_parameters = [
-        "general:shape-file:shape-file-link",
-        "general:shape-file:directory",
-        "general:shape-file:aoi-name",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
+    assert shape_file_path.split(".")[-1] == "shp", f"Provided shapefile {shape_file_path} does not end in .shp!"
 
-    assert (
-        out_parameters["general:shape-file:shape-file-link"].split(".")[-1] == "shp"
-    ), f"Provided shapefile {out_parameters['general:shape-file:shape-file-link']} does not end in .shp!"
-
-    export_shp = (
-        f"{out_parameters['general:shape-file:directory']}/"
-        f"{out_parameters['general:shape-file:aoi-name']}_shape.shp"
-    )
+    export_shp = f"{output_directory}/{output_aoi_name}_shape.shp"
 
     for appendix in ["shp", "prj", "shx", "dbf"]:
-        os.system(
-            f"ln -s {out_parameters['general:shape-file:shape-file-link'][:-4]}.{appendix} {export_shp[:-4]}.{appendix}"
-        )
+        os.system(f"ln -s {shape_file_path[:-4]}.{appendix} {export_shp[:-4]}.{appendix}")
 
 
-def create_shapefile(parameter_file: str):
+def create_shapefile(
+    output_directory: str,
+    output_aoi_name: str,
+    central_coord: list,
+    crop_width: float | int,
+    crop_length: float | int,
+) -> None:
     """Create a square shapefile from scratch based on provided parameters in the CAROLINE parameter file.
 
     Parameters
     ----------
-    parameter_file: str
-        Full path to the CAROLINE parameter file.
-
+    output_directory: str
+        Directory where to link the shapefile in
+    output_aoi_name: str
+        Name of the output shapefile
+    central_coord: list
+        List of the coordinates of the central AoI in [latitude, longitude]
+    crop_width: float | int
+        Width (east-west) of the AoI to be generated in km
+    crop_length: float | int
+        Length (north-south) of the AoI to be generated in km
     """
-    search_parameters = [
-        "general:shape-file:rectangular-shape-file:center-AoI",
-        "general:shape-file:rectangular-shape-file:AoI-length",
-        "general:shape-file:rectangular-shape-file:AoI-width",
-        "general:shape-file:directory",
-        "general:shape-file:aoi-name",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    export_shp = (
-        f"{out_parameters['general:shape-file:directory']}/"
-        f"{out_parameters['general:shape-file:aoi-name']}_shape.shp"
-    )
-
-    central_coord = eval(out_parameters["general:shape-file:rectangular-shape-file:center-AoI"])
-    crop_length = eval(out_parameters["general:shape-file:rectangular-shape-file:AoI-length"])
-    crop_width = eval(out_parameters["general:shape-file:rectangular-shape-file:AoI-width"])
+    export_shp = f"{output_directory}/{output_aoi_name}_shape.shp"
 
     # Calculate the limits of the AoI
     Dlat_m = 2 * pi * EARTH_RADIUS / 360  # m per degree of latitude

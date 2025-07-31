@@ -8,7 +8,7 @@ import asf_search as asf
 import numpy as np
 
 from caroline.config import get_config
-from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent
+from caroline.io import read_parameter_file, read_shp_extent
 
 BYTE_PREFIX = " kMGTPEZYRQ"
 CONFIG_PARAMETERS = get_config()
@@ -175,27 +175,6 @@ def find_slurm_job_id(parameter_file: str, job: str) -> int:
     ).read()
     job_id = data.split(";")[-1].strip()
     return eval(job_id)
-
-
-def generate_shapefile(parameter_file: str) -> None:
-    """Generate a shapefile based on a CAROLINE parameter file.
-
-    If `shape_file` is a shapefile, this file will be linked. Otherwise a square is shapefile is generated.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Full path to the parameter file
-
-    """
-    search_parameters = ["general:shape-file:shape-file-link"]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    if out_parameters["general:shape-file:shape-file-link"] in [None, "None", ""]:
-        # no shapefile is generated --> we need a new one
-        create_shapefile(parameter_file)
-    else:
-        link_shapefile(parameter_file)
 
 
 def _generate_email(parameter_file: str) -> str:

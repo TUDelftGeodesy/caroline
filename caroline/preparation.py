@@ -77,9 +77,19 @@ def finish_installation() -> None:
         # then create or link the shapefile
         if not os.path.exists(shapefile_name):
             if parameter_file_parameters["general"]["shape-file"]["shape-file-link"] in [None, "", "None"]:
-                create_shapefile(parameter_file)
+                create_shapefile(
+                    parameter_file_parameters["general"]["shape-file"]["directory"],
+                    parameter_file_parameters["general"]["shape-file"]["aoi-name"],
+                    parameter_file_parameters["general"]["shape-file"]["rectangular-shape-file"]["center-AoI"],
+                    parameter_file_parameters["general"]["shape-file"]["rectangular-shape-file"]["AoI-width"],
+                    parameter_file_parameters["general"]["shape-file"]["rectangular-shape-file"]["AoI-length"],
+                )
             else:
-                link_shapefile(parameter_file)
+                link_shapefile(
+                    parameter_file_parameters["general"]["shape-file"]["directory"],
+                    parameter_file_parameters["general"]["shape-file"]["aoi-name"],
+                    parameter_file_parameters["general"]["shape-file"]["shape-file-link"],
+                )
 
         # determine if the parameter file is active or not, if not, we skip the area-track-list generation
 

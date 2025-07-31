@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Parameter files are now in `YAML` format instead of `txt`
 - The `read_parameter_file` function now traverses through the YAML keys with the `:` separator (e.g. given the parameter file `p={'a': {'b': 1}}`, submitting the key `a:b` will return `p['a']['b']`, in this case `1`)
 
+### Fixed:
+- The maximum memory for jobs without a SLURM-cluster is properly read in again
 
 ### Removed:
 - The live parameter files (migrated to https://github.com/TUDelftGeodesy/caroline-parameter-files (a private repo))

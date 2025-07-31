@@ -45,6 +45,11 @@ def finish_installation() -> None:
         config_parameters=["slc_base_directory", "caroline_work_directory"],
     )
 
+    # check which download configs exist, so we can remove the ones we don't need later on
+    to_be_removed_download_configurations = glob.glob(
+        f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/*"
+    )
+
     # Retrieve the job definition keys
     job_definitions = get_config(
         f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
@@ -96,13 +101,6 @@ def finish_installation() -> None:
         active_parameter_file = parameter_file_parameters["general"]["active"]
 
         if active_parameter_file == 0:
-            # check if a download configuration still exists, if so, remove it
-            if os.path.exists(f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"):
-                os.system(
-                    f"rm -rf {CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"
-                )
-
-            # then skip
             continue
 
         # then check if the AoI is a Sentinel-1 AoI or something else
@@ -128,6 +126,9 @@ def finish_installation() -> None:
                 if orbit not in allowed_footprints.keys():
                     allowed_footprints[orbit] = footprints[orbit]
             orbits = list(sorted(orbits))
+
+            os.system(f'''echo "Detected (and forced) orbits {orbits}"''')
+            os.system(f'''echo "Rejected orbits {[k for k in disallowed_footprints.keys()]}"''')
 
             # generate the overlap KML
             now = dt.datetime.now()
@@ -175,6 +176,18 @@ def finish_installation() -> None:
 
             if jobs_to_do[job_definitions["s1_download"]["parameter-file-step-key"]] == 1:
                 # This is a download job -> we want a download configuration
+                # first make sure it doesn't get removed if it already exists
+                if (
+                    f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"
+                    in to_be_removed_download_configurations
+                ):
+                    to_be_removed_download_configurations.pop(
+                        to_be_removed_download_configurations.index(
+                            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"
+                        )
+                    )
+
+                # then add the download configuration
                 os.makedirs(
                     f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}",
                     exist_ok=True,
@@ -258,6 +271,13 @@ def finish_installation() -> None:
                     ]["aoi-name"],
                 },
             )
+            os.system(f'''echo "Including tracks {include_tracks}"''')
+
+    for download_config in to_be_removed_download_configurations:
+        # remove the existing download configurations that still exist but are no longer requested
+        if os.path.exists(download_config):
+            os.system(f"""echo "Removing no longer requested download config {download_config}...""")
+            os.system(f"rm -rf {download_config}")
 
 
 def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None) -> None:

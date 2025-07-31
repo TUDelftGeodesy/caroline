@@ -286,12 +286,14 @@ def _merge_user_settings(
 
         elif isinstance(user_settings[key], dict):
             if trace_keys is None:
-                trace_keys = []
-            trace_keys.append(key)
+                cur_keys = []
+            else:
+                cur_keys = trace_keys[:]
+            cur_keys.append(key)
             default_parameter_file[key] = _merge_user_settings(
                 default_parameter_file[key],
                 user_settings_file,
-                trace_keys,
+                cur_keys,
                 user_settings[key],
                 nonexistent_keys_handling,
             )

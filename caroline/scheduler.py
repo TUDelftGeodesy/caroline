@@ -119,7 +119,7 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
     for new_track in track_dict.keys():
         for data in track_dict[new_track]:
             parameters = generate_full_parameter_file(
-                f"{parameter_file_base}_{data[0]}.yaml",
+                f"{parameter_file_base}-{data[0].replace('_', '-')}.yaml",
                 eval(new_track.split("_")[2][1:].lstrip("0")),
                 new_track.split("_")[1],
                 "dummy.yaml",
@@ -242,7 +242,7 @@ def submit_processes(sorted_processes: list) -> None:
     for process in sorted_processes:
         parameter_file = (
             f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
-            f"parameter-files/param_file_{process[0].split('-')[0]}.yaml"
+            f"parameter-files/param-file-{process[0].split('-')[0].replace('_', '-')}.yaml"
         )
         job = process[0].split("-")[1]
         track = process[0].split("-")[2]
@@ -250,7 +250,7 @@ def submit_processes(sorted_processes: list) -> None:
             # freeze the configuration
             frozen_parameter_file = (
                 f"{CONFIG_PARAMETERS['FROZEN_PARAMETER_FILE_DIRECTORY']}/"
-                f"{parameter_file.split('/')[-1].split('.')[0]}_{track}_{run_timestamp}.yaml"
+                f"{parameter_file.split('/')[-1].split('.')[0].replace('-', '_')}_{track}_{run_timestamp}.yaml"
             )
             frozen_parameter_files[f"{parameter_file}_{track}"] = frozen_parameter_file
 

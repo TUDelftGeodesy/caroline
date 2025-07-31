@@ -110,17 +110,17 @@ def generate_full_parameter_file(
                                 for key in filt[1]:
                                     rec_val = rec_val[key]
                                 if isinstance(filt[0], str):
-                                    if rec_val != filt[0]:
+                                    if rec_val.lower() != filt[0].lower():
                                         passed = False
                                 elif isinstance(filt[0], list):
-                                    if rec_val not in filt[0]:
+                                    if rec_val.lower() not in [f.lower() for f in filt[0]]:
                                         passed = False
                             if passed:
                                 passed_requirements.append(req)
                         else:  # there are no filters on this one
                             passed_requirements.append(req)
                         if len(passed_requirements) == 1:
-                            requirement = req
+                            requirement = passed_requirements[0]
                         else:
                             raise ValueError(
                                 f"Cannot trace back AoI {user_parameter_file} to step {dependency}. "

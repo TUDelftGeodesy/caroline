@@ -88,7 +88,7 @@ jobs:
     requirement: ["doris", "deinsar"]
     two-letter-id: "CR"
     parameter-file-step-key: "general:steps:do-crop_to_raw"
-    partition: "crop_to_raw≈partition"
+    partition: "crop_to_raw:general:partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8"
     directory-contents-file-appendix: ""
     email:
@@ -126,7 +126,7 @@ jobs:
     requirement: "crop_to_zarr"
     two-letter-id: "SG"
     parameter-file-step-key: "general:steps:do-stm_generation"
-    partition: "normal"
+    partition: "stm_generation:general:partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --nodes=1"
     directory-contents-file-appendix: ""
     email:

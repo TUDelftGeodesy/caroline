@@ -67,6 +67,8 @@ def finish_installation() -> None:
     for parameter_file in parameter_files:
         aoi_name = parameter_file.split("/")[-1].split("param-file-")[-1].split(".")[0].replace("-", "_")
 
+        os.system('''echo ""''')
+        os.system('''echo ""''')
         os.system(f'''echo "Processing AoI {aoi_name}..."''')
 
         # first generate the shapefile if it does not yet exist
@@ -276,7 +278,7 @@ def finish_installation() -> None:
     for download_config in to_be_removed_download_configurations:
         # remove the existing download configurations that still exist but are no longer requested
         if os.path.exists(download_config):
-            os.system(f"""echo "Removing no longer requested download config {download_config}...""")
+            os.system(f'''echo "Removing no longer requested download config {download_config}..."''')
             os.system(f"rm -rf {download_config}")
 
 

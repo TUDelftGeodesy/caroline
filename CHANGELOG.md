@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed:
 - The maximum memory for jobs without a SLURM-cluster is properly read in again
+- Crashed emails now send the full traceback
 
 ### Removed:
 - The live parameter files (migrated to https://github.com/TUDelftGeodesy/caroline-parameter-files (a private repo))

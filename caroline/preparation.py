@@ -1451,7 +1451,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         # we need to transform all the 1/0 from the parameter file into Yes/No
         other_parameters = {}
         for parameter in [
-            "doris:doris-settings:coarse-orbits",
+            "doris:doris-settings:do-coarse-orbits",
             "doris:doris-settings:do-deramp",
             "doris:doris-settings:do-reramp",
             "doris:doris-settings:do-fake-fine-coreg-bursts",
@@ -1477,7 +1477,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
             "doris:doris-settings:do-unwrap",
         ]:
             value = read_parameter_file(parameter_file, [parameter])[parameter]
-            if value == "1":
+            if value == 1:
                 other_parameters[parameter] = "Yes"
             else:
                 other_parameters[parameter] = "No"

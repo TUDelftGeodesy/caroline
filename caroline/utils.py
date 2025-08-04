@@ -770,7 +770,7 @@ def job_schedule_check(parameter_file: str | dict, job: str, job_definitions: di
         filters = extract_all_values_and_paths_from_dictionary(job_definitions[job]["filters"])
         for filt in filters:
             if isinstance(parameter_file, str):  # extract the requested value from the parameter file
-                value_check = read_parameter_file(parameter_file, [":".join(filt[1])])
+                value_check = read_parameter_file(parameter_file, [":".join(filt[1])])[":".join(filt[1])]
             else:
                 value_check = parameter_file  # or from the dictionary
                 for key in filt[1]:

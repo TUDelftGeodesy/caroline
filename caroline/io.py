@@ -196,9 +196,9 @@ def write_run_file(
             elif isinstance(parameter_file_parameter, list):
                 value = read_parameter_file(parameter_file, [parameter_file_parameter[0]])[parameter_file_parameter[0]]
                 if parameter_file_parameter[1] == "lowercase":
-                    value = value.lower()
+                    value = str(value).lower()
                 elif parameter_file_parameter[1] == "uppercase":
-                    value = value.upper()
+                    value = str(value).upper()
                 elif parameter_file_parameter[1] == "dictionary":
                     sensor = read_parameter_file(parameter_file, ["general:input-data:sensor"])[
                         "general:input-data:sensor"
@@ -210,7 +210,7 @@ def write_run_file(
                         track is not None
                     ), f"Dictionary mode requested for {parameter_file_parameter} but track is None!"
                     key = f"{sensor}_{asc_dsc}_t{track:0>3d}"
-                    value = eval(value)[key]
+                    value = eval(str(value))[key]
                 elif parameter_file_parameter[1] == "strip":
                     assert len(parameter_file_parameter) > 2, (
                         f"Strip mode for parameter {parameter_file_parameter} "
@@ -219,6 +219,7 @@ def write_run_file(
                     assert isinstance(parameter_file_parameter[2], str), (
                         "Characters to strip from " f"{parameter_file_parameter} is not a string!"
                     )
+                    value = str(value)
                     for strip_key in parameter_file_parameter[2]:
                         value = value.replace(strip_key, "")
                 else:

@@ -48,7 +48,7 @@ def get_free_port():
 stack_dir = Path("**coregistration_directory**/**stack_folder_name**")  # ifg stack dir
 mother_dir = stack_dir / "**mother**"  # Mother image dir
 reading_chunks = (4000, 4000)  # Reading chunks (azimuth, range) from binary
-sensor = "**sensor**"
+sensor = "**general:input-data:sensor**"
 
 # Output config
 overwrite_zarr = False  # Flag for zarr overwrite

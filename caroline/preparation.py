@@ -907,7 +907,7 @@ S_IN_DAT        image.cos
 S_IN_LEA        leader.xml"""
 
         else:
-            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]}!')
+            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]} for input.readfiles!')
 
         write_run_file(
             save_path=f"{coregistration_directory}/process/input.readfiles",

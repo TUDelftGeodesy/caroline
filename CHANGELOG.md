@@ -36,10 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed:
 - Parameter files are now in `YAML` format instead of `txt`
 - The `read_parameter_file` function in [io.py](caroline/io.py) now traverses through the YAML keys with the `:` separator (e.g. given the parameter file `p={'a': {'b': 1}}`, submitting the key `a:b` will return `p['a']['b']`, in this case `1`)
+- The user no longer specifies which steps to run, but rather which output is wanted and input is provided. CAROLINE will figure out itself which jobs it needs to run to achieve the desired output(s).
 
 ### Fixed:
 - The maximum memory for jobs without a SLURM-cluster is properly read in again
-- Crashed emails now send the full traceback
+- Crashed emails now send the full traceback instead of just the last line
 
 ### Removed:
 - The live parameter files (migrated to https://github.com/TUDelftGeodesy/caroline-parameter-files (a private repo))

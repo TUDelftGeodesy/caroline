@@ -5,7 +5,6 @@ depsi_post:
     partition: 'normal'
     depsi_post-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/depsi_post_v2.1.4.0'
     cpxfiddle-directory: '**CAROLINE_PLUGINS_DIRECTORY**/cpxfiddle'
-    mode: 'csv'
 
   depsi_post-settings:
     dlat: 0

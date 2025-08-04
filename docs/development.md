@@ -105,8 +105,8 @@ Once this command completes, your jobs are visible using the command `squeue --m
 
 ## Adding a new AoI
 
-1. Following the [general GitHub management](#general-github-management) steps 1-3: create an issue and a branch, and check it out locally. 
-2. Copy [config/parameter-files/param_file_nl_amsterdam.txt](../config/parameter-files/param_file_nl_amsterdam.txt) into the same directory with the name `param_file_<2-letter-country-ID>_<region-name>.txt`.
+1. Following the [general GitHub management](#general-github-management) steps 1-3: create an issue and a branch in https://github.com/TUDelftGeodesy/caroline-parameter-files, and check it out locally. 
+2. Copy [config/parameter-files/example-user-param-file-nl_amsterdam.yaml](../config/parameter-files/example-user-param-file-nl_amsterdam.yaml) into the same directory with the name `param_file_<2-letter-country-ID>_<region-name>.txt`.
 3. Decide on the exact AoI. There are two options for this:
    1. Generate a rectangular AoI by following the instructions around line 57 in the parameter file.
    2. Generate your own AoI as a shapefile:
@@ -237,11 +237,12 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
 5. If the job is dependent on a plugin, add this plugin in [config/plugin-definitions.yaml](../config/plugin-definitions.yaml). If the plugin is a GitHub or bitbucket repository, add it to the `github` group with the `repo` variable (the git clone link), and a `branch` or `tag` variable (depending on whether you want to clone off of a branch or tag). If the plugin is a tarball, add it to `tarball` group.
 6. If the job is dependent on a Python plugin that requires packages not yet provided in the CAROLINE virtual environment, update the `plugins` dependency list on line 50 of [pyproject.toml](../pyproject.toml) with a comment on which plugin it is necessary for.
 7. If scripts are needed for the completion of the job that are not provided in the plugin, add them in [scripts](../scripts) 
-8. In <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the necessary job-specific parameters for the job in a new section.
-9. If in step 2 you introduced new values for `parameter-file-step-key` and `bash-file-base-directory`: in <b><u>all</u></b> parameter files in [config/parameter-files](../config/parameter-files), add the following general parameters:
-   1. `do_<parameter-file-step-key>`, a 0/1 boolean switch whether or not to execute the job. Leave to 0 for all jobs you do not want this to run on.
-   2. `<bash-file-base-directory>_AoI_name`, the name of the AoI in that job
-   3. `<bash-file-base-directory>_directory`, the directory in which the job should run
-10. Update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)
-11. Update the [changelog](../CHANGELOG.md) with the new version
-12. Update the documentation (at the very least [architecture.md](architecture.md) and the [glossary](glossary.md), likely more)
+8. If user settings are necessary for the completion of the job, add a new default parameter file in [config/parameter-files](../config/parameter-files), and add all necessary parameters here.
+9. If in step 2 you introduced new values for `parameter-file-step-key` and `bash-file-base-directory`: 
+   1. `general:steps:do_<parameter-file-step-key>`, a 0/1 boolean switch located in [config/parameter-files/default-machine-fields-param-file.yaml](../config/parameter-files/default-machine-fields-param-file.yaml) Set the default to 0 , the scheduler will turn it on where necessary
+   2. `<bash-file-base-directory>:general:AoI-name`, the name of the AoI in that job (note that the `:` is a separator), default can be set to `"**AoI_name**"`, this will be replaced by the scheduler with the name of the parameter file.
+   3. `<bash-file-base-directory>:general:directory`, the directory in which the job should run
+10. In the [parameter file repository](https://github.com/TUDelftGeodesy/caroline-parameter-files), add the new job to all workflows where you want it to be active (following the GitHub management)
+11. Update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)
+12. Update the [changelog](../CHANGELOG.md) with the new version
+13. Update the documentation (at the very least [architecture.md](architecture.md) and the [glossary](glossary.md), likely more)

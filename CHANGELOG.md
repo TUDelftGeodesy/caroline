@@ -25,7 +25,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.4.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (15-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d4b82b3e99c06fa298fcd95b3ff748160da07f00...main))
+## [v3.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (05-Aug-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/66b7601d2345567ee0e6d3d2d8c595a58ac00fe1...main))
+
+### Added:
+- Default parameter files per job (and a general one for general settings and a machine one for fields you are not supposed to touch)
+- An example user [parameter file](config/parameter-files/example-user-param-file-nl_amsterdam.yaml) for Amsterdam, with all fields required at minimum
+- The installation will verify the parameter files and throw errors if required fields are missing or illegal fields are added
+- The installation now specifies which tracks it adds to the area-track-lists
+
+### Changed:
+- Parameter files are now in `YAML` format instead of `txt`
+- The `read_parameter_file` function in [io.py](caroline/io.py) now traverses through the YAML keys with the `:` separator (e.g. given the parameter file `p={'a': {'b': 1}}`, submitting the key `a:b` will return `p['a']['b']`, in this case `1`)
+- The user no longer specifies which steps to run, but rather which output is wanted and input is provided. CAROLINE will figure out itself which jobs it needs to run to achieve the desired output(s).
+
+### Fixed:
+- The maximum memory for jobs without a SLURM-cluster is properly read in again
+- Crashed emails now send the full traceback instead of just the last line
+- On test installations, the plugins are now linked to the testing versions instead of the live versions by default in all parameter files (unless manually overwritten by the parameter file)
+
+### Removed:
+- The live parameter files (migrated to https://github.com/TUDelftGeodesy/caroline-parameter-files (a private repo))
+
+## [v2.4.7](https://github.com/TUDelftGeodesy/caroline/tree/66b7601d2345567ee0e6d3d2d8c595a58ac00fe1) (15-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d4b82b3e99c06fa298fcd95b3ff748160da07f00...main))
 
 ### Changed:
 - Updated `caroline-download` to `v0.2.0rc2`, prioritising EODAG over ASF_search.

@@ -48,7 +48,7 @@ def get_free_port():
 stack_dir = Path("**coregistration_directory**/**stack_folder_name**")  # ifg stack dir
 mother_dir = stack_dir / "**mother**"  # Mother image dir
 reading_chunks = (4000, 4000)  # Reading chunks (azimuth, range) from binary
-sensor = "**sensor**"
+sensor = "**general:input-data:sensor**"
 
 # Output config
 overwrite_zarr = False  # Flag for zarr overwrite
@@ -196,7 +196,9 @@ if __name__ == "__main__":
     ]
     slcs_output = slcs_output.assign({"lon": lon, "lat": lat})
 
-    slcs_output = crop_slc_spacetime(slcs_output, aoi_filename="**shape_directory**/**shape_AoI_name**_shape.shp")
+    slcs_output = crop_slc_spacetime(
+        slcs_output, aoi_filename="**general:shape-file:directory**/**general:shape-file:aoi-name**_shape.shp"
+    )
     # Rechunk and write as zarr
     slcs_output = slcs_output.chunk(writing_chunks)
     if not os.path.exists("**crop_to_zarr_output_filename**.zarr"):

@@ -8,6 +8,7 @@ import numpy as np
 from caroline.config import get_config
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent, write_run_file
 from caroline.kml import KML
+from caroline.parameter_file import generate_full_parameter_file
 from caroline.utils import (
     convert_shp_to_wkt,
     detect_sensor_pixelsize,
@@ -27,7 +28,7 @@ JOB_DEFINITIONS = get_config(
 
 def finish_installation() -> None:
     """Generate the shapefiles and `area-track-lists` during installation for all AoIs."""
-    parameter_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/*")
+    parameter_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param-file*")
 
     # create the directories
     os.makedirs(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists", exist_ok=True)
@@ -42,6 +43,11 @@ def finish_installation() -> None:
         asc_dsc=None,
         parameter_file=None,
         config_parameters=["slc_base_directory", "caroline_work_directory"],
+    )
+
+    # check which download configs exist, so we can remove the ones we don't need later on
+    to_be_removed_download_configurations = glob.glob(
+        f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/*"
     )
 
     # Retrieve the job definition keys
@@ -59,54 +65,57 @@ def finish_installation() -> None:
     )
 
     for parameter_file in parameter_files:
-        aoi_name = parameter_file.split("/")[-1].split("param_file_")[-1].split(".")[0]
+        aoi_name = parameter_file.split("/")[-1].split("param-file-")[-1].split(".")[0].replace("-", "_")
 
+        os.system('''echo ""''')
+        os.system('''echo ""''')
         os.system(f'''echo "Processing AoI {aoi_name}..."''')
 
         # first generate the shapefile if it does not yet exist
+        parameter_file_parameters = generate_full_parameter_file(parameter_file, 0, "asc", "dummy.yaml", "dict")
 
-        parameter_file_parameters = read_parameter_file(
-            parameter_file, ["shape_directory", "shape_AoI_name", "shape_file"]
-        )
         # first create the directory
-        os.makedirs(parameter_file_parameters["shape_directory"], exist_ok=True)
+        os.makedirs(parameter_file_parameters["general"]["shape-file"]["directory"], exist_ok=True)
 
         shapefile_name = (
-            f"{parameter_file_parameters['shape_directory']}/"
-            f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"
+            f"{parameter_file_parameters['general']['shape-file']['directory']}/"
+            f"{parameter_file_parameters['general']['shape-file']['aoi-name']}_shape.shp"
         )
         # then create or link the shapefile
         if not os.path.exists(shapefile_name):
-            if parameter_file_parameters["shape_file"] == "":
-                create_shapefile(parameter_file)
+            if parameter_file_parameters["general"]["shape-file"]["shape-file-link"] in [None, "", "None"]:
+                create_shapefile(
+                    parameter_file_parameters["general"]["shape-file"]["directory"],
+                    parameter_file_parameters["general"]["shape-file"]["aoi-name"],
+                    parameter_file_parameters["general"]["shape-file"]["rectangular-shape-file"]["center-AoI"],
+                    parameter_file_parameters["general"]["shape-file"]["rectangular-shape-file"]["AoI-width"],
+                    parameter_file_parameters["general"]["shape-file"]["rectangular-shape-file"]["AoI-length"],
+                )
             else:
-                link_shapefile(parameter_file)
+                link_shapefile(
+                    parameter_file_parameters["general"]["shape-file"]["directory"],
+                    parameter_file_parameters["general"]["shape-file"]["aoi-name"],
+                    parameter_file_parameters["general"]["shape-file"]["shape-file-link"],
+                )
 
         # determine if the parameter file is active or not, if not, we skip the area-track-list generation
 
-        active_parameter_file = read_parameter_file(parameter_file, ["active"])["active"]
+        active_parameter_file = parameter_file_parameters["general"]["active"]
 
-        if active_parameter_file == "0":
-            # check if a download configuration still exists, if so, remove it
-            if os.path.exists(f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"):
-                os.system(
-                    f"rm -rf {CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"
-                )
-
-            # then skip
+        if active_parameter_file == 0:
             continue
 
         # then check if the AoI is a Sentinel-1 AoI or something else
 
-        sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"]
+        sensor = parameter_file_parameters["general"]["input-data"]["sensor"]
 
         if sensor == "S1":
             # then determine the intersecting orbits
             orbits, footprints = identify_s1_orbits_in_aoi(shapefile_name)
             allowed_footprints = {}
             disallowed_footprints = {}
-            disallowed_orbits = eval(read_parameter_file(parameter_file, ["exclude_tracks"])["exclude_tracks"])
-            forced_orbits = eval(read_parameter_file(parameter_file, ["include_tracks"])["include_tracks"])
+            disallowed_orbits = parameter_file_parameters["general"]["tracks"]["exclude-tracks"]
+            forced_orbits = parameter_file_parameters["general"]["tracks"]["include-tracks"]
             for orbit in disallowed_orbits:
                 if orbit in orbits:
                     orbits.pop(orbits.index(orbit))
@@ -119,6 +128,9 @@ def finish_installation() -> None:
                 if orbit not in allowed_footprints.keys():
                     allowed_footprints[orbit] = footprints[orbit]
             orbits = list(sorted(orbits))
+
+            os.system(f'''echo "Detected (and forced) orbits {orbits}"''')
+            os.system(f'''echo "Rejected orbits {[k for k in disallowed_footprints.keys()]}"''')
 
             # generate the overlap KML
             now = dt.datetime.now()
@@ -155,11 +167,29 @@ def finish_installation() -> None:
             kml.close_folder()
             kml.save()
 
+            jobs_to_do = {}
             # then figure out if this is a download-only job, a non-download job, or a mix job
-            jobs_to_do = read_parameter_file(parameter_file, job_keys)
+            for job_key in job_keys:
+                keys = job_key.split(":")
+                value = parameter_file_parameters
+                for key in keys:
+                    value = value[key]
+                jobs_to_do[job_key] = value
 
-            if jobs_to_do[job_definitions["s1_download"]["parameter-file-step-key"]] == "1":
+            if jobs_to_do[job_definitions["s1_download"]["parameter-file-step-key"]] == 1:
                 # This is a download job -> we want a download configuration
+                # first make sure it doesn't get removed if it already exists
+                if (
+                    f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"
+                    in to_be_removed_download_configurations
+                ):
+                    to_be_removed_download_configurations.pop(
+                        to_be_removed_download_configurations.index(
+                            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}"
+                        )
+                    )
+
+                # then add the download configuration
                 os.makedirs(
                     f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/{aoi_name}",
                     exist_ok=True,
@@ -185,19 +215,21 @@ def finish_installation() -> None:
                     ),
                     asc_dsc=None,
                     track=None,
-                    parameter_file=parameter_file,
-                    parameter_file_parameters=["product_type"],
+                    parameter_file=None,
                     other_parameters={
-                        "start_date": "one month ago",
+                        "general:timeframe:start": "one month ago",
                         "wkt_file": (
                             f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/"
                             f"periodic/{aoi_name}/roi.wkt"
                         ),
                         "orbits_csv": ", ".join([o.split("_t")[-1].lstrip("0") for o in orbits]),
+                        "general:input-data:product-type": parameter_file_parameters["general"]["input-data"][
+                            "product-type"
+                        ],
                     },
                 )
 
-            if "1" in [
+            if 1 in [
                 jobs_to_do[job]
                 for job in jobs_to_do.keys()
                 if job != job_definitions["s1_download"]["parameter-file-step-key"]
@@ -214,12 +246,17 @@ def finish_installation() -> None:
                     asc_dsc=None,
                     track=None,
                     parameter_file=parameter_file,
-                    parameter_file_parameters=["dependency"],
-                    other_parameters={"tracks": "\n".join(orbits)},
+                    parameter_file_parameters=["general:workflow:dependency:aoi-name"],
+                    other_parameters={
+                        "tracks": "\n".join(orbits),
+                        "general:workflow:dependency:aoi-name": parameter_file_parameters["general"]["workflow"][
+                            "dependency"
+                        ]["aoi-name"],
+                    },
                 )
 
         else:
-            include_tracks = eval(read_parameter_file(parameter_file, ["include_tracks"])["include_tracks"])
+            include_tracks = parameter_file_parameters["general"]["tracks"]["include-tracks"]
             write_run_file(
                 save_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists/{aoi_name}.dat",
                 template_path=(
@@ -228,9 +265,21 @@ def finish_installation() -> None:
                 asc_dsc=None,
                 track=None,
                 parameter_file=parameter_file,
-                parameter_file_parameters=["dependency"],
-                other_parameters={"tracks": "\n".join(include_tracks)},
+                parameter_file_parameters=["general:workflow:dependency:aoi-name"],
+                other_parameters={
+                    "tracks": "\n".join(include_tracks),
+                    "general:workflow:dependency:aoi-name": parameter_file_parameters["general"]["workflow"][
+                        "dependency"
+                    ]["aoi-name"],
+                },
             )
+            os.system(f'''echo "Including tracks {include_tracks}"''')
+
+    for download_config in to_be_removed_download_configurations:
+        # remove the existing download configurations that still exist but are no longer requested
+        if os.path.exists(download_config):
+            os.system(f'''echo "Removing no longer requested download config {download_config}..."''')
+            os.system(f"rm -rf {download_config}")
 
 
 def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -245,14 +294,14 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
         the parameter file
     """
     search_parameters = [
-        "track",
-        "asc_dsc",
-        "sensor",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -266,7 +315,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
         )
 
-        if out_parameters["sensor"] == "S1":
+        if out_parameters["general:input-data:sensor"] == "S1":
             coregistration_directory = format_process_folder(
                 parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
             )
@@ -280,7 +329,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
 
         # soft-link the processing directory without job_id.txt, dir_contents.txt and queue.txt
         # Sentinel-1 has more files starting with d as Doris-v5 output, other sensors do not have that
-        if out_parameters["sensor"] == "S1":
+        if out_parameters["general:input-data:sensor"] == "S1":
             link_keys = ["[bgiprs]*", "doris*", "dem"]
         else:
             link_keys = ["[bgiprs]*"]
@@ -295,7 +344,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["crop_to_raw_AoI_name"],
+            parameter_file_parameters=["crop_to_raw:general:AoI-name"],
             config_parameters=["caroline_work_directory"],
             other_parameters={"track": tracks[track], "crop_base_directory": crop_directory},
         )
@@ -307,7 +356,11 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["shape_AoI_name", "shape_directory", "sensor"],
+            parameter_file_parameters=[
+                "general:shape-file:aoi-name",
+                "general:shape-file:directory",
+                "general:input-data:sensor",
+            ],
             config_parameters=["caroline_install_directory"],
         )
 
@@ -334,19 +387,14 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
         If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
     """
     search_parameters = [
-        "crop_to_zarr_directory",
-        "crop_to_zarr_AoI_name",
-        "coregistration_directory",
-        "coregistration_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
-
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
     for track in range(len(tracks)):
         if isinstance(do_track, int):
             if tracks[track] != do_track:
@@ -359,7 +407,7 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
         )
 
-        if out_parameters["sensor"] == "S1":
+        if out_parameters["general:input-data:sensor"] == "S1":
             coregistration_directory = format_process_folder(
                 parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
             )
@@ -372,7 +420,7 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
         os.makedirs(crop_to_zarr_directory, exist_ok=True)
 
         # detect the mother image
-        if out_parameters["sensor"].lower() == "s1":
+        if out_parameters["general:input-data:sensor"].lower() == "s1":
             f = open(f"{coregistration_directory}/doris_input.xml")
             data = f.read().split("\n")
             f.close()
@@ -407,12 +455,18 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["shape_AoI_name", "sensor", "shape_directory"],
+            parameter_file_parameters=[
+                "general:shape-file:aoi-name",
+                "general:input-data:sensor",
+                "general:shape-file:directory",
+            ],
             other_parameters={
                 "coregistration_directory": coregistration_directory,
-                "stack_folder_name": "stack" if out_parameters["sensor"] == "S1" else "process",
+                "stack_folder_name": "stack" if out_parameters["general:input-data:sensor"] == "S1" else "process",
                 "mother": mother,
-                "mother_slc_name": "slave_rsmp_reramped.raw" if out_parameters["sensor"] == "S1" else "slave_rsmp.raw",
+                "mother_slc_name": "slave_rsmp_reramped.raw"
+                if out_parameters["general:input-data:sensor"] == "S1"
+                else "slave_rsmp.raw",
                 "crop_to_zarr_output_filename": crop_to_zarr_output_name,
             },
         )
@@ -425,8 +479,8 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "crop_to_zarr_AoI_name",
-                "crop_to_zarr_code_dir",
+                "crop_to_zarr:general:AoI-name",
+                "crop_to_zarr:general:crop_to_zarr-code-directory",
             ],
             config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
             other_parameters={"track": tracks[track]},
@@ -457,42 +511,40 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         If an unknown sensor is provided in the parameter file
     """
     search_parameters = [
-        "coregistration_directory",
-        "coregistration_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
-        "di_data_directories",
-        "start_date",
-        "end_date",
-        "master_date",
-        "dem_size",
-        "dem_upperleft",
-        "dem_delta",
-        "shape_directory",
-        "shape_AoI_name",
-        "di_finecoreg_mode",
-        "polarisation",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "deinsar:input:data-directories",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "general:timeframe:mother",
+        "general:dem:file",
+        "general:dem:upperleft",
+        "general:dem:delta",
+        "general:shape-file:directory",
+        "general:shape-file:aoi-name",
+        "deinsar:deinsar-settings:finecoreg:finecoreg-mode",
+        "default:input-data:polarisation",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
-    datadirs = eval(out_parameters["di_data_directories"])
+    datadirs = out_parameters["deinsar:input:data-directories"]
 
-    start_date = eval(out_parameters["start_date"].replace("-", ""))
-    master_date = eval(out_parameters["master_date"].replace("-", ""))
-    end_date = eval(out_parameters["end_date"].replace("-", ""))
+    start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
+    master_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
+    end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
 
-    polarisation = eval(out_parameters["polarisation"])
+    polarisation = out_parameters["general:input-data:polarisation"]
     polarisation = [f"_{pol}" for pol in polarisation]
     if "_HH" in polarisation:
         polarisation[polarisation.index("_HH")] = ""
 
-    dem_delta = eval(out_parameters["dem_delta"])
-    dem_size = eval(out_parameters["dem_size"])
-    dem_upperleft = eval(out_parameters["dem_upperleft"])
+    dem_delta = out_parameters["general:dem:delta"]
+    dem_size = out_parameters["general:dem:size"]
+    dem_upperleft = out_parameters["general:dem:upperleft"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -503,8 +555,12 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 continue
 
         assert (
-            f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}" in datadirs.keys()
-        ), f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d} is not in di_data_directories!"
+            f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
+            in datadirs.keys()
+        ), (
+            f"{out_parameters['general:input-data:sensor'].lower()}_"
+            f"{asc_dsc[track]}_t{tracks[track]:0>3d} is not in deinsar:input:data-directories!"
+        )
 
         coregistration_directory = format_process_folder(
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
@@ -520,7 +576,11 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["deinsar_code_directory", "doris_v4_code_directory", "coregistration_AoI_name"],
+            parameter_file_parameters=[
+                "deinsar:general:deinsar-code-directory",
+                "deinsar:general:doris-v4-code-directory",
+                "deinsar:general:AoI-name",
+            ],
             config_parameters=["caroline_work_directory", "orbit_directory"],
             other_parameters={"track": tracks[track], "coregistration_base_directory": coregistration_directory},
         )
@@ -529,20 +589,22 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
 
         # first search for the start, end, and master dates by parsing all data in the data directory,
         # which is different per sensor
-        datadir = datadirs[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"]
-        if out_parameters["sensor"] in ["ALOS2", "ERS"]:
+        datadir = datadirs[
+            f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
+        ]
+        if out_parameters["general:input-data:sensor"] in ["ALOS2", "ERS"]:
             dirs = glob.glob(f"{datadir}/[12]*")
             images = list(sorted([eval(image.split("/")[-1]) for image in dirs]))
-        elif out_parameters["sensor"] in ["RSAT2"]:
+        elif out_parameters["general:input-data:sensor"] in ["RSAT2"]:
             dirs = glob.glob(f"{datadir}/RS2*")
             images = list(sorted([eval(image.split("/")[-1].split("FQ2_")[1].split("_")[0]) for image in dirs]))
-        elif out_parameters["sensor"] in ["TSX"]:
+        elif out_parameters["general:input-data:sensor"] in ["TSX"]:
             dirs = glob.glob(f"{datadir}/*/iif/*")
             images = list(sorted([eval(image.split("/")[-1].split("SRA_")[1].split("T")[0]) for image in dirs]))
-        elif out_parameters["sensor"] in ["SAOCOM"]:
+        elif out_parameters["general:input-data:sensor"] in ["SAOCOM"]:
             dirs = glob.glob(f"{datadir}/*/*.xemt")
             images = list(sorted([eval(image.split("/")[-1].split("OLF_")[1].split("T")[0]) for image in dirs]))
-        elif out_parameters["sensor"] in ["ENV"]:
+        elif out_parameters["general:input-data:sensor"] in ["ENV"]:
             # 2 different formats for some reason
             dirs1 = glob.glob(f"{datadir}/*.N1")
             dirs2 = glob.glob(f"{datadir}/*/*.N1")
@@ -553,7 +615,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 dirs.append(d)
             images = list(sorted([eval(image.split("/")[-1].split("PA")[1].split("_")[0]) for image in dirs]))
         else:
-            raise ValueError(f'Unknown directory format for sensor {out_parameters["sensor"]}!')
+            raise ValueError(f'Unknown directory format for sensor {out_parameters["general:input-data:sensor"]}!')
 
         # then select the start, end, and master dates
         act_start_date = str(min([image for image in images if image >= start_date]))
@@ -568,31 +630,31 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                ["di_data_directories", "dictionary"],
-                "sensor",
-                "polarisation",
-                "di_do_orbit",
-                "di_do_crop",
-                "di_do_tsx_deramp",
-                "di_do_simamp",
-                "di_do_mtiming",
-                "di_do_ovs",
-                "di_do_choose_master",
-                "di_do_coarseorb",
-                "di_do_coarsecorr",
-                "di_do_finecoreg",
-                "di_do_reltiming",
-                "di_do_dembased",
-                "di_do_coregpm",
-                "di_do_comprefpha",
-                "di_do_comprefdem",
-                "di_do_resample",
-                "di_do_tsx_reramp",
-                "di_do_interferogram",
-                "di_do_subtrrefpha",
-                "di_do_subtrrefdem",
-                "di_do_coherence",
-                "di_do_geocoding",
+                ["deinsar:input:data-directories", "dictionary"],
+                "general:input-data:sensor",
+                "general:input-data:polarisation",
+                "deinsar:deinsar-settings:do-orbit",
+                "deinsar:deinsar-settings:do-crop",
+                "deinsar:deinsar-settings:do-tsx-deramp",
+                "deinsar:deinsar-settings:do-simamp",
+                "deinsar:deinsar-settings:do-mtiming",
+                "deinsar:deinsar-settings:do-ovs",
+                "deinsar:deinsar-settings:do-choose-master",
+                "deinsar:deinsar-settings:do-coarseorb",
+                "deinsar:deinsar-settings:do-coarsecorr",
+                "deinsar:deinsar-settings:finecoreg:do-finecoreg",
+                "deinsar:deinsar-settings:do-reltiming",
+                "deinsar:deinsar-settings:do-dembased",
+                "deinsar:deinsar-settings:do-coregpm",
+                "deinsar:deinsar-settings:do-comprefpha",
+                "deinsar:deinsar-settings:do-comprefdem",
+                "deinsar:deinsar-settings:do-resample",
+                "deinsar:deinsar-settings:do-tsx-reramp",
+                "deinsar:deinsar-settings:do-interferogram",
+                "deinsar:deinsar-settings:do-subtrrefpha",
+                "deinsar:deinsar-settings:do-subtrrefdem",
+                "deinsar:deinsar-settings:do-coherence",
+                "deinsar:deinsar-settings:do-geocoding",
             ],
             other_parameters={"master": act_master_date, "startdate": act_start_date, "enddate": act_end_date},
         )
@@ -639,7 +701,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 asc_dsc=asc_dsc[track],
                 track=tracks[track],
                 parameter_file=parameter_file,
-                parameter_file_parameters=["dem_file", "dem_format", "dem_nodata"],
+                parameter_file_parameters=["general:dem:file", "general:dem:format", "general:dem:nodata"],
                 other_parameters={
                     "dem_s1": dem_size[0],
                     "dem_s2": dem_size[1],
@@ -651,7 +713,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             )
 
         # finecoreg changes based on the fine coregistration mode
-        if out_parameters["di_finecoreg_mode"] == "simple":
+        if out_parameters["deinsar:deinsar-settings:finecoreg:finecoreg-mode"] == "simple":
             write_run_file(
                 save_path=f"{coregistration_directory}/process/input.finecoreg_simple",
                 template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
@@ -673,7 +735,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             )
 
         # porbit is only necessary for ERS and ENV
-        if out_parameters["sensor"] == "ERS":
+        if out_parameters["general:input-data:sensor"] == "ERS":
             # this one requires two copies
             for satellite in [1, 2]:
                 write_run_file(
@@ -685,7 +747,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                     parameter_file=parameter_file,
                     other_parameters={"directory": f"ERS{satellite}"},
                 )
-        elif out_parameters["sensor"] == "ENV":
+        elif out_parameters["general:input-data:sensor"] == "ENV":
             write_run_file(
                 save_path=f"{coregistration_directory}/process/input.porbit",
                 template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
@@ -699,7 +761,9 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         # for input.crop and input.resample we need to read the shapefile extent and calculate the amount of pixels
         coordinates = np.array(
             read_shp_extent(
-                f"{out_parameters['shape_directory']}/" f"{out_parameters['shape_AoI_name']}_shape.shp", shp_type="AoI"
+                f"{out_parameters['general:shape-file:directory']}/"
+                f"{out_parameters['general:shape-file:aoi-name']}_shape.shp",
+                shp_type="AoI",
             )["0"]
         )
         min_lat = min(coordinates[:, 1])
@@ -725,29 +789,31 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         dist_lon = haversine(ref_lat, ref_lat, min_lon, max_lon)  # calculated at the widest part of the AoI
 
         # determine the number of pixels
-        d_az, d_r = detect_sensor_pixelsize(out_parameters["sensor"])
+        d_az, d_r = detect_sensor_pixelsize(out_parameters["general:input-data:sensor"])
         pix_dr = int(np.ceil(dist_lon / d_r * 1.05))
         pix_daz = int(np.ceil(dist_lat / d_az * 1.05))
 
         # for input.crop we will add 500 to eliminate edge effects
-        if out_parameters["sensor"] == "ALOS2":
+        if out_parameters["general:input-data:sensor"] == "ALOS2":
             img_name = "IMG.1"
-        elif out_parameters["sensor"] == "Cosmo":
+        elif out_parameters["general:input-data:sensor"] == "Cosmo":
             img_name = "image.h5"
-        elif out_parameters["sensor"] == "ENV":
+        elif out_parameters["general:input-data:sensor"] == "ENV":
             img_name = "image.N1"
-        elif out_parameters["sensor"] == "ERS":
+        elif out_parameters["general:input-data:sensor"] == "ERS":
             img_name = "DAT_01.001"
-        elif out_parameters["sensor"] == "RSAT2":
+        elif out_parameters["general:input-data:sensor"] == "RSAT2":
             img_name = "imagery{pol}.tif"
             # requires loop over polarisations to get additional crop files
-        elif out_parameters["sensor"] == "TSX":
+        elif out_parameters["general:input-data:sensor"] == "TSX":
             img_name = "image.cos"
         else:
-            raise ValueError(f'Unknown sensor {out_parameters["sensor"]}!')
+            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]}!')
 
         # write input.crop
-        if out_parameters["sensor"] == "RSAT2":  # for RSAT2 this is per polarisation, otherwise there just is one
+        if (
+            out_parameters["general:input-data:sensor"] == "RSAT2"
+        ):  # for RSAT2 this is per polarisation, otherwise there just is one
             for pol in polarisation:
                 write_run_file(
                     save_path=f"{coregistration_directory}/process/input.crop{pol}",
@@ -802,46 +868,46 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             )
 
         # finally, we need input.readfiles, which requires a data string composed of sensor-specific data
-        if out_parameters["sensor"] == "ALOS2":
+        if out_parameters["general:input-data:sensor"] == "ALOS2":
             data_string = """S_IN_METHOD     ALOS2
 S_IN_DAT        IMG.1
 S_IN_LEA        LED.1
 S_IN_VOL        VOL.1"""
 
-        elif out_parameters["sensor"] == "Cosmo":
+        elif out_parameters["general:input-data:sensor"] == "Cosmo":
             data_string = """S_IN_METHOD     CSK
 S_IN_DAT        image.h5"""
 
-        elif out_parameters["sensor"] == "ERS":
+        elif out_parameters["general:input-data:sensor"] == "ERS":
             data_string = """S_IN_METHOD     ERS
 S_IN_VOL        VRD_DAT.001
 S_IN_DAT        DAT_01.001
 S_IN_LEA        LEA_01.001
 S_IN_NULL       dummy"""
 
-        elif out_parameters["sensor"] == "ENV":
+        elif out_parameters["general:input-data:sensor"] == "ENV":
             data_string = """S_IN_METHOD     ASAR
 S_IN_DAT        image.N1"""
 
-        elif out_parameters["sensor"] == "RSAT":
+        elif out_parameters["general:input-data:sensor"] == "RSAT":
             data_string = """S_IN_METHOD     RSAT
 S_IN_VOL        VDF_DAT.001
 S_IN_DAT        DAT_01.001
 S_IN_LEA        LEA_01.001
 S_IN_NULL       dummy"""
 
-        elif out_parameters["sensor"] == "RSAT2":
+        elif out_parameters["general:input-data:sensor"] == "RSAT2":
             data_string = """S_IN_METHOD     RADARSAT-2
 S_IN_DAT        imagery_HH.tif
 S_IN_LEA        product.xml"""
 
-        elif out_parameters["sensor"] == "TSX":
+        elif out_parameters["general:input-data:sensor"] == "TSX":
             data_string = """S_IN_METHOD     TSX
 S_IN_DAT        image.cos
 S_IN_LEA        leader.xml"""
 
         else:
-            raise ValueError(f'Unknown sensor {out_parameters["sensor"]}!')
+            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]} for input.readfiles!')
 
         write_run_file(
             save_path=f"{coregistration_directory}/process/input.readfiles",
@@ -878,27 +944,24 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         If an invalid mode is passed to `ref_cn` in the parameter file
     """
     search_parameters = [
-        "depsi_directory",
-        "depsi_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
-        "crop_to_raw_directory",
-        "crop_to_raw_AoI_name",
-        "depsi_code_dir",
-        "rdnaptrans_dir",
-        "geocoding_dir",
-        "start_date",
-        "end_date",
-        "ref_cn",
-        "do_water_mask",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "depsi:general:depsi-code-directory",
+        "depsi:general:rdnaptrans-directory",
+        "depsi:general:geocoding-directory",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "depsi:depsi-settings:general:ref-cn",
+        "depsi:depsi-settings:psc:do-water-mask",
+        "depsi:general:AoI-name",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
-    start_date = out_parameters["start_date"].replace("-", "")
-    end_date = out_parameters["end_date"].replace("-", "")
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+    start_date = out_parameters["general:timeframe:start"].replace("-", "")
+    end_date = out_parameters["general:timeframe:end"].replace("-", "")
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -921,9 +984,9 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         os.makedirs(f"{depsi_directory}/../boxes", exist_ok=True)
 
         # link the necessary boxes
-        os.system(f"cp -Rp {out_parameters['depsi_code_dir']} {depsi_directory}/../boxes")
-        os.system(f"cp -Rp {out_parameters['rdnaptrans_dir']} {depsi_directory}/../boxes")
-        os.system(f"cp -Rp {out_parameters['geocoding_dir']} {depsi_directory}/../boxes")
+        os.system(f"cp -Rp {out_parameters['depsi:general:depsi-code-directory']} {depsi_directory}/../boxes")
+        os.system(f"cp -Rp {out_parameters['depsi:general:rdnaptrans-directory']} {depsi_directory}/../boxes")
+        os.system(f"cp -Rp {out_parameters['depsi:general:geocoding-directory']} {depsi_directory}/../boxes")
 
         # detect the mother and dem_radar from the mother
         mother = glob.glob(f"{crop_directory}/*cropped_stack/2*/master.res")[0]
@@ -960,24 +1023,32 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             act_end_date = max(valid_dates)
 
         # generate the water mask link
-        if out_parameters["do_water_mask"] == "yes":
+        if out_parameters["depsi:depsi-settings:psc:do-water-mask"] == "yes":
             filename_water_mask = (
-                f"{CONFIG_PARAMETERS['CAROLINE_WATER_MASK_DIRECTORY']}/water_mask_{out_parameters['depsi_AoI_name']}_"
-                f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}.raw"
+                f"{CONFIG_PARAMETERS['CAROLINE_WATER_MASK_DIRECTORY']}/water_mask_"
+                f"{out_parameters['depsi:general:AoI-name']}_"
+                f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}.raw"
             )
         else:
             filename_water_mask = "[]"
 
         # #62 -> figure out the reference point
-        if out_parameters["ref_cn"][0] == "{":  # it's a dictionary
-            data = eval(out_parameters["ref_cn"])
-            assert f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}" in data.keys(), (
-                f"Cannot find {out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d} "
-                f"in ref_cn {data}!"
+        key = f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
+
+        if not isinstance(out_parameters["depsi:depsi-settings:general:ref-cn"], dict):
+            print(
+                f"WARNING: Invalid value for ref-cn ({out_parameters['depsi:depsi-settings:general:ref-cn']}) "
+                "encountered. Using mode 'constant'..."
             )
-            mode = str(data[f"{out_parameters['sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"])
+            mode = "constant"
+
+        if key not in out_parameters["depsi:depsi-settings:general:ref-cn"]:
+            if "all" not in out_parameters["depsi:depsi-settings:general:ref-cn"]:
+                raise ValueError(f"Cannot find {key} in ref-cn {out_parameters['depsi:depsi-settings:general:ref-cn']}")
+            else:
+                mode = str(out_parameters["depsi:depsi-settings:general:ref-cn"]["all"])
         else:
-            mode = str(out_parameters["ref_cn"])
+            mode = str(out_parameters["depsi:depsi-settings:general:ref-cn"][key])
 
         if mode in ["independent", "[]"]:
             ref_cn = "[]"
@@ -996,8 +1067,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 for i in range(len(rev_order_runs)):  # loop in case one crashed. If all crashed,
                     # ref_cn is defined before the if/else, and we run on mode 'independent'
                     ref_file = (
-                        f"{rev_order_runs[i]}/psi/{out_parameters['depsi_AoI_name']}_"
-                        f"{out_parameters['sensor'].lower()}_"
+                        f"{rev_order_runs[i]}/psi/{out_parameters['depsi:general:AoI-name']}_"
+                        f"{out_parameters['general:input-data:sensor'].lower()}_"
                         f"{asc_dsc[track]}_t{tracks[track]:0>3d}_ref_sel1.raw"
                     )  # this file saves the selected reference
                     if os.path.exists(ref_file):
@@ -1019,8 +1090,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             track=tracks[track],
             parameter_file=parameter_file,
             other_parameters={
-                "geocoding_version": out_parameters["geocoding_dir"].split("/")[-1].rstrip(),
-                "depsi_version": out_parameters["depsi_code_dir"].split("/")[-1].rstrip(),
+                "geocoding_version": out_parameters["depsi:general:geocoding-directory"].split("/")[-1].rstrip(),
+                "depsi_version": out_parameters["depsi:general:depsi-code-directory"].split("/")[-1].rstrip(),
             },
         )
 
@@ -1031,7 +1102,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["depsi_AoI_name"],
+            parameter_file_parameters=["depsi:general:AoI-name"],
             config_parameters=["caroline_work_directory"],
             other_parameters={"depsi_base_directory": depsi_directory, "track": tracks[track]},
         )
@@ -1045,72 +1116,72 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "depsi_AoI_name",
-                "max_mem_buffer",
-                "visible_plots",
-                "detail_plots",
-                "processing_groups",
-                "run_mode",
-                ["sensor", "lowercase"],
-                "exclude_date",
-                "az_spacing",
-                "r_spacing",
-                "slc_selection_input",
-                "ifg_selection_input",
-                "Ncv",
-                "ps_method",
-                "psc_model",
-                "ps_model",
-                "final_model",
-                "breakpoint",
-                "breakpoint2",
-                "ens_coh_threshold",
-                "varfac_threshold",
-                "detrend_method",
-                "output_format",
-                "do_apriori_sidelobe_mask",
-                "do_aposteriori_sidelobe_mask",
-                "ref_height",
-                "amplitude_calibration",
-                "psc_selection_method",
-                "psc_selection_gridsize",
-                "psc_threshold",
-                "max_arc_length",
-                "network_method",
-                "Ncon",
-                "Nparts",
-                "Npsc_selections",
-                "gamma_threshold",
-                "psc_distribution",
-                "weighted_unwrap",
-                "livetime_threshold",
-                "peak_tolerance",
-                "psp_selection_method",
-                "psp_threshold1",
-                "psp_threshold2",
-                "ps_eval_method",
-                "Namp_disp_bins",
-                "Ndens_iterations",
-                "densification_flag",
-                "ps_area_of_interest",
-                "dens_method",
-                "dens_check",
-                "Nest",
-                "defo_range",
-                "weighting",
-                "ts_atmo_filter",
-                "ts_atmo_filter_length",
-                "ts_noise_filter",
-                "ts_noise_filter_length",
-                "defo_method",
-                "xc0",
-                "yc0",
-                "zc0",
-                "r0",
-                "r10",
-                "epoch",
-                ["stc_min_max", "strip", "[] "],
-                ["std_param", "strip", "[] "],
+                "depsi:general:AoI-name",
+                "depsi:depsi-settings:general:max-mem-buffer",
+                "depsi:depsi-settings:general:visible-plots",
+                "depsi:depsi-settings:general:detail-plots",
+                "depsi:depsi-settings:general:processing-groups",
+                "depsi:depsi-settings:general:run-mode",
+                ["general:input-data:sensor", "lowercase"],
+                "depsi:depsi-settings:general:exclude-date",
+                "depsi:depsi-settings:general:az-spacing",
+                "depsi:depsi-settings:general:r-spacing",
+                "depsi:depsi-settings:general:slc-selection-input",
+                "depsi:depsi-settings:general:ifg-selection-input",
+                "depsi:depsi-settings:general:Ncv",
+                "depsi:depsi-settings:general:ps-method",
+                "depsi:depsi-settings:general:psc-model",
+                "depsi:depsi-settings:general:ps-model",
+                "depsi:depsi-settings:general:final-model",
+                "depsi:depsi-settings:general:breakpoint",
+                "depsi:depsi-settings:general:breakpoint2",
+                "depsi:depsi-settings:general:ens-coh-threshold",
+                "depsi:depsi-settings:general:varfac-threshold",
+                "depsi:depsi-settings:general:detrend-method",
+                "depsi:depsi-settings:general:output-format",
+                "depsi:depsi-settings:general:do-apriori-sidelobe-mask",
+                "depsi:depsi-settings:general:do-aposteriori-sidelobe-mask",
+                "depsi:depsi-settings:geocoding:ref-height",
+                "depsi:depsi-settings:psc:amplitude-calibration",
+                "depsi:depsi-settings:psc:psc-selection-method",
+                "depsi:depsi-settings:psc:psc-selection-gridsize",
+                "depsi:depsi-settings:psc:psc-threshold",
+                "depsi:depsi-settings:psc:max-arc-length",
+                "depsi:depsi-settings:psc:network-method",
+                "depsi:depsi-settings:psc:Ncon",
+                "depsi:depsi-settings:psc:Nparts",
+                "depsi:depsi-settings:psc:Npsc-selections",
+                "depsi:depsi-settings:psc:gamma-threshold",
+                "depsi:depsi-settings:psc:psc-distribution",
+                "depsi:depsi-settings:psc:weighted-unwrap",
+                "depsi:depsi-settings:psc:livetime-threshold",
+                "depsi:depsi-settings:psc:peak-tolerance",
+                "depsi:depsi-settings:psp:psp-selection-method",
+                "depsi:depsi-settings:psp:psp-threshold1",
+                "depsi:depsi-settings:psp:psp-threshold2",
+                "depsi:depsi-settings:psp:ps-eval-method",
+                "depsi:depsi-settings:psp:Namp-disp-bins",
+                "depsi:depsi-settings:psp:Ndens-iterations",
+                "depsi:depsi-settings:psp:densification-flag",
+                "depsi:depsi-settings:psp:ps-area-of-interest",
+                "depsi:depsi-settings:psp:dens-method",
+                "depsi:depsi-settings:psp:dens-check",
+                "depsi:depsi-settings:psp:Nest",
+                "depsi:depsi-settings:stochastic-model:defo-range",
+                "depsi:depsi-settings:stochastic-model:weighting",
+                "depsi:depsi-settings:stochastic-model:ts-atmo-filter",
+                "depsi:depsi-settings:stochastic-model:ts-atmo-filter-length",
+                "depsi:depsi-settings:stochastic-model:ts-noise-filter",
+                "depsi:depsi-settings:stochastic-model:ts-noise-filter-length",
+                "depsi:depsi-settings:bowl:defo-method",
+                "depsi:depsi-settings:bowl:xc0",
+                "depsi:depsi-settings:bowl:yc0",
+                "depsi:depsi-settings:bowl:zc0",
+                "depsi:depsi-settings:bowl:r0",
+                "depsi:depsi-settings:bowl:r10",
+                "depsi:depsi-settings:bowl:epoch",
+                ["depsi:depsi-settings:general:stc-min-max", "strip", "[] "],
+                ["depsi:depsi-settings:stochastic-model:std-param", "strip", "[] "],
             ],
             other_parameters={
                 "crop_base_directory": crop_directory,
@@ -1146,38 +1217,37 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
         If `depsi_post_mode` is not 'tarball' or 'csv'
     """
     search_parameters = [
-        "depsi_directory",
-        "depsi_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
-        "depsi_post_dir",
-        "geocoding_dir",
-        "rdnaptrans_dir",
-        "dp_defo_clim",
-        "dp_height_clim",
-        "depsi_post_mode",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "depsi_post:general:depsi_post-code-directory",
+        "depsi_post:depsi_post-settings:defo-clim",
+        "depsi_post:depsi_post-settings:height-clim",
+        "depsi:general:rdnaptrans-directory",
+        "depsi:general:geocoding-directory",
+        "general:workflow:filters:depsi_post-output",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
-    defo_clim_raw = out_parameters["dp_defo_clim"]
-    defo_clim_min = defo_clim_raw.split(",")[0][1:].strip()
-    defo_clim_max = defo_clim_raw.split(",")[1][:-1].strip()
+    defo_clim_raw = out_parameters["depsi_post:depsi_post-settings:defo-clim"]
+    defo_clim_min = defo_clim_raw[0]
+    defo_clim_max = defo_clim_raw[1]
 
-    height_clim_raw = out_parameters["dp_height_clim"]
-    height_clim_min = height_clim_raw.split(",")[0][1:].strip()
-    height_clim_max = height_clim_raw.split(",")[1][:-1].strip()
+    height_clim_raw = out_parameters["depsi_post:depsi_post-settings:height-clim"]
+    height_clim_min = height_clim_raw[0]
+    height_clim_max = height_clim_raw[1]
 
-    if out_parameters["depsi_post_mode"] == "tarball":
+    if out_parameters["general:workflow:filters:depsi_post-output"] == "tarball":
         do_csv = 0
-    elif out_parameters["depsi_post_mode"] == "csv":
+    elif out_parameters["general:workflow:filters:depsi_post-output"] == "csv":
         do_csv = 1
     else:
         raise ValueError(
-            f"depsi_post_mode is set to {out_parameters['depsi_post_mode']}, only know 'tarball' and 'csv'!"
+            "general:workflow:filters:depsi_post-output is set to "
+            f"{out_parameters['general:workflow:filters:depsi_post-output']}, only know 'tarball' and 'csv'!"
         )
 
     for track in range(len(tracks)):
@@ -1189,11 +1259,11 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
                 continue
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_post"], track=tracks[track]
         )
 
         # link the DePSI-post box
-        os.system(f"cp -Rp {out_parameters['depsi_post_dir']} {depsi_directory}/../boxes")
+        os.system(f"cp -Rp {out_parameters['depsi_post:general:depsi_post-code-directory']} {depsi_directory}/../boxes")
 
         # write depsi_post.m
         write_run_file(
@@ -1203,47 +1273,49 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "dp_dlat",
-                "dp_dlon",
-                "dp_drdx",
-                "dp_drdy",
-                "sensor",
-                "depsi_AoI_name",
-                "dp_proj",
-                "dp_ref_dheight",
-                "dp_posteriori_scale_factor",
-                ["dp_pred_model", "strip", " "],
-                "dp_plot_mode",
-                ["dp_do_plots", "strip", "{} "],
-                ["dp_output", "strip", "{} "],
-                "dp_fontsize",
-                "dp_markersize",
-                "dp_do_print",
-                "dp_output_format",
-                "dp_az0",
-                "dp_azN",
-                "dp_r0",
-                "dp_rN",
-                "dp_result",
-                "dp_psc_selection",
-                "dp_do_remove_filtered",
-                "dp_which_sl_mask",
-                "dp_shift_to_mean",
-                "dp_new_ref_cn",
-                "dp_map_to_vert",
-                "dp_defo_lim",
-                "dp_height_lim",
-                "dp_ens_coh_lim",
-                "dp_ens_coh_local_lim",
-                "dp_stc_lim",
-                "dp_ens_coh_clim",
-                "dp_ens_coh_local_clim",
-                "dp_stc_clim",
+                "depsi_post:depsi_post-settings:dlat",
+                "depsi_post:depsi_post-settings:dlon",
+                "depsi_post:depsi_post-settings:drdx",
+                "depsi_post:depsi_post-settings:drdy",
+                "general:input-data:sensor",
+                "depsi:general:AoI-name",
+                "depsi_post:depsi_post-settings:proj",
+                "depsi_post:depsi_post-settings:ref-dheight",
+                "depsi_post:depsi_post-settings:posteriori-scale-factor",
+                ["depsi_post:depsi_post-settings:pred-model", "strip", " "],
+                "depsi_post:depsi_post-settings:plot-mode",
+                ["depsi_post:depsi_post-settings:do-plots", "strip", "{} "],
+                ["depsi_post:depsi_post-settings:output", "strip", "{} "],
+                "depsi_post:depsi_post-settings:fontsize",
+                "depsi_post:depsi_post-settings:markersize",
+                "depsi_post:depsi_post-settings:do-print",
+                "depsi_post:depsi_post-settings:output-format",
+                "depsi_post:depsi_post-settings:az0",
+                "depsi_post:depsi_post-settings:azN",
+                "depsi_post:depsi_post-settings:r0",
+                "depsi_post:depsi_post-settings:rN",
+                "depsi_post:depsi_post-settings:result",
+                "depsi_post:depsi_post-settings:psc-selection",
+                "depsi_post:depsi_post-settings:do-remove-filtered",
+                "depsi_post:depsi_post-settings:which-sl-mask",
+                "depsi_post:depsi_post-settings:shift-to-mean",
+                "depsi_post:depsi_post-settings:new-ref-cn",
+                "depsi_post:depsi_post-settings:map-to-vert",
+                "depsi_post:depsi_post-settings:defo-lim",
+                "depsi_post:depsi_post-settings:height-lim",
+                "depsi_post:depsi_post-settings:ens-coh-lim",
+                "depsi_post:depsi_post-settings:ens-coh-local-lim",
+                "depsi_post:depsi_post-settings:stc-lim",
+                "depsi_post:depsi_post-settings:ens-coh-clim",
+                "depsi_post:depsi_post-settings:ens-coh-local-clim",
+                "depsi_post:depsi_post-settings:stc-clim",
             ],
             other_parameters={
-                "geocoding_version": out_parameters["geocoding_dir"].split("/")[-1].rstrip(),
-                "depsi_post_version": out_parameters["depsi_post_dir"].split("/")[-1].rstrip(),
-                "rdnaptrans_version": out_parameters["rdnaptrans_dir"].split("/")[-1].rstrip(),
+                "geocoding_version": out_parameters["depsi:general:geocoding-directory"].split("/")[-1].rstrip(),
+                "depsi_post_version": out_parameters["depsi_post:general:depsi_post-code-directory"]
+                .split("/")[-1]
+                .rstrip(),
+                "rdnaptrans_version": out_parameters["depsi:general:rdnaptrans-directory"].split("/")[-1].rstrip(),
                 "do_csv": do_csv,
                 "asc_dsc": asc_dsc[track],
                 "track": tracks[track],
@@ -1262,7 +1334,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["depsi_AoI_name"],
+            parameter_file_parameters=["depsi:general:AoI-name"],
             config_parameters=["caroline_work_directory"],
             other_parameters={"track": tracks[track], "depsi_base_directory": depsi_directory},
         )
@@ -1285,27 +1357,25 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         the parameter file
     """
     search_parameters = [
-        "coregistration_directory",
-        "coregistration_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
-        "dem_delta",
-        "dem_upperleft",
-        "dem_size",
-        "dem_file",
-        "start_date",
-        "end_date",
-        "master_date",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "general:dem:delta",
+        "general:dem:upperleft",
+        "general:dem:size",
+        "general:dem:file",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "general:timeframe:mother",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
-    dem_delta = eval(out_parameters["dem_delta"])
-    dem_size = eval(out_parameters["dem_size"])
-    dem_upperleft = eval(out_parameters["dem_upperleft"])
+    dem_delta = out_parameters["general:dem:delta"]
+    dem_size = out_parameters["general:dem:size"]
+    dem_upperleft = out_parameters["general:dem:upperleft"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1341,7 +1411,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         remove_incomplete_sentinel1_images(parameter_file)
 
         # link the DEM
-        dem_directory = "/".join(out_parameters["dem_file"].split("/")[:-1])
+        dem_directory = "/".join(out_parameters["general:dem:file"].split("/")[:-1])
         os.system(f"ln -sfn {dem_directory} {coregistration_directory}/dem")
 
         # generate the input files
@@ -1357,7 +1427,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
                     asc_dsc=asc_dsc[track],
                     track=tracks[track],
                     parameter_file=parameter_file,
-                    parameter_file_parameters=["dem_file", "dem_format", "dem_nodata"],
+                    parameter_file_parameters=["general:dem:file", "general:dem:format", "general:dem:nodata"],
                     other_parameters={
                         "dem_s1": dem_size[0],
                         "dem_s2": dem_size[1],
@@ -1381,33 +1451,33 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         # we need to transform all the 1/0 from the parameter file into Yes/No
         other_parameters = {}
         for parameter in [
-            "do_coarse_orbits",
-            "do_deramp",
-            "do_reramp",
-            "do_fake_fine_coreg_bursts",
-            "do_dac_bursts",
-            "do_fake_coreg_bursts",
-            "do_fake_master_resample",
-            "do_resample",
-            "do_reramp2",
-            "do_interferogram",
-            "do_compref_phase",
-            "do_compref_dem",
-            "do_coherence",
-            "do_esd",
-            "do_network_esd",
-            "do_ESD_correct",
-            "do_combine_master",
-            "do_combine_slave",
-            "do_ref_phase",
-            "do_ref_dem",
-            "do_phasefilt",
-            "do_calc_coordinates",
-            "do_multilooking",
-            "do_unwrap",
+            "doris:doris-settings:do-coarse-orbits",
+            "doris:doris-settings:do-deramp",
+            "doris:doris-settings:do-reramp",
+            "doris:doris-settings:do-fake-fine-coreg-bursts",
+            "doris:doris-settings:do-dac-bursts",
+            "doris:doris-settings:do-fake-coreg-bursts",
+            "doris:doris-settings:do-fake-master-resample",
+            "doris:doris-settings:do-resample",
+            "doris:doris-settings:do-reramp2",
+            "doris:doris-settings:do-interferogram",
+            "doris:doris-settings:do-compref-phase",
+            "doris:doris-settings:do-compref-dem",
+            "doris:doris-settings:do-coherence",
+            "doris:doris-settings:do-esd",
+            "doris:doris-settings:do-network-esd",
+            "doris:doris-settings:do-ESD-correct",
+            "doris:doris-settings:do-combine-master",
+            "doris:doris-settings:do-combine-slave",
+            "doris:doris-settings:do-ref-phase",
+            "doris:doris-settings:do-ref-dem",
+            "doris:doris-settings:do-phasefilt",
+            "doris:doris-settings:do-calc-coordinates",
+            "doris:doris-settings:do-multilooking",
+            "doris:doris-settings:do-unwrap",
         ]:
             value = read_parameter_file(parameter_file, [parameter])[parameter]
-            if value == "1":
+            if value == 1:
                 other_parameters[parameter] = "Yes"
             else:
                 other_parameters[parameter] = "No"
@@ -1420,9 +1490,9 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         images = glob.glob(f"{coregistration_directory}/good_images/2*")
         images = [eval(image.split("/")[-1]) for image in images]
 
-        start_date = eval(out_parameters["start_date"].replace("-", ""))
-        end_date = eval(out_parameters["end_date"].replace("-", ""))
-        master_date = eval(out_parameters["master_date"].replace("-", ""))
+        start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
+        end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
+        master_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
 
         # then select and format the start, end, and master dates
         other_parameters["start_date"] = str(min([image for image in images if image >= start_date]))
@@ -1454,7 +1524,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["shape_directory", "shape_AoI_name"],
+            parameter_file_parameters=["general:shape-file:aoi-name", "general:shape-file:directory"],
             config_parameters=["orbit_directory"],
             other_parameters=other_parameters,
         )
@@ -1466,7 +1536,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["coregistration_AoI_name", "doris_code_directory"],
+            parameter_file_parameters=["doris:general:AoI-name", "doris:general:code-directory"],
             config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
             other_parameters={"track": tracks[track], "coregistration_directory": coregistration_directory},
         )
@@ -1489,16 +1559,13 @@ def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = Non
         the parameter file
     """
     search_parameters = [
-        "coregistration_directory",
-        "coregistration_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1535,28 +1602,36 @@ def prepare_email(parameter_file: str, do_track: int | list | None = None) -> No
         the parameter file
     """
     body = generate_email(parameter_file)
-    parameters = read_parameter_file(parameter_file, ["send_completion_email", "sensor", "track", "asc_dsc"])
+
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "general:email:recipients",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
     area_name = parameter_file.split("/")[-1].split(".")[0].split("param_file_")[-1]
 
-    tracks = eval(parameters["track"])
-    asc_dsc = eval(parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
     track_csv = ""
     for track in range(len(tracks)):
         if isinstance(do_track, int):
             if do_track == tracks[track]:
-                track_csv += f"{parameters['sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
+                track_csv += f"{out_parameters['general:input-data:sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
         elif isinstance(do_track, list):
             if tracks[track] in do_track:
-                track_csv += f"{parameters['sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
+                track_csv += f"{out_parameters['general:input-data:sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
         else:
-            track_csv += f"{parameters['sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
+            track_csv += f"{out_parameters['general:input-data:sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
 
     track_csv = track_csv.strip(",")
-    header = f"CAROLINE: {parameters['sensor']}/{area_name}/{track_csv}"
+    header = f"CAROLINE: {out_parameters['general:input-data:sensor']}/{area_name}/{track_csv}"
     os.system(f"""echo "Subject: {header}
 from:noreply@surf.nl
 
-{body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {parameters['send_completion_email']}""")
+{body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {out_parameters['general:email:recipients']}""")
 
 
 def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None:
@@ -1571,19 +1646,14 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         the parameter file
     """
     search_parameters = [
-        "crop_to_raw_directory",
-        "crop_to_raw_AoI_name",
-        "depsi_directory",
-        "depsi_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
-        "cpxfiddle_dir",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "depsi_post:general:cpxfiddle-directory",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1610,7 +1680,9 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         project_id = depsi_directory.split("/")[-2].split("-")[0]
 
         # format the arguments in the correct order
-        command_args = f"{project_id} {n_lines} 1 1 {out_parameters['cpxfiddle_dir']} {depsi_directory}"
+        command_args = (
+            f"{project_id} {n_lines} 1 1 {out_parameters['depsi_post:general:cpxfiddle-directory']} {depsi_directory}"
+        )
         os.system(
             f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_mrm_ras_header.sh "
             f"{command_args}"
@@ -1623,8 +1695,8 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "depsi_AoI_name",
-                ["sensor", "lowercase"],
+                "depsi:general:AoI-name",
+                ["general:input-data:sensor", "lowercase"],
             ],
             other_parameters={
                 "fill_track": f"{tracks[track]:0>3d}",
@@ -1638,7 +1710,7 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["depsi_AoI_name"],
+            parameter_file_parameters=["depsi:general:AoI-name"],
             config_parameters=["caroline_work_directory"],
             other_parameters={
                 "track": tracks[track],
@@ -1663,13 +1735,13 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
         the parameter file
     """
     search_parameters = [
-        "track",
-        "skygeo_customer",
-        "skygeo_viewer",
+        "general:tracks:track",
+        "general:portal:skygeo-customer",
+        "general:portal:skygeo-viewer",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
+    tracks = out_parameters["general:tracks:track"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1692,8 +1764,8 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
         f.write(
             f"Status: TBD\n"
             f"Directory: {depsi_directory}\n"
-            f"Viewer: {out_parameters['skygeo_viewer']}\n"
-            f"Customer: {out_parameters['skygeo_customer']}"
+            f"Viewer: {out_parameters['general:portal:skygeo-viewer']}\n"
+            f"Customer: {out_parameters['general:portal:skygeo-customer']}"
         )
         f.close()
 
@@ -1711,22 +1783,20 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
     """
     aoi_name = parameter_file.split("/")[-1].split("param_file_")[-1].split(".")[0]
 
-    parameter_file_parameters = read_parameter_file(parameter_file, ["shape_directory", "shape_AoI_name"])
-
-    shapefile_name = (
-        f"{parameter_file_parameters['shape_directory']}/" f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"
-    )
-
     search_parameters = [
-        "track",
-        "asc_dsc",
-        "sensor",
-        "start_date",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:shape-file:directory",
+        "general:shape-file:aoi-name",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    shapefile_name = (
+        f"{out_parameters['general:shape-file:directory']}/{out_parameters['general:shape-file:aoi-name']}_shape.shp"
+    )
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     date = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
 
@@ -1764,7 +1834,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["product_type", "start_date"],
+            parameter_file_parameters=["general:input-data:product-type", "general:timeframe:start"],
             other_parameters={
                 "wkt_file": (
                     f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
@@ -1806,16 +1876,16 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
         If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
     """
     search_parameters = [
-        "stm_generation_directory",
-        "stm_generation_AoI_name",
-        "track",
-        "asc_dsc",
-        "sensor",
+        "stm_generation:general:AoI-name",
+        "stm_generation:general:directory",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -1846,26 +1916,26 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "stm_ps_selection_mode",
-                "stm_start_date_ps_selection",
-                "stm_initialization_length",
-                "stm_nad_nmad_increment_mode",
-                "stm_nad_nmad_recalibration_jump_size",
-                "stm_ps_selection_method",
-                "stm_ps_selection_threshold",
-                "stm_do_outlier_detection",
-                "stm_outlier_detection_window_size",
-                "stm_outlier_detection_db_mode",
-                "stm_outlier_detection_n_sigma",
-                "stm_do_partitioning",
-                "stm_partitioning_search_method",
-                "stm_partitioning_cost_function",
-                "stm_partitioning_db_mode",
-                "stm_partitioning_min_partition_length",
-                "stm_single_difference_mother",
-                "stm_extra_projection",
-                "stm_partitioning_undifferenced_output_layers",
-                "stm_partitioning_single_difference_output_layers",
+                "stm_generation:stm_generation-settings:ps-selection:mode",
+                "stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:start-date",
+                "stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:initialization-length",
+                "stm_generation:stm_generation-settings:incremental-statistics:increment-mode",
+                "stm_generation:stm_generation-settings:incremental-statistics:recalibration-jump-size",
+                "stm_generation:stm_generation-settings:ps-selection:method",
+                "stm_generation:stm_generation-settings:ps-selection:threshold",
+                "stm_generation:stm_generation-settings:outlier-detection:do-outlier-detection",
+                "stm_generation:stm_generation-settings:outlier-detection:window-size",
+                "stm_generation:stm_generation-settings:outlier-detection:db-mode",
+                "stm_generation:stm_generation-settings:outlier-detection:n-sigma",
+                "stm_generation:stm_generation-settings:partitioning:do-partitioning",
+                "stm_generation:stm_generation-settings:partitioning:search-method",
+                "stm_generation:stm_generation-settings:partitioning:cost-function",
+                "stm_generation:stm_generation-settings:partitioning:db-mode",
+                "stm_generation:stm_generation-settings:partitioning:min-partition-length",
+                "stm_generation:stm_generation-settings:single-differences:mother",
+                "stm_generation:stm_generation-settings:extra-projection",
+                "stm_generation:stm_generation-settings:partitioning:undifferenced-output-layers",
+                "stm_generation:stm_generation-settings:partitioning:single-difference-output-layers",
             ],
             other_parameters={
                 "crop_to_zarr_directory": crop_to_zarr_directory,
@@ -1883,8 +1953,8 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "stm_generation_AoI_name",
-                "crop_to_zarr_code_dir",
+                "stm_generation:general:AoI-name",
+                "crop_to_zarr:general:crop_to_zarr-code-directory",
             ],
             config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
             other_parameters={"track": tracks[track]},
@@ -1910,7 +1980,7 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
     search_parameters = ["track"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
+    tracks = out_parameters["track"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):

@@ -1,5 +1,6 @@
 import glob
 import os
+import traceback
 import zipfile
 from math import log
 
@@ -7,7 +8,7 @@ import asf_search as asf
 import numpy as np
 
 from caroline.config import get_config
-from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent
+from caroline.io import read_parameter_file, read_shp_extent
 
 BYTE_PREFIX = " kMGTPEZYRQ"
 CONFIG_PARAMETERS = get_config()
@@ -44,12 +45,18 @@ def format_process_folder(job_description: dict, parameter_file: str, track: int
 
     parameters = read_parameter_file(
         parameter_file,
-        [f"{directory_key}_directory", f"{directory_key}_AoI_name", "sensor", "asc_dsc", "track"],
+        [
+            f"{directory_key}:general:directory",
+            f"{directory_key}:general:AoI-name",
+            "general:input-data:sensor",
+            "general:tracks:asc_dsc",
+            "general:tracks:track",
+        ],
     )
-    base_folder = parameters[f"{directory_key}_directory"]
-    AoI_name = parameters[f"{directory_key}_AoI_name"]
-    sensor = parameters["sensor"]
-    asc_dsc = eval(parameters["asc_dsc"])[eval(parameters["track"]).index(track)]
+    base_folder = parameters[f"{directory_key}:general:directory"]
+    AoI_name = parameters[f"{directory_key}:general:AoI-name"]
+    sensor = parameters["general:input-data:sensor"]
+    asc_dsc = parameters["general:tracks:asc_dsc"][parameters["general:tracks:track"].index(track)]
 
     return f"{base_folder}/{AoI_name}_{sensor.lower()}_{asc_dsc.lower()}_t{track:0>3d}{directory_appendix}"
 
@@ -65,10 +72,10 @@ def remove_incomplete_sentinel1_images(parameter_file: str) -> None:
         Full path to the parameter file of the processing run where the images are to be filtered
 
     """
-    search_parameters = ["track"]
+    search_parameters = ["general:tracks:track"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
+    tracks = out_parameters["general:tracks:track"]
 
     status = []
 
@@ -170,27 +177,6 @@ def find_slurm_job_id(parameter_file: str, job: str) -> int:
     return eval(job_id)
 
 
-def generate_shapefile(parameter_file: str) -> None:
-    """Generate a shapefile based on a CAROLINE parameter file.
-
-    If `shape_file` is a shapefile, this file will be linked. Otherwise a square is shapefile is generated.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Full path to the parameter file
-
-    """
-    search_parameters = ["shape_file"]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    if len(out_parameters["shape_file"]) == 0:
-        # no shapefile is generated --> we need a new one
-        create_shapefile(parameter_file)
-    else:
-        link_shapefile(parameter_file)
-
-
 def _generate_email(parameter_file: str) -> str:
     """Generate the CAROLINE email.
 
@@ -207,27 +193,24 @@ def _generate_email(parameter_file: str) -> str:
     jobs = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
 
     search_parameters = [
-        "track",
-        "asc_dsc",
-        "skygeo_viewer",
-        "skygeo_customer",
-        "sensor",
-        "project_owner",
-        "project_owner_email",
-        "project_engineer",
-        "project_engineer_email",
-        "project_objective",
-        "project_notes",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:portal:skygeo-viewer",
+        "general:portal:skygeo-customer",
+        "general:input-data:sensor",
+        "general:project:owner:name",
+        "general:project:owner:email",
+        "general:project:engineer:name",
+        "general:project:engineer:email",
+        "general:project:objective",
+        "general:project:notes",
     ]
 
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    if out_parameters["skygeo_customer"] is None:  # backwards compatibility for #12
-        out_parameters["skygeo_customer"] = "caroline"
-
     # Format the tracks nicely
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     tracks_formatted = []
     for i in range(len(tracks)):
@@ -293,8 +276,9 @@ def _generate_email(parameter_file: str) -> str:
             if jobs["jobs"][job]["email"]["include-in-email"]:
                 if jobs["jobs"][job]["bash-file"] is not None:
                     directory = read_parameter_file(
-                        parameter_file, [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
-                    )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
+                        parameter_file,
+                        [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}:general:directory"],
+                    )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}:general:directory"]
                 else:
                     directory = CONFIG_PARAMETERS["SLURM_OUTPUT_DIRECTORY"]
                 if check["successful_finish"]:
@@ -303,7 +287,8 @@ def _generate_email(parameter_file: str) -> str:
                             "NOTE: it can take a few hours for the results to show up in the portal.\n"
                             + "The DePSI-post results can be accessed at "
                             + "https://caroline.portal-tud.skygeo.com/portal/"
-                            + f"{out_parameters['skygeo_customer']}/{out_parameters['skygeo_viewer']} .\n\n"
+                            + f"{out_parameters['general:portal:skygeo-customer']}/"
+                            + f"{out_parameters['general:portal:skygeo-viewer']} .\n\n"
                         )
                     else:
                         status_checks += f"{job}: {tracks_formatted} finished properly! (located in {directory} )\n\n"
@@ -319,10 +304,10 @@ def _generate_email(parameter_file: str) -> str:
     os.system(f"chmod -R 777 {log_folder_name}")  # to make everything downloadable by everyone
 
     project_characteristics = f"""Project characteristics:
-Owner: {out_parameters['project_owner']} ({out_parameters['project_owner_email']})
-Engineer: {out_parameters['project_engineer']} ({out_parameters['project_engineer_email']})
-Objective: {out_parameters['project_objective']}
-Notes: {out_parameters['project_notes']}
+Owner: {out_parameters['general:project:owner:name']} ({out_parameters['general:project:owner:email']})
+Engineer: {out_parameters['general:project:engineer:name']} ({out_parameters['general:project:engineer:email']})
+Objective: {out_parameters['general:project:objective']}
+Notes: {out_parameters['general:project:notes']}
 """
 
     message = f"""Dear radargroup,
@@ -332,7 +317,7 @@ A new CAROLINE run has just finished on run {run_id}!
 {project_characteristics}
 Run characteristics:
 Track(s): {tracks_formatted}
-Sensor: {out_parameters['sensor']}
+Sensor: {out_parameters['general:input-data:sensor']}
     
 The following steps were run:
 {status_checks}
@@ -408,8 +393,8 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
         )
 
         # find the directory
-        parameters = read_parameter_file(parameter_file, ["track"])
-        track = eval(parameters["track"])[0]  # as there is only one
+        parameters = read_parameter_file(parameter_file, ["general:tracks:track"])
+        track = parameters["general:tracks:track"][0]  # as there is only one
 
         base_directory = format_process_folder(parameter_file=parameter_file, job_description=data, track=track)
 
@@ -477,7 +462,7 @@ https://github.com/TUDelftGeodesy/caroline/issues mentioning:
 2) the subject of this mail
 3) the following error message:
 
-{error}
+{''.join(traceback.format_exception(error))}
 
 
 Please add the labels Priority-0 and bug, and assign Simon.
@@ -749,13 +734,13 @@ def get_processing_time(job_id: int) -> int:
     return total_time
 
 
-def job_schedule_check(parameter_file: str, job: str, job_definitions: dict) -> bool:
+def job_schedule_check(parameter_file: str | dict, job: str, job_definitions: dict) -> bool:
     """Check if a job should be scheduled based on the parameter file and the job definitions.
 
     Parameters
     ----------
-    parameter_file: str
-        Full path to the parameter file
+    parameter_file: str | dict
+        Full path to the parameter file, or dictionary readout of the parameter file
     job: str
         Name of the job to be scheduled
     job_definitions: dict
@@ -769,22 +754,59 @@ def job_schedule_check(parameter_file: str, job: str, job_definitions: dict) -> 
     if job_definitions[job]["parameter-file-step-key"] is None:  # always runs
         return True
 
-    out_parameters = read_parameter_file(parameter_file, [job_definitions[job]["parameter-file-step-key"]])
+    if isinstance(parameter_file, str):
+        out_parameters = read_parameter_file(parameter_file, [job_definitions[job]["parameter-file-step-key"]])
+    else:
+        val = parameter_file
+        for key in job_definitions[job]["parameter-file-step-key"].split(":"):
+            val = val[key]
+        out_parameters = {job_definitions[job]["parameter-file-step-key"]: val}
 
-    if out_parameters[job_definitions[job]["parameter-file-step-key"]] == "0":  # it is not requested
+    if out_parameters[job_definitions[job]["parameter-file-step-key"]] == 0:  # it is not requested
         return False
 
     # if we make it here, the step is requested
-    if job_definitions[job]["filters"] is not None:  # we first need to check the filters. Return False if one filter
-        # is not met
-        for key in job_definitions[job]["filters"].keys():
-            value_check = read_parameter_file(parameter_file, [key])[key]
-            if isinstance(job_definitions[job]["filters"][key], str):
-                if value_check.lower() != job_definitions[job]["filters"][key].lower():  # it meets the filter
+    if job_definitions[job]["filters"] is not None:  # if there are filters, extract them and check against them
+        filters = extract_all_values_and_paths_from_dictionary(job_definitions[job]["filters"])
+        for filt in filters:
+            if isinstance(parameter_file, str):  # extract the requested value from the parameter file
+                value_check = read_parameter_file(parameter_file, [":".join(filt[1])])[":".join(filt[1])]
+            else:
+                value_check = parameter_file  # or from the dictionary
+                for key in filt[1]:
+                    value_check = value_check[key]
+            if isinstance(filt[0], str):  # it meets the filter
+                if value_check.lower() != filt[0].lower():
                     return False
-            else:  # it's a list, so we check if it exists in the list
-                if value_check.lower() not in [s.lower() for s in job_definitions[job]["filters"][key]]:
+            elif isinstance(filt[0], list):  # it's a list, so we check if it exists in the list
+                if value_check.lower() not in [s.lower() for s in filt[0]]:
                     return False
 
     # if it was not kicked out by the filters, we return True
     return True
+
+
+def extract_all_values_and_paths_from_dictionary(dictionary: dict, cur_keys: tuple = ()) -> list:
+    """Extract all values and the paths to get there from a dictionary.
+
+    Parameters
+    ----------
+    dictionary: dict
+        Dictionary of which all values should be extracted
+    cur_keys: tuple, default ()
+        Way to keep track of the keys through recursion
+
+    Returns
+    -------
+    list
+        List of [value, [list of keys to get there]]
+    """
+    all_values = []
+    for key in dictionary.keys():
+        cur_keys = cur_keys + (key,)
+        if isinstance(dictionary[key], dict):
+            part_values = extract_all_values_and_paths_from_dictionary(dictionary[key], cur_keys)
+            all_values = [*all_values, *part_values]
+        else:
+            all_values.append([dictionary[key], cur_keys])
+    return all_values

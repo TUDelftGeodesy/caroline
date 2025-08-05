@@ -46,43 +46,43 @@ from deinsar import (
 )
 
 # Parameters
-datadir = "**di_data_directories**"
+datadir = "**deinsar:input:data-directories**"
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 processdir = os.path.abspath("process")
 
 master = "**master**"
 startdate = "**startdate**"
 stopdate = "**enddate**"
-sensor = "**sensor**"  # ERS, ERSENV, ENV, TSX, TDX, PAZ, RSAT2, Cosmo, ALOS2
-polarisations = eval("**polarisation**")
+sensor = "**general:input-data:sensor**"  # ERS, ERSENV, ENV, TSX, TDX, PAZ, RSAT2, Cosmo, ALOS2
+polarisations = eval("**general:input-data:polarisation**")
 
 # Note: this file is run in Python 2.7, in which f strings do not exist (so f"_{pol}" does not work)
 polarisations = ["_" + pol for pol in polarisations]
 if "_HH" in polarisations:
     polarisations[polarisations.index("_HH")] = ""
 
-do_orbit = "**di_do_orbit**"
-do_crop = "**di_do_crop**"
-do_tsx_deramp = "**di_do_tsx_deramp**"
-do_simamp = "**di_do_simamp**"
-do_mtiming = "**di_do_mtiming**"
-do_ovs = "**di_do_ovs**"
-do_choose_master = "**di_do_choose_master**"
-do_coarseorb = "**di_do_coarseorb**"
-do_coarsecorr = "**di_do_coarsecorr**"
-do_finecoreg = "**di_do_finecoreg**"
-do_reltiming = "**di_do_reltiming**"
-do_dembased = "**di_do_dembased**"
-do_coregpm = "**di_do_coregpm**"
-do_comprefpha = "**di_do_comprefpha**"
-do_comprefdem = "**di_do_comprefdem**"
-do_resample = "**di_do_resample**"
-do_tsx_reramp = "**di_do_tsx_reramp**"
-do_interferogram = "**di_do_interferogram**"
-do_subtrrefpha = "**di_do_subtrrefpha**"
-do_subtrrefdem = "**di_do_subtrrefdem**"
-do_coherence = "**di_do_coherence**"
-do_geocoding = "**di_do_geocoding**"
+do_orbit = "**deinsar:deinsar-settings:do-orbit**"
+do_crop = "**deinsar:deinsar-settings:do-crop**"
+do_tsx_deramp = "**deinsar:deinsar-settings:do-tsx-deramp**"
+do_simamp = "**deinsar:deinsar-settings:do-simamp**"
+do_mtiming = "**deinsar:deinsar-settings:do-mtiming**"
+do_ovs = "**deinsar:deinsar-settings:do-ovs**"
+do_choose_master = "**deinsar:deinsar-settings:do-choose-master**"
+do_coarseorb = "**deinsar:deinsar-settings:do-coarseorb**"
+do_coarsecorr = "**deinsar:deinsar-settings:do-coarsecorr**"
+do_finecoreg = "**deinsar:deinsar-settings:finecoreg:do-finecoreg**"
+do_reltiming = "**deinsar:deinsar-settings:do-reltiming**"
+do_dembased = "**deinsar:deinsar-settings:do-dembased**"
+do_coregpm = "**deinsar:deinsar-settings:do-coregpm**"
+do_comprefpha = "**deinsar:deinsar-settings:do-comprefpha**"
+do_comprefdem = "**deinsar:deinsar-settings:do-comprefdem**"
+do_resample = "**deinsar:deinsar-settings:do-resample**"
+do_tsx_reramp = "**deinsar:deinsar-settings:do-tsx-reramp**"
+do_interferogram = "**deinsar:deinsar-settings:do-interferogram**"
+do_subtrrefpha = "**deinsar:deinsar-settings:do-subtrrefpha**"
+do_subtrrefdem = "**deinsar:deinsar-settings:do-subtrrefdem**"
+do_coherence = "**deinsar:deinsar-settings:do-coherence**"
+do_geocoding = "**deinsar:deinsar-settings:do-geocoding**"
 
 # Processing steps
 link_files(datadir, processdir, sensor)

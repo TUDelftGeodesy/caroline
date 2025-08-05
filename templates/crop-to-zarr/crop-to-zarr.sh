@@ -12,11 +12,11 @@ source /project/caroline/Software/bin/init.sh
 module load python/3.10.4 gdal/3.4.1-alma9
 source **caroline_virtual_environment_directory**/bin/activate
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started crop-to-zarr.sh (AoI **crop_to_zarr_AoI_name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started crop-to-zarr.sh (AoI **crop_to_zarr:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
-export PATH="**crop_to_zarr_code_dir**:$PATH"
-export PYTHONPATH="**crop_to_zarr_code_dir**:$PYTHONPATH"
+export PATH="**crop_to_zarr:general:crop_to_zarr-code-directory**:$PATH"
+export PYTHONPATH="**crop_to_zarr:general:crop_to_zarr-code-directory**:$PYTHONPATH"
 
 python3 crop-to-zarr.py || exit 5
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished crop-to-zarr.sh (AoI **crop_to_zarr_AoI_name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished crop-to-zarr.sh (AoI **crop_to_zarr:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

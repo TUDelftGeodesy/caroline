@@ -1,20 +1,18 @@
 import datetime as dt
 import glob
 import os
-import re
 from sys import argv
 
 from shapely.geometry import Polygon
 
 from caroline.config import get_config
 from caroline.io import (
-    create_shapefile,
-    link_shapefile,
     parse_start_files,
     read_area_track_list,
     read_parameter_file,
     read_shp_extent,
 )
+from caroline.parameter_file import generate_full_parameter_file
 from caroline.utils import format_process_folder, job_schedule_check
 
 CONFIG_PARAMETERS = get_config()
@@ -43,7 +41,7 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
         The list is sorted in such a way that if process x depends on process y, process y will be earlier in the list.
     """
     area_track_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists/*.dat")
-    parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param_file"
+    parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param-file"
 
     track_dict = {}
     for new_track in new_tracks.keys():
@@ -58,14 +56,22 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
         dependency, tracks = read_area_track_list(area_track_file)
         for new_track in new_tracks.keys():
             if new_track in tracks:
-                AoI_name = area_track_file.split("/")[-1].split(".")[0]
+                AoI_name = area_track_file.split("/")[-1].split(".")[0].replace("_", "-")
                 # check the AoI overlap first. The AoIs are already generated during installation so we can just proceed
-                parameter_file = f"{parameter_file_base}_{AoI_name}.txt"
-                parameters = read_parameter_file(parameter_file, ["shape_directory", "shape_AoI_name"])
+                parameter_file = f"{parameter_file_base}-{AoI_name}.yaml"
+                parameters = generate_full_parameter_file(
+                    parameter_file,
+                    eval(new_track.split("_")[2][1:].lstrip("0")),
+                    new_track.split("_")[1],
+                    "dummy.yaml",
+                    "dict",
+                )
 
                 shapefile_extent = Polygon(
                     read_shp_extent(
-                        f"{parameters['shape_directory']}/{parameters['shape_AoI_name']}_shape.shp", shp_type="AoI"
+                        f"{parameters['general']['shape-file']['directory']}/"
+                        f"{parameters['general']['shape-file']['aoi-name']}_shape.shp",
+                        shp_type="AoI",
                     )["0"]
                 )
                 if any([shapefile_extent.intersects(poly[1]) for poly in new_tracks[new_track]]):
@@ -112,10 +118,18 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
 
     for new_track in track_dict.keys():
         for data in track_dict[new_track]:
+            parameters = generate_full_parameter_file(
+                f"{parameter_file_base}-{data[0].replace('_', '-')}.yaml",
+                eval(new_track.split("_")[2][1:].lstrip("0")),
+                new_track.split("_")[1],
+                "dummy.yaml",
+                "dict",
+            )
+
             out_parameters = {}
 
             for job in job_definitions.keys():
-                if job_schedule_check(f"{parameter_file_base}_{data[0]}.txt", job, job_definitions):
+                if job_schedule_check(parameters, job, job_definitions):
                     out_parameters[f"do_{job}"] = "1"
                 else:
                     out_parameters[f"do_{job}"] = "0"
@@ -208,37 +222,6 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
     return sorted_processes
 
 
-def _generate_all_shapefiles(sorted_processes: list) -> None:
-    """Generate the shapefiles of all processes that are being scheduled.
-
-    Parameters
-    ----------
-    sorted_processes: list
-        All processes to be scheduled.
-    """
-    for process in sorted_processes:
-        parameter_file = (
-            f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
-            f"parameter-files/param_file_{process[0].split('-')[0]}.txt"
-        )
-        parameter_file_parameters = read_parameter_file(
-            parameter_file, ["shape_directory", "shape_AoI_name", "shape_file"]
-        )
-
-        # first create the directory
-        os.makedirs(parameter_file_parameters["shape_directory"], exist_ok=True)
-
-        # then create or link the shapefile
-        if not os.path.exists(
-            f"{parameter_file_parameters['shape_directory']}/"
-            f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"
-        ):
-            if parameter_file_parameters["shape_file"] == "":
-                create_shapefile(parameter_file)
-            else:
-                link_shapefile(parameter_file)
-
-
 def submit_processes(sorted_processes: list) -> None:
     """Submit all processes to the SLURM scheduler.
 
@@ -247,9 +230,6 @@ def submit_processes(sorted_processes: list) -> None:
     sorted_processes: list
         All processes to be scheduled.
     """
-    # first generate all the shapefiles
-    _generate_all_shapefiles(sorted_processes)
-
     run_timestamp = dt.datetime.now().strftime("%Y%m%dT%H%M%S")
 
     job_definitions = get_config(
@@ -262,7 +242,7 @@ def submit_processes(sorted_processes: list) -> None:
     for process in sorted_processes:
         parameter_file = (
             f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
-            f"parameter-files/param_file_{process[0].split('-')[0]}.txt"
+            f"parameter-files/param-file-{process[0].split('-')[0].replace('_', '-')}.yaml"
         )
         job = process[0].split("-")[1]
         track = process[0].split("-")[2]
@@ -270,28 +250,18 @@ def submit_processes(sorted_processes: list) -> None:
             # freeze the configuration
             frozen_parameter_file = (
                 f"{CONFIG_PARAMETERS['FROZEN_PARAMETER_FILE_DIRECTORY']}/"
-                f"{parameter_file.split('/')[-1].split('.')[0]}_{track}_{run_timestamp}.txt"
+                f"{parameter_file.split('/')[-1].split('.')[0].replace('-', '_')}_{track}_{run_timestamp}.yaml"
             )
             frozen_parameter_files[f"{parameter_file}_{track}"] = frozen_parameter_file
 
             # fill in the correct track
-            f = open(parameter_file)
-            parameter_file_data = f.read()
-            f.close()
-            track_number = track.split("_")[-1][1:].lstrip("0")  # 1: to cut off the t
-            track_direction = track.split("_")[1]
-
-            parameter_file_data = re.sub(
-                r"track = \[[0123456789, ]*]", f"track = [{track_number}]", parameter_file_data
+            generate_full_parameter_file(
+                user_parameter_file=parameter_file,
+                track=eval(track.split("_")[-1][1:].lstrip("0")),
+                asc_dsc=track.split("_")[1],
+                output_file=frozen_parameter_file,
+                mode="write",
             )
-            parameter_file_data = re.sub(
-                r"asc_dsc = \[['adsc, ]*]", f"asc_dsc = ['{track_direction}']", parameter_file_data
-            )
-
-            # and write the frozen file
-            f = open(frozen_parameter_file, "w")
-            f.write(parameter_file_data)
-            f.close()
 
         frozen_parameter_file = frozen_parameter_files[f"{parameter_file}_{track}"]
 
@@ -326,7 +296,9 @@ def submit_processes(sorted_processes: list) -> None:
                 dependency_string = f" --dependency=afterok:{':'.join(dependency_job_id)} --kill-on-invalid-dep=yes "
 
         # then the job name
-        three_letter_id = read_parameter_file(frozen_parameter_file, ["three_letter_id"])["three_letter_id"]
+        three_letter_id = read_parameter_file(frozen_parameter_file, ["general:project:three-letter-id"])[
+            "general:project:three-letter-id"
+        ]
 
         # e.g. D5088NVW for Doris v5, track 88, AoI nl_veenweiden
         job_name = f"{job_definitions[job]['two-letter-id']}{track.split('_')[-1][1:]}{three_letter_id}"

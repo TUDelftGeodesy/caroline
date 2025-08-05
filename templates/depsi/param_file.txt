@@ -4,118 +4,118 @@ Input_file template for ps_analysis.m
 % General parameters
 % ----------------------------------------------------------------------
 
-max_mem_buffer = **max_mem_buffer**
-visible_plots = '**visible_plots**'
-detail_plots = '**detail_plots**'
-processing_groups = **processing_groups**
-run_mode = '**run_mode**'
+max_mem_buffer = **depsi:depsi-settings:general:max-mem-buffer**
+visible_plots = '**depsi:depsi-settings:general:visible-plots**'
+detail_plots = '**depsi:depsi-settings:general:detail-plots**'
+processing_groups = **depsi:depsi-settings:general:processing-groups**
+run_mode = '**depsi:depsi-settings:general:run-mode**'
 
 
 % Project parameters
 % ----------------------------------------------------------------------
 
-project_id = '**depsi_AoI_name**_**sensor**_**asc_dsc**_t**track**'
+project_id = '**depsi:general:AoI-name**_**general:input-data:sensor**_**asc_dsc**_t**track**'
 input_file = []
 processDir = '**crop_base_directory**/cropped_stack'
 startDate = '**start_date**'
 stopDate = '**stop_date**'
-excludeDate = '**exclude_date**'
+excludeDate = '**depsi:depsi-settings:general:exclude-date**'
 ifgsVersion = '_srd'
 altimg = ''
 master = '**master_date**'
 swath_burst = []
-sensor = '**sensor**'
+sensor = '**general:input-data:sensor**'
 orbit = '**asc_dsc**'
 crop = []
 processor = 'doris_flinsar'
-project = '**depsi_AoI_name**'
+project = '**depsi:general:AoI-name**'
 
-az_spacing = **az_spacing**
-r_spacing = **r_spacing**
-slc_selection_input = **slc_selection_input**
-ifg_selection_input = **ifg_selection_input**
+az_spacing = **depsi:depsi-settings:general:az-spacing**
+r_spacing = **depsi:depsi-settings:general:r-spacing**
+slc_selection_input = **depsi:depsi-settings:general:slc-selection-input**
+ifg_selection_input = **depsi:depsi-settings:general:ifg-selection-input**
 ref_cn = **ref_cn**
-Ncv = **Ncv**
-ps_method = '**ps_method**'
-psc_model = **psc_model**
-ps_model = **ps_model**
-final_model = **final_model**
-breakpoint = **breakpoint**
-breakpoint2 = **breakpoint2**
-ens_coh_threshold = **ens_coh_threshold**
-varfac_threshold = **varfac_threshold**
-detrend_method = '**detrend_method**'
-output_format = **output_format**
-stc_min_max = [**stc_min_max**]
-do_apriori_sidelobe_mask = '**do_apriori_sidelobe_mask**'
-do_aposteriori_sidelobe_mask = '**do_aposteriori_sidelobe_mask**'
+Ncv = **depsi:depsi-settings:general:Ncv**
+ps_method = '**depsi:depsi-settings:general:ps-method**'
+psc_model = **depsi:depsi-settings:general:psc-model**
+ps_model = **depsi:depsi-settings:general:ps-model**
+final_model = **depsi:depsi-settings:general:final-model**
+breakpoint = **depsi:depsi-settings:general:breakpoint**
+breakpoint2 = **depsi:depsi-settings:general:breakpoint2**
+ens_coh_threshold = **depsi:depsi-settings:general:ens-coh-threshold**
+varfac_threshold = **depsi:depsi-settings:general:varfac-threshold**
+detrend_method = '**depsi:depsi-settings:general:detrend-method**'
+output_format = **depsi:depsi-settings:general:output-format**
+stc_min_max = [**depsi:depsi-settings:general:stc-min-max**]
+do_apriori_sidelobe_mask = '**depsi:depsi-settings:general:do-apriori-sidelobe-mask**'
+do_aposteriori_sidelobe_mask = '**depsi:depsi-settings:general:do-aposteriori-sidelobe-mask**'
 
 
 % Geocoding parameters
 %----------------------------------------------------------------------
 
 master_res = 'slave.res'
-ref_height = **ref_height**
+ref_height = **depsi:depsi-settings:geocoding:ref-height**
 demFile = 'dem_radar.raw'
 
 % Psc parameters
 %----------------------------------------------------------------------
 
-amplitude_calibration = '**amplitude_calibration**'
-psc_selection_method = '**psc_selection_method**'
-psc_selection_gridsize = **psc_selection_gridsize**
-psc_threshold = **psc_threshold**
-max_arc_length = **max_arc_length**
-network_method = '**network_method**'
-Ncon = **Ncon**
-Nparts = **Nparts**
-Npsc_selections = **Npsc_selections**
+amplitude_calibration = '**depsi:depsi-settings:psc:amplitude-calibration**'
+psc_selection_method = '**depsi:depsi-settings:psc:psc-selection-method**'
+psc_selection_gridsize = **depsi:depsi-settings:psc:psc-selection-gridsize**
+psc_threshold = **depsi:depsi-settings:psc:psc-threshold**
+max_arc_length = **depsi:depsi-settings:psc:max-arc-length**
+network_method = '**depsi:depsi-settings:psc:network-method**'
+Ncon = **depsi:depsi-settings:psc:Ncon**
+Nparts = **depsi:depsi-settings:psc:Nparts**
+Npsc_selections = **depsi:depsi-settings:psc:Npsc-selections**
 filename_water_mask = **filename_water_mask**
-gamma_threshold = **gamma_threshold**
-psc_distribution = '**psc_distribution**'
-weighted_unwrap = '**weighted_unwrap**'
+gamma_threshold = **depsi:depsi-settings:psc:gamma-threshold**
+psc_distribution = '**depsi:depsi-settings:psc:psc-distribution**'
+weighted_unwrap = '**depsi:depsi-settings:psc:weighted-unwrap**'
 
 % threshold is percentage of slc's that has an amplitude peak
-livetime_threshold = **livetime_threshold**;
+livetime_threshold = **depsi:depsi-settings:psc:livetime-threshold**;
 % include local near maxima 
-peak_tolerance = **peak_tolerance**;
+peak_tolerance = **depsi:depsi-settings:psc:peak-tolerance**;
 
 
 % Ps parameters
 % ----------------------------------------------------------------------
 
-psp_selection_method = '**psp_selection_method**'
-psp_threshold1 = **psp_threshold1**
-psp_threshold2 = **psp_threshold2**
-ps_eval_method = '**ps_eval_method**'
-Namp_disp_bins = **Namp_disp_bins**
-Ndens_iterations = **Ndens_iterations**
-densification_flag = '**densification_flag**'
-ps_area_of_interest = **ps_area_of_interest**
-dens_method = '**dens_method**'
-dens_check = '**dens_check**'
-Nest = **Nest**;
+psp_selection_method = '**depsi:depsi-settings:psp:psp-selection-method**'
+psp_threshold1 = **depsi:depsi-settings:psp:psp-threshold1**
+psp_threshold2 = **depsi:depsi-settings:psp:psp-threshold2**
+ps_eval_method = '**depsi:depsi-settings:psp:ps-eval-method**'
+Namp_disp_bins = **depsi:depsi-settings:psp:Namp-disp-bins**
+Ndens_iterations = **depsi:depsi-settings:psp:Ndens-iterations**
+densification_flag = '**depsi:depsi-settings:psp:densification-flag**'
+ps_area_of_interest = **depsi:depsi-settings:psp:ps-area-of-interest**
+dens_method = '**depsi:depsi-settings:psp:dens-method**'
+dens_check = '**depsi:depsi-settings:psp:dens-check**'
+Nest = **depsi:depsi-settings:psp:Nest**;
 
 
 % Stochastic model parameters
 % ----------------------------------------------------------------------
 
-std_param = [**std_param**];
-defo_range = **defo_range**
-weighting = '**weighting**'
-ts_atmo_filter = '**ts_atmo_filter**'
-ts_atmo_filter_length = **ts_atmo_filter_length**
-ts_noise_filter = '**ts_noise_filter**'
-ts_noise_filter_length = **ts_noise_filter_length**
+std_param = [**depsi:depsi-settings:stochastic-model:std-param**];
+defo_range = **depsi:depsi-settings:stochastic-model:defo-range**
+weighting = '**depsi:depsi-settings:stochastic-model:weighting**'
+ts_atmo_filter = '**depsi:depsi-settings:stochastic-model:ts-atmo-filter**'
+ts_atmo_filter_length = **depsi:depsi-settings:stochastic-model:ts-atmo-filter-length**
+ts_noise_filter = '**depsi:depsi-settings:stochastic-model:ts-noise-filter**'
+ts_noise_filter_length = **depsi:depsi-settings:stochastic-model:ts-noise-filter-length**
 
 
 % Bowl parameters
 %-----------------------------------------------------------------------
 
-defo_method = **defo_method**
-xc0 = **xc0**
-yc0 = **yc0**
-zc0 = **zc0**
-r0 = **r0**
-r10 = **r10**
-epoch = **epoch**
+defo_method = **depsi:depsi-settings:bowl:defo-method**
+xc0 = **depsi:depsi-settings:bowl:xc0**
+yc0 = **depsi:depsi-settings:bowl:yc0**
+zc0 = **depsi:depsi-settings:bowl:zc0**
+r0 = **depsi:depsi-settings:bowl:r0**
+r10 = **depsi:depsi-settings:bowl:r10**
+epoch = **depsi:depsi-settings:bowl:epoch**

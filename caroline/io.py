@@ -9,6 +9,7 @@ from typing import Literal
 import fiona
 import geopandas
 import numpy as np
+import yaml
 
 from caroline.config import get_config
 
@@ -50,55 +51,77 @@ def read_area_track_list(area_track_list_file: str) -> tuple[str | None, list]:
     return dependency, tracks
 
 
-def read_parameter_file(parameter_file: str, search_parameters: list) -> dict:
+def read_parameter_file(
+    parameter_file: str | dict, search_parameters: list, nonexistent_key_handling: Literal["Error", "Ignore"] = "Error"
+) -> dict:
     """Read parameters from a CAROLINE parameter file into a dictionary.
 
     Parameters
     ----------
-    parameter_file : str
-        Absolute path to the CAROLINE parameter file in .txt format
+    parameter_file : str | dict
+        Absolute path to the CAROLINE parameter file in .yaml format, or a dictionary readout of said file
     search_parameters: list
-        Parameter names to be retrieved from the parameter file, as a list of strings
+        Parameter names to be retrieved from the parameter file, as a list of strings. The `:` character can be used
+        as separator to access variables in deeper layers (e.g. `general:shape-file:shape-file-link` will return the
+        value for `parameter_file_dict["general"]["shape-file"]["shape-file-link"]`.
+    nonexistent_key_handling: Literal["Error", "Ignore"], default "Error"
+        Whether to throw an error or ignore keys that do not exist
 
     Returns
     -------
     dict
-        Dictionary containing the values of the requested parameters. If an invalid parameter is requested,
-        `None` is returned for that parameter.
+        Dictionary containing the values of the requested parameters.
 
     Raises
     ------
     AssertionError
         - When the parameter file does not exist
-        - When the parameter file does not end in .txt
+        - When the parameter file does not end in .yaml
 
-    ValueError
-        - When a requested parameter does not exist in the parameter file
+    KeyError
+        - When a requested parameter does not exist in the parameter file and `nonexistent_key_handling` = "Error"
     """
-    assert os.path.exists(parameter_file), f"Specified parameter file {parameter_file} does not exist!"
-    assert parameter_file.split(".")[-1] == "txt", f"Specified parameter file {parameter_file} is not a .txt file!"
-
-    fp = open(parameter_file)
-    parameters = fp.read().split("\n")
-    fp.close()
+    if isinstance(parameter_file, str):
+        assert os.path.exists(parameter_file), f"Specified parameter file {parameter_file} does not exist!"
+        assert (
+            parameter_file.split(".")[-1] == "yaml"
+        ), f"Specified parameter file {parameter_file} is not a .yaml file!"
+        with open(parameter_file) as f:
+            data = yaml.safe_load(f)
+    else:
+        data = parameter_file
 
     out_parameters = {}
 
     for param in search_parameters:
-        found = False
-        for p in parameters:
-            if p.split("=")[0].strip() == param:
-                do = p.split("=")[1]
-                if "#" in do:
-                    do = do.split("#")[0]
-                do = do.strip().strip("'").strip('"')
-                out_parameters[param] = do
-                found = True
-                break
-        if not found:
-            raise ValueError(f"Parameter {param} requested but not in {parameter_file}!")
+        val = data
+        encountered_error = False
+        for key in param.split(":"):
+            try:
+                val = val[key]
+            except KeyError as e:
+                if nonexistent_key_handling == "Error":
+                    raise KeyError(f"Key {param} requested but not found, nonexistent_key_handling set to Error") from e
+                else:
+                    encountered_error = True
+        if not encountered_error:
+            out_parameters[param] = val
 
     return out_parameters
+
+
+def write_parameter_file(parameter_file: str, parameters: dict) -> None:
+    """Write a parameter file to yaml.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to where the parameter file should be saved
+    parameters: dict
+        Dictionary readout of the parameters in the parameter file
+    """
+    with open(parameter_file, "w") as outfile:
+        yaml.dump(parameters, outfile)
 
 
 def write_run_file(
@@ -177,11 +200,13 @@ def write_run_file(
             elif isinstance(parameter_file_parameter, list):
                 value = read_parameter_file(parameter_file, [parameter_file_parameter[0]])[parameter_file_parameter[0]]
                 if parameter_file_parameter[1] == "lowercase":
-                    value = value.lower()
+                    value = str(value).lower()
                 elif parameter_file_parameter[1] == "uppercase":
-                    value = value.upper()
+                    value = str(value).upper()
                 elif parameter_file_parameter[1] == "dictionary":
-                    sensor = read_parameter_file(parameter_file, ["sensor"])["sensor"].lower()
+                    sensor = read_parameter_file(parameter_file, ["general:input-data:sensor"])[
+                        "general:input-data:sensor"
+                    ].lower()
                     assert (
                         asc_dsc is not None
                     ), f"Dictionary mode requested for {parameter_file_parameter} but asc_dsc is None!"
@@ -189,7 +214,7 @@ def write_run_file(
                         track is not None
                     ), f"Dictionary mode requested for {parameter_file_parameter} but track is None!"
                     key = f"{sensor}_{asc_dsc}_t{track:0>3d}"
-                    value = eval(value)[key]
+                    value = eval(str(value))[key]
                 elif parameter_file_parameter[1] == "strip":
                     assert len(parameter_file_parameter) > 2, (
                         f"Strip mode for parameter {parameter_file_parameter} "
@@ -198,6 +223,7 @@ def write_run_file(
                     assert isinstance(parameter_file_parameter[2], str), (
                         "Characters to strip from " f"{parameter_file_parameter} is not a string!"
                     )
+                    value = str(value)
                     for strip_key in parameter_file_parameter[2]:
                         value = value.replace(strip_key, "")
                 else:
@@ -334,45 +360,55 @@ def read_shp_extent(filename: str, shp_type: str = "swath") -> dict:
     return coordinate_dict
 
 
-def link_shapefile(parameter_file: str):
+def link_shapefile(output_directory: str, output_aoi_name: str, shape_file_path: str) -> None:
     """Link a shapefile based on provided parameters in the CAROLINE parameter file.
 
     Parameters
     ----------
-    parameter_file: str
-        Full path to the CAROLINE parameter file.
+    output_directory: str
+        Directory where to link the shapefile in
+    output_aoi_name: str
+        Name of the output shapefile
+    shape_file_path: str
+        Location of the shapefile
+
+    Raises
+    ------
+    AssertionError
+        When the provided shape_file_path does not end in '.shp'
 
     """
-    search_parameters = ["shape_file", "shape_directory", "shape_AoI_name"]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
+    assert shape_file_path.split(".")[-1] == "shp", f"Provided shapefile {shape_file_path} does not end in .shp!"
 
-    assert (
-        out_parameters["shape_file"].split(".")[-1] == "shp"
-    ), f"Provided shapefile {out_parameters['shape_file']} does not end in .shp!"
-
-    export_shp = f"{out_parameters['shape_directory']}/{out_parameters['shape_AoI_name']}_shape.shp"
+    export_shp = f"{output_directory}/{output_aoi_name}_shape.shp"
 
     for appendix in ["shp", "prj", "shx", "dbf"]:
-        os.system(f"ln -s {out_parameters['shape_file'][:-4]}.{appendix} {export_shp[:-4]}.{appendix}")
+        os.system(f"ln -s {shape_file_path[:-4]}.{appendix} {export_shp[:-4]}.{appendix}")
 
 
-def create_shapefile(parameter_file: str):
+def create_shapefile(
+    output_directory: str,
+    output_aoi_name: str,
+    central_coord: list,
+    crop_width: float | int,
+    crop_length: float | int,
+) -> None:
     """Create a square shapefile from scratch based on provided parameters in the CAROLINE parameter file.
 
     Parameters
     ----------
-    parameter_file: str
-        Full path to the CAROLINE parameter file.
-
+    output_directory: str
+        Directory where to link the shapefile in
+    output_aoi_name: str
+        Name of the output shapefile
+    central_coord: list
+        List of the coordinates of the central AoI in [latitude, longitude]
+    crop_width: float | int
+        Width (east-west) of the AoI to be generated in km
+    crop_length: float | int
+        Length (north-south) of the AoI to be generated in km
     """
-    search_parameters = ["center_AoI", "AoI_length", "AoI_width", "shape_directory", "shape_AoI_name"]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    export_shp = f"{out_parameters['shape_directory']}/{out_parameters['shape_AoI_name']}_shape.shp"
-
-    central_coord = eval(out_parameters["center_AoI"])
-    crop_length = eval(out_parameters["AoI_length"])
-    crop_width = eval(out_parameters["AoI_width"])
+    export_shp = f"{output_directory}/{output_aoi_name}_shape.shp"
 
     # Calculate the limits of the AoI
     Dlat_m = 2 * pi * EARTH_RADIUS / 360  # m per degree of latitude

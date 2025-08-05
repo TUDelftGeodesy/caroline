@@ -84,7 +84,9 @@ if __name__ == "__main__":
         data = get_config(config_file, flatten=flatten)
         do_null = False
         for depth in requested_parameter.split(":"):
-            if depth not in data.keys():
+            if data is None:
+                do_null = True
+            elif depth not in data.keys():
                 do_null = True
             else:
                 data = data[depth]

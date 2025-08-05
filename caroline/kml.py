@@ -4,6 +4,7 @@ from typing import Literal
 
 from caroline.config import get_config
 from caroline.io import read_parameter_file, read_shp_extent, read_SLC_json, read_SLC_xml
+from caroline.parameter_file import generate_full_parameter_file
 from caroline.utils import (
     convert_bytesize_to_humanreadable,
     get_path_bytesize,
@@ -235,28 +236,28 @@ def add_AoI_extent_folder(kml: KML) -> KML:
 
     for param_file_AoI_name in list(sorted(param_file_data.keys())):
         if os.path.exists(
-            f"{param_file_data[param_file_AoI_name]['shape_directory']}/"
-            f"{param_file_data[param_file_AoI_name]['shape_AoI_name']}_shape.shp"
+            f"{param_file_data[param_file_AoI_name]['general:shape-file:directory']}/"
+            f"{param_file_data[param_file_AoI_name]['general:shape-file:aoi-name']}_shape.shp"
         ):  # first check if the AoI has been generated. If not, we cannot visualize it
             coordinate_dict = read_shp_extent(
-                f"{param_file_data[param_file_AoI_name]['shape_directory']}/"
-                f"{param_file_data[param_file_AoI_name]['shape_AoI_name']}_shape.shp",
+                f"{param_file_data[param_file_AoI_name]['general:shape-file:directory']}/"
+                f"{param_file_data[param_file_AoI_name]['general:shape-file:aoi-name']}_shape.shp",
                 "AoI",
             )  # then read the AoI
 
             # Next, combine all info into the message that will be shown when clicking
             # General info
-            message = f"Active: {param_file_data[param_file_AoI_name]['active']}\n\n"
-            message += f"Tracks: {param_file_data[param_file_AoI_name]['tracks'].strip().strip(',')}\n\n"
+            message = f"Active: {param_file_data[param_file_AoI_name]['general:active']}\n\n"
+            message += f"Tracks: {param_file_data[param_file_AoI_name]['general:tracks:track'].strip().strip(',')}\n\n"
             message += (
-                f"Project owner: {param_file_data[param_file_AoI_name]['project_owner']} ("
-                f"{param_file_data[param_file_AoI_name]['project_owner_email']})\n"
-                f"Project engineer: {param_file_data[param_file_AoI_name]['project_engineer']} ("
-                f"{param_file_data[param_file_AoI_name]['project_engineer_email']})\n"
-                f"Objective: {param_file_data[param_file_AoI_name]['project_objective']}\n"
+                f"Project owner: {param_file_data[param_file_AoI_name]['general:project:owner:name']} ("
+                f"{param_file_data[param_file_AoI_name]['general:project:owner:email']})\n"
+                f"Project engineer: {param_file_data[param_file_AoI_name]['general:project:engineer:name']} ("
+                f"{param_file_data[param_file_AoI_name]['general:project:engineer:email']})\n"
+                f"Objective: {param_file_data[param_file_AoI_name]['general:project:objective']}\n"
             )
-            if param_file_data[param_file_AoI_name]["project_notes"] != "":
-                message += f"Notes: {param_file_data[param_file_AoI_name]['project_notes']}\n\n"
+            if param_file_data[param_file_AoI_name]["general:project:notes"] not in [None, ""]:
+                message += f"Notes: {param_file_data[param_file_AoI_name]['general:project:notes']}\n\n"
             else:
                 message += "\n"
 
@@ -266,7 +267,9 @@ def add_AoI_extent_folder(kml: KML) -> KML:
             dependency = "\n"
             size_check_keys = []
             for job in JOB_DEFINITIONS["jobs"].keys():
-                if job_schedule_check(param_file_data[param_file_AoI_name]["full_name"], job, JOB_DEFINITIONS["jobs"]):
+                if job_schedule_check(
+                    param_file_data[param_file_AoI_name]["full_parameter_file"], job, JOB_DEFINITIONS["jobs"]
+                ):
                     jobs += f"{job}, "
 
                     if JOB_DEFINITIONS["jobs"][job]["bash-file"] is not None:
@@ -279,19 +282,19 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                     if JOB_DEFINITIONS["jobs"][job]["requirement"] not in [None, "*"]:
                         if isinstance(JOB_DEFINITIONS["jobs"][job]["requirement"], str):
                             if not job_schedule_check(
-                                param_file_data[param_file_AoI_name]["full_name"],
+                                param_file_data[param_file_AoI_name]["full_parameter_file"],
                                 JOB_DEFINITIONS["jobs"][job]["requirement"],
                                 JOB_DEFINITIONS["jobs"],
                             ):
                                 dependency = (
                                     f'Previous step {JOB_DEFINITIONS["jobs"][job]["requirement"]} loaded from AoI '
-                                    f'{param_file_data[param_file_AoI_name]["dependency"]}\n'
+                                    f'{param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]}\n'
                                 )
                         else:  # it's a list:
                             if not any(
                                 [
                                     job_schedule_check(
-                                        param_file_data[param_file_AoI_name]["full_name"],
+                                        param_file_data[param_file_AoI_name]["full_parameter_file"],
                                         JOB_DEFINITIONS["jobs"][job]["requirement"][i],
                                         JOB_DEFINITIONS["jobs"],
                                     )
@@ -300,29 +303,32 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                             ):
                                 dependency = (
                                     f'Previous step {"/".join(JOB_DEFINITIONS["jobs"][job]["requirement"])} loaded '
-                                    f'from AoI {param_file_data[param_file_AoI_name]["dependency"]}\n'
+                                    'from AoI '
+                                    f'{param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]}\n'
                                 )
 
-            if len(jobs) > 0:  # then we need to cut off the last ,
+            if len(jobs) > 0:  # then we need to cut off the last ', '
                 jobs = jobs[:-2]
             message += dependency
             message += f"{jobs}\n\n"
 
             # determine the data size and processing time
-            if param_file_data[param_file_AoI_name]["tracks"] == "Unknown":
+            if param_file_data[param_file_AoI_name]["general:tracks:track"] == "Unknown":
                 data_size_fmt = "Unknown"
                 processing_time_fmt = "Unknown"
             else:
-                tracks = param_file_data[param_file_AoI_name]["tracks"].strip().strip(",").split(", ")
+                tracks = param_file_data[param_file_AoI_name]["general:tracks:track-list-full"]
                 data_size = []
                 for key in size_check_keys:
                     data_size.append(0)
                     locations = read_parameter_file(
-                        param_file_data[param_file_AoI_name]["full_name"], [f"{key}_directory", f"{key}_AoI_name"]
+                        param_file_data[param_file_AoI_name]["full_parameter_file"],
+                        [f"{key}:general:directory", f"{key}:general:AoI-name"],
                     )
                     for track in tracks:
                         directories = glob.glob(
-                            f"{locations[f'{key}_directory']}/{locations[f'{key}_AoI_name']}_{track}*"
+                            f"{locations[f'{key}:general:directory']}/"
+                            f"{locations[f'{key}:general:AoI-name']}_{track}*"
                         )
                         for directory in directories:
                             data_size[-1] += get_path_bytesize(directory)
@@ -481,9 +487,11 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
 
     kml.open_folder("Coregistered stacks", "Extents of all coregistered stacks")
 
-    s1_stack_folders = list(
-        sorted(list(set([param_file_data[i]["coregistration_directory"] for i in param_file_data.keys()])))
-    )
+    s1_stack_folders = []
+    for param_file in param_file_data.keys():
+        if "doris:general:directory" in param_file_data[param_file].keys():
+            s1_stack_folders.append(param_file_data[param_file]["doris:general:directory"])
+    s1_stack_folders = list(sorted(list(set(s1_stack_folders))))
 
     # filter out the Sentinel-1 stacks in all coregistration directories
     stack_folders = []
@@ -542,10 +550,14 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
                 check_track = stack_folder.split(check_coreg_directory + "/" + AoI_name + "_")[1]
                 workflows = []
                 for param_file_AoI_name in list(sorted(param_file_data.keys())):
-                    if param_file_data[param_file_AoI_name]["coregistration_directory"] == check_coreg_directory:
-                        if param_file_data[param_file_AoI_name]["coregistration_AoI_name"] == AoI_name:
-                            if check_track in param_file_data[param_file_AoI_name]["tracks"]:
-                                workflows.append(param_file_AoI_name)
+                    if "doris:general:directory" in param_file_data[param_file_AoI_name].keys():
+                        if param_file_data[param_file_AoI_name]["doris:general:directory"] == check_coreg_directory:
+                            if param_file_data[param_file_AoI_name]["doris:general:AoI-name"] == AoI_name:
+                                if (
+                                    check_track
+                                    in param_file_data[param_file_AoI_name]["general:tracks:track-list-full"]
+                                ):
+                                    workflows.append(param_file_AoI_name)
                 if len(workflows) > 0:
                     message += "Part of CAROLINE workflows " + ", ".join(workflows)
                 else:
@@ -572,29 +584,33 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
     dict
         Dictionary containing the relevant parameters for the KML generation
     """
-    param_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/*")
+    param_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param-file*")
     param_file_data = {}
     for param_file in param_files:
+        parameter_file_data = generate_full_parameter_file(param_file, 0, "asc", "dummy.yaml", "dict")
         out = read_parameter_file(
-            param_file,
+            parameter_file_data,
             [
-                "sensor",
-                "coregistration_directory",
-                "coregistration_AoI_name",
-                "shape_directory",
-                "shape_AoI_name",
-                "project_owner",
-                "project_owner_email",
-                "project_engineer",
-                "project_engineer_email",
-                "project_objective",
-                "project_notes",
-                "dependency",
-                "active",
+                "general:input-data:sensor",
+                "doris:general:directory",
+                "doris:general:AoI-name",
+                "general:shape-file:directory",
+                "general:shape-file:aoi-name",
+                "general:project:owner:name",
+                "general:project:owner:email",
+                "general:project:engineer:name",
+                "general:project:engineer:email",
+                "general:project:objective",
+                "general:project:notes",
+                "general:workflow:dependency:aoi-name",
+                "general:active",
             ],
+            nonexistent_key_handling="Ignore",
         )
 
-        param_file_AoI_name = param_file.split("param_file_")[-1].split(".")[0]
+        out["full_parameter_file"] = parameter_file_data
+
+        param_file_AoI_name = param_file.split("param-file-")[-1].split(".")[0].replace("-", "_")
 
         # retrieve the tracks
         track_list_file = (
@@ -604,13 +620,16 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
             f = open(track_list_file)
             data = f.read().split("\n")
             f.close()
-            out["tracks"] = ", ".join(data[1:])
+            out["general:tracks:track"] = ", ".join(data[1:])
+
+            out["general:tracks:track-list"] = [eval(d.split("_")[-1][1:].lstrip("0")) for d in data[1:]]
+            out["general:tracks:track-list-full"] = data[1:][:]
         elif os.path.exists(
             f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/"
             f"{param_file_AoI_name}/geosearch.yaml"
         ):  # a download configuration exists, we can use it
             filtered_orbits, _ = identify_s1_orbits_in_aoi(
-                f"{out['shape_directory']}/{out['shape_AoI_name']}_shape.shp"
+                f"{out['general:shape-file:directory']}/{out['general:shape-file:aoi-name']}_shape.shp"
             )
             allowed_orbits = eval(
                 os.popen(
@@ -625,10 +644,14 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
             for track in list(sorted(list(filtered_orbits))):
                 if eval(track.split("_")[-1][1:].lstrip("0")) in allowed_orbits:
                     tracks.append(track)
-            out["tracks"] = ", ".join(tracks)
+            out["general:tracks:track"] = ", ".join(tracks)
+            out["general:tracks:track-list"] = [eval(d.split("_")[-1][1:].lstrip("0")) for d in tracks]
+            out["general:tracks:track-list-full"] = tracks[:]
 
         else:  # if we cannot find that either, leave it as unknown
-            out["tracks"] = "Unknown"
+            out["general:tracks:track"] = "Unknown"
+            out["general:tracks:track-list"] = []
+            out["general:tracks:track-list-full"] = []
         param_file_data[param_file_AoI_name] = out
         param_file_data[param_file_AoI_name]["full_name"] = param_file
     return param_file_data

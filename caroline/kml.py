@@ -4,6 +4,7 @@ from typing import Literal
 
 from caroline.config import get_config
 from caroline.io import read_parameter_file, read_shp_extent, read_SLC_json, read_SLC_xml
+from caroline.parameter_file import generate_full_parameter_file
 from caroline.utils import (
     convert_bytesize_to_humanreadable,
     get_path_bytesize,
@@ -266,7 +267,9 @@ def add_AoI_extent_folder(kml: KML) -> KML:
             dependency = "\n"
             size_check_keys = []
             for job in JOB_DEFINITIONS["jobs"].keys():
-                if job_schedule_check(param_file_data[param_file_AoI_name]["full_name"], job, JOB_DEFINITIONS["jobs"]):
+                if job_schedule_check(
+                    param_file_data[param_file_AoI_name]["full_parameter_file"], job, JOB_DEFINITIONS["jobs"]
+                ):
                     jobs += f"{job}, "
 
                     if JOB_DEFINITIONS["jobs"][job]["bash-file"] is not None:
@@ -279,7 +282,7 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                     if JOB_DEFINITIONS["jobs"][job]["requirement"] not in [None, "*"]:
                         if isinstance(JOB_DEFINITIONS["jobs"][job]["requirement"], str):
                             if not job_schedule_check(
-                                param_file_data[param_file_AoI_name]["full_name"],
+                                param_file_data[param_file_AoI_name]["full_parameter_file"],
                                 JOB_DEFINITIONS["jobs"][job]["requirement"],
                                 JOB_DEFINITIONS["jobs"],
                             ):
@@ -291,7 +294,7 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                             if not any(
                                 [
                                     job_schedule_check(
-                                        param_file_data[param_file_AoI_name]["full_name"],
+                                        param_file_data[param_file_AoI_name]["full_parameter_file"],
                                         JOB_DEFINITIONS["jobs"][job]["requirement"][i],
                                         JOB_DEFINITIONS["jobs"],
                                     )
@@ -304,7 +307,7 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                                     f'{param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]}\n'
                                 )
 
-            if len(jobs) > 0:  # then we need to cut off the last ,
+            if len(jobs) > 0:  # then we need to cut off the last ', '
                 jobs = jobs[:-2]
             message += dependency
             message += f"{jobs}\n\n"
@@ -319,7 +322,7 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                 for key in size_check_keys:
                     data_size.append(0)
                     locations = read_parameter_file(
-                        param_file_data[param_file_AoI_name]["full_name"],
+                        param_file_data[param_file_AoI_name]["full_parameter_file"],
                         [f"{key}:general:directory", f"{key}:general:AoI-name"],
                     )
                     for track in tracks:
@@ -601,11 +604,12 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
     dict
         Dictionary containing the relevant parameters for the KML generation
     """
-    param_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/*")
+    param_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param-file*")
     param_file_data = {}
     for param_file in param_files:
+        parameter_file_data = generate_full_parameter_file(param_file, 0, "asc", "dummy.yaml", "dict")
         out = read_parameter_file(
-            param_file,
+            parameter_file_data,
             [
                 "general:input-data:sensor",
                 "doris:general:directory",
@@ -621,8 +625,10 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
                 "general:workflow:dependency:aoi-name",
                 "general:active",
             ],
-            nonexistent_keys_handling="Ignore",
+            nonexistent_key_handling="Ignore",
         )
+
+        out["full_parameter_file"] = parameter_file_data
 
         param_file_AoI_name = param_file.split("param_file_")[-1].split(".")[0]
 

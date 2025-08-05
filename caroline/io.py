@@ -52,14 +52,14 @@ def read_area_track_list(area_track_list_file: str) -> tuple[str | None, list]:
 
 
 def read_parameter_file(
-    parameter_file: str, search_parameters: list, nonexistent_key_handling: Literal["Error", "Ignore"] = "Error"
+    parameter_file: str | dict, search_parameters: list, nonexistent_key_handling: Literal["Error", "Ignore"] = "Error"
 ) -> dict:
     """Read parameters from a CAROLINE parameter file into a dictionary.
 
     Parameters
     ----------
-    parameter_file : str
-        Absolute path to the CAROLINE parameter file in .txt format
+    parameter_file : str | dict
+        Absolute path to the CAROLINE parameter file in .yaml format, or a dictionary readout of said file
     search_parameters: list
         Parameter names to be retrieved from the parameter file, as a list of strings. The `:` character can be used
         as separator to access variables in deeper layers (e.g. `general:shape-file:shape-file-link` will return the
@@ -76,16 +76,20 @@ def read_parameter_file(
     ------
     AssertionError
         - When the parameter file does not exist
-        - When the parameter file does not end in .txt
+        - When the parameter file does not end in .yaml
 
     KeyError
         - When a requested parameter does not exist in the parameter file and `nonexistent_key_handling` = "Error"
     """
-    assert os.path.exists(parameter_file), f"Specified parameter file {parameter_file} does not exist!"
-    assert parameter_file.split(".")[-1] == "yaml", f"Specified parameter file {parameter_file} is not a .yaml file!"
-
-    with open(parameter_file) as f:
-        data = yaml.safe_load(f)
+    if isinstance(parameter_file, str):
+        assert os.path.exists(parameter_file), f"Specified parameter file {parameter_file} does not exist!"
+        assert (
+            parameter_file.split(".")[-1] == "yaml"
+        ), f"Specified parameter file {parameter_file} is not a .yaml file!"
+        with open(parameter_file) as f:
+            data = yaml.safe_load(f)
+    else:
+        data = parameter_file
 
     out_parameters = {}
 

@@ -631,7 +631,7 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
 
         out["full_parameter_file"] = parameter_file_data
 
-        param_file_AoI_name = param_file.split("param_file_")[-1].split(".")[0]
+        param_file_AoI_name = param_file.split("param-file-")[-1].split(".")[0].replace("-", "_")
 
         # retrieve the tracks
         track_list_file = (

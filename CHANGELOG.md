@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed:
 - The maximum memory for jobs without a SLURM-cluster is properly read in again
 - Crashed emails now send the full traceback instead of just the last line
+- On test installations, the plugins are now linked to the testing versions instead of the live versions by default in all parameter files (unless manually overwritten by the parameter file)
 
 ### Removed:
 - The live parameter files (migrated to https://github.com/TUDelftGeodesy/caroline-parameter-files (a private repo))

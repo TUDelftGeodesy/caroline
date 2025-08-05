@@ -317,7 +317,7 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                 data_size_fmt = "Unknown"
                 processing_time_fmt = "Unknown"
             else:
-                tracks = param_file_data[param_file_AoI_name]["general:tracks:track-list"]
+                tracks = param_file_data[param_file_AoI_name]["general:tracks:track-list-full"]
                 data_size = []
                 for key in size_check_keys:
                     data_size.append(0)
@@ -328,7 +328,7 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                     for track in tracks:
                         directories = glob.glob(
                             f"{locations[f'{key}:general:directory']}/"
-                            f"{locations[f'{key}:general:AoI-name']}_*_[ad]sc_t{track:0>3d}*"
+                            f"{locations[f'{key}:general:AoI-name']}_{track}*"
                         )
                         for directory in directories:
                             data_size[-1] += get_path_bytesize(directory)
@@ -555,30 +555,6 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
                             if param_file_data[param_file_AoI_name]["doris:general:AoI-name"] == AoI_name:
                                 if check_track in param_file_data[param_file_AoI_name]["general:tracks:track-list"]:
                                     workflows.append(param_file_AoI_name)
-                    # if this AoI doesn't run it, check if its dependency does
-                    elif (
-                        param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]
-                        in param_file_data.keys()
-                    ):
-                        if (
-                            "doris:general:directory"
-                            in param_file_data[
-                                param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]
-                            ].keys()
-                        ):
-                            if (
-                                param_file_data[
-                                    param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]
-                                ]["doris:general:AoI-name"]
-                                == AoI_name
-                            ):
-                                if (
-                                    check_track
-                                    in param_file_data[
-                                        param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]
-                                    ]["general:tracks:track-list"]
-                                ):
-                                    workflows.append(param_file_AoI_name)
                 if len(workflows) > 0:
                     message += "Part of CAROLINE workflows " + ", ".join(workflows)
                 else:
@@ -644,6 +620,7 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
             out["general:tracks:track"] = ", ".join(data[1:])
 
             out["general:tracks:track-list"] = [eval(d.split("_")[-1][1:].lstrip("0")) for d in data[1:]]
+            out["general:tracks:track-list-full"] = data[1:][:]
         elif os.path.exists(
             f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/"
             f"{param_file_AoI_name}/geosearch.yaml"
@@ -665,11 +642,13 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
                 if eval(track.split("_")[-1][1:].lstrip("0")) in allowed_orbits:
                     tracks.append(track)
             out["general:tracks:track"] = ", ".join(tracks)
-            out["general:tracks:track-list"] = tracks
+            out["general:tracks:track-list"] = [eval(d.split("_")[-1][1:].lstrip("0")) for d in tracks]
+            out["general:tracks:track-list-full"] = tracks[:]
 
         else:  # if we cannot find that either, leave it as unknown
             out["general:tracks:track"] = "Unknown"
             out["general:tracks:track-list"] = []
+            out["general:tracks:track-list-full"] = []
         param_file_data[param_file_AoI_name] = out
         param_file_data[param_file_AoI_name]["full_name"] = param_file
     return param_file_data

@@ -551,30 +551,30 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
                 for param_file_AoI_name in list(sorted(param_file_data.keys())):
                     if "doris:general:directory" in param_file_data[param_file_AoI_name].keys():
                         if param_file_data[param_file_AoI_name]["doris:general:directory"] == check_coreg_directory:
-                            if param_file_data[param_file_AoI_name]["doris:general:AoI_name"] == AoI_name:
+                            if param_file_data[param_file_AoI_name]["doris:general:AoI-name"] == AoI_name:
                                 if check_track in param_file_data[param_file_AoI_name]["general:tracks:track-list"]:
                                     workflows.append(param_file_AoI_name)
                     # if this AoI doesn't run it, check if its dependency does
                     elif (
-                        param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi_name"]
+                        param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]
                         in param_file_data.keys()
                     ):
                         if (
                             "doris:general:directory"
                             in param_file_data[
-                                param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi_name"]
+                                param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]
                             ].keys()
                         ):
                             if (
                                 param_file_data[
-                                    param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi_name"]
-                                ]["doris:general:AoI_name"]
+                                    param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]
+                                ]["doris:general:AoI-name"]
                                 == AoI_name
                             ):
                                 if (
                                     check_track
                                     in param_file_data[
-                                        param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi_name"]
+                                        param_file_data[param_file_AoI_name]["general:workflow:dependency:aoi-name"]
                                     ]["general:tracks:track-list"]
                                 ):
                                     workflows.append(param_file_AoI_name)

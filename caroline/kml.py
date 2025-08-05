@@ -643,7 +643,7 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
             f.close()
             out["general:tracks:track"] = ", ".join(data[1:])
 
-            out["general:tracks:track-list"] = [eval(d.split("_")[-1].lstrip("0")) for d in data[1:]]
+            out["general:tracks:track-list"] = [eval(d.split("_")[-1][1:].lstrip("0")) for d in data[1:]]
         elif os.path.exists(
             f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/"
             f"{param_file_AoI_name}/geosearch.yaml"

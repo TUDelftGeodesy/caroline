@@ -313,11 +313,11 @@ def add_AoI_extent_folder(kml: KML) -> KML:
             message += f"{jobs}\n\n"
 
             # determine the data size and processing time
-            if param_file_data[param_file_AoI_name]["tracks"] == "Unknown":
+            if param_file_data[param_file_AoI_name]["general:tracks:track"] == "Unknown":
                 data_size_fmt = "Unknown"
                 processing_time_fmt = "Unknown"
             else:
-                tracks = param_file_data[param_file_AoI_name]["tracks"].strip().strip(",").split(", ")
+                tracks = param_file_data[param_file_AoI_name]["general:tracks:track-list"]
                 data_size = []
                 for key in size_check_keys:
                     data_size.append(0)
@@ -327,7 +327,8 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                     )
                     for track in tracks:
                         directories = glob.glob(
-                            f"{locations[f'{key}:general:directory']}/{locations[f'{key}:general:AoI-name']}_{track}*"
+                            f"{locations[f'{key}:general:directory']}/"
+                            f"{locations[f'{key}:general:AoI-name']}_*_[ad]sc_t{track:0>3d}*"
                         )
                         for directory in directories:
                             data_size[-1] += get_path_bytesize(directory)

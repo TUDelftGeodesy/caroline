@@ -170,7 +170,15 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
                                     dependency_id.append(f"{data[0]}-{req}-{new_track}")
                                 # if not, and there is a dependency parameter file, check if it is run there
                                 elif data[1] is not None:
-                                    if job_schedule_check(f"{parameter_file_base}_{data[1]}.txt", req, job_definitions):
+                                    dep_parameter_file = f"{parameter_file_base}-{data[1].replace('_', '-')}.yaml"
+                                    dep_parameters = generate_full_parameter_file(
+                                        dep_parameter_file,
+                                        eval(new_track.split("_")[2][1:].lstrip("0")),
+                                        new_track.split("_")[1],
+                                        "dummy.yaml",
+                                        "dict",
+                                    )
+                                    if job_schedule_check(dep_parameters, req, job_definitions):
                                         # Check if the dependency is actually active or not
                                         if (
                                             f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"

@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (05-Aug-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/66b7601d2345567ee0e6d3d2d8c595a58ac00fe1...main))
+## [v3.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (06-Aug-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/62524d51bc4d1c40015eb775f8b66553e4daa0f3...main))
+
+### Fixed:
+- The scheduler dependency manager is now also checking for `YAML` parameter files instead of `txt`
+
+## [v3.0.0](https://github.com/TUDelftGeodesy/caroline/tree/62524d51bc4d1c40015eb775f8b66553e4daa0f3) (05-Aug-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/66b7601d2345567ee0e6d3d2d8c595a58ac00fe1...62524d51bc4d1c40015eb775f8b66553e4daa0f3))
 
 ### Added:
 - Default parameter files per job (and a general one for general settings and a machine one for fields you are not supposed to touch)

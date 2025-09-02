@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (06-Aug-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/62524d51bc4d1c40015eb775f8b66553e4daa0f3...main))
+## [v3.0.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (02-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7720af88c66954384a000d4f08738d297660654e...main))
+
+### Fixed:
+- The checks in `stm_generation` for partitioning and outlier detection now check strings against strings instead of floats
+
+
+## [v3.0.1](https://github.com/TUDelftGeodesy/caroline/tree/7720af88c66954384a000d4f08738d297660654e) (06-Aug-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/62524d51bc4d1c40015eb775f8b66553e4daa0f3...7720af88c66954384a000d4f08738d297660654e))
 
 ### Fixed:
 - The scheduler dependency manager is now also checking for `YAML` parameter files instead of `txt`

@@ -62,17 +62,19 @@ chunks_ps_selection = 1000
 
 # Input variables for the outlier detection
 do_ps_outlier_detection = (
-    True if "**stm_generation:stm_generation-settings:outlier-detection:do-outlier-detection**" == 1 else False
+    True if "**stm_generation:stm_generation-settings:outlier-detection:do-outlier-detection**" == "1" else False
 )
 ps_window_size_outliers = int("**stm_generation:stm_generation-settings:outlier-detection:window-size**")
-ps_outlier_detection_db = True if "**stm_generation:stm_generation-settings:outlier-detection:db-mode**" == 1 else False
+ps_outlier_detection_db = (
+    True if "**stm_generation:stm_generation-settings:outlier-detection:db-mode**" == "1" else False
+)
 ps_n_sigma_outliers = int("**stm_generation:stm_generation-settings:outlier-detection:n-sigma**")
 
 # Input variables for the partitioning
-do_ps_partitioning = True if "**stm_generation:stm_generation-settings:partitioning:do-partitioning**" == 1 else False
+do_ps_partitioning = True if "**stm_generation:stm_generation-settings:partitioning:do-partitioning**" == "1" else False
 ps_partitioning_search_method = "**stm_generation:stm_generation-settings:partitioning:search-method**"
 ps_partitioning_cost_function = "**stm_generation:stm_generation-settings:partitioning:cost-function**"
-ps_db_partitioning = True if "**stm_generation:stm_generation-settings:partitioning:db-mode**" == 1 else False
+ps_db_partitioning = True if "**stm_generation:stm_generation-settings:partitioning:db-mode**" == "1" else False
 ps_min_obs_partition = int("**stm_generation:stm_generation-settings:partitioning:min-partition-length**")
 partitioning_output_layers = tuple(
     eval("**stm_generation:stm_generation-settings:partitioning:undifferenced-output-layers**")

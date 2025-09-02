@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 ## [v3.0.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (02-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7720af88c66954384a000d4f08738d297660654e...main))
 
+### Changed:
+- Increased the number of workers for `crop_to_zarr` from 8 to 12 to avoid memory issues
+
 ### Fixed:
 - The checks in `stm_generation` for partitioning and outlier detection now check strings against strings instead of floats
 

@@ -118,7 +118,7 @@ jobs:
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:
-        slurm-cluster-n-workers: 8
+        slurm-cluster-n-workers: 12
         slurm-cluster-worker-time: "10:00:00"
     filters:
 

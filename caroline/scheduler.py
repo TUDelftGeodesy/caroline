@@ -19,8 +19,8 @@ CONFIG_PARAMETERS = get_config()
 TIME_LIMITS = {
     "short": "10:00:00",
     "normal": "5-00:00:00",
-    "infinite": "12-00:00:00",
-}  # the true max is 30 days but this will cause interference with new images
+    "infinite": "30-00:00:00",
+}
 
 
 def scheduler(new_tracks: dict, force_tracks: list) -> list:

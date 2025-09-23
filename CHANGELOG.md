@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (02-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7720af88c66954384a000d4f08738d297660654e...main))
+## [v3.0.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (23-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/25e0fffeb360e1674881b0ee6f4e298dbc80fe2b...main))
+
+### Changed:
+- Increased the `infinite` partition time-out from 12 to 30 days (since the reasoning for 12 day limits has been obsolete since [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/52193011493b2681a7264a3a2be6f6458f940b59))
+
+## [v3.0.2](https://github.com/TUDelftGeodesy/caroline/tree/25e0fffeb360e1674881b0ee6f4e298dbc80fe2b) (02-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7720af88c66954384a000d4f08738d297660654e...25e0fffeb360e1674881b0ee6f4e298dbc80fe2b))
 
 ### Changed:
 - Increased the number of workers for `crop_to_zarr` from 8 to 12 to avoid memory issues

@@ -1187,6 +1187,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 "crop_base_directory": crop_directory,
                 "track": f"{tracks[track]:0>3d}",
                 "asc_dsc": asc_dsc[track],
+                "asc_dsc_fmt": "desc" if asc_dsc[track] == "dsc" else asc_dsc[track],
                 "start_date": act_start_date,
                 "stop_date": act_end_date,
                 "master_date": mother_date,

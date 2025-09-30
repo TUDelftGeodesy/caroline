@@ -25,7 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (23-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/25e0fffeb360e1674881b0ee6f4e298dbc80fe2b...main))
+## [v3.0.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (30-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c536dd68d3c38d6f06f18e74139048087d14c1ba...main))
+
+### Changed:
+- Default for `map-to-vert` in DePSI-post is now `0` instead of `1` (thus Line of Sight)
+
+### Fixed:
+- Descending orbits are now specified with `'desc'` instead of `'dsc'` in the orbit parameter in DePSI.
+
+
+## [v3.0.3](https://github.com/TUDelftGeodesy/caroline/tree/c536dd68d3c38d6f06f18e74139048087d14c1ba) (23-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/25e0fffeb360e1674881b0ee6f4e298dbc80fe2b...c536dd68d3c38d6f06f18e74139048087d14c1ba))
 
 ### Changed:
 - Increased the `infinite` partition time-out from 12 to 30 days (since the reasoning for 12 day limits has been obsolete since [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/52193011493b2681a7264a3a2be6f6458f940b59))

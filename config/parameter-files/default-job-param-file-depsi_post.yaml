@@ -35,7 +35,7 @@ depsi_post:
 
     shift-to-mean: 0
     new-ref-cn: []
-    map-to-vert: 1
+    map-to-vert: 0
 
     output: "{'csv', 'csv_web_portal'}" #'shape', 'shape_conv', 'csv', 'matlab', 'csv_web_portal'
 

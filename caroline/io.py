@@ -335,9 +335,14 @@ def read_shp_extent(filename: str, shp_type: str = "swath") -> dict:
     dict
         Dictionary with as keys the names / numbers of the polygons, as value the list of bounding box coordinates
 
+
+    Raises
+    ------
     AssertionError
         - When the filename does not exist
         - When the filename does not end in .shp
+    NotImplementedError
+        - When a geometry that is not a Polygon or MultiPolygon is encountered
     """
     assert os.path.exists(filename), f"Specified parameter file {filename} does not exist!"
     assert filename.split(".")[-1] == "shp", f"Specified parameter file {filename} is not a .shp file!"
@@ -352,11 +357,17 @@ def read_shp_extent(filename: str, shp_type: str = "swath") -> dict:
         else:
             name = str(i)
         geom = shape["geometry"].get(i)
-        boundary = geom.boundary.xy
-        coordinates = [[boundary[0][i], boundary[1][i]] for i in range(len(boundary[0]))]
-
-        coordinate_dict[name] = coordinates[:]
-
+        if geom.geom_type == "Polygon":
+            boundary = geom.boundary.xy
+            coordinates = [[boundary[0][i], boundary[1][i]] for i in range(len(boundary[0]))]
+            coordinate_dict[name] = coordinates[:]
+        elif geom.geom_type == "MultiPolygon":
+            for n, sub_geom in enumerate(geom.geoms):  # these are polygons
+                boundary = sub_geom.boundary.xy
+                coordinates = [[boundary[0][i], boundary[1][i]] for i in range(len(boundary[0]))]
+                coordinate_dict[f"{name}_part{n+1}"] = coordinates[:]
+        else:
+            raise NotImplementedError(f"Cannot read the extent of a {geom.geom_type}!")
     return coordinate_dict
 
 

@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.5](https://github.com/TUDelftGeodesy/caroline/tree/main) (02-Oct-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/1184328f7f84f6734f581ae9d5604fdf1b4e3c13...main))
+## [v3.0.6](https://github.com/TUDelftGeodesy/caroline/tree/main) (02-Oct-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/60631e5f91055dfea63166edfe985488f4f8645a...main))
+
+### Fixed:
+- DePSI-post no longer crashes on very large AoIs
+
+## [v3.0.5](https://github.com/TUDelftGeodesy/caroline/tree/60631e5f91055dfea63166edfe985488f4f8645a) (02-Oct-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/1184328f7f84f6734f581ae9d5604fdf1b4e3c13...60631e5f91055dfea63166edfe985488f4f8645a))
 
 ### Added:
 - `read_shp_extent` is now able to extract the geometry of MultiPolygons

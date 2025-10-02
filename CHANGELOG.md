@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (30-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c536dd68d3c38d6f06f18e74139048087d14c1ba...main))
+## [v3.0.5](https://github.com/TUDelftGeodesy/caroline/tree/main) (02-Oct-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/1184328f7f84f6734f581ae9d5604fdf1b4e3c13...main))
+
+### Added:
+- `read_shp_extent` is now able to extract the geometry of MultiPolygons
+
+## [v3.0.4](https://github.com/TUDelftGeodesy/caroline/tree/1184328f7f84f6734f581ae9d5604fdf1b4e3c13) (30-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c536dd68d3c38d6f06f18e74139048087d14c1ba...1184328f7f84f6734f581ae9d5604fdf1b4e3c13))
 
 ### Changed:
 - Default for `map-to-vert` in DePSI-post is now `0` instead of `1` (thus Line of Sight)

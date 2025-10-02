@@ -335,7 +335,6 @@ def read_shp_extent(filename: str, shp_type: str = "swath") -> dict:
     dict
         Dictionary with as keys the names / numbers of the polygons, as value the list of bounding box coordinates
 
-
     Raises
     ------
     AssertionError

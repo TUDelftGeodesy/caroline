@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.6](https://github.com/TUDelftGeodesy/caroline/tree/main) (02-Oct-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/60631e5f91055dfea63166edfe985488f4f8645a...main))
+## [v3.0.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (05-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/8913bf2250f8797cd9f59e3a101c0e781cb79887...main))
+
+### Fixed:
+- Height-to-phase files are now assigned to the correct date in `crop_to_zarr` (used to be shifted by one after the mother epoch, causing NaNs at the last epoch)
+
+## [v3.0.6](https://github.com/TUDelftGeodesy/caroline/tree/8913bf2250f8797cd9f59e3a101c0e781cb79887) (02-Oct-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/60631e5f91055dfea63166edfe985488f4f8645a...8913bf2250f8797cd9f59e3a101c0e781cb79887))
 
 ### Fixed:
 - DePSI-post no longer crashes on very large AoIs

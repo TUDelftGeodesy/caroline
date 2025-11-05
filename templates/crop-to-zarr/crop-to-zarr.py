@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
     # List of SLC
     f_ifgs = list(sorted(stack_dir.rglob("2*/cint_srd.raw")))
-    f_h2phs = list(sorted(stack_dir.rglob("2*/h2ph_srd.raw")))
+    f_h2phs = [f_ifg.parents[0] / "h2ph_srd.raw" for f_ifg in f_ifgs]
 
     shape = (metadata["n_lines"], metadata["n_pixels"])
 

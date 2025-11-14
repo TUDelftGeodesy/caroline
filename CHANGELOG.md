@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed:
 - Height-to-phase files are now assigned to the correct date in `crop_to_zarr` (used to be shifted by one after the mother epoch, causing NaNs at the last epoch)
+- Non-S1 `crop_to_zarr` now splits the mother image search line on the correct tickmark (" instead of ')
 
 ## [v3.0.6](https://github.com/TUDelftGeodesy/caroline/tree/8913bf2250f8797cd9f59e3a101c0e781cb79887) (02-Oct-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/60631e5f91055dfea63166edfe985488f4f8645a...8913bf2250f8797cd9f59e3a101c0e781cb79887))
 

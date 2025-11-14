@@ -440,7 +440,7 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             mother = None
             for line in data:
                 if "master = " in line:
-                    mother = line.split("'")[1]
+                    mother = line.split('"')[1]
                     break
 
             if mother is None:

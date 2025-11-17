@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (05-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/8913bf2250f8797cd9f59e3a101c0e781cb79887...main))
+## [v3.0.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (14-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/8913bf2250f8797cd9f59e3a101c0e781cb79887...main))
 
 ### Fixed:
 - Height-to-phase files are now assigned to the correct date in `crop_to_zarr` (used to be shifted by one after the mother epoch, causing NaNs at the last epoch)
@@ -90,7 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed:
 - The live parameter files (migrated to https://github.com/TUDelftGeodesy/caroline-parameter-files (a private repo))
 
-## [v2.4.7](https://github.com/TUDelftGeodesy/caroline/tree/66b7601d2345567ee0e6d3d2d8c595a58ac00fe1) (15-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d4b82b3e99c06fa298fcd95b3ff748160da07f00...main))
+## [v2.4.7](https://github.com/TUDelftGeodesy/caroline/tree/66b7601d2345567ee0e6d3d2d8c595a58ac00fe1) (15-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d4b82b3e99c06fa298fcd95b3ff748160da07f00...66b7601d2345567ee0e6d3d2d8c595a58ac00fe1))
 
 ### Changed:
 - Updated `caroline-download` to `v0.2.0rc2`, prioritising EODAG over ASF_search.

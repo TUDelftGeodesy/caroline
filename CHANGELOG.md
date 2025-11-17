@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (14-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/8913bf2250f8797cd9f59e3a101c0e781cb79887...main))
+## [v3.0.8](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/414af778adff2e0d2dea270fd6b0ad446e885095...main))
+
+### Fixed:
+- KML generation no longer crashes on job submissions where the job ID failed to be returned
+
+## [v3.0.7](https://github.com/TUDelftGeodesy/caroline/tree/414af778adff2e0d2dea270fd6b0ad446e885095) (14-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/8913bf2250f8797cd9f59e3a101c0e781cb79887...414af778adff2e0d2dea270fd6b0ad446e885095))
 
 ### Fixed:
 - Height-to-phase files are now assigned to the correct date in `crop_to_zarr` (used to be shifted by one after the mother epoch, causing NaNs at the last epoch)

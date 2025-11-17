@@ -348,8 +348,9 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                     ).read()
                     for line in track_processes.split("\n"):
                         if ";" in line:  # filter out empty lines
-                            process_id = eval(line.split(";")[-1])
-                            processing_time += get_processing_time(process_id)
+                            process_id = line.split(";")[-1]
+                            if process_id != "":  # Filter out faulty submissions without job ID
+                                processing_time += get_processing_time(eval(process_id))
                 ndays = int(processing_time / (60 * 60 * 24))
                 nhours = int(processing_time / (60 * 60)) % 24
                 nminutes = int(processing_time / 60) % 60

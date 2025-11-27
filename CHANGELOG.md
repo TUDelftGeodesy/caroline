@@ -25,7 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.8](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/414af778adff2e0d2dea270fd6b0ad446e885095...main))
+## [v3.0.9](https://github.com/TUDelftGeodesy/caroline/tree/main) (27-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/07b3e59109de44d5c223806757416a132514f112...main))
+
+### Added:
+- `s1_download` will now perform a ZIP-file integrity check after the call to `caroline-download` completes. If incomplete downloads are found, those are removed and the call to `caroline-download` is re-initiated. If this loop repeats over 20 times, `s1_download` aborts with exit code `5` to prevent infinite loops. 
+
+### Fixed:
+- `s1_download` will now return exit code 5 instead of 0 if the download fails prematurely
+
+## [v3.0.8](https://github.com/TUDelftGeodesy/caroline/tree/07b3e59109de44d5c223806757416a132514f112) (17-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/414af778adff2e0d2dea270fd6b0ad446e885095...07b3e59109de44d5c223806757416a132514f112))
 
 ### Fixed:
 - KML generation no longer crashes on job submissions where the job ID failed to be returned

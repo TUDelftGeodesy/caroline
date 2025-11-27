@@ -2,6 +2,7 @@ import datetime as dt
 import glob
 import os
 import sys
+import zipfile
 
 import numpy as np
 
@@ -24,6 +25,9 @@ CONFIG_PARAMETERS = get_config()
 JOB_DEFINITIONS = get_config(
     f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
 )["jobs"]
+
+S1_DOWNLOAD_CALL_REPEAT_LIMIT = 20  # the number of times Caroline restarts the call to caroline-download before
+# reporting a failed process
 
 
 def finish_installation() -> None:
@@ -1845,19 +1849,73 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
             },
         )
 
-        # actually perform the download (first load the virtual environment, then run the caroline-download command)
-        os.system(
-            "source /etc/profile.d/modules.sh; "
-            "source /project/caroline/Software/bin/init.sh; "
-            "module load python/3.10.4 gdal/3.4.1-alma9; "
-            "source ~/.bashrc; "
-            f"source {CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
-            "caroline-download --config "
-            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/download-config.yaml "
-            "--geo-search "
-            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
-            f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/geosearch.yaml"
+        download_completed = False
+        repeat_counter = 0  # to keep track of how many times the download call is performed
+        while not download_completed:
+            # actually perform the download (first load the virtual environment, then run the caroline-download command)
+            os.system(
+                "source /etc/profile.d/modules.sh; "
+                "source /project/caroline/Software/bin/init.sh; "
+                "module load python/3.10.4 gdal/3.4.1-alma9; "
+                "source ~/.bashrc; "
+                f"source {CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
+                "caroline-download --config "
+                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/download-config.yaml "
+                "--geo-search "
+                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/geosearch.yaml"
+            )
+            os.system('''echo "\n\n\nDownload finished. Starting ZIP file integrity check...\n"''')
+
+            zip_files = glob.glob(
+                f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/s1_{asc_dsc[track]}_t{tracks[track]:0>3d}/"
+                f"IW_SLC__1SDV_VVVH/*/*.zip"
+            )
+            bad_zip_files = []
+            for zip_file in zip_files:
+                try:
+                    _ = zipfile.ZipFile(zip_file)
+                except zipfile.BadZipFile:  # zip file cannot be opened --> incomplete download
+                    bad_zip_files.append(zip_file)
+
+            if len(bad_zip_files) == 0:  # download is complete
+                os.system('''echo "ZIP File Integrity Check Passed!\n"''')
+                download_completed = True
+            else:  # download failed early. Remove the bad zips and try again
+                os.system('''echo "ZIP File Integrity Check Failed!\n"''')
+                os.system(f'''echo "Failed on {str(bad_zip_files).replace('"', "'")}. Removing and restarting...\n"''')
+                for zip_file in bad_zip_files:
+                    os.system(f"rm -f {zip_file}")
+                repeat_counter += 1
+                if repeat_counter > S1_DOWNLOAD_CALL_REPEAT_LIMIT:
+                    os.system('''echo "Download failed over 20 times. Please check logs. Killing process...\n"''')
+                    exit(5)
+
+    # final integrity check on all tracks (in case the loop above somehow exited early)
+    bad_zip_files = []
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        zip_files = glob.glob(
+            f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/s1_{asc_dsc[track]}_t{tracks[track]:0>3d}/"
+            f"IW_SLC__1SDV_VVVH/*/*.zip"
         )
+
+        for zip_file in zip_files:
+            try:
+                _ = zipfile.ZipFile(zip_file)
+            except zipfile.BadZipFile:  # zip file cannot be opened --> incomplete download
+                bad_zip_files.append(zip_file)
+
+    if len(bad_zip_files) > 0:
+        os.system('''echo "\n\n\nZIP File Integrity Check Failed!\n"''')
+        os.system(f'''echo "Failed on zip file(s) {str(bad_zip_files).replace('"', "'")}. Exiting with code 5...\n"''')
+        exit(5)  # Make the code exit with a non-zero exit code so the next steps won't run
 
 
 def prepare_stm_generation(parameter_file: str, do_track: int | list | None = None) -> None:

@@ -82,10 +82,10 @@ None yet
 
 ### Indonesia
 
-- `IJC`: id_jakarta_cubic
-- `IJL`: id_jakarta_large (inactive)
-- `IJQ`: id_jakarta
-- `IJS`: id_jakarta_short
+- `IJC`: id_jakarta_cubic (inactive)
+- `IJL`: id_jakarta_large 
+- `IJQ`: id_jakarta (inactive)
+- `IJS`: id_jakarta_short (inactive)
 
 ### Netherlands
 
@@ -112,3 +112,7 @@ None yet
 ### Singapore
 
 - `SSG`: sg_singapore
+
+### Spain
+
+- `EEX`: es_extremadura

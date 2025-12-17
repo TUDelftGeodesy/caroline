@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.9](https://github.com/TUDelftGeodesy/caroline/tree/main) (27-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/07b3e59109de44d5c223806757416a132514f112...main))
+## [v3.0.10](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6543634985e0be7fdaf3cf09202f031f584f3396...main))
+
+### Fixed:
+- `find-new-insar-files.sh` will now take new directories that lack orbit data with it to the next check if the reference timestamp file is updated (by updating the timestamps of the relevant `*.json` files)
+
+
+## [v3.0.9](https://github.com/TUDelftGeodesy/caroline/tree/6543634985e0be7fdaf3cf09202f031f584f3396) (27-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/07b3e59109de44d5c223806757416a132514f112...6543634985e0be7fdaf3cf09202f031f584f3396))
 
 ### Added:
 - `s1_download` will now perform a ZIP-file integrity check after the call to `caroline-download` completes. If incomplete downloads are found, those are removed and the call to `caroline-download` is re-initiated. If this loop repeats over 20 times, `s1_download` aborts with exit code `5` to prevent infinite loops. 

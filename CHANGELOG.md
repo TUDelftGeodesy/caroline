@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.10](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6543634985e0be7fdaf3cf09202f031f584f3396...main))
+## [v3.0.11](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d884a04d0478230ce7a64bc159527b7f6997e3a9...main))
+
+### Changed:
+- `depsi:depsi-settings:general:run-mode` now defaults to `validation` instead of `normal` (this outputs amplitude information).
+
+
+## [v3.0.10](https://github.com/TUDelftGeodesy/caroline/tree/d884a04d0478230ce7a64bc159527b7f6997e3a9) (17-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6543634985e0be7fdaf3cf09202f031f584f3396...d884a04d0478230ce7a64bc159527b7f6997e3a9))
 
 ### Fixed:
 - `find-new-insar-files.sh` will now take new directories that lack orbit data with it to the next check if the reference timestamp file is updated (by updating the timestamps of the relevant `*.json` files)

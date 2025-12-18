@@ -131,6 +131,9 @@ if __name__ == "__main__":
     f_lam = mother_dir / "lam.raw"  # lon
     f_phi = mother_dir / "phi.raw"  # lat
 
+    # DEM
+    f_dem = mother_dir / "dem_radar.raw"
+
     # Mother SLC
     f_mother_slc = mother_dir / "**mother_slc_name**"
 
@@ -142,6 +145,7 @@ if __name__ == "__main__":
 
     dtype_slc_ifg = np.dtype([("re", np.float32), ("im", np.float32)])
     dtype_lam_phi = np.float32
+    dtype_dem = np.float32
 
     # Lazy loading ifg stack
     ifgs = sarxarray.from_binary(f_ifgs, shape, dtype=dtype_slc_ifg, chunks=reading_chunks)  # Load ifgs
@@ -195,6 +199,10 @@ if __name__ == "__main__":
         "lat"
     ]
     slcs_output = slcs_output.assign({"lon": lon, "lat": lat})
+
+    # Add DEM
+    dem = sarxarray.from_binary([f_dem], shape, vlabel="h", dtype=dtype_dem, chunks=reading_chunks).isel(time=0)["h"]
+    slcs_output = slcs_output.assign({"h": dem})
 
     slcs_output = crop_slc_spacetime(
         slcs_output, aoi_filename="**general:shape-file:directory**/**general:shape-file:aoi-name**_shape.shp"

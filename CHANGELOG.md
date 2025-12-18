@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.11](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d884a04d0478230ce7a64bc159527b7f6997e3a9...main))
+## [v3.0.12](https://github.com/TUDelftGeodesy/caroline/tree/main) (18-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0bda0247b64ae9ec9458e17b170cd0679f02e8cb...main))
+
+### Added:
+- `crop_to_zarr` now also reads `dem_radar.raw` into an elevation layer called `h`.
+
+
+## [v3.0.11](https://github.com/TUDelftGeodesy/caroline/tree/0bda0247b64ae9ec9458e17b170cd0679f02e8cb) (17-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d884a04d0478230ce7a64bc159527b7f6997e3a9...0bda0247b64ae9ec9458e17b170cd0679f02e8cb))
 
 ### Changed:
 - `depsi:depsi-settings:general:run-mode` now defaults to `validation` instead of `normal` (this outputs amplitude information).

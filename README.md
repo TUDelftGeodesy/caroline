@@ -4,7 +4,7 @@ Welcome to the CAROLINE Project source code repository.
 
 CAROLINE (Contextual and Autonomous processing of satellite Radar Observations for Learning and Interpreting the Natural and built Environment)  is an InSAR data processing system that automates the InSAR processing chain from download to final output. It allows for continuous product generation, where predefined products are created as new datasets are downloaded, as wel as ad-hoc product creation.
 
-The current documentation still mostly pertains to v0.1.0. In v2.0.0, the continuous and ad hoc product generation is functional, but the database integration with docker-compose.yml is still missing. 
+The current documentation still partly pertains to v0.1.0. In v3.0.0, the continuous and ad hoc product generation is functional, but the database integration with docker-compose.yml is still missing. 
 
 **Table of Contents**
 

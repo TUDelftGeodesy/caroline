@@ -68,7 +68,7 @@ jobs:
     two-letter-id: "DC"
     parameter-file-step-key: "general:steps:do-coregistration"
     partition: "short"
-    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    sbatch-args: "--ntasks=1 --cpus-per-task=1"
     directory-contents-file-appendix: ""
     email:
       include-in-email: False
@@ -201,7 +201,7 @@ jobs:
     two-letter-id: "TB"
     parameter-file-step-key: "general:steps:do-depsi_post"
     partition: "short"
-    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    sbatch-args: "--ntasks=1 --cpus-per-task=1"
     directory-contents-file-appendix: "_tarball"
     email:
       include-in-email: False
@@ -218,7 +218,7 @@ jobs:
     two-letter-id: "PU"
     parameter-file-step-key: "general:steps:do-depsi_post"
     partition: "short"
-    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    sbatch-args: "--ntasks=1 --cpus-per-task=1"
     directory-contents-file-appendix: "_portalupload"
     email:
       include-in-email: True
@@ -235,7 +235,7 @@ jobs:
     two-letter-id: "EM"
     parameter-file-step-key:
     partition: "short"
-    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    sbatch-args: "--ntasks=1 --cpus-per-task=1"
     directory-contents-file-appendix: ""
     email:
       include-in-email: False

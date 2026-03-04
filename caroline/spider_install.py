@@ -200,7 +200,7 @@ def _setup_esa_snappy() -> None:
         "module load python/3.10.4 gdal/3.4.1-alma9; "
         "source ~/.bashrc; "
         f"source {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
-        f"cd {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/lib/python3.10/esa_snappy; "
+        f"cd {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/lib/python3.10/site-packages/esa_snappy; "
         "python snappyutil.py --snap_home /project/caroline/Software/snap/12.0.0 "
         "--java_module /project/caroline/Software/snap/12.0.0/esasnappy/modules/eu-esa-snap-esa-snappy.jar "
         "--jvm_max_mem 32G "

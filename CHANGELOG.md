@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.12](https://github.com/TUDelftGeodesy/caroline/tree/main) (18-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0bda0247b64ae9ec9458e17b170cd0679f02e8cb...main))
+## [v3.0.13](https://github.com/TUDelftGeodesy/caroline/tree/main) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/cecb5d0e408d5dfe79e3f7cfa162a649c5fdda19...main))
+
+### Fixed:
+- `doris_cleanup`, `portal_upload`, `tarball`, and `email` no longer request `--qos=long` from the SLURM system on the `short` partition.
+
+## [v3.0.12](https://github.com/TUDelftGeodesy/caroline/tree/cecb5d0e408d5dfe79e3f7cfa162a649c5fdda19) (18-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0bda0247b64ae9ec9458e17b170cd0679f02e8cb...cecb5d0e408d5dfe79e3f7cfa162a649c5fdda19))
 
 ### Added:
 - `crop_to_zarr` now also reads `dem_radar.raw` into an elevation layer called `h`.

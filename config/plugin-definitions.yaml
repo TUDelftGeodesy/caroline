@@ -19,6 +19,10 @@ github:
     repo: "git@github.com:TUDelftGeodesy/DePSI_group.git"
     branch: "caroline-clone-branch"
 
+  snap_toolbox:
+    repo: "git@github.com:TUDelftGeodesy/snap-coregistration.git"
+    branch: "caroline-clone-branch"
+
 tarball:
   cpxfiddle: "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**/cpxfiddle.tar.gz"
   depsi_v2.2.1.1: "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**/depsi_v2.2.1.1.tar.gz"

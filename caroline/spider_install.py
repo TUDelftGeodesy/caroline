@@ -191,6 +191,24 @@ def _update_virtualenvironment() -> None:
     os.system('''echo "Finished updating the virtual environment!"''')
 
 
+def _setup_esa_snappy() -> None:
+    """Set the correct paths for ESA-snappy after installation."""
+    os.system('''echo "Setting the correct esa-snappy environment variables..."''')
+    os.system(
+        "source /etc/profile.d/modules.sh; "
+        "source /project/caroline/Software/bin/init.sh; "
+        "module load python/3.10.4 gdal/3.4.1-alma9; "
+        "source ~/.bashrc; "
+        f"source {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
+        f"cd {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/lib/python3.10/esa_snappy; "
+        "python snappyutil.py --snap_home /project/caroline/Software/snap/12.0.0 "
+        "--java_module /project/caroline/Software/snap/12.0.0/esasnappy/modules/eu-esa-snap-esa-snappy.jar "
+        "--jvm_max_mem 32G "
+        "--log_file ./snappyutil.log"
+    )
+    os.system('''echo "Finished setting esa-snappy environment variables!"''')
+
+
 def _update_start_job() -> None:
     """Update the start_job script in the SLURM output location."""
     os.system('''echo "Updating the start_job script..."''')
@@ -233,6 +251,8 @@ if __name__ == "__main__":
     _copy_parameter_files()
 
     _update_virtualenvironment()
+
+    _setup_esa_snappy()
 
     _update_start_job()
 

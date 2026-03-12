@@ -1,0 +1,7 @@
+# the default settings for snap, running in the generate-snap and run-snap jobs
+
+snap:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/stacks_snap'
+    partition: 'normal'

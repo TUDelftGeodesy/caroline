@@ -1918,6 +1918,153 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
         exit(5)  # Make the code exit with a non-zero exit code so the next steps won't run
 
 
+def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for SNAP preparation.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "snap:general:AoI-name",
+        "snap:general:directory",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "general:shape-file:aoi-name",
+        "general:shape-file:directory",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+
+    shapefile_name = (
+        f"{out_parameters['general:shape-file:directory']}/{out_parameters['general:shape-file:aoi-name']}_shape.shp"
+    )
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        snap_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_preparation"], track=tracks[track]
+        )
+
+        os.makedirs(snap_directory, exist_ok=True)
+
+        track_fmt = (
+            f"{out_parameters['general:input-data:sensor'].lower()}_"
+            f"{out_parameters['general:tracks:asc_dsc']}_"
+            f"{out_parameters['general:tracks:track']}"
+        )
+
+        # generate the WKT file
+        write_run_file(
+            save_path=f"{snap_directory}/aoi.wkt",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/aoi.wkt",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            other_parameters={"wkt_string": convert_shp_to_wkt(shapefile_name)},
+        )
+
+        # generate generate-snap-graphs.sh
+        write_run_file(
+            save_path=f"{snap_directory}/generate-snap-graphs.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/generate-snap-graphs.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "snap:general:AoI-name",
+                "general:timeframe:mother",
+                "general:timeframe:start",
+                "general:timeframe:end",
+            ],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "caroline_install_directory",
+                "slc_base_directory",
+            ],
+            other_parameters={
+                "track": tracks[track],
+                "snap-output-path": snap_directory,
+                "dry_run": "0",
+                "track_formatted": track_fmt,
+            },
+        )
+
+        write_directory_contents(
+            snap_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["snap_preparation"]["directory-contents-file-appendix"]}.txt',
+        )
+
+
+def prepare_snap_run(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for SNAP preparation.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "snap:general:AoI-name",
+        "snap:general:directory",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        snap_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
+        )
+
+        os.makedirs(snap_directory, exist_ok=True)
+
+        # generate run-snap-graph.sh
+        write_run_file(
+            save_path=f"{snap_directory}/run-snap-graph.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/run-snap-graph.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["snap:general:AoI-name"],
+            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
+            other_parameters={"track": tracks[track], "snap-output-path": snap_directory},
+        )
+
+        write_directory_contents(
+            snap_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["snap_run"]["directory-contents-file-appendix"]}.txt',
+        )
+
+
 def prepare_stm_generation(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for STM generation.
 

@@ -21,6 +21,54 @@ jobs:
         input-data:
           sensor: "S1"
 
+  snap_preparation:
+    requirement: "s1_download"
+    two-letter-id: "SP"
+    parameter-file-step-key: "general:steps:do-coregistration"
+    partition: "normal"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    directory-contents-file-appendix: "_prep"
+    email:
+      include-in-email: False
+      status-file-search-key:
+    bash-file:
+      bash-file-name: "generate-snap-graphs.sh"
+      bash-file-base-directory: "snap"
+      bash-file-directory-appendix: ""
+      bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
+    filters:
+      general:
+        input-data:
+          sensor: "S1"
+
+  snap_run:
+    requirement: "snap_preparation"
+    two-letter-id: "SR"
+    parameter-file-step-key: "general:steps:do-coregistration"
+    partition: "normal"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    directory-contents-file-appendix: "_run"
+    email:
+      include-in-email: False
+      status-file-search-key:
+    bash-file:
+      bash-file-name: "run-snap-graph.sh"
+      bash-file-base-directory: "snap"
+      bash-file-directory-appendix: ""
+      bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
+    job-array:
+      run-as-array: True
+      njobs-in-array-function: "njobs_snap_run"
+    filters:
+      general:
+        input-data:
+          sensor: "S1"
+
   doris:
     requirement: "s1_download"
     two-letter-id: "D5"

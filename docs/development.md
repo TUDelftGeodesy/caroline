@@ -134,10 +134,11 @@ A few notes:
 
 ### Job design
 
-Jobs are the core of CAROLINE, as they are what submodules and modules are composed of. Here we will use the `DePSI` job as an example. A job consists of one or two parts:
+Jobs are the core of CAROLINE, as they are what submodules and modules are composed of. Here we will use the `DePSI` job as an example. A job consists of one, two, or three parts:
 
 - A preparation function in [caroline/preparation.py](../caroline/preparation.py) called `prepare_<job>` (always)
 - A bash file from [templates](../templates) (optional)
+- A jobarray preparation function in [caroline/jobarray_preparation.py](../caroline/jobarray_preparation.py) (optional)
 
 All jobs are started using [scripts/start_job.sh](../scripts/start_job.sh), which takes 5 required arguments and 2 optional arguments:
 1. the parameter file (full path)
@@ -148,7 +149,7 @@ All jobs are started using [scripts/start_job.sh](../scripts/start_job.sh), whic
 6. (optional) the directory in which the bash file is located
 7. (optional) the name of the bash file (without the full path)
 
-If 5 arguments are passed, only the preparation function is run. If all 8 are passed, the preparation function is run, and then the bash file. All of this is handled by the [scheduler](../caroline/scheduler.py). 
+If 5 arguments are passed, only the preparation function is run. If all 7 are passed, the preparation function is run, and then the bash file. All of this is handled by the [scheduler](../caroline/scheduler.py). 
 
 #### The preparation function
 
@@ -190,6 +191,22 @@ The first line loads the Matlab environment (on Spider this is called a module),
 
 In some cases (e.g. the job `email`) there is no processing to be done. In this case the bash file is not passed, and not called upon.
 
+#### The jobarray_preparation function
+
+This function is only necessary if the job is intended to be run using the [job array functionality](https://slurm.schedmd.com/job_array.html) provided by SLURM. 
+The idea behind this functionality is that each subjob within a job array performs approximately the same task, but with slightly different parameters. 
+They all use the same bash file and have the same job ID (`SLURM_JOB_ID`), yet can be distinguished via the `SLURM_ARRAY_TASK_ID` global available in the run environment. 
+In the `squeue` they will show up as e.g. `12345_1` for task ID 1 of job 12345.
+
+The CAROLINE scheduler submits all jobs at once with the correct dependencies, after which it is up to the SLURM cluster itself to release the right jobs at the right time.
+This means that an array job also needs to be submitted at this time. Yet how many subjobs are needed in the array job is not known by the scheduler, as this is generally only figured out during the processing itself.
+The solution is [caroline/jobarray_preparation.py](../caroline/jobarray_preparation.py). 
+Here functions called `njobs_<jobname>` reside, which return the number of subjobs necessary for the current processing run as an integer to the scheduler, allowing it to submit the correct size job array.
+
+This function thus does the following:
+- Based on what the job is supposed to do, it determines how many subjobs in the job array are necessary for this without actually running anything.
+- It returns this number of jobs as an integer.
+
 ###  The necessary steps for adding a job
 
 In order to fully integrate a new job into CAROLINE, the following steps need to be undertaken (we will use `DePSI` as an example)
@@ -215,7 +232,10 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
          5. `bash-file-slurm-cluster`: if no SLURM cluster is used in this job, leave it empty (like in `depsi`). If a SLURM cluster is used (NOTE: Python-only!) (e.g. in `crop_to_zarr`), move one tab in, and add two keys:
             1. `slurm-cluster-n-workers`: The number of workers to be created by the SLURM cluster
             2. `slurm-cluster-worker-time`: the maximum runtime allowed for each worker. Note: values of more than 5 days are not allowed! The shorter the time, the easier it is to allocate them.
-      9. `filters`: in case the job should only run if specific conditions are met, these can be specified here. If left empty, it will assume no filters are present and any parameter file can start this job. If a filter (e.g. satellite) is present, use the following syntax:
+      9. `job-array`: like `email`, always has two keys: 
+         1. `run-as-array`: if `True` (without quotes), the job will be submitted as an array job to the SLURM cluster. If `False` (without quotes), the job will be submitted as a regular job.
+         2. `njobs-in-array-function`: The name of the function in [jobarray_preparation.py](../caroline/jobarray_preparation.py) which determines for this job how many individual jobs are needed to be part of the job array. If `run-as-array` is `False` this key is ignored and can be left empty.
+      10. `filters`: in case the job should only run if specific conditions are met, these can be specified here. If left empty, it will assume no filters are present and any parameter file can start this job. If a filter (e.g. satellite) is present, use the following syntax:
             1. one tab in, add `<parameter-file-key>: <allowed-value(s)>`. `<allowed-value(s)>` can be either a `str` or `list` of `str`. If the value of the specified key in the parameter file is in the provided allowed values, the job will start. Otherwise, the job will not be scheduled.
             2. If multiple filters are necessary, add the next filter using the same syntax on a new line. The job will only start if _all_ filters are satisfied.
 3. Add the two letter job ID to [abbreviations.md](abbreviations.md)
@@ -236,13 +256,20 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
    
 5. If the job is dependent on a plugin, add this plugin in [config/plugin-definitions.yaml](../config/plugin-definitions.yaml). If the plugin is a GitHub or bitbucket repository, add it to the `github` group with the `repo` variable (the git clone link), and a `branch` or `tag` variable (depending on whether you want to clone off of a branch or tag). If the plugin is a tarball, add it to `tarball` group.
 6. If the job is dependent on a Python plugin that requires packages not yet provided in the CAROLINE virtual environment, update the `plugins` dependency list on line 50 of [pyproject.toml](../pyproject.toml) with a comment on which plugin it is necessary for.
-7. If scripts are needed for the completion of the job that are not provided in the plugin, add them in [scripts](../scripts) 
-8. If user settings are necessary for the completion of the job, add a new default parameter file in [config/parameter-files](../config/parameter-files), and add all necessary parameters here.
-9. If in step 2 you introduced new values for `parameter-file-step-key` and `bash-file-base-directory`: 
+7. If the job is intended to be run as a [job array](https://slurm.schedmd.com/job_array.html): in [jobarray_preparation.py](../caroline/jobarray_preparation.py), create the function `njobs_<jobname>` that determines the number of jobs necessary, and takes exactly one argument:
+
+   ```python
+    def njobs_<jobname>(parameter_file: str) -> int:
+       pass
+   ```
+   This function determines how many subjobs in the array are necessary without actually running the job. It returns the number of subjobs in the array as an integer to the scheduler.
+8. If scripts are needed for the completion of the job that are not provided in the plugin, add them in [scripts](../scripts) 
+9. If user settings are necessary for the completion of the job, add a new default parameter file in [config/parameter-files](../config/parameter-files), and add all necessary parameters here.
+10. If in step 2 you introduced new values for `parameter-file-step-key` and `bash-file-base-directory`: 
    1. `general:steps:do_<parameter-file-step-key>`, a 0/1 boolean switch located in [config/parameter-files/default-machine-fields-param-file.yaml](../config/parameter-files/default-machine-fields-param-file.yaml) Set the default to 0 , the scheduler will turn it on where necessary
    2. `<bash-file-base-directory>:general:AoI-name`, the name of the AoI in that job (note that the `:` is a separator), default can be set to `"**AoI_name**"`, this will be replaced by the scheduler with the name of the parameter file.
    3. `<bash-file-base-directory>:general:directory`, the directory in which the job should run
-10. In the [parameter file repository](https://github.com/TUDelftGeodesy/caroline-parameter-files), add the new job to all workflows where you want it to be active (following the GitHub management)
-11. Update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)
-12. Update the [changelog](../CHANGELOG.md) with the new version
-13. Update the documentation (at the very least [architecture.md](architecture.md) and the [glossary](glossary.md), likely more)
+11. In the [parameter file repository](https://github.com/TUDelftGeodesy/caroline-parameter-files), add the new job to all workflows where you want it to be active (following the GitHub management)
+12. Update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)
+13. Update the [changelog](../CHANGELOG.md) with the new version
+14. Update the documentation (at the very least [architecture.md](architecture.md) and the [glossary](glossary.md), likely more)

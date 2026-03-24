@@ -25,6 +25,7 @@ general:
       input-step: "NEEDS_VALUE"
     output-steps: "NEEDS_VALUE"  # one or more of the steps defined in job-definitions.yaml, as a list
     filters:
+      s1-coregistration-mode: "doris"  # doris / snap (S1 only, ignored for non-S1)
       depsi_post-output: "csv"  # csv / tarball
 
   portal:

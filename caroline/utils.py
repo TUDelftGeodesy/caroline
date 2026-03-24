@@ -803,10 +803,10 @@ def extract_all_values_and_paths_from_dictionary(dictionary: dict, cur_keys: tup
     """
     all_values = []
     for key in dictionary.keys():
-        cur_keys = cur_keys + (key,)
+        cur_keys_loop = cur_keys + (key,)
         if isinstance(dictionary[key], dict):
-            part_values = extract_all_values_and_paths_from_dictionary(dictionary[key], cur_keys)
+            part_values = extract_all_values_and_paths_from_dictionary(dictionary[key], cur_keys_loop)
             all_values = [*all_values, *part_values]
         else:
-            all_values.append([dictionary[key], cur_keys])
+            all_values.append([dictionary[key], cur_keys_loop])
     return all_values

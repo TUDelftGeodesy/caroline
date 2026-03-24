@@ -1,4 +1,5 @@
 import glob
+import os
 from typing import Literal
 
 import yaml
@@ -104,6 +105,7 @@ def generate_full_parameter_file(
                             filters = extract_all_values_and_paths_from_dictionary(
                                 job_definitions["jobs"][req]["filters"]
                             )
+                            os.system(f'''echo "Applying filters {filters}"''')
                             passed = True
                             for filt in filters:
                                 rec_val = general_user_settings

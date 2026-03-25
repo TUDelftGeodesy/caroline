@@ -60,8 +60,8 @@ def njobs_snap_run(parameter_file: str) -> int:
         raise ValueError(f"Expected single track, got {out_parameters['general:tracks:track']}!")
 
     track_fmt = (
-        f"{out_parameters['general:input-data:sensor'].lower()}_{out_parameters['general:tracks:asc_dsc']}_"
-        f"{out_parameters['general:tracks:track']}"
+        f"{out_parameters['general:input-data:sensor'].lower()}_{out_parameters['general:tracks:asc_dsc'][0]}_"
+        f"t{out_parameters['general:tracks:track'][0]:0>3d}"
     )
 
     snap_directory = format_process_folder(

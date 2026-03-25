@@ -1961,11 +1961,7 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
 
         os.makedirs(snap_directory, exist_ok=True)
 
-        track_fmt = (
-            f"{out_parameters['general:input-data:sensor'].lower()}_"
-            f"{out_parameters['general:tracks:asc_dsc']}_"
-            f"{out_parameters['general:tracks:track']}"
-        )
+        track_fmt = f"{out_parameters['general:input-data:sensor'].lower()}_{tracks[track]}_t{asc_dsc[track]:0>3d}"
 
         # generate the WKT file
         write_run_file(

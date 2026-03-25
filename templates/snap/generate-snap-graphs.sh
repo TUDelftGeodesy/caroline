@@ -58,7 +58,7 @@ if [ -f ${output_path}/${mother}-coreg.dim ]; then
   DO_MOTHER=0
 fi
 COUNTER=1
-if [ "${DRY_RUN}" -eq "0" ]; then
+if [ "${DRY_RUN}" -eq "1" ]; then
   COUNTER=$(($COUNTER-1))
 fi
 

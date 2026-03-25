@@ -2020,9 +2020,6 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
             parameter_file=parameter_file,
             parameter_file_parameters=[
                 "snap:general:AoI-name",
-                "general:timeframe:mother",
-                "general:timeframe:start",
-                "general:timeframe:end",
             ],
             config_parameters=[
                 "caroline_work_directory",

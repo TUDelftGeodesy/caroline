@@ -117,9 +117,6 @@ def njobs_snap_run(parameter_file: str) -> int:
         parameter_file=parameter_file,
         parameter_file_parameters=[
             "snap:general:AoI-name",
-            "general:timeframe:mother",
-            "general:timeframe:start",
-            "general:timeframe:end",
         ],
         config_parameters=[
             "caroline_work_directory",

@@ -45,6 +45,10 @@ aoi_wkt_path="**snap-output-path**/aoi.wkt"
 polarizations="VV"
 DRY_RUN="**dry_run**"
 
+start=${start//-/}  # remove the dashes from the dates
+end=${end//-/}
+mother=${mother//-/}
+
 if [ "${DRY_RUN}" -eq "0" ]; then
   echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started generate-snap-graphs.sh (AoI **snap:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 fi

@@ -78,13 +78,14 @@ if [ "${DRY_RUN}" -eq "0" ]; then
 fi
 # Then generate the new processing graphs
 
-for daughter in `ls ${s1dir}/${track}/IW_SLC__1SDV_VVVH`;
+for daughterdir in `ls -d ${s1dir}/${track}/IW_SLC__1SDV_VVVH/*/`;  # only the directories
 do
+  daughter=$(echo ${daughterdir} | rev | cut -d/ -f2 | rev | xargs echo)  # cut out the daughter date from the file structure
   if [ "${daughter}" != "${mother}" ]; then  # skip the mother
     if [ "${daughter}" -ge "${start}" ]; then  # skip everything before start
       if [ "${daughter}" -le "${end}" ]; then  # skip everything after end
         if [ ! -f ${output_path}/${daughter}-coreg.dim ]; then  # skip everything that already exists
-          if [ "${DRY_RUN}" -eq "0"]; then
+          if [ "${DRY_RUN}" -eq "0" ]; then
             echo "Start generating graph for ${daughter}..."
             if [ "${DO_MOTHER}" -eq "1" ]; then  # check if the mother still has to be done
               time snap-run \

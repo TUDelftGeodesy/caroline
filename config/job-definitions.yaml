@@ -29,7 +29,7 @@ jobs:
     two-letter-id: "SP"
     parameter-file-step-key: "general:steps:do-coregistration"
     partition: "normal"
-    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=1"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8"
     directory-contents-file-appendix: "_prep"
     email:
       include-in-email: True

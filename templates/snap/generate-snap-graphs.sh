@@ -74,7 +74,10 @@ if [ "${DRY_RUN}" -eq "0" ]; then
   ARCHIVE=${output_path}/graph_archive/$(date '+%Y%m%dT%H%M%S')
 
   mkdir ${ARCHIVE}
-  mv ${output_path}/*.xml ${ARCHIVE}/
+  for xml in `ls ${output_path}/*.xml`;
+  do
+    mv ${xml} ${ARCHIVE}/
+  done
 fi
 # Then generate the new processing graphs
 

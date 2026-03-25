@@ -1,5 +1,6 @@
 """All functions in this file aim at figuring out how many jobs are necessary for a job array submission."""
 
+import glob
 import os
 
 from caroline.config import get_config
@@ -70,6 +71,41 @@ def njobs_snap_run(parameter_file: str) -> int:
         track=out_parameters["general:tracks:track"][0],
     )
 
+    other_parameters = {
+        "track": out_parameters["general:tracks:track"][0],
+        "snap-output-path": snap_directory,
+        "dry_run": "1",
+        "track_formatted": track_fmt,
+    }
+
+    # and the start, end, and mother dates
+    images = glob.glob(f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/{track_fmt}/IW_SLC__1SDV_VVVH/2*")
+    images = [eval(image.split("/")[-1]) for image in images]
+
+    start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
+    end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
+    mother_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
+
+    # then select and format the start, end, and master dates
+    other_parameters["start_date"] = str(min([image for image in images if image >= start_date]))
+    other_parameters["start_date"] = (
+        f"{other_parameters['start_date'][:4]}-"
+        f"{other_parameters['start_date'][4:6]}-"
+        f"{other_parameters['start_date'][6:]}"
+    )
+    other_parameters["end_date"] = str(max([image for image in images if image <= end_date]))
+    other_parameters["end_date"] = (
+        f"{other_parameters['end_date'][:4]}-"
+        f"{other_parameters['end_date'][4:6]}-"
+        f"{other_parameters['end_date'][6:]}"
+    )
+    other_parameters["mother_date"] = str(min([image for image in images if image >= mother_date]))
+    other_parameters["mother_date"] = (
+        f"{other_parameters['mother_date'][:4]}-"
+        f"{other_parameters['mother_date'][4:6]}-"
+        f"{other_parameters['mother_date'][6:]}"
+    )
+
     write_run_file(
         save_path=f"{CONFIG_PARAMETERS['TEMPORARY_STORAGE_DIRECTORY']}/njobs_run_snap.sh",
         template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/generate-snap-graphs.sh",
@@ -88,12 +124,7 @@ def njobs_snap_run(parameter_file: str) -> int:
             "caroline_install_directory",
             "slc_base_directory",
         ],
-        other_parameters={
-            "track": out_parameters["general:tracks:track"][0],
-            "snap-output-path": snap_directory,
-            "dry_run": "1",
-            "track_formatted": track_fmt,
-        },
+        other_parameters=other_parameters,
     )
 
     njobs = os.popen(

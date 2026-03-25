@@ -1963,6 +1963,41 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
 
         track_fmt = f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
 
+        other_parameters = {
+            "track": tracks[track],
+            "snap-output-path": snap_directory,
+            "dry_run": "0",
+            "track_formatted": track_fmt,
+        }
+
+        # and the start, end, and mother dates
+        images = glob.glob(f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/{track_fmt}/IW_SLC__1SDV_VVVH/2*")
+        images = [eval(image.split("/")[-1]) for image in images]
+
+        start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
+        end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
+        mother_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
+
+        # then select and format the start, end, and master dates
+        other_parameters["start_date"] = str(min([image for image in images if image >= start_date]))
+        other_parameters["start_date"] = (
+            f"{other_parameters['start_date'][:4]}-"
+            f"{other_parameters['start_date'][4:6]}-"
+            f"{other_parameters['start_date'][6:]}"
+        )
+        other_parameters["end_date"] = str(max([image for image in images if image <= end_date]))
+        other_parameters["end_date"] = (
+            f"{other_parameters['end_date'][:4]}-"
+            f"{other_parameters['end_date'][4:6]}-"
+            f"{other_parameters['end_date'][6:]}"
+        )
+        other_parameters["mother_date"] = str(min([image for image in images if image >= mother_date]))
+        other_parameters["mother_date"] = (
+            f"{other_parameters['mother_date'][:4]}-"
+            f"{other_parameters['mother_date'][4:6]}-"
+            f"{other_parameters['mother_date'][6:]}"
+        )
+
         # generate the WKT file
         write_run_file(
             save_path=f"{snap_directory}/aoi.wkt",
@@ -1992,12 +2027,7 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
                 "caroline_install_directory",
                 "slc_base_directory",
             ],
-            other_parameters={
-                "track": tracks[track],
-                "snap-output-path": snap_directory,
-                "dry_run": "0",
-                "track_formatted": track_fmt,
-            },
+            other_parameters=other_parameters,
         )
 
         write_directory_contents(

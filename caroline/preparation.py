@@ -1937,6 +1937,9 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
         "general:input-data:sensor",
         "general:shape-file:aoi-name",
         "general:shape-file:directory",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "general:timeframe:mother",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 

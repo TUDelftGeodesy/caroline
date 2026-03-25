@@ -36,9 +36,9 @@ source ~/.bashrc
 source **caroline_virtual_environment_directory**/bin/activate
 
 caroline_install_location="**caroline_install_directory**"
-mother="**general:timeframe:mother**"
-start="**general:timeframe:start**"
-end="**general:timeframe:end**"
+mother="**mother_date**"
+start="**start_date**"
+end="**end_date**"
 track="**track_formatted**"
 output_path="**snap-output-path**"
 aoi_wkt_path="**snap-output-path**/aoi.wkt"

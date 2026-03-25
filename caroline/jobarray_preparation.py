@@ -55,6 +55,9 @@ def njobs_snap_run(parameter_file: str) -> int:
         "general:tracks:track",
         "general:tracks:asc_dsc",
         "general:input-data:sensor",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "general:timeframe:mother",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
     if len(out_parameters["general:tracks:track"]) > 1:

@@ -41,10 +41,6 @@ ${gpt_query} --diag
 
 time ${gpt_query} ${graph}
 
-date=$(echo "${graph}" | cut -d- -f4 | xargs echo)
-chmod 775 ${output_path}/${date}*
-chmod 775 ${output_path}/${date}*.data/*
-chmod 775 ${output_path}/${date}*.data/*/*
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished run-snap-graph.sh (ARRAY ID $SLURM_ARRAY_TASK_ID) (AoI **snap:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 

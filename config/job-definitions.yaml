@@ -78,6 +78,28 @@ jobs:
           filters:
             s1-coregistration-mode: "snap"
 
+  snap_cleanup:
+    requirement: "snap_run"
+    two-letter-id: "SC"
+    parameter-file-step-key: "general:steps:do-coregistration"
+    partition: "short"
+    sbatch-args: "--ntasks=1 --cpus-per-task=1"
+    directory-contents-file-appendix: "_cleanup"
+    email:
+      include-in-email: False
+      status-file-search-key:
+    bash-file:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
+    filters:
+      general:
+        input-data:
+          sensor: "S1"
+        workflow:
+          filters:
+            s1-coregistration-mode: "snap"
+
   doris:
     requirement: "s1_download"
     two-letter-id: "D5"

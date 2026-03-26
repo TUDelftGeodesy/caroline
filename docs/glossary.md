@@ -77,7 +77,27 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * input:
       * XML graphs, one for each subjob 
     * output:
-      * <b>TBD</b>
+      * A zipped `.znap.zip` (zipped SNAP-specific `.zarr`)-archive, one per acquisition, containing the following layers:
+        * `h2ph`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
+        * `i_<polarisation>_<epoch>`: real component of the reduced SLCs cropped to the AoI
+        * `q_<polarisation>_<epoch>`: imaginary component of the reduced SLCs cropped to the AoI
+        * `incident_angle`: incidence angle at each pixel
+        * `slant_range_time`: slant range time at each pixel
+        * `elevation`: DEM (only at the mother epoch)
+      - coordinates:
+        * `latitude`: latitude coordinates cropped to the AoI
+        * `latitude_<polarisation>`: latitude coordinates cropped to the AoI (only at the mother epoch, difference unclear)
+        * `longitude`: longitude coordinates cropped to the AoI
+        * `longitude_<polarisation>`: longitude coordinates cropped to the AoI (only at the mother epoch, difference unclear)
+      - metadata:
+        * product metadata
+        * ground control points (empty)
+        * pins (empty)
+- <b>snap_cleanup</b>: this job unzips the `.znap.zip` outputted by SNAP into individual `.znap` archives, one per acquisition. It subsequently removes the `.znap.zip` archive.
+    * input:
+      * The zipped `.znap.zip` archives outputted by `snap_run`
+    * output:
+      * Unzipped `.znap`-archives, one per acquisition
 - <b>crop_to_raw</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `deinsar` or `doris` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)

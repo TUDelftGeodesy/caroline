@@ -54,7 +54,7 @@ if [ "${DRY_RUN}" -eq "0" ]; then
 fi
 
 DO_MOTHER=1
-if [ -f ${output_path}/${mother}-coreg.znap ]; then
+if [ -d ${output_path}/${mother}-coreg.znap ]; then
   DO_MOTHER=0
 fi
 COUNTER=1
@@ -87,7 +87,7 @@ do
   if [ "${daughter}" != "${mother}" ]; then  # skip the mother
     if [ "${daughter}" -ge "${start}" ]; then  # skip everything before start
       if [ "${daughter}" -le "${end}" ]; then  # skip everything after end
-        if [ ! -f ${output_path}/${daughter}-coreg.znap ]; then  # skip everything that already exists
+        if [ ! -d ${output_path}/${daughter}-coreg.znap ]; then  # skip everything that already exists
           if [ "${DRY_RUN}" -eq "0" ]; then
             echo "Start generating graph for ${daughter}..."
             if [ "${DO_MOTHER}" -eq "1" ]; then  # check if the mother still has to be done

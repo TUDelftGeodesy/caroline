@@ -54,7 +54,7 @@ if [ "${DRY_RUN}" -eq "0" ]; then
 fi
 
 DO_MOTHER=1
-if [ -f ${output_path}/${mother}-coreg.dim ]; then
+if [ -f ${output_path}/${mother}-coreg.znap ]; then
   DO_MOTHER=0
 fi
 COUNTER=1
@@ -87,14 +87,14 @@ do
   if [ "${daughter}" != "${mother}" ]; then  # skip the mother
     if [ "${daughter}" -ge "${start}" ]; then  # skip everything before start
       if [ "${daughter}" -le "${end}" ]; then  # skip everything after end
-        if [ ! -f ${output_path}/${daughter}-coreg.dim ]; then  # skip everything that already exists
+        if [ ! -f ${output_path}/${daughter}-coreg.znap ]; then  # skip everything that already exists
           if [ "${DRY_RUN}" -eq "0" ]; then
             echo "Start generating graph for ${daughter}..."
             if [ "${DO_MOTHER}" -eq "1" ]; then  # check if the mother still has to be done
               time snap-run \
                 --scene-paths ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${mother}/*.zip ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${daughter}/*.zip \
-                --output-path ${output_path}/${daughter}-coreg.dim \
-                --output-mother-path ${output_path}/${mother}-coreg.dim \
+                --output-path ${output_path}/${daughter}-coreg.znap \
+                --output-mother-path ${output_path}/${mother}-coreg.znap \
                 --aoi-wkt "${aoi_wkt}" \
                 --polarizations ${polarizations} \
                 --graph-path ${output_path}/PROCESSID-${COUNTER}-${mother}-${daughter}-graph.xml
@@ -102,7 +102,7 @@ do
             else
               time snap-run \
                 --scene-paths ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${mother}/*.zip ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${daughter}/*.zip \
-                --output-path ${output_path}/${daughter}-coreg.dim \
+                --output-path ${output_path}/${daughter}-coreg.znap \
                 --aoi-wkt "${aoi_wkt}" \
                 --polarizations ${polarizations} \
                 --graph-path ${output_path}/PROCESSID-${COUNTER}-${mother}-${daughter}-graph.xml

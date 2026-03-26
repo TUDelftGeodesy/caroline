@@ -35,7 +35,7 @@ output_path="**snap-output-path**"
 
 graph=`ls ${output_path}/PROCESSID-${SLURM_ARRAY_TASK_ID}-*.xml`
 
-gpt_query="gpt -q ${SLURM_CPUS_PER_TASK} -c 75G -J-Xmx124G -e -x"
+gpt_query="gpt -q ${SLURM_CPUS_PER_TASK} -c $((9 * $SLURM_CPUS_PER_TASK))G -J-Xmx$((15 * $SLURM_CPUS_PER_TASK))G -e -x -J-Dsnap.jai.defaultTileSize=512 -J-Dsnap.dataio.reader.tileWidth=512 -J-Dsnap.dataio.reader.tileHeight=512"
 
 ${gpt_query} --diag
 

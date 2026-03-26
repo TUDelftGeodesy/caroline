@@ -127,9 +127,7 @@ def njobs_snap_run(parameter_file: str) -> int:
         other_parameters=other_parameters,
     )
 
-    njobs = os.popen(
-        f"cd {CONFIG_PARAMETERS['TEMPORARY_STORAGE_DIRECTORY']}; " "bash njobs_run_snap.sh; "
-        # "rm -rf njobs_run_snap.sh"
-    ).read()
+    njobs = os.popen(f"cd {CONFIG_PARAMETERS['TEMPORARY_STORAGE_DIRECTORY']}; " "bash njobs_run_snap.sh; ").read()
+    os.system(f"rm -rf {CONFIG_PARAMETERS['TEMPORARY_STORAGE_DIRECTORY']}/njobs_run_snap.sh")
 
     return int(njobs)

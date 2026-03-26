@@ -25,7 +25,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.0.13](https://github.com/TUDelftGeodesy/caroline/tree/main) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/cecb5d0e408d5dfe79e3f7cfa162a649c5fdda19...main))
+## [v3.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/95f66a6c273473ba6e0906925a5eee60d2696484...main))
+
+### Added:
+- `snap_preparation`, `snap_run`, and `snap_cleanup` jobs
+- Support for jobarray submission, including the determination of how many jobs the jobarray will need
+- Jobarray and subjob definitions in [the glossary](docs/glossary.md)
+- Jobarray [development documentation](docs/development.md)
+- Support for the Rome cluster which has twice as much memory
+- Temporary storage directory in the [config](config/spider-config.yaml)
+- `general:workflow:filters:s1-coregistration-mode` key, allowing for toggling between `"doris"` and `"snap"`
+- In [job-definitions.yaml](config/job-definitions.yaml), the keys `job-array:run-as-array` (`True`/`False`) and `job-array:njobs-in-array-function` (used to determine how many jobs the jobarray will need)
+- `snap_toolbox` plugin (clone from [snap-coregistration](https://github.com/TUDelftGeodesy/snap-coregistration))
+- [snap-coregistration](https://github.com/TUDelftGeodesy/snap-coregistration) dependency
+- `snap/12.0.0` module system requirement
+- Clarification on how to detect and debug faulty orbit data being ingested from [step.esa.int](https://step.esa.int/auxdata/orbits/Sentinel-1/RESORB/)
+
+### Fixed:
+- `extract_all_values_and_paths_from_dictionary` in [utils.py](caroline/utils.py) no longer returns a faulty path when multiple keys are present at a location which is not the base of the dictionary tree
+
+## [v3.0.13](https://github.com/TUDelftGeodesy/caroline/tree/95f66a6c273473ba6e0906925a5eee60d2696484) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/cecb5d0e408d5dfe79e3f7cfa162a649c5fdda19...95f66a6c273473ba6e0906925a5eee60d2696484))
 
 ### Fixed:
 - `doris_cleanup`, `portal_upload`, `tarball`, and `email` no longer request `--qos=long` from the SLURM system on the `short` partition.

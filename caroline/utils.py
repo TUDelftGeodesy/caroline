@@ -250,7 +250,11 @@ def _generate_email(parameter_file: str) -> str:
             if check["successful_finish"]:
                 f = open(f"{log_folder_name}/{job}/STATUS-job-finished.log", "w")
                 f.close()
-                os.system(f"cp -p {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
+                for i in range(len(check["slurm_file"])):
+                    os.system(
+                        f"cp -p {check['slurm_file'][i]} "
+                        f"{log_folder_name}/{job}/{check['slurm_file'][i].split('/')[-1]}"
+                    )
                 os.system(f"""echo "{job} finished properly\n" >> {log_folder_name}/overview/STATUS-overview.txt""")
                 if check["status_file"] is not None:
                     os.system(
@@ -263,7 +267,11 @@ def _generate_email(parameter_file: str) -> str:
                     os.system(
                         f"""echo "{job} did not finish properly" >> {log_folder_name}/overview/STATUS-overview.txt"""
                     )
-                os.system(f"cp -p {check['slurm_file']} {log_folder_name}/{job}/{check['slurm_file'].split('/')[-1]}")
+                for i in range(len(check["slurm_file"])):
+                    os.system(
+                        f"cp -p {check['slurm_file'][i]} "
+                        f"{log_folder_name}/{job}/{check['slurm_file'][i].split('/')[-1]}"
+                    )
                 if check["status_file"] is not None:
                     os.system(
                         f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
@@ -361,12 +369,20 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
             status_file: file as defined by `status-file-search-key` in `job-definitions.yaml`. None if it does not
                 exist
     """
+    data = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)[
+        "jobs"
+    ][job]
+
     status_file = None
-    slurm_file = f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"
+    if data["job-array"]["run-as-array"]:
+        slurm_file = glob.glob(f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}_*.out")
+    else:
+        slurm_file = [f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"]
     successful_finish = True
     successful_start = True
 
-    if not os.path.exists(slurm_file):  # if the slurm file output does not exist, thus the job did not start
+    if not any([os.path.exists(sf) for sf in slurm_file]) or len(slurm_file) == 0:
+        # if the slurm file output does not exist, thus the job did not start
         # Return immediately
         successful_start = False
         successful_finish = False
@@ -380,10 +396,6 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
         }
 
         return output
-
-    data = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)[
-        "jobs"
-    ][job]
 
     # first find the status file
     if data["email"]["status-file-search-key"] is not None:  # search for the status file
@@ -425,11 +437,12 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
                 successful_finish = False
             elif status_data[1] == "matlab":  # Matlab can return a zero exit code while still experiencing an error
                 # So we need to check for a matlab error in the SLURM output
-                f = open(slurm_file)
-                slurm_output = f.read()
-                f.close()
-                if "Error in " in slurm_output:  # this means Matlab has in fact encountered an error
-                    successful_finish = False
+                for sf in slurm_file:
+                    f = open(sf)
+                    slurm_output = f.read()
+                    f.close()
+                    if "Error in " in slurm_output:  # this means Matlab has in fact encountered an error
+                        successful_finish = False
 
     output = {
         "successful_start": successful_start,

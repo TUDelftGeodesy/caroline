@@ -95,6 +95,7 @@ do
                 --scene-paths ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${mother}/*.zip ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${daughter}/*.zip \
                 --output-path ${output_path}/${daughter}-coreg.znap \
                 --output-mother-path ${output_path}/${mother}-coreg.znap \
+                --output-format "ZNAP" \
                 --aoi-wkt "${aoi_wkt}" \
                 --polarizations ${polarizations} \
                 --graph-path ${output_path}/PROCESSID-${COUNTER}-${mother}-${daughter}-graph.xml
@@ -103,6 +104,7 @@ do
               time snap-run \
                 --scene-paths ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${mother}/*.zip ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${daughter}/*.zip \
                 --output-path ${output_path}/${daughter}-coreg.znap \
+                --output-format "ZNAP" \
                 --aoi-wkt "${aoi_wkt}" \
                 --polarizations ${polarizations} \
                 --graph-path ${output_path}/PROCESSID-${COUNTER}-${mother}-${daughter}-graph.xml

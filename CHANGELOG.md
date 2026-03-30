@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for jobarray submission, including the determination of how many jobs the jobarray will need
 - Jobarray and subjob definitions in [the glossary](docs/glossary.md)
 - Jobarray [development documentation](docs/development.md)
-- Support for the Rome cluster which has twice as much memory
+- Support for the Rome cluster which has 16GB memory per core instead of 12GB
 - Temporary storage directory in the [config](config/spider-config.yaml)
 - `general:workflow:filters:s1-coregistration-mode` key, allowing for toggling between `"doris"` and `"snap"`
 - In [job-definitions.yaml](config/job-definitions.yaml), the keys `job-array:run-as-array` (`True`/`False`) and `job-array:njobs-in-array-function` (used to determine how many jobs the jobarray will need)
@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed:
 - `extract_all_values_and_paths_from_dictionary` in [utils.py](caroline/utils.py) no longer returns a faulty path when multiple keys are present at a location which is not the base of the dictionary tree
+- General memory limit now set to 12GB per core instead of 8GB
 
 ## [v3.0.13](https://github.com/TUDelftGeodesy/caroline/tree/95f66a6c273473ba6e0906925a5eee60d2696484) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/cecb5d0e408d5dfe79e3f7cfa162a649c5fdda19...95f66a6c273473ba6e0906925a5eee60d2696484))
 

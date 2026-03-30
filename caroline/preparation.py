@@ -2119,6 +2119,11 @@ def prepare_snap_run(parameter_file: str, do_track: int | list | None = None) ->
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
         )
 
+        if "--constraint=rome" in JOB_DEFINITIONS["snap_run"]["sbatch-args"]:
+            rome_constrained = "1"
+        else:
+            rome_constrained = "0"
+
         os.makedirs(snap_directory, exist_ok=True)
 
         # generate run-snap-graph.sh
@@ -2130,7 +2135,11 @@ def prepare_snap_run(parameter_file: str, do_track: int | list | None = None) ->
             parameter_file=parameter_file,
             parameter_file_parameters=["snap:general:AoI-name"],
             config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
-            other_parameters={"track": tracks[track], "snap-output-path": snap_directory},
+            other_parameters={
+                "track": tracks[track],
+                "snap-output-path": snap_directory,
+                "rome-constrained": rome_constrained,
+            },
         )
 
         write_directory_contents(

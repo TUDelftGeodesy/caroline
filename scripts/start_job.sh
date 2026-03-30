@@ -36,12 +36,13 @@ SLURM_CLUSTER_NODES=$(python3 ${INSTALL_LOCATION}/caroline/config.py "jobs:${JOB
 SLURM_CLUSTER_SBATCHARGS=$(python3 ${INSTALL_LOCATION}/caroline/config.py "jobs:${JOB_TYPE}:sbatch-args" ${INSTALL_LOCATION}/config/job-definitions.yaml False 0)
 
 if [[ ${SLURM_CLUSTER_SBATCHARGS} == *"--constraint=rome"* ]]; then
-  ROME_MEMORY_FACTOR=2  # the Rome cluster nodes have twice as much memory (16GB per core). If this constraint is there we can be sure that we can allocate twice the memory
+  MEM_PER_CPU=16  # the Rome cluster nodes have 16GB per core. If this constraint is there we can be sure that we can allocate more memory
 else
-  ROME_MEMORY_FACTOR=1
+  MEM_PER_CPU=12
 fi
 
-ulimit -Sv $((($SLURM_JOB_CPUS_PER_NODE * $ROME_MEMORY_FACTOR + 4 * $SLURM_CLUSTER_NODES) * 8 * 1024 * 1024))  # limit the memory to 8GB per core + 32GB per slurm worker (they run on 4 cores each)
+# workers always have 12 GB per core since they aren't constrained to Rome cluster
+ulimit -Sv $((($SLURM_JOB_CPUS_PER_NODE * $MEM_PER_CPU + 4 * $SLURM_CLUSTER_NODES * 12)  * 1024 * 1024))  # limit the memory to 8GB per core + 32GB per slurm worker (they run on 4 cores each)
 
 echo "----------------------------------------------------"
 echo "Number of CPUS: $SLURM_JOB_CPUS_PER_NODE"

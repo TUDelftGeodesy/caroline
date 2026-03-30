@@ -78,7 +78,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * XML graphs, one for each subjob 
     * output:
       * A zipped `.znap.zip` (zipped SNAP-specific `.zarr`)-archive, one per acquisition, containing the following layers:
-        * `h2ph`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
+        * `h2ph_<polarisation>_<epoch>`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
         * `i_<polarisation>_<epoch>`: real component of the reduced SLCs cropped to the AoI
         * `q_<polarisation>_<epoch>`: imaginary component of the reduced SLCs cropped to the AoI
         * `incident_angle`: incidence angle at each pixel

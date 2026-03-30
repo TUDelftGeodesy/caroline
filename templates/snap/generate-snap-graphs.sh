@@ -91,7 +91,7 @@ do
           if [ "${DRY_RUN}" -eq "0" ]; then
             echo "Start generating graph for ${daughter}..."
             if [ "${DO_MOTHER}" -eq "1" ]; then  # check if the mother still has to be done
-              time snap-run \
+              snap-run \
                 --scene-paths ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${mother}/*.zip ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${daughter}/*.zip \
                 --output-path ${output_path}/${daughter}-coreg.znap \
                 --output-mother-path ${output_path}/${mother}-coreg.znap \
@@ -101,7 +101,7 @@ do
                 --graph-path ${output_path}/PROCESSID-${COUNTER}-${mother}-${daughter}-graph.xml
               DO_MOTHER=0
             else
-              time snap-run \
+              snap-run \
                 --scene-paths ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${mother}/*.zip ${s1dir}/${track}/IW_SLC__1SDV_VVVH/${daughter}/*.zip \
                 --output-path ${output_path}/${daughter}-coreg.znap \
                 --output-format "ZNAP" \

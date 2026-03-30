@@ -64,7 +64,9 @@ fi
 
 s1dir="**slc_base_directory**"
 
-aoi_wkt=`cat ${aoi_wkt_path} | xargs echo`
+if  [ "${DRY_RUN}" -eq "0" ]; then
+  aoi_wkt=`cat ${aoi_wkt_path} | xargs echo`
+fi
 
 # first move already existing graphs to a graph archive to not have them accidentally interfere
 if [ "${DRY_RUN}" -eq "0" ]; then

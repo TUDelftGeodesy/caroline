@@ -78,13 +78,13 @@ jobs:
           filters:
             s1-coregistration-mode: "snap"
 
-  snap_cleanup:
+  snap_permissions:
     requirement: "snap_run"
-    two-letter-id: "SC"
+    two-letter-id: "SE"
     parameter-file-step-key: "general:steps:do-coregistration"
     partition: "short"
     sbatch-args: "--ntasks=1 --cpus-per-task=1"
-    directory-contents-file-appendix: "_cleanup"
+    directory-contents-file-appendix: "_permissions"
     email:
       include-in-email: False
       status-file-search-key:

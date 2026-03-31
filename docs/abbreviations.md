@@ -17,9 +17,9 @@ and `NNN` the three-letter area of interest abbreviation.
 - `D4`: DeInSAR
 - `D5`: Doris v5
 - `DC`: Doris v5 cleanup
+- `SE`: SNAP-permissions
 - `SP`: SNAP Preparation
 - `SR`: SNAP-run
-- `SC`: SNAP-Cleanup
 
 #### Cropping submodule
 

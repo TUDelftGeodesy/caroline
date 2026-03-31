@@ -24,7 +24,7 @@
 
 source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
-module load python/3.10.4 gdal/3.4.1-alma9 snap/12.0.0
+module load python/3.10.4 gdal/3.4.1-alma9 snap/13.0.0
 source ~/.bashrc
 source **caroline_virtual_environment_directory**/bin/activate
 

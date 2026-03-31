@@ -1918,7 +1918,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
         exit(5)  # Make the code exit with a non-zero exit code so the next steps won't run
 
 
-def prepare_snap_cleanup(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_snap_permissions(parameter_file: str, do_track: int | list | None = None) -> None:
     """Unzip and then remove the zipped ZNAP archives.
 
     Parameters
@@ -1930,11 +1930,8 @@ def prepare_snap_cleanup(parameter_file: str, do_track: int | list | None = None
         the parameter file
     """
     search_parameters = [
-        "snap:general:AoI-name",
-        "snap:general:directory",
         "general:tracks:track",
         "general:tracks:asc_dsc",
-        "general:input-data:sensor",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -1952,18 +1949,9 @@ def prepare_snap_cleanup(parameter_file: str, do_track: int | list | None = None
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
         )
 
-        zipfiles = glob.glob(f"{snap_directory}/*-coreg.znap.zip")
-        for zf in zipfiles:
-            unzipdir = zf[:-4]
-            os.makedirs(unzipdir)  # strip the .zip, exist_ok is not okay so throw an error if it exists
-            os.system(f"unzip {zf} -d {unzipdir}")  # unzip the zipfile into the new directory
-            os.system(f"rm -rf {zf}")  # remove the zipfile
-            os.system(
-                f"chmod 775 {unzipdir}; "
-                f"chmod 775 {unzipdir}/*; "
-                f"chmod 775 {unzipdir}/*/*; "
-                f"chmod 775 {unzipdir}/*/*/*"
-            )
+        znaps = glob.glob(f"{snap_directory}/*-coreg.znap")
+        for zf in znaps:
+            os.system(f"chmod 775 {zf}; chmod 775 {zf}/*; chmod 775 {zf}/*/*; chmod 775 {zf}/*/*/*")
 
 
 def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = None) -> None:

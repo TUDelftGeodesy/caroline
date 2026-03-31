@@ -5,7 +5,7 @@
 - Linux operating system
 - `/etc/profile.d/modules.sh` (for module loading)
 - `/project/caroline/Software/bin/init.sh` (for module initialization)
-- The modules `python/2.7.15`, `python/3.10.4`, `gdal/3.4.1-alma9`, `matlab/R2021b`, `snap/12.0.0`
+- The modules `python/2.7.15`, `python/3.10.4`, `gdal/3.4.1-alma9`, `matlab/R2021b`, `snap/13.0.0`
 - `pip` for Python installation
 - Internet access on the HPC for querying the ASF servers, GitHub, Bitbucket, and contextual data
 - Valid SSH keys for GitHub and Bitbucket

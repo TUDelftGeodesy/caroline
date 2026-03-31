@@ -77,7 +77,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * input:
       * XML graphs, one for each subjob 
     * output:
-      * A zipped `.znap.zip` (zipped SNAP-specific `.zarr`)-archive, one per acquisition, containing the following layers:
+      * A `.znap` (SNAP-specific `.zarr`)-archive, one per acquisition, containing the following layers:
         * `h2ph_<polarisation>_<epoch>`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
         * `i_<polarisation>_<epoch>`: real component of the reduced SLCs cropped to the AoI
         * `q_<polarisation>_<epoch>`: imaginary component of the reduced SLCs cropped to the AoI
@@ -93,11 +93,11 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * product metadata
         * ground control points (empty)
         * pins (empty)
-- <b>snap_cleanup</b>: this job unzips the `.znap.zip` outputted by SNAP into individual `.znap` archives, one per acquisition. It subsequently removes the `.znap.zip` archive.
+- <b>snap_permissions</b>: this job sets the correct permissions on the `.znap` archives.
     * input:
-      * The zipped `.znap.zip` archives outputted by `snap_run`
+      * The `.znap` archives outputted by `snap_run`
     * output:
-      * Unzipped `.znap`-archives, one per acquisition
+      * `.znap`-archives, one per acquisition, with permissions `775`
 - <b>crop_to_raw</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `deinsar` or `doris` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)

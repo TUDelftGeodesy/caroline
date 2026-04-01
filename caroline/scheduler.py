@@ -12,6 +12,7 @@ from caroline.io import (
     read_parameter_file,
     read_shp_extent,
 )
+from caroline.jobarray_preparation import jobarray_preparation_scheduler_hook
 from caroline.parameter_file import generate_full_parameter_file
 from caroline.utils import format_process_folder, job_schedule_check
 
@@ -311,9 +312,17 @@ def submit_processes(sorted_processes: list) -> None:
         # e.g. D5088NVW for Doris v5, track 88, AoI nl_veenweiden
         job_name = f"{job_definitions[job]['two-letter-id']}{track.split('_')[-1][1:]}{three_letter_id}"
 
+        if job_definitions[job]["job-array"]["run-as-array"]:
+            n_array_jobs = jobarray_preparation_scheduler_hook(
+                frozen_parameter_file, job_definitions[job]["job-array"]["njobs-in-array-function"]
+            )
+            array_args = f"--array=1-{n_array_jobs} "
+        else:
+            array_args = ""
+
         # finally, combine everything
         sbatch_arguments = (
-            f"--partition={partition} --job-name={job_name} "
+            f"{array_args}--partition={partition} --job-name={job_name} "
             f"--time={TIME_LIMITS[partition]}{dependency_string}{job_definitions[job]['sbatch-args']}"
         )
 

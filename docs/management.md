@@ -5,10 +5,11 @@
 - Linux operating system
 - `/etc/profile.d/modules.sh` (for module loading)
 - `/project/caroline/Software/bin/init.sh` (for module initialization)
-- The modules `python/2.7.15`, `python/3.10.4`, `gdal/3.4.1-alma9`, `matlab/R2021b`
+- The modules `python/2.7.15`, `python/3.10.4`, `gdal/3.4.1-alma9`, `matlab/R2021b`, `snap/13.0.0`
 - `pip` for Python installation
 - Internet access on the HPC for querying the ASF servers, GitHub, Bitbucket, and contextual data
 - Valid SSH keys for GitHub and Bitbucket
+- Read access to the [TUDelftGeodesy](https://github.com/TUDelftGeodesy) repositories (both public and private)
 - A working installation of [Doris v5.0.4](http://doris.tudelft.nl/) and [Doris v4.13.1](http://doris.tudelft.nl/)
 
 ## Activating / Deactivating an AoI
@@ -45,9 +46,6 @@ nl_assendelft;s1_dsc_t110,s1_asc_t161
 Each new AoI is on a new line. 
 
 
-
-
-
 ## Job logs
 Each job produces output. The SLURM-output (containing all output printed to the terminal and possibly errors) are all located in the slurm output directory as defined in the configuration file (e.g. [spider-config.yaml](../config/spider-config.yaml)). 
 The email will contain full-path links to these output files for each job included in said email.
@@ -61,6 +59,7 @@ Sometimes jobs will crash. If this happens, follow the following steps:
 2. Investigate in past issues if something similar happened. If it did, follow the steps in that ticket to resolve the issue.
 3. If this is a new type of issue we need to delve deeper into what is happening. Generally there are four types of crashes. We need to figure out which type of crash it is: 
    1. Faulty input data (e.g [#76](https://github.com/TUDelftGeodesy/caroline/issues/76)): in this case the issue does not lie with Caroline but rather with data it was provided. These are almost always characterized by errors coming from within calls to plugins that happen in a single AoI.
+      - A notable exception to this is faulty orbit data downloaded from [step.esa.int](https://step.esa.int/auxdata/orbits/Sentinel-1/RESORB/). Rarely these files will contain a gateway timeout. If this happens, orbits cannot be read in, and many AoIs will crash. This will show up in the Slurm output file of DORIS as an `xml.etree.ElementTree.ParseError` in the `orbit_read` function. Faulty orbit files are recognizable by their size, which is approximately 160 bytes compared to ~500kB (restituded) / ~4.4MB (precise) they should be. The correct orbit files can be downloaded from the [Copernicus hub](https://browser.dataspace.copernicus.eu/?), under the Sentinel-1 -> Auxiliary Data File search (POEORB for precise, RESORB for restituted). Searching for the full name of the faulty file will return the correct one. 
    2. Something in Caroline broke (e.g. [#77](https://github.com/TUDelftGeodesy/caroline/issues/77) or [#74](https://github.com/TUDelftGeodesy/caroline/issues/74)). These are almost always characterized by either errors coming from within the Caroline functions, or errors that affect many AoIs.
    3. Random time-out (e.g. [#107](https://github.com/TUDelftGeodesy/caroline/issues/107)): there is no clear error in the SLURM output or any other job logs, it just stopped running. In these cases running `sacct --jobs=<job_id>` (with `<job_id>` the number in the SLURM output filename) on the cluster will often say `CANCELLED`. Note: sometimes errors related to the SLURM manager are present (examples are present in [#107](https://github.com/TUDelftGeodesy/caroline/issues/107)). These also fall in this category.
    4. Something in one of the plugins broke (e.g. [#267](https://github.com/TUDelftGeodesy/caroline/issues/267)): there is a clear error in the SLURM output that originated in a plugin, but it affects many AoIs.

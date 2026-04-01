@@ -16,10 +16,89 @@ jobs:
       include-in-email: True
       status-file-search-key:
     bash-file:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
       general:
         input-data:
           sensor: "S1"
+
+  snap_preparation:
+    requirement: "s1_download"
+    two-letter-id: "SP"
+    parameter-file-step-key: "general:steps:do-coregistration"
+    partition: "normal"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8"
+    directory-contents-file-appendix: "_prep"
+    email:
+      include-in-email: True
+      status-file-search-key:
+    bash-file:
+      bash-file-name: "generate-snap-graphs.sh"
+      bash-file-base-directory: "snap"
+      bash-file-directory-appendix: ""
+      bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
+    filters:
+      general:
+        input-data:
+          sensor: "S1"
+        workflow:
+          filters:
+            s1-coregistration-mode: "snap"
+
+  snap_run:
+    requirement: "snap_preparation"
+    two-letter-id: "SR"
+    parameter-file-step-key: "general:steps:do-coregistration"
+    partition: "normal"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8"
+    directory-contents-file-appendix: "_run"
+    email:
+      include-in-email: True
+      status-file-search-key:
+    bash-file:
+      bash-file-name: "run-snap-graph.sh"
+      bash-file-base-directory: "snap"
+      bash-file-directory-appendix: ""
+      bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
+    job-array:
+      run-as-array: True
+      njobs-in-array-function: "njobs_snap_run"
+    filters:
+      general:
+        input-data:
+          sensor: "S1"
+        workflow:
+          filters:
+            s1-coregistration-mode: "snap"
+
+  snap_permissions:
+    requirement: "snap_run"
+    two-letter-id: "SE"
+    parameter-file-step-key: "general:steps:do-coregistration"
+    partition: "short"
+    sbatch-args: "--ntasks=1 --cpus-per-task=1"
+    directory-contents-file-appendix: "_permissions"
+    email:
+      include-in-email: False
+      status-file-search-key:
+    bash-file:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
+    filters:
+      general:
+        input-data:
+          sensor: "S1"
+        workflow:
+          filters:
+            s1-coregistration-mode: "snap"
 
   doris:
     requirement: "s1_download"
@@ -37,10 +116,16 @@ jobs:
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
       general:
         input-data:
           sensor: "S1"
+        workflow:
+          filters:
+            s1-coregistration-mode: "doris"
 
   deinsar:
     requirement:
@@ -58,6 +143,9 @@ jobs:
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
       general:
         input-data:
@@ -79,10 +167,16 @@ jobs:
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
       general:
         input-data:
           sensor: "S1"
+        workflow:
+          filters:
+            s1-coregistration-mode: "doris"
 
   crop_to_raw:
     requirement: ["doris", "deinsar"]
@@ -100,6 +194,9 @@ jobs:
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
 
   crop_to_zarr:
@@ -120,6 +217,9 @@ jobs:
       bash-file-slurm-cluster:
         slurm-cluster-n-workers: 12
         slurm-cluster-worker-time: "10:00:00"
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
 
   stm_generation:
@@ -140,6 +240,9 @@ jobs:
       bash-file-slurm-cluster:
         slurm-cluster-n-workers: 10
         slurm-cluster-worker-time: "4-00:00:00"
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
 
   depsi:
@@ -158,6 +261,9 @@ jobs:
       bash-file-directory-appendix: "/psi"
       bash-file-directory-is-reusable: False
       bash-file-slurm-cluster:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
 
   mrm:
@@ -176,6 +282,9 @@ jobs:
       bash-file-directory-appendix: "/psi"
       bash-file-directory-is-reusable: False
       bash-file-slurm-cluster:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
 
   depsi_post:
@@ -194,6 +303,9 @@ jobs:
       bash-file-directory-appendix: "/psi"
       bash-file-directory-is-reusable: False
       bash-file-slurm-cluster:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
 
   tarball:
@@ -207,6 +319,9 @@ jobs:
       include-in-email: False
       status-file-search-key:
     bash-file:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
       general:
         workflow:
@@ -224,6 +339,9 @@ jobs:
       include-in-email: True
       status-file-search-key:
     bash-file:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:
       general:
         workflow:
@@ -241,4 +359,7 @@ jobs:
       include-in-email: False
       status-file-search-key:
     bash-file:
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
     filters:

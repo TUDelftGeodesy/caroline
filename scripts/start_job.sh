@@ -42,15 +42,15 @@ else
 fi
 
 # workers always have 12 GB per core since they aren't constrained to Rome cluster
-ulimit -Sv $((($SLURM_JOB_CPUS_PER_NODE * $MEM_PER_CPU + 4 * $SLURM_CLUSTER_NODES * 12)  * 1024 * 1024))  # limit the memory to 8GB per core + 32GB per slurm worker (they run on 4 cores each)
+ulimit -Sv $((($SLURM_JOB_CPUS_PER_NODE * $MEM_PER_CPU + 4 * $SLURM_CLUSTER_NODES * 12)  * 1024 * 1024))
 
 echo "----------------------------------------------------"
 echo "Number of CPUS: $SLURM_JOB_CPUS_PER_NODE"
 if [[ ${SLURM_CLUSTER_SBATCHARGS} == *"--constraint=rome"* ]]; then
-  echo "CPUS requested on Rome cluster, allowing for twice as much memory per CPU"
+  echo "CPUS requested on Rome cluster, allowing for 16GB per CPU"
 fi
 echo "Number of cluster workers: ${SLURM_CLUSTER_NODES}"
-echo "Setting virtual memory limit to $((($SLURM_JOB_CPUS_PER_NODE * $ROME_MEMORY_FACTOR + 4 * $SLURM_CLUSTER_NODES) * 8))GB"
+echo "Setting virtual memory limit to $(($SLURM_JOB_CPUS_PER_NODE * $MEM_PER_CPU + 4 * $SLURM_CLUSTER_NODES * 12))GB"
 echo "----------------------------------------------------"
 echo ""
 

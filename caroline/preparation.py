@@ -1634,7 +1634,7 @@ def prepare_email(parameter_file: str, do_track: int | list | None = None) -> No
     track_csv = track_csv.strip(",")
     header = f"CAROLINE: {out_parameters['general:input-data:sensor']}/{area_name}/{track_csv}"
     os.system(f"""echo "Subject: {header}
-from:noreply@surf.nl
+from:noreply@surf.surfsara.nl
 
 {body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {out_parameters['general:email:recipients']}""")
 

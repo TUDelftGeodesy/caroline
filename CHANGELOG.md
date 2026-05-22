@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/95f66a6c273473ba6e0906925a5eee60d2696484...main))
+## [v3.1.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/180a98d5ed017d7e91b6f2d18df1354f77bbbdee...main))
+
+### Fixed
+- Emails are now sent from the `spider.surfsara.nl` domain instead of `surf.nl` domain to match the internal signature and prevent them getting being labeled as phishing by the TU Delft email servers
+
+## [v3.1.0](https://github.com/TUDelftGeodesy/caroline/tree/180a98d5ed017d7e91b6f2d18df1354f77bbbdee) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/95f66a6c273473ba6e0906925a5eee60d2696484...180a98d5ed017d7e91b6f2d18df1354f77bbbdee))
 
 ### Added:
 - `snap_preparation`, `snap_run`, and `snap_cleanup` jobs

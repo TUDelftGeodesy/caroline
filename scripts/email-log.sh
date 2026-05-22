@@ -16,7 +16,7 @@ SENDMAIL=$(python3 ${CAROLINE}/caroline/config.py "SENDMAIL_EXECUTABLE")
 DATE=$(date -d 'yesterday 12:00' '+%Y-%m-%d')
 
 echo "Subject: CAROLINE log ${DATE}
-from:noreply@surf.nl
+from:noreply@spider.surfsara.nl
 
 The following CAROLINE processes were logged on ${DATE}:
 

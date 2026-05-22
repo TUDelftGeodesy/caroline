@@ -56,7 +56,7 @@ Customer: ${SKYGEO_CUSTOMER}" > ${upload_file}
     else
       # The SSH key is not present, so send an email and exit
       echo "Subject: CAROLINE SSH Key missing (${upload_file})
-from:noreply@surf.nl
+from:noreply@spider.surfsara.nl
 
 Hello admins,
 

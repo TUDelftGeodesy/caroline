@@ -49,7 +49,7 @@ jobs:
           sensor: "S1"
         workflow:
           filters:
-            s1-coregistration-mode: "snap"
+            coregistration-mode: "snap"
 
   snap_run:
     requirement: "snap_preparation"
@@ -76,7 +76,7 @@ jobs:
           sensor: "S1"
         workflow:
           filters:
-            s1-coregistration-mode: "snap"
+            coregistration-mode: "snap"
 
   snap_permissions:
     requirement: "snap_run"
@@ -98,7 +98,7 @@ jobs:
           sensor: "S1"
         workflow:
           filters:
-            s1-coregistration-mode: "snap"
+            coregistration-mode: "snap"
 
   doris:
     requirement: "s1_download"
@@ -125,7 +125,7 @@ jobs:
           sensor: "S1"
         workflow:
           filters:
-            s1-coregistration-mode: "doris"
+            coregistration-mode: "doris"
 
   deinsar:
     requirement:
@@ -176,7 +176,7 @@ jobs:
           sensor: "S1"
         workflow:
           filters:
-            s1-coregistration-mode: "doris"
+            coregistration-mode: "doris"
 
   crop_to_raw:
     requirement: ["doris", "deinsar"]
@@ -198,6 +198,61 @@ jobs:
       run-as-array: False
       njobs-in-array-function:
     filters:
+      workflow:
+        filters:
+          coregistration-mode: "doris"
+
+  znap_to_raw:
+    requirement: "snap_permissions"
+    two-letter-id: "ZR"
+    parameter-file-step-key: "general:steps:do-znap_to_raw"
+    partition: "znap_to_raw:general:partition"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --nodes=1"
+    directory-contents-file-appendix: ""
+    email:
+      include-in-email: True
+      status-file-search-key:
+    bash-file:
+      bash-file-name: "znap-to-raw.sh"
+      bash-file-base-directory: "znap_to_raw"
+      bash-file-directory-appendix: ""
+      bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
+        slurm-cluster-n-workers: 4
+        slurm-cluster-worker-time: "1-00:00:00"
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
+    filters:
+      workflow:
+        filters:
+          coregistration-mode: "snap"
+
+  znap_to_zarr:
+    requirement: "snap_permissions"
+    two-letter-id: "ZZ"
+    parameter-file-step-key: "general:steps:do-znap_to_zarr"
+    partition: "znap_to_zarr:general:partition"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --nodes=1"
+    directory-contents-file-appendix: ""
+    email:
+      include-in-email: True
+      status-file-search-key:
+    bash-file:
+      bash-file-name: "znap-to-zarr.sh"
+      bash-file-base-directory: "znap_to_zarr"
+      bash-file-directory-appendix: ""
+      bash-file-directory-is-reusable: True
+      bash-file-slurm-cluster:
+        slurm-cluster-n-workers: 4
+        slurm-cluster-worker-time: "1-00:00:00"
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
+    filters:
+      workflow:
+        filters:
+          coregistration-mode: "snap"
 
   crop_to_zarr:
     requirement: ["doris", "deinsar"]
@@ -221,6 +276,9 @@ jobs:
       run-as-array: False
       njobs-in-array-function:
     filters:
+      workflow:
+        filters:
+          coregistration-mode: "doris"
 
   stm_generation:
     requirement: "crop_to_zarr"
@@ -246,7 +304,7 @@ jobs:
     filters:
 
   depsi:
-    requirement: "crop_to_raw"
+    requirement: ["crop_to_raw", "znap_to_raw"]
     two-letter-id: "DE"
     parameter-file-step-key: "general:steps:do-depsi"
     partition: "depsi:general:partition"

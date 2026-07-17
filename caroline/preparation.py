@@ -1864,10 +1864,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
         while not download_completed:
             # actually perform the download (first load the virtual environment, then run the caroline-download command)
             os.system(
-                "source /etc/profile.d/modules.sh; "
-                "source /project/caroline/Software/bin/init.sh; "
-                "module load python/3.10.4 gdal/3.4.1-alma9; "
-                "source ~/.bashrc; "
+                f"source {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/imports.sh; "
                 f"source {CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
                 "caroline-download --config "
                 f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/download-config.yaml "

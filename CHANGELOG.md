@@ -25,7 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.1.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (22-May-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/180a98d5ed017d7e91b6f2d18df1354f77bbbdee...main))
+## [v3.1.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/73187d7db6cea90d02e4d3f2e61a3dea0a910e50...main))
+
+### Added
+- Module name variables in [spider-config.yaml](config/spider-config.yaml) and [spider-test-config.yaml](config/spider-test-config.yaml)
+
+### Changed
+- `gdal` module now defaults to `gdal/3.4.1-alma9-2`
+- Modules in all jobs are now read from the config file instead of being hardcoded
+- Modules used in the scripts in [scripts](scripts) and in [spider-install.sh](spider-install.sh) are now imported from [imports.sh](scripts/imports.sh) to have them centralized at one location
+
+## [v3.1.1](https://github.com/TUDelftGeodesy/caroline/tree/73187d7db6cea90d02e4d3f2e61a3dea0a910e50) (22-May-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/180a98d5ed017d7e91b6f2d18df1354f77bbbdee...73187d7db6cea90d02e4d3f2e61a3dea0a910e50))
 
 ### Fixed
 - Emails are now sent from the `spider.surfsara.nl` domain instead of `surf.nl` domain to match the internal signature and prevent them getting being labeled as phishing by the TU Delft email servers

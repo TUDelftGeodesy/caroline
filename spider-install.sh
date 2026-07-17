@@ -1,10 +1,9 @@
 #!/bin/bash
 #
 # installs caroline on Spider
+CWD=`pwd`
 
-source /etc/profile.d/modules.sh
-source /project/caroline/Software/bin/init.sh
-module load python/3.10.4 gdal/3.4.1-alma9
+source ${CWD}/scripts/imports.sh
 
 if [ $# -eq 0 ]; then
   CONFIG_FILE="config/spider-config.yaml"
@@ -13,8 +12,6 @@ elif [ $# -eq 1 ]; then
 else
   echo usage: $0 [configuration_file]
 fi
-
-CWD=`pwd`
 
 python3 ${CWD}/caroline/spider_install.py ${CWD} ${CONFIG_FILE}
 CAROLINE_INSTALL_DIRECTORY=$(python3 ${CWD}/caroline/config.py "CAROLINE_INSTALL_DIRECTORY" "${CWD}/${CONFIG_FILE}")

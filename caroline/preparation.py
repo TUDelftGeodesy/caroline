@@ -349,7 +349,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=["crop_to_raw:general:AoI-name"],
-            config_parameters=["caroline_work_directory"],
+            config_parameters=["caroline_work_directory", "matlab_module"],
             other_parameters={"track": tracks[track], "crop_base_directory": crop_directory},
         )
 
@@ -486,7 +486,12 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
                 "crop_to_zarr:general:AoI-name",
                 "crop_to_zarr:general:crop_to_zarr-code-directory",
             ],
-            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+            ],
             other_parameters={"track": tracks[track]},
         )
 
@@ -585,7 +590,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 "deinsar:general:doris-v4-code-directory",
                 "deinsar:general:AoI-name",
             ],
-            config_parameters=["caroline_work_directory", "orbit_directory"],
+            config_parameters=["caroline_work_directory", "orbit_directory", "python2_module", "gdal_module"],
             other_parameters={"track": tracks[track], "coregistration_base_directory": coregistration_directory},
         )
 
@@ -1107,7 +1112,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=["depsi:general:AoI-name"],
-            config_parameters=["caroline_work_directory"],
+            config_parameters=["caroline_work_directory", "matlab_module"],
             other_parameters={"depsi_base_directory": depsi_directory, "track": tracks[track]},
         )
 
@@ -1340,7 +1345,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=["depsi:general:AoI-name"],
-            config_parameters=["caroline_work_directory"],
+            config_parameters=["caroline_work_directory", "matlab_module"],
             other_parameters={"track": tracks[track], "depsi_base_directory": depsi_directory},
         )
 
@@ -1542,7 +1547,12 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=["doris:general:AoI-name", "doris:general:code-directory"],
-            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+            ],
             other_parameters={"track": tracks[track], "coregistration_directory": coregistration_directory},
         )
 
@@ -1716,7 +1726,7 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=["depsi:general:AoI-name"],
-            config_parameters=["caroline_work_directory"],
+            config_parameters=["caroline_work_directory", "matlab_module"],
             other_parameters={
                 "track": tracks[track],
                 "depsi_base_directory": depsi_directory,
@@ -1854,10 +1864,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
         while not download_completed:
             # actually perform the download (first load the virtual environment, then run the caroline-download command)
             os.system(
-                "source /etc/profile.d/modules.sh; "
-                "source /project/caroline/Software/bin/init.sh; "
-                "module load python/3.10.4 gdal/3.4.1-alma9; "
-                "source ~/.bashrc; "
+                f"source {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/imports.sh; "
                 f"source {CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
                 "caroline-download --config "
                 f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/download-config.yaml "
@@ -2062,6 +2069,9 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
                 "caroline_virtual_environment_directory",
                 "caroline_install_directory",
                 "slc_base_directory",
+                "python3_module",
+                "gdal_module",
+                "snap_module",
             ],
             other_parameters=other_parameters,
         )
@@ -2122,7 +2132,13 @@ def prepare_snap_run(parameter_file: str, do_track: int | list | None = None) ->
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=["snap:general:AoI-name"],
-            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+                "snap_module",
+            ],
             other_parameters={
                 "track": tracks[track],
                 "snap-output-path": snap_directory,
@@ -2233,7 +2249,12 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
                 "stm_generation:general:AoI-name",
                 "crop_to_zarr:general:crop_to_zarr-code-directory",
             ],
-            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+            ],
             other_parameters={"track": tracks[track]},
         )
 

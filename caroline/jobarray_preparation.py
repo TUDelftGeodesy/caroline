@@ -123,6 +123,9 @@ def njobs_snap_run(parameter_file: str) -> int:
             "caroline_virtual_environment_directory",
             "caroline_install_directory",
             "slc_base_directory",
+            "python3_module",
+            "gdal_module",
+            "snap_module",
         ],
         other_parameters=other_parameters,
     )

@@ -1,0 +1,10 @@
+# the default settings for crop_to_raw, running in the crop_to_raw job
+
+znap_to_raw:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/crops'
+    partition: 'normal'
+    znap_to_raw-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'
+
+

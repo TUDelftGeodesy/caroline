@@ -25,6 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
+## [v3.2.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (16-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/180a98d5ed017d7e91b6f2d18df1354f77bbbdee...main))
+
+### Added
+- `znap_to_zarr` and `znap_to_raw` jobs
+- Dependency on the `DePSI_group` repository on the branch `caroline-clone-branch`
+
+### Changed
+- `sarxarray` dependency now requires at least version `1.3.2`
+
 ## [v3.1.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/73187d7db6cea90d02e4d3f2e61a3dea0a910e50...main))
 
 ### Added
@@ -242,7 +251,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed:
 - Daniel now receives emails from the `gr_santorini` AoI.
-
 
 ## [v2.3.9](https://github.com/TUDelftGeodesy/caroline/tree/932c7ef92da31256770dbacb7be084c38abc6940) (25-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0024c05a028ff2454075f9a0ca51de4c50e26491...932c7ef92da31256770dbacb7be084c38abc6940))
 

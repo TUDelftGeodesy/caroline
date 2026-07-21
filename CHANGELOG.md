@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - All jobs in a list of requirements in the [job definitions](config/job-definitions.yaml) are now checked instead of just the first one when determining the correct jobs for the requested workflow.
+- Handle case where zero jobs are necessary in a job array to explicitly not submit a job array but rather a single job
 
 ## [v3.1.2](https://github.com/TUDelftGeodesy/caroline/tree/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e) (17-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/73187d7db6cea90d02e4d3f2e61a3dea0a910e50...bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e))
 

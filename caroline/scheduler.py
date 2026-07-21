@@ -316,7 +316,10 @@ def submit_processes(sorted_processes: list) -> None:
             n_array_jobs = jobarray_preparation_scheduler_hook(
                 frozen_parameter_file, job_definitions[job]["job-array"]["njobs-in-array-function"]
             )
-            array_args = f"--array=1-{n_array_jobs} "
+            if n_array_jobs == 0:
+                array_args = ""  # if no jobs need to run don't request the array
+            else:
+                array_args = f"--array=1-{n_array_jobs} "
         else:
             array_args = ""
 

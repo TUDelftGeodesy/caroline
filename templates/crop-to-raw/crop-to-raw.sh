@@ -28,7 +28,7 @@
 # Uncomment these lines when your job requires this software
 # Uncomment these lines when your job requires this software
 
-module --ignore-cache load matlab/R2021b
+module --ignore-cache load **matlab_module**
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started crop-to-raw.sh (AoI **crop_to_raw:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 

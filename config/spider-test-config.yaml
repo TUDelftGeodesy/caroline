@@ -20,5 +20,11 @@ directories:
   TEMPORARY_STORAGE_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/run/caroline/tmp"
 executables:
   SENDMAIL_EXECUTABLE: "/usr/sbin/sendmail"
+modules:
+  GDAL_MODULE: "gdal/3.4.1-alma9-2"
+  MATLAB_MODULE: "matlab/R2021b"
+  PYTHON2_MODULE: "python/2.7.15"
+  PYTHON3_MODULE: "python/3.10.4"
+  SNAP_MODULE: "snap/13.0.0"
 run:
   RUN_MODE: "TEST"

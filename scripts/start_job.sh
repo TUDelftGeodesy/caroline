@@ -25,10 +25,7 @@ echo "----------------------------------------------------"
 echo ""
 
 # Load required python and gdal modules
-source /etc/profile.d/modules.sh
-source /project/caroline/Software/bin/init.sh
-module load python/3.10.4 gdal/3.4.1-alma9
-source ~/.bashrc
+source ${INSTALL_LOCATION}/scripts/imports.sh
 source ${VENV_LOCATION}/bin/activate
 
 # we can access the number of slurm cluster workers from the job definition script (each key split by : , not flattened, and 0 if no value found

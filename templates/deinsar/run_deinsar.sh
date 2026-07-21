@@ -31,7 +31,7 @@
 
 # source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
-module load python/2.7.15 gdal/3.4.1-alma9
+module load **python2_module** **gdal_module**
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started deinsar.sh (AoI **deinsar:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 

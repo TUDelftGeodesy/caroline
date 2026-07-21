@@ -2332,7 +2332,7 @@ def prepare_znap_to_raw(parameter_file: str, do_track: int | list | None = None)
         )
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
         )
 
         os.makedirs(znap_to_raw_directory, exist_ok=True)
@@ -2413,7 +2413,7 @@ def prepare_znap_to_zarr(parameter_file: str, do_track: int | list | None = None
         )
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
         )
 
         os.makedirs(znap_to_zarr_directory, exist_ok=True)

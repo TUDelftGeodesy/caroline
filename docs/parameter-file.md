@@ -52,6 +52,9 @@ Required fields for any AoI are marked with a bold **R**
 - **R** `general:workflow:output-steps`
   - Function: specify the desired output jobs
   - Possible values: list of any [job names](glossary.md#jobs)
+- `general:workflow:filters:coregistration-mode`
+  - Function: switch to select either the coregistration [jobs](glossary.md#jobs) (`snap_prepartation`, `snap_run`, `snap_permissions`) or (`doris`, `doris_cleanup` | `deinsar`)
+  - Possible values: `'snap'` or `'doris'` (default)
 - `general:workflow:filters:depsi_post-output`
   - Function: switch to select either the [job](glossary.md#jobs) `portal_upload` or `tarball` after running `depsi_post`
   - Possible values: `'csv'` (for `portal_upload`), `'tarball'` (for `tarball`)
@@ -468,3 +471,41 @@ These parameters are used in the job `stm_generation`. Defaults in [the default 
 - `stm_generation:stm_generation-settings:outlier-detection:n-sigma`
   - Function: specify the minimum number of sigma deviation from the median of the observations in the window before an observation is considered an outlier
   - Possible values: any positive `float` (advised 3)
+
+
+## znap_to_raw parameters
+
+These parameters are used in the job `znap_to_raw`. Defaults in [the default znap_to_raw config file](../config/parameter-files/default-job-param-file-znap_to_raw.yaml).
+
+
+- `znap_to_raw:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `znap_to_raw`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+  - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
+- `znap_to_raw:general:directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `znap_to_raw` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
+- `znap_to_raw:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `znap_to_raw` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
+- `znap_to_raw:general:znap_to_raw-code-directory`
+  - Function: specify where the DePSI_group code is, containing the functionality for `znap_to_raw`
+  - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
+
+## znap_to_zarr parameters
+
+These parameters are used in the job `znap_to_zarr`. Defaults in [the default znap_to_zarr config file](../config/parameter-files/default-job-param-file-znap_to_zarr.yaml).
+
+
+- `znap_to_zarr:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `znap_to_zarr`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+  - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
+- `znap_to_zarr:general:directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `znap_to_zarr` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
+- `znap_to_zarr:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `znap_to_zarr` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
+- `znap_to_zarr:general:znap_to_zarr-code-directory`
+  - Function: specify where the DePSI_group code is, containing the functionality for `znap_to_zarr`
+  - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
+

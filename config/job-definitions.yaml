@@ -285,7 +285,7 @@ jobs:
             coregistration-mode: "doris"
 
   stm_generation:
-    requirement: "crop_to_zarr"
+    requirement: ["crop_to_zarr", "znap_to_zarr"]
     two-letter-id: "SG"
     parameter-file-step-key: "general:steps:do-stm_generation"
     partition: "stm_generation:general:partition"

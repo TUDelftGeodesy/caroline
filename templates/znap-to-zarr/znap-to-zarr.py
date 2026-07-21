@@ -66,6 +66,9 @@ cropped_data = crop_slc_spacetime(data, aoi_filename=aoi_path)
 
 cropped_data = cropped_data.chunk({"azimuth": 4000, "range": 4000, "time": 1})
 
+# removing the mother metadata to be able to write to zarr again
+cropped_data["metadata_mother"] = None
+
 logger.info("Writing...")
 cropped_data.to_zarr(zarr_output_path, mode="w")
 

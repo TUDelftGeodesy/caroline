@@ -68,7 +68,7 @@ data = data.rename({"latitude": "lat", "longitude": "lon"})
 
 cropped_data = crop_slc_spacetime(data, aoi_filename=aoi_path)
 
-timestamps = [epoch.datetime_as_string(epoch, unit="D").replace("-", "") for epoch in data.time.values]
+timestamps = [np.datetime_as_string(epoch, unit="D").replace("-", "") for epoch in data.time.values]
 mother_idx = timestamps.index(cropped_data.mother_epoch)
 
 logger.info("Computing interferograms...")

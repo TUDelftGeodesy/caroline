@@ -119,14 +119,14 @@ def generate_full_parameter_file(
                                 passed_requirements.append(req)
                         else:  # there are no filters on this one
                             passed_requirements.append(req)
-                        if len(passed_requirements) == 1:
-                            requirement = passed_requirements[0]
-                        else:
-                            raise ValueError(
-                                f"Cannot trace back AoI {user_parameter_file} to step {dependency}. "
-                                f"Encountered {requirement} and {len(passed_requirements)} fit. Current "
-                                f"status: {general_user_settings}"
-                            )
+                    if len(passed_requirements) == 1:
+                        requirement = passed_requirements[0]
+                    else:
+                        raise ValueError(
+                            f"Cannot trace back AoI {user_parameter_file} to step {dependency}. "
+                            f"Encountered {requirement} and {len(passed_requirements)} fit. Current "
+                            f"status: {general_user_settings}"
+                        )
 
     for job in job_definitions["jobs"].keys():
         if (

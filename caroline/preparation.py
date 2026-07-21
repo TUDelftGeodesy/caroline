@@ -2365,7 +2365,12 @@ def prepare_znap_to_raw(parameter_file: str, do_track: int | list | None = None)
                 "znap_to_raw:general:AoI-name",
                 "znap_to_raw:general:znap_to_raw-code-directory",
             ],
-            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+            ],
             other_parameters={"track": tracks[track]},
         )
 
@@ -2443,7 +2448,12 @@ def prepare_znap_to_zarr(parameter_file: str, do_track: int | list | None = None
                 "znap_to_zarr:general:AoI-name",
                 "znap_to_zarr:general:znap_to_zarr-code-directory",
             ],
-            config_parameters=["caroline_work_directory", "caroline_virtual_environment_directory"],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+            ],
             other_parameters={"track": tracks[track]},
         )
 

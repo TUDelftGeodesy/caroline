@@ -25,16 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.2.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (16-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/180a98d5ed017d7e91b6f2d18df1354f77bbbdee...main))
+## [v3.2.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (21-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e...main))
 
 ### Added
 - `znap_to_zarr` and `znap_to_raw` jobs
 - Dependency on the `DePSI_group` repository on the branch `caroline-clone-branch`
 
 ### Changed
-- `sarxarray` dependency now requires at least version `1.3.2`
+- `sarxarray` dependency now requires at least version `1.4.0b1`
 
-## [v3.1.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/73187d7db6cea90d02e4d3f2e61a3dea0a910e50...main))
+## [v3.1.2](https://github.com/TUDelftGeodesy/caroline/tree/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e) (17-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/73187d7db6cea90d02e4d3f2e61a3dea0a910e50...bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e))
 
 ### Added
 - Module name variables in [spider-config.yaml](config/spider-config.yaml) and [spider-test-config.yaml](config/spider-test-config.yaml)

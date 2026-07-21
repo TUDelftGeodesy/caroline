@@ -193,7 +193,7 @@ txt_files = {
 
 # write the text files
 for txt_file in txt_files.keys():
-    f = open(f"{raw_output_path}/{txt_file}")
+    f = open(f"{raw_output_path}/{txt_file}", "w")
     for line in txt_files[txt_file]:
         f.write(f"{line}\n")
     f.close()

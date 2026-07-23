@@ -964,6 +964,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         "depsi:depsi-settings:general:ref-cn",
         "depsi:depsi-settings:psc:do-water-mask",
         "depsi:general:AoI-name",
+        "general:workflow:filters:coregistration-mode",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -984,9 +985,18 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
-        crop_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
-        )
+        # determine if we came from crop_to_raw or znap_to_raw
+        if (
+            out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
+            or out_parameters["general:input-data:sensor"].lower() != "s1"
+        ):
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
+            )
+        else:
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_raw"], track=tracks[track]
+            )
 
         # we need a psi and boxes folder in the depsi directory
         os.makedirs(f"{depsi_directory}", exist_ok=True)
@@ -1926,7 +1936,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
 
 
 def prepare_snap_permissions(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Unzip and then remove the zipped ZNAP archives.
+    """Change all the permissions for the SNAP output to 775.
 
     Parameters
     ----------
@@ -2083,7 +2093,7 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
 
 
 def prepare_snap_run(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for SNAP preparation.
+    """Set up the directories and run files for SNAP run.
 
     Parameters
     ----------
@@ -2162,11 +2172,6 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
     do_track: int | list | None, optional
         Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
         the parameter file
-
-    Raises
-    ------
-    ValueError
-        If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
     """
     search_parameters = [
         "stm_generation:general:AoI-name",
@@ -2174,6 +2179,7 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
         "general:tracks:track",
         "general:tracks:asc_dsc",
         "general:input-data:sensor",
+        "general:workflow:filters:coregistration-mode",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -2192,9 +2198,18 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["stm_generation"], track=tracks[track]
         )
 
-        crop_to_zarr_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
-        )
+        # determine if we came from crop_to_zarr or znap_to_zarr
+        if (
+            out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
+            or out_parameters["general:input-data:sensor"].lower() != "s1"
+        ):
+            crop_to_zarr_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
+            )
+        else:
+            crop_to_zarr_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_zarr"], track=tracks[track]
+            )
 
         os.makedirs(stm_directory, exist_ok=True)
 

@@ -82,12 +82,12 @@ else
   filenames_output = fullfile(processDir,slcs);
 end
 
-masterIdx = find(strcmp(dates, masterDate));
+masterIdx = find(strcmp(char(slcs), char(master)));
 if length(masterIdx)>1
   error('The master image is not uniquely determined. We have to find another method.');
 end
 datenums = datenum(dates);
-Btemp = datenums-datenums(masterIdx(1));
+Btemp = datenums-datenums(masterIdx);
 
 [Btemp,Btemp_index] = sort(Btemp);
 orbitnr = orbitnr(Btemp_index,:);

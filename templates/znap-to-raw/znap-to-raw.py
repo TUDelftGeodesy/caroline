@@ -119,54 +119,57 @@ for i in range(len(data.time.values)):
                 output_path=f"{write_path}/{file}", data=epoch_data, data_var_name=files[file], allow_overwrite=False
             )
     if i == mother_idx:
-        if not os.path.exists(f"{write_path}/master.res"):
-            first_pixel_az_time = dt.datetime.strptime(
-                str(data.metadata_mother["first_azimuth_time"]), "%Y-%m-%dT%H:%M:%S.%f000"
+        filename = "master.res"
+    else:
+        filename = "slave.res"
+    if not os.path.exists(f"{write_path}/{filename}"):
+        first_pixel_az_time = dt.datetime.strptime(
+            str(data.metadata_mother["first_azimuth_time"]), "%Y-%m-%dT%H:%M:%S.%f000"
+        )
+        orbit_grid_pattern = (
+            "{timestamp_s:>6}   {x_pos_18_chars:<18}   {y_pos_18_chars:<18}   {z_pos_18_chars:<18}   \n"
+        )
+        orbit_grid = ""
+        for orb_ep in range(cropped_data.metadata_mother["orbit_time"].shape[0]):
+            orbit_grid += orbit_grid_pattern.format(
+                timestamp_s=str(round(cropped_data.metadata_mother["orbit_time"][orb_ep][0]) % 86400),
+                x_pos_18_chars=str(cropped_data.metadata_mother["orbit_position"][orb_ep][0])[:18],
+                y_pos_18_chars=str(cropped_data.metadata_mother["orbit_position"][orb_ep][1])[:18],
+                z_pos_18_chars=str(cropped_data.metadata_mother["orbit_position"][orb_ep][2])[:18],
             )
-            orbit_grid_pattern = (
-                "{timestamp_s:>6}   {x_pos_18_chars:<18}   {y_pos_18_chars:<18}   {z_pos_18_chars:<18}   \n"
-            )
-            orbit_grid = ""
-            for orb_ep in range(cropped_data.metadata_mother["orbit_time"].shape[0]):
-                orbit_grid += orbit_grid_pattern.format(
-                    timestamp_s=str(round(cropped_data.metadata_mother["orbit_time"][orb_ep][0]) % 86400),
-                    x_pos_18_chars=str(cropped_data.metadata_mother["orbit_position"][orb_ep][0])[:18],
-                    y_pos_18_chars=str(cropped_data.metadata_mother["orbit_position"][orb_ep][1])[:18],
-                    z_pos_18_chars=str(cropped_data.metadata_mother["orbit_position"][orb_ep][2])[:18],
-                )
-            orbit_grid = orbit_grid.strip("\n")
+        orbit_grid = orbit_grid.strip("\n")
 
-            write_run_file(
-                save_path=f"{write_path}/master.res",
-                template_path=f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-raw/master.res",
-                asc_dsc=None,
-                track=None,
-                parameter_file=None,
-                other_parameters={
-                    "asc_dsc": cropped_data.metadata_mother["pass_direction"].lower().capitalize(),
-                    "n_az_pixels": len(cropped_data.azimuth.values),
-                    "n_r_pixels": len(cropped_data.range.values),
-                    "r_pixel_spacing": cropped_data.metadata_mother["range_pixel_spacing"],
-                    "az_pixel_spacing": cropped_data.metadata_mother["azimuth_pixel_spacing"],
-                    "radar_frequency": cropped_data.metadata_mother["radar_frequency"],
-                    "centre_latitude": cropped_data.metadata_mother["scene_centre_latitude"],
-                    "centre_longitude": cropped_data.metadata_mother["scene_centre_longitude"],
-                    "wavelength": SPEED_OF_LIGHT / cropped_data.metadata_mother["radar_frequency"],
-                    "first_pixel_az_time": first_pixel_az_time.strftime("%Y-%b-%d %H:%M:%S.%f"),
-                    "PRF_hz": cropped_data.metadata_mother["pulse_repetition_frequency"],
-                    "azimuth_time_interval_s": cropped_data.metadata_mother["azimuth_time_interval"],
-                    "azimuth_bandwidth_hz": cropped_data.metadata_mother["total_azimuth_bandwidth"],
-                    "range_2way_time_to_first_pixel_ms": cropped_data.metadata_mother["first_range_time"] * 1_000,
-                    "range_sampling_rate_mhz": cropped_data.metadata_mother["range_sampling_rate"] / 1_000_000,
-                    "range_bandwidth_mhz": cropped_data.metadata_mother["total_range_bandwidth"] / 1_000_000,
-                    "first_range": cropped_data.range.values[0],
-                    "last_range": cropped_data.range.values[-1],
-                    "first_az": cropped_data.azimuth.values[0],
-                    "last_az": cropped_data.azimuth.values[-1],
-                    "num_data_points_orbit": cropped_data.metadata_mother["orbit_time"].shape[0],
-                    "orbit_grid": orbit_grid,
-                },
-            )
+        write_run_file(
+            save_path=f"{write_path}/{filename}",
+            template_path=f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-raw/master.res",
+            asc_dsc=None,
+            track=None,
+            parameter_file=None,
+            other_parameters={
+                "asc_dsc": cropped_data.metadata_mother["pass_direction"].lower().capitalize(),
+                "n_az_pixels": len(cropped_data.azimuth.values),
+                "n_r_pixels": len(cropped_data.range.values),
+                "r_pixel_spacing": cropped_data.metadata_mother["range_pixel_spacing"],
+                "az_pixel_spacing": cropped_data.metadata_mother["azimuth_pixel_spacing"],
+                "radar_frequency": cropped_data.metadata_mother["radar_frequency"],
+                "centre_latitude": cropped_data.metadata_mother["scene_centre_latitude"],
+                "centre_longitude": cropped_data.metadata_mother["scene_centre_longitude"],
+                "wavelength": SPEED_OF_LIGHT / cropped_data.metadata_mother["radar_frequency"],
+                "first_pixel_az_time": first_pixel_az_time.strftime("%Y-%b-%d %H:%M:%S.%f"),
+                "PRF_hz": cropped_data.metadata_mother["pulse_repetition_frequency"],
+                "azimuth_time_interval_s": cropped_data.metadata_mother["azimuth_time_interval"],
+                "azimuth_bandwidth_hz": cropped_data.metadata_mother["total_azimuth_bandwidth"],
+                "range_2way_time_to_first_pixel_ms": cropped_data.metadata_mother["first_range_time"] * 1_000,
+                "range_sampling_rate_mhz": cropped_data.metadata_mother["range_sampling_rate"] / 1_000_000,
+                "range_bandwidth_mhz": cropped_data.metadata_mother["total_range_bandwidth"] / 1_000_000,
+                "first_range": cropped_data.range.values[0],
+                "last_range": cropped_data.range.values[-1],
+                "first_az": cropped_data.azimuth.values[0],
+                "last_az": cropped_data.azimuth.values[-1],
+                "num_data_points_orbit": cropped_data.metadata_mother["orbit_time"].shape[0],
+                "orbit_grid": orbit_grid,
+            },
+        )
 
 logger.info("Writing text files...")
 # the text files

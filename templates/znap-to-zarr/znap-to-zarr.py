@@ -69,8 +69,8 @@ cropped_data = cropped_data.chunk({"azimuth": 4000, "range": 4000, "time": 1})
 
 cropped_data = cropped_data.assign(
     {
-        "real": (da.real(cropped_data["complex"].data), cropped_data["complex"].dims),
-        "imag": (da.imag(cropped_data["complex"].data), cropped_data["complex"].dims),
+        "real": (list(cropped_data["complex"].dims), da.real(cropped_data["complex"].data)),
+        "imag": (list(cropped_data["complex"].dims), da.imag(cropped_data["complex"].data)),
     }
 )
 

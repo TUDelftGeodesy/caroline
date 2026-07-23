@@ -87,7 +87,7 @@ if length(masterIdx)>1
   error('The master image is not uniquely determined. We have to find another method.');
 end
 datenums = datenum(dates);
-Btemp = datenums-datenums(masterIdx);
+Btemp = datenums-datenums(masterIdx(1,1));
 
 [Btemp,Btemp_index] = sort(Btemp);
 orbitnr = orbitnr(Btemp_index,:);

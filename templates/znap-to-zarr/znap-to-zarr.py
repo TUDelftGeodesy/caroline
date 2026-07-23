@@ -2,6 +2,7 @@ import glob
 import logging
 import socket
 
+import dask.array as da
 import sarxarray as sxr
 from dask.distributed import Client
 from dask_jobqueue import SLURMCluster
@@ -66,6 +67,11 @@ cropped_data = crop_slc_spacetime(data, aoi_filename=aoi_path)
 
 cropped_data = cropped_data.chunk({"azimuth": 4000, "range": 4000, "time": 1})
 
+cropped_data = cropped_data.assign(
+    {"real": da.real(cropped_data["complex"].data), "imag": da.imag(cropped_data["complex"].data)}
+)
+
+cropped_data = cropped_data.drop_vars(["complex"])
 # removing the metadata to be able to write to zarr again
 cropped_data.attrs = {}
 

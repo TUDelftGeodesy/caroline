@@ -186,9 +186,9 @@ txt_files = {
     "npixels_crp.txt": npixels,
     "path_coords.txt": coords,
     "path_ifgs.txt": ifgs,
-    "path_images": SRDs,
-    "path_res_files": ress,
-    "path_slcs": slcs,
+    "path_images.txt": SRDs,
+    "path_res_files.txt": ress,
+    "path_slcs.txt": slcs,
 }
 
 # write the text files

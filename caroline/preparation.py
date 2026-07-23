@@ -1018,8 +1018,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         os.system(f"ln -sf {dem_radar} {depsi_directory}/dem_radar.raw")
 
         # find the first and last valid dates within range
-        if os.path.exists(f"{crop_directory}/cropped_stack/path_res_files.txt"):
-            f = open(f"{crop_directory}/cropped_stack/path_res_files.txt")
+        if os.path.exists(f"{crop_directory}/cropped_stack/path_slcs.txt"):
+            f = open(f"{crop_directory}/cropped_stack/path_slcs.txt")
             resfiles = f.read().split("\n")
             f.close()
             dates = [i.split("/")[-2] for i in resfiles if i != ""]

@@ -68,7 +68,10 @@ cropped_data = crop_slc_spacetime(data, aoi_filename=aoi_path)
 cropped_data = cropped_data.chunk({"azimuth": 4000, "range": 4000, "time": 1})
 
 cropped_data = cropped_data.assign(
-    {"real": da.real(cropped_data["complex"].data), "imag": da.imag(cropped_data["complex"].data)}
+    {
+        "real": (da.real(cropped_data["complex"].data), cropped_data["complex"].dims),
+        "imag": (da.imag(cropped_data["complex"].data), cropped_data["complex"].dims),
+    }
 )
 
 cropped_data = cropped_data.drop_vars(["complex"])

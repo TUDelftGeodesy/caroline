@@ -82,7 +82,7 @@ else
   filenames_output = fullfile(processDir,slcs);
 end
 
-masterIdx = find(dates==masterDate);
+masterIdx = find(strcmp(dates, masterDate));
 if length(masterIdx)>1
   error('The master image is not uniquely determined. We have to find another method.');
 end

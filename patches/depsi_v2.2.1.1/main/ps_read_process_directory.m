@@ -82,11 +82,19 @@ else
   filenames_output = fullfile(processDir,slcs);
 end
 
-masterIdx = find(strcmp(char(slcs), char(master)));
+disp('SLCs:')
+disp(slcs)
+
+disp('Master:')
+disp(master)
+masterIdx = find(strcmp(cellstr(slcs), strtrim(master)));
 if length(masterIdx)>1
   error('The master image is not uniquely determined. We have to find another method.');
 end
 datenums = datenum(dates);
+
+disp('masterIdx:')
+disp(masterIdx)
 Btemp = datenums-datenums(masterIdx(1));
 
 [Btemp,Btemp_index] = sort(Btemp);

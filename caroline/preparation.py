@@ -1673,6 +1673,7 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
     search_parameters = [
         "general:tracks:track",
         "general:tracks:asc_dsc",
+        "general:input-data:sensor",
         "depsi_post:general:cpxfiddle-directory",
         "general:workflow:filters:coregistration-mode",
     ]

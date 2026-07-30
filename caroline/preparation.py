@@ -1674,6 +1674,7 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         "general:tracks:track",
         "general:tracks:asc_dsc",
         "depsi_post:general:cpxfiddle-directory",
+        "general:workflow:filters:coregistration-mode",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -1688,9 +1689,18 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             if tracks[track] not in do_track:
                 continue
 
-        crop_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
-        )
+        # determine if we came from crop_to_raw or znap_to_raw
+        if (
+            out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
+            or out_parameters["general:input-data:sensor"].lower() != "s1"
+        ):
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
+            )
+        else:
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_raw"], track=tracks[track]
+            )
 
         depsi_directory = format_process_folder(
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]

@@ -12,7 +12,7 @@ dependencies = [
     "geopandas",
     "matplotlib",
     "psycopg2-binary",
-    "sarxarray>=1.4.0b1",
+    "sarxarray>=1.4.0b2",
     "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc2",
     "snap-run@git+ssh://git@github.com/TUDelftGeodesy/snap-coregistration.git@caroline-clone-branch",
     "depsi@git+ssh://git@github.com/TUDelftGeodesy/DePSI_group.git@caroline-clone-branch"

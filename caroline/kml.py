@@ -594,7 +594,7 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
                 znaps = glob.glob(f"{stack_folder}/*-coreg.znap")
                 if len(znaps) > 0:  # we have SNAP
                     snap_data = sxr.from_znap(znaps)
-                    if "latitude" in snap_data.vars and "longitude" in snap_data.vars:
+                    if {"latitude", "longitude"}.issubset([k for k in snap_data.data_vars.keys()]):
                         bbox = [
                             (
                                 snap_data["longitude"].isel(range=0, azimuth=0).values[0, 0],

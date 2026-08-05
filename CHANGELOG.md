@@ -25,14 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.2.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (21-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e...main))
+## [v3.2.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (05-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e...main))
 
 ### Added
 - `znap_to_zarr` and `znap_to_raw` jobs
 - Dependency on the `DePSI_group` repository on the branch `caroline-clone-branch`
 
 ### Changed
-- `sarxarray` dependency now requires at least version `1.4.0b1`
+- `sarxarray` dependency now requires at least version `1.4.0b2`
+- Overview KML now includes snap-generated coregistered stacks
+- `general:workflow:filters:s1-coregistration-mode` renamed to `general:workflow:filters:coregistration-mode`
 
 ### Fixed
 - All jobs in a list of requirements in the [job definitions](config/job-definitions.yaml) are now checked instead of just the first one when determining the correct jobs for the requested workflow.

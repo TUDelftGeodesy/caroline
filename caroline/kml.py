@@ -2,6 +2,8 @@ import glob
 import os
 from typing import Literal
 
+import dask
+import requests
 import sarxarray as sxr
 
 from caroline.config import get_config
@@ -340,7 +342,6 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                 ]
                 data_size_fmt = " / ".join(data_size_fmt)
                 data_size_fmt += f" (total {convert_bytesize_to_humanreadable(sum(data_size))})"
-
                 processing_time = 0
 
                 for track in tracks:
@@ -495,7 +496,7 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
     for param_file in param_file_data.keys():
         if "doris:general:directory" in param_file_data[param_file].keys():
             s1_stack_folders.append(param_file_data[param_file]["doris:general:directory"])
-        elif "snap:general:directory" in param_file_data[param_file].keys():
+        if "snap:general:directory" in param_file_data[param_file].keys():
             s1_stack_folders_snap.append(param_file_data[param_file]["snap:general:directory"])
     s1_stack_folders = list(sorted(list(set(s1_stack_folders))))
     s1_stack_folders_snap = list(sorted(list(set(s1_stack_folders_snap))))
@@ -513,8 +514,8 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
     for folder in s1_stack_folders_snap:
         part_folders = list(sorted(glob.glob(f"{folder}/*_s1_[ad]sc_t*")))
         for f in part_folders:
-            stack_folders.append(f)
-    stack_folders = list(sorted(stack_folders))
+            stack_folders_snap.append(f)
+    stack_folders_snap = list(sorted(stack_folders_snap))
 
     # Group them per track
     grouped_stack_folders = {}
@@ -592,31 +593,40 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
 
             else:  # SNAP or empty
                 znaps = glob.glob(f"{stack_folder}/*-coreg.znap")
+
                 if len(znaps) > 0:  # we have SNAP
+                    before = dict(os.environ)
                     snap_data = sxr.from_znap(znaps)
+                    after = dict(os.environ)
+
+                    for k in sorted(after):
+                        if before.get(k) != after.get(k):
+                            print(k, before.get(k), "->", after[k])
                     if {"latitude", "longitude"}.issubset([k for k in snap_data.data_vars.keys()]):
-                        bbox = [
-                            (
-                                snap_data["longitude"].isel(range=0, azimuth=0).values[0, 0],
-                                snap_data["latitude"].isel(range=0, azimuth=0).values[0, 0],
-                            ),
-                            (
-                                snap_data["longitude"].isel(range=-1, azimuth=0).values[0, 0],
-                                snap_data["latitude"].isel(range=-1, azimuth=0).values[0, 0],
-                            ),
-                            (
-                                snap_data["longitude"].isel(range=-1, azimuth=-1).values[0, 0],
-                                snap_data["latitude"].isel(range=-1, azimuth=-1).values[0, 0],
-                            ),
-                            (
-                                snap_data["longitude"].isel(range=0, azimuth=-1).values[0, 0],
-                                snap_data["latitude"].isel(range=0, azimuth=-1).values[0, 0],
-                            ),
-                            (
-                                snap_data["longitude"].isel(range=0, azimuth=0).values[0, 0],
-                                snap_data["latitude"].isel(range=0, azimuth=0).values[0, 0],
-                            ),
-                        ]
+                        with dask.config.set(scheduler="synchronous"):
+                            bbox = [
+                                (
+                                    float(snap_data["longitude"].isel(range=0, azimuth=0).values),
+                                    float(snap_data["latitude"].isel(range=0, azimuth=0).values),
+                                ),
+                                (
+                                    float(snap_data["longitude"].isel(range=-1, azimuth=0).values),
+                                    float(snap_data["latitude"].isel(range=-1, azimuth=0).values),
+                                ),
+                                (
+                                    float(snap_data["longitude"].isel(range=-1, azimuth=-1).values),
+                                    float(snap_data["latitude"].isel(range=-1, azimuth=-1).values),
+                                ),
+                                (
+                                    float(snap_data["longitude"].isel(range=0, azimuth=-1).values),
+                                    float(snap_data["latitude"].isel(range=0, azimuth=-1).values),
+                                ),
+                                (
+                                    float(snap_data["longitude"].isel(range=0, azimuth=0).values),
+                                    float(snap_data["latitude"].isel(range=0, azimuth=0).values),
+                                ),
+                            ]
+
                         size = convert_bytesize_to_humanreadable(get_path_bytesize(stack_folder))
 
                         kml.open_folder(AoI_name, f"Storage size: {size}")
@@ -659,7 +669,7 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
 
                         kml.add_polygon(bbox, f"{AoI_name}_{track}", message, "stack")
                         kml.close_folder()
-
+                    del snap_data
         kml.close_folder()
 
     kml.close_folder()
@@ -722,9 +732,13 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
             f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/"
             f"{param_file_AoI_name}/geosearch.yaml"
         ):  # a download configuration exists, we can use it
+            # reset the connection first to ensure proper SSL variables
+            _ = requests.get("https://cmr.earthdata.nasa.gov").status_code
             filtered_orbits, _ = identify_s1_orbits_in_aoi(
                 f"{out['general:shape-file:directory']}/{out['general:shape-file:aoi-name']}_shape.shp"
             )
+            # reset the connection again to ensure proper SSL variables
+            _ = requests.get("https://cmr.earthdata.nasa.gov").status_code
             allowed_orbits = eval(
                 os.popen(
                     f"""grep "relative_orbits" {CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/"""

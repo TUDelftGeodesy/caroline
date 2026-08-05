@@ -964,6 +964,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         "depsi:depsi-settings:general:ref-cn",
         "depsi:depsi-settings:psc:do-water-mask",
         "depsi:general:AoI-name",
+        "general:workflow:filters:coregistration-mode",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -984,9 +985,18 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
-        crop_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
-        )
+        # determine if we came from crop_to_raw or znap_to_raw
+        if (
+            out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
+            or out_parameters["general:input-data:sensor"].lower() != "s1"
+        ):
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
+            )
+        else:
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_raw"], track=tracks[track]
+            )
 
         # we need a psi and boxes folder in the depsi directory
         os.makedirs(f"{depsi_directory}", exist_ok=True)
@@ -1008,8 +1018,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         os.system(f"ln -sf {dem_radar} {depsi_directory}/dem_radar.raw")
 
         # find the first and last valid dates within range
-        if os.path.exists(f"{crop_directory}/cropped_stack/path_res_files.txt"):
-            f = open(f"{crop_directory}/cropped_stack/path_res_files.txt")
+        if os.path.exists(f"{crop_directory}/cropped_stack/path_slcs.txt"):
+            f = open(f"{crop_directory}/cropped_stack/path_slcs.txt")
             resfiles = f.read().split("\n")
             f.close()
             dates = [i.split("/")[-2] for i in resfiles if i != ""]
@@ -1663,7 +1673,9 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
     search_parameters = [
         "general:tracks:track",
         "general:tracks:asc_dsc",
+        "general:input-data:sensor",
         "depsi_post:general:cpxfiddle-directory",
+        "general:workflow:filters:coregistration-mode",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -1678,9 +1690,18 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             if tracks[track] not in do_track:
                 continue
 
-        crop_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
-        )
+        # determine if we came from crop_to_raw or znap_to_raw
+        if (
+            out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
+            or out_parameters["general:input-data:sensor"].lower() != "s1"
+        ):
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
+            )
+        else:
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_raw"], track=tracks[track]
+            )
 
         depsi_directory = format_process_folder(
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
@@ -1926,7 +1947,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
 
 
 def prepare_snap_permissions(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Unzip and then remove the zipped ZNAP archives.
+    """Change all the permissions for the SNAP output to 775.
 
     Parameters
     ----------
@@ -2083,7 +2104,7 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
 
 
 def prepare_snap_run(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for SNAP preparation.
+    """Set up the directories and run files for SNAP run.
 
     Parameters
     ----------
@@ -2162,11 +2183,6 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
     do_track: int | list | None, optional
         Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
         the parameter file
-
-    Raises
-    ------
-    ValueError
-        If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
     """
     search_parameters = [
         "stm_generation:general:AoI-name",
@@ -2174,6 +2190,7 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
         "general:tracks:track",
         "general:tracks:asc_dsc",
         "general:input-data:sensor",
+        "general:workflow:filters:coregistration-mode",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -2192,9 +2209,18 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["stm_generation"], track=tracks[track]
         )
 
-        crop_to_zarr_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
-        )
+        # determine if we came from crop_to_zarr or znap_to_zarr
+        if (
+            out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
+            or out_parameters["general:input-data:sensor"].lower() != "s1"
+        ):
+            crop_to_zarr_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
+            )
+        else:
+            crop_to_zarr_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_zarr"], track=tracks[track]
+            )
 
         os.makedirs(stm_directory, exist_ok=True)
 
@@ -2296,6 +2322,170 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
         os.system(
             f"cd {depsi_directory}; "
             f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_post_project_tar.sh {project_id}"
+        )
+
+
+def prepare_znap_to_raw(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for znap_to_raw.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        znap_to_raw_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_raw"], track=tracks[track]
+        )
+
+        coregistration_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
+        )
+
+        os.makedirs(znap_to_raw_directory, exist_ok=True)
+
+        # generate znap-to-raw.py
+        write_run_file(
+            save_path=f"{znap_to_raw_directory}/znap-to-raw.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-raw/znap-to-raw.py",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "general:shape-file:aoi-name",
+                "general:shape-file:directory",
+            ],
+            other_parameters={
+                "snap-output-path": coregistration_directory,
+                "raw-output-path": znap_to_raw_directory,
+            },
+        )
+
+        # generate znap-to-raw.sh
+        write_run_file(
+            save_path=f"{znap_to_raw_directory}/znap-to-raw.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-raw/znap-to-raw.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "znap_to_raw:general:AoI-name",
+                "znap_to_raw:general:znap_to_raw-code-directory",
+            ],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+            ],
+            other_parameters={"track": tracks[track]},
+        )
+
+        write_directory_contents(
+            znap_to_raw_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["znap_to_raw"]["directory-contents-file-appendix"]}.txt',
+        )
+
+
+def prepare_znap_to_zarr(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for znap_to_zarr.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        znap_to_zarr_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_zarr"], track=tracks[track]
+        )
+
+        coregistration_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
+        )
+
+        os.makedirs(znap_to_zarr_directory, exist_ok=True)
+
+        # generate crop-to-zarr.py
+        znap_to_zarr_output_name = znap_to_zarr_directory.split("/")[-1]
+
+        write_run_file(
+            save_path=f"{znap_to_zarr_directory}/znap-to-zarr.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-zarr/znap-to-zarr.py",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "general:shape-file:aoi-name",
+                "general:shape-file:directory",
+            ],
+            other_parameters={
+                "snap-output-path": coregistration_directory,
+                "znap_to_zarr_output_filename": znap_to_zarr_output_name,
+            },
+        )
+
+        # generate crop-to-zarr.sh
+        write_run_file(
+            save_path=f"{znap_to_zarr_directory}/znap-to-zarr.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-zarr/znap-to-zarr.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "znap_to_zarr:general:AoI-name",
+                "znap_to_zarr:general:znap_to_zarr-code-directory",
+            ],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+            ],
+            other_parameters={"track": tracks[track]},
+        )
+
+        write_directory_contents(
+            znap_to_zarr_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["znap_to_zarr"]["directory-contents-file-appendix"]}.txt',
         )
 
 

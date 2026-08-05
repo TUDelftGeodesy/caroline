@@ -376,6 +376,10 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
     status_file = None
     if data["job-array"]["run-as-array"]:
         slurm_file = glob.glob(f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}_*.out")
+        if len(slurm_file) == 0:
+            # if none are found it either did not run (so no file should exist) or it ran as a regular job, so change
+            # the search criterion
+            slurm_file = [f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"]
     else:
         slurm_file = [f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"]
     successful_finish = True

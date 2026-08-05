@@ -26,6 +26,8 @@ and `NNN` the three-letter area of interest abbreviation.
 - `CR`: crop-to-raw
 - `CZ`: crop-to-zarr
 - `RE`: Re-SLC (deprecated)
+- `ZR`: znap-to-raw
+- `ZZ`: znap-to-zarr
 
 ### AAA Job Definition module
 
@@ -89,6 +91,7 @@ None yet
 - `IJL`: id_jakarta_large 
 - `IJQ`: id_jakarta (inactive)
 - `IJS`: id_jakarta_short (inactive)
+- `IME`: id_merapi
 
 ### Netherlands
 

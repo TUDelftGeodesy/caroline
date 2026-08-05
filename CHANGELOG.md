@@ -25,7 +25,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.1.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (17-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/73187d7db6cea90d02e4d3f2e61a3dea0a910e50...main))
+## [v3.2.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (05-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e...main))
+
+### Added
+- `znap_to_zarr` and `znap_to_raw` jobs
+- Dependency on the `DePSI_group` repository on the branch `caroline-clone-branch`
+
+### Changed
+- `sarxarray` dependency now requires at least version `1.4.0b2`
+- Overview KML now includes snap-generated coregistered stacks
+- `general:workflow:filters:s1-coregistration-mode` renamed to `general:workflow:filters:coregistration-mode`
+
+### Fixed
+- All jobs in a list of requirements in the [job definitions](config/job-definitions.yaml) are now checked instead of just the first one when determining the correct jobs for the requested workflow.
+- Handle case where zero jobs are necessary in a job array to explicitly not submit a job array but rather a single job
+
+## [v3.1.2](https://github.com/TUDelftGeodesy/caroline/tree/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e) (17-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/73187d7db6cea90d02e4d3f2e61a3dea0a910e50...bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e))
 
 ### Added
 - Module name variables in [spider-config.yaml](config/spider-config.yaml) and [spider-test-config.yaml](config/spider-test-config.yaml)
@@ -242,7 +257,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed:
 - Daniel now receives emails from the `gr_santorini` AoI.
-
 
 ## [v2.3.9](https://github.com/TUDelftGeodesy/caroline/tree/932c7ef92da31256770dbacb7be084c38abc6940) (25-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0024c05a028ff2454075f9a0ca51de4c50e26491...932c7ef92da31256770dbacb7be084c38abc6940))
 

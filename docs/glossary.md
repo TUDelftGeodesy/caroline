@@ -135,6 +135,33 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * `lat`: latitude coordinates cropped to the AoI
         * `lon`: longitude coordinates cropped to the AoI
         * `time`: epochs of the acquisitions
+- <b>znap_to_raw</b>: this job crops the output SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) complex interferograms from the cropped SLCs and the mother SLC, before writing everything to `.raw` format
+  * input:
+    * `.znap`-archives, one per acquisition, with permissions `775`
+    * AoI in `.shp` format
+  * output:
+    * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)
+    * Geocoded pixel coordinates cropped to the AoI (`lam.raw` and `phi.raw`)
+    * Complex interferograms with reference DEM subtracted cropped to the AoI (`cint_srd.raw`)
+    * Height-to-phase screens with reference DEM subtracted cropped to the AoI (`h2ph_srd.raw`)
+    * Reduced SLCs with reference DEM subtracted cropped to the AoI (`slc_srd.raw`)
+    * Line and pixel specification of the crop (`nlines_crop.txt` and `npixels_crop.txt`)
+- <b>znap_to_zarr</b>: this job converts the output  SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI.
+  * input:
+    * `.znap`-archives, one per acquisition, with permissions `775`
+    * AoI in `.shp` format
+  * output:
+    * `.zarr` archive with the following fields:
+      - variables:
+        * `h2ph`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
+        * `imag`: imaginary component of the reduced SLCs cropped to the AoI
+        * `real`: real component of the reduced SLCs cropped to the AoI
+      - coordinates:
+        * `azimuth`: azimuth coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `range`: range coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `lat`: latitude coordinates cropped to the AoI
+        * `lon`: longitude coordinates cropped to the AoI
+        * `time`: epochs of the acquisitions
 - <b>stm_generation</b>: this job identifies PS in a `.zarr`-archive with a stack of coregistered, resampled, reduced SLCs.
   * input:
     * `.zarr` archive with the following fields:

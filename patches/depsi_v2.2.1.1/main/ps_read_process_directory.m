@@ -42,6 +42,7 @@ slcsNum = datenum(char(slcs),'yyyymmdd');
 
 orbitnr = char(slcs);
 dates = datestr(datenum(slcs,'yyyymmdd'),'dd-mmm-yyyy');
+masterDate = datestr(datenum(master,'yyyymmdd'),'dd-mmm-yyyy');
 
 if strcmp(sensor,'s1')
   if strcmp(processor,'doris_rippl')
@@ -81,12 +82,13 @@ else
   filenames_output = fullfile(processDir,slcs);
 end
 
-masterIdx = find(Bdop==0);
+masterIdx = find(strcmp(cellstr(slcs), strtrim(master)));
 if length(masterIdx)>1
   error('The master image is not uniquely determined. We have to find another method.');
 end
 datenums = datenum(dates);
-Btemp = datenums-datenums(masterIdx);
+
+Btemp = datenums-datenums(masterIdx(1));
 
 [Btemp,Btemp_index] = sort(Btemp);
 orbitnr = orbitnr(Btemp_index,:);

@@ -2,6 +2,10 @@ import glob
 import os
 from typing import Literal
 
+import dask
+import requests
+import sarxarray as sxr
+
 from caroline.config import get_config
 from caroline.io import read_parameter_file, read_shp_extent, read_SLC_json, read_SLC_xml
 from caroline.parameter_file import generate_full_parameter_file
@@ -338,7 +342,6 @@ def add_AoI_extent_folder(kml: KML) -> KML:
                 ]
                 data_size_fmt = " / ".join(data_size_fmt)
                 data_size_fmt += f" (total {convert_bytesize_to_humanreadable(sum(data_size))})"
-
                 processing_time = 0
 
                 for track in tracks:
@@ -489,10 +492,14 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
     kml.open_folder("Coregistered stacks", "Extents of all coregistered stacks")
 
     s1_stack_folders = []
+    s1_stack_folders_snap = []
     for param_file in param_file_data.keys():
         if "doris:general:directory" in param_file_data[param_file].keys():
             s1_stack_folders.append(param_file_data[param_file]["doris:general:directory"])
+        if "snap:general:directory" in param_file_data[param_file].keys():
+            s1_stack_folders_snap.append(param_file_data[param_file]["snap:general:directory"])
     s1_stack_folders = list(sorted(list(set(s1_stack_folders))))
+    s1_stack_folders_snap = list(sorted(list(set(s1_stack_folders_snap))))
 
     # filter out the Sentinel-1 stacks in all coregistration directories
     stack_folders = []
@@ -502,10 +509,25 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
             stack_folders.append(f)
     stack_folders = list(sorted(stack_folders))
 
+    # filter out the Sentinel-1 stacks in all SNAP coregistration directories
+    stack_folders_snap = []
+    for folder in s1_stack_folders_snap:
+        part_folders = list(sorted(glob.glob(f"{folder}/*_s1_[ad]sc_t*")))
+        for f in part_folders:
+            stack_folders_snap.append(f)
+    stack_folders_snap = list(sorted(stack_folders_snap))
+
     # Group them per track
     grouped_stack_folders = {}
 
     for stack_folder in stack_folders:
+        track = "s1_" + stack_folder.split("_s1_")[-1]
+        if track in grouped_stack_folders.keys():
+            grouped_stack_folders[track].append(stack_folder)
+        else:
+            grouped_stack_folders[track] = [stack_folder]
+
+    for stack_folder in stack_folders_snap:
         track = "s1_" + stack_folder.split("_s1_")[-1]
         if track in grouped_stack_folders.keys():
             grouped_stack_folders[track].append(stack_folder)
@@ -523,7 +545,7 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
         for AoI_name_zipped in list(sorted(AoI_names)):
             stack_folder = AoI_name_zipped[1]
             AoI_name = AoI_name_zipped[0]
-            if os.path.exists(f"{stack_folder}/stackswath_coverage.shp"):
+            if os.path.exists(f"{stack_folder}/stackswath_coverage.shp"):  # Doris
                 size = convert_bytesize_to_humanreadable(get_path_bytesize(stack_folder))
 
                 kml.open_folder(AoI_name, f"Storage size: {size}")
@@ -569,6 +591,85 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
 
                 kml.close_folder()
 
+            else:  # SNAP or empty
+                znaps = glob.glob(f"{stack_folder}/*-coreg.znap")
+
+                if len(znaps) > 0:  # we have SNAP
+                    before = dict(os.environ)
+                    snap_data = sxr.from_znap(znaps)
+                    after = dict(os.environ)
+
+                    for k in sorted(after):
+                        if before.get(k) != after.get(k):
+                            print(k, before.get(k), "->", after[k])
+                    if {"latitude", "longitude"}.issubset([k for k in snap_data.data_vars.keys()]):
+                        with dask.config.set(scheduler="synchronous"):
+                            bbox = [
+                                (
+                                    float(snap_data["longitude"].isel(range=0, azimuth=0).values),
+                                    float(snap_data["latitude"].isel(range=0, azimuth=0).values),
+                                ),
+                                (
+                                    float(snap_data["longitude"].isel(range=-1, azimuth=0).values),
+                                    float(snap_data["latitude"].isel(range=-1, azimuth=0).values),
+                                ),
+                                (
+                                    float(snap_data["longitude"].isel(range=-1, azimuth=-1).values),
+                                    float(snap_data["latitude"].isel(range=-1, azimuth=-1).values),
+                                ),
+                                (
+                                    float(snap_data["longitude"].isel(range=0, azimuth=-1).values),
+                                    float(snap_data["latitude"].isel(range=0, azimuth=-1).values),
+                                ),
+                                (
+                                    float(snap_data["longitude"].isel(range=0, azimuth=0).values),
+                                    float(snap_data["latitude"].isel(range=0, azimuth=0).values),
+                                ),
+                            ]
+
+                        size = convert_bytesize_to_humanreadable(get_path_bytesize(stack_folder))
+
+                        kml.open_folder(AoI_name, f"Storage size: {size}")
+
+                        # Collect the statistics
+                        dates = [date.split("/")[-1].split("-coreg")[0] for date in znaps]
+                        if len(dates) > 0:
+                            first_date = min(dates)
+                            last_date = max(dates)
+                            n_dates = len(dates)
+                        else:
+                            first_date = None
+                            last_date = None
+                            n_dates = 0
+
+                        message = f'{first_date} - {last_date} ({n_dates} image{"" if n_dates == 1 else "s"})\n'
+                        message += f"Storage size: {size}\n\n"
+                        message += f"Located in {stack_folder}\n\n"
+
+                        # Gather which caroline workflows this coregistered stack is part of
+                        check_coreg_directory = stack_folder.split("/" + AoI_name + "_s1_")[0]
+                        check_track = stack_folder.split(check_coreg_directory + "/" + AoI_name + "_")[1]
+                        workflows = []
+                        for param_file_AoI_name in list(sorted(param_file_data.keys())):
+                            if "snap:general:directory" in param_file_data[param_file_AoI_name].keys():
+                                if (
+                                    param_file_data[param_file_AoI_name]["snap:general:directory"]
+                                    == check_coreg_directory
+                                ):
+                                    if param_file_data[param_file_AoI_name]["snap:general:AoI-name"] == AoI_name:
+                                        if (
+                                            check_track
+                                            in param_file_data[param_file_AoI_name]["general:tracks:track-list-full"]
+                                        ):
+                                            workflows.append(param_file_AoI_name)
+                        if len(workflows) > 0:
+                            message += "Part of CAROLINE workflows " + ", ".join(workflows)
+                        else:
+                            message += "Not part of any CAROLINE workflows"
+
+                        kml.add_polygon(bbox, f"{AoI_name}_{track}", message, "stack")
+                        kml.close_folder()
+                    del snap_data
         kml.close_folder()
 
     kml.close_folder()
@@ -595,6 +696,8 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
                 "general:input-data:sensor",
                 "doris:general:directory",
                 "doris:general:AoI-name",
+                "snap:general:directory",
+                "snap:general:AoI-name",
                 "general:shape-file:directory",
                 "general:shape-file:aoi-name",
                 "general:project:owner:name",
@@ -629,9 +732,13 @@ def read_all_caroline_parameter_files_for_overview_kml() -> dict:
             f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/periodic/"
             f"{param_file_AoI_name}/geosearch.yaml"
         ):  # a download configuration exists, we can use it
+            # reset the connection first to ensure proper SSL variables
+            _ = requests.get("https://cmr.earthdata.nasa.gov").status_code
             filtered_orbits, _ = identify_s1_orbits_in_aoi(
                 f"{out['general:shape-file:directory']}/{out['general:shape-file:aoi-name']}_shape.shp"
             )
+            # reset the connection again to ensure proper SSL variables
+            _ = requests.get("https://cmr.earthdata.nasa.gov").status_code
             allowed_orbits = eval(
                 os.popen(
                     f"""grep "relative_orbits" {CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/"""

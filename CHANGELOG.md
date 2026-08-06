@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.2.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (05-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e...main))
+## [v3.2.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (06-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b3f16de51dd5c94f9ab8a1a9010210314ee3ba92...main))
+
+### Changed
+- `snap_run` is now constrained to the Rome part of the Spider cluster (with more memory)
+
+## [v3.2.0](https://github.com/TUDelftGeodesy/caroline/tree/b3f16de51dd5c94f9ab8a1a9010210314ee3ba92) (05-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e...b3f16de51dd5c94f9ab8a1a9010210314ee3ba92))
 
 ### Added
 - `znap_to_zarr` and `znap_to_raw` jobs

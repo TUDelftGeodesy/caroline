@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v3.2.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (06-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b3f16de51dd5c94f9ab8a1a9010210314ee3ba92...main))
+## [v3.2.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (07-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...main))
+
+### Fixed
+- The scheduler no longer crashes if it encounters a half-downloaded raw SLC zipfile without a corresponding json file
+
+## [v3.2.1](https://github.com/TUDelftGeodesy/caroline/tree/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad) (06-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b3f16de51dd5c94f9ab8a1a9010210314ee3ba92...d7a236c3a1a1464d77e26d7f1a37f4ef833818ad))
 
 ### Changed
 - `snap_run` is now constrained to the Rome part of the Spider cluster (with more memory)

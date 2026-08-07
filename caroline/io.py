@@ -492,38 +492,47 @@ def parse_start_files(new_insar_files_file: str, force_start_file: str) -> tuple
                     if polarisation in ALLOWED_S1_POLARISATIONS:
                         # date and polarisation are okay, let's check if this track has not been previously started
                         json_file = line.split(".")[0] + ".json"
-                        json_timestamp = time.ctime(os.path.getmtime(json_file))
-                        search_key = f"{line};{json_timestamp}"
-                        if search_key not in detected_slcs:  # we have not already triggered on this one, so let's start
-                            if track not in new_tracks_dict.keys():
-                                new_tracks_dict[track] = []
+                        if not os.path.exists(json_file):  # the download is not yet complete
+                            json_timestamp = time.ctime(os.path.getmtime(json_file))
+                            search_key = f"{line};{json_timestamp}"
+                            if search_key not in detected_slcs:  # we have not yet triggered on this one, so let's start
+                                if track not in new_tracks_dict.keys():
+                                    new_tracks_dict[track] = []
 
-                            new_tracks_dict[track].append(
-                                [
-                                    line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[4],
-                                    read_SLC_json(json_file),
-                                ]
-                            )
+                                new_tracks_dict[track].append(
+                                    [
+                                        line.split(CONFIG_PARAMETERS["SLC_BASE_DIRECTORY"])[1].split("/")[4],
+                                        read_SLC_json(json_file),
+                                    ]
+                                )
 
-                            os.system(
-                                """echo "$(date '+%Y-%m-%dT%H:%M:%S');"""
-                                """$(whoami);"""
-                                f"""{line};"""
-                                f"""{json_timestamp}" """
-                                f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/slcs-detected.csv"""
-                            )
-                            os.system(
-                                """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
-                                f"""detected original SLC {line} """
-                                """and has accepted it as a new original SLC, """
-                                """so its overlapping AoIs will start." """
-                                f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
-                            )
+                                os.system(
+                                    """echo "$(date '+%Y-%m-%dT%H:%M:%S');"""
+                                    """$(whoami);"""
+                                    f"""{line};"""
+                                    f"""{json_timestamp}" """
+                                    f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/slcs-detected.csv"""
+                                )
+                                os.system(
+                                    """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
+                                    f"""detected original SLC {line} """
+                                    """and has accepted it as a new original SLC, """
+                                    """so its overlapping AoIs will start." """
+                                    f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                                )
+                            else:
+                                os.system(
+                                    """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
+                                    f"""detected original SLC {line} """
+                                    """but this original SLC has already been logged as detected, """
+                                    """so original SLC is ignored." """
+                                    f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
+                                )
                         else:
                             os.system(
                                 """echo "$(date '+%Y-%m-%dT%H:%M:%S'): SCHEDULER """
                                 f"""detected original SLC {line} """
-                                """but this original SLC has already been logged as detected, """
+                                """but this original SLC has not yet finished downloading as .json is missing, """
                                 """so original SLC is ignored." """
                                 f""">> {CONFIG_PARAMETERS["CAROLINE_WORK_DIRECTORY"]}/submitted_jobs.log"""
                             )

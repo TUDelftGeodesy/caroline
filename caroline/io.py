@@ -492,7 +492,7 @@ def parse_start_files(new_insar_files_file: str, force_start_file: str) -> tuple
                     if polarisation in ALLOWED_S1_POLARISATIONS:
                         # date and polarisation are okay, let's check if this track has not been previously started
                         json_file = line.split(".")[0] + ".json"
-                        if not os.path.exists(json_file):  # the download is not yet complete
+                        if os.path.exists(json_file):  # the download is not yet complete
                             json_timestamp = time.ctime(os.path.getmtime(json_file))
                             search_key = f"{line};{json_timestamp}"
                             if search_key not in detected_slcs:  # we have not yet triggered on this one, so let's start

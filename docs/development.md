@@ -105,7 +105,7 @@ Once this command completes, your jobs are visible using the command `squeue --m
 
 ## Adding a new AoI
 
-1. Following the [general GitHub management](#general-github-management) steps 1-3: create an issue and a branch in https://github.com/TUDelftGeodesy/caroline-parameter-files, and check it out locally. 
+1. Following the [general GitHub management](https://github.com/TUDelftGeodesy/caroline-parameter-files/blob/main/docs/development.md#general-github-management) steps 1-3: create an issue and a branch in https://github.com/TUDelftGeodesy/caroline-parameter-files, and check it out locally. 
 2. Copy [config/parameter-files/example-user-param-file-nl_amsterdam.yaml](../config/parameter-files/example-user-param-file-nl_amsterdam.yaml) into the same directory with the name `param_file_<2-letter-country-ID>_<region-name>.txt`.
 3. Decide on the exact AoI. There are two options for this:
    1. Generate a rectangular AoI by following the instructions around line 57 in the parameter file.
@@ -119,8 +119,8 @@ Once this command completes, your jobs are visible using the command `squeue --m
    - All parameters in the `General` section (Sentinel-1 tracks will be automatically detected but can be force-included or force-excluded, for other sensors all tracks need to be specified)
    - The DEM, especially if not processing in the Netherlands. If no DEM is available in your AoI, follow the steps in [#67](https://github.com/TUDelftGeodesy/caroline/issues/67) to generate the DEM (just the DEM part) (NOTE: with [#248](https://github.com/TUDelftGeodesy/caroline/issues/248) the DEM generation will be deprecated).
    - Note that stacks are all stored in `/project/caroline/Share/stacks`, crops in `/project/caroline/Share/crops`, zarr stacks in `/project/caroline/Share/stacks_zarr`, DePSI runs in `/project/caroline/Share/projects/<country_code>_<region_of_interest>/depsi`, and shapefiles in `/project/caroline/Software/roi/<first step that will be run out of stacks / crops / depsi>/<country_code>_<region_of_interest>` for consistency.
-6. Follow steps 5-9 of the [general GitHub management](#general-github-management). Once complete, your new AoI will be live.
-7. After installation, the detected tracks (for Sentinel-1) will be shown in a KML in https://public.spider.surfsara.nl/project/caroline/caroline/caroline-aoi-extents. Verify that these are indeed all tracks you intend to run, and no small corners of tracks you do not intend to process are included. If they are, follow the [general GitHub management](#general-github-management) to create a new issue to resolve this (the relevant parameters are in `include_tracks` and `exclude_tracks` in the [general](parameter-file.md#general-parameters) section of the parameter file).
+6. Follow steps 5-9 of the [general GitHub management](https://github.com/TUDelftGeodesy/caroline-parameter-files/blob/main/docs/development.md#general-github-management). Once complete, your new AoI will be live.
+7. After installation, the detected tracks (for Sentinel-1) will be shown in a KML in https://public.spider.surfsara.nl/project/caroline/caroline/caroline-aoi-extents. Verify that these are indeed all tracks you intend to run, and no small corners of tracks you do not intend to process are included. If they are, follow the [general GitHub management](https://github.com/TUDelftGeodesy/caroline-parameter-files/blob/main/docs/development.md#general-github-management) to create a new issue to resolve this (the relevant parameters are in `include_tracks` and `exclude_tracks` in the [general](parameter-file.md#general-parameters) section of the parameter file).
 
 A few notes:
 - If you included the `s1_download` step in your processing, the download parameters will be automatically generated during the installation on Spider. The following logic is then automatically followed:

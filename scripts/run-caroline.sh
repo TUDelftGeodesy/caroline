@@ -6,10 +6,7 @@
 CAROLINE=$(readlink -f $(dirname $BASH_SOURCE) | sed -e 's+/scripts$++')
 
 # Load required python and gdal modules in case of submissions
-source /etc/profile.d/modules.sh
-source /project/caroline/Software/bin/init.sh
-module load python/3.10.4 gdal/3.4.1-alma9
-source ~/.bashrc
+source ${CAROLINE}/scripts/imports.sh
 #
 # Load required python environment with gdal
 VENV_LOCATION=$(python3 ${CAROLINE}/caroline/config.py "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY")
@@ -34,6 +31,13 @@ fi
 
 # Move the Force start file
 FORCE_START_FILE="${CAROLINE_WORK}/force-start-runs-${RUN_TS}.dat"
+
+if [ $# -eq 2 ]; then  # something needs to be force-started still, so let's add that one first, then move it
+  FS_AOI=$1
+  FS_TRACK=$2
+  echo "${FS_AOI};${FS_TRACK}" > "${CAROLINE_WORK}/force-start-runs.dat"
+fi
+
 mv "${CAROLINE_WORK}/force-start-runs.dat" ${FORCE_START_FILE}
 echo "" > "${CAROLINE_WORK}/force-start-runs.dat"
 

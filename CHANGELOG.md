@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--
 ## Example template!! (For the newest version, NEWHASH = main. Don't forget to update the previous versions hash too)
-( The hash can be accessed from https://github.com/TUDelftGeodesy/caroline/network by clicking on the latest merge into main)
+( The hash can be accessed from https://github.com/TUDelftGeodesy/caroline/network by clicking on the latest merge into main, it shows up in the URL)
 
 ## [version](https://github.com/TUDelftGeodesy/caroline/tree/NEWHASH) (DD-MMM-YYYY, [diff](https://github.com/TUDelftGeodesy/caroline/compare/OLDHASH...NEWHASH))
 
@@ -25,7 +25,268 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v2.3.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (26-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/a0cb0dbe64b7a73229e049185f95b3843eb956da...main))
+## [v3.2.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (07-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...main))
+
+### Fixed
+- The scheduler no longer crashes if it encounters a half-downloaded raw SLC zipfile without a corresponding json file
+
+## [v3.2.1](https://github.com/TUDelftGeodesy/caroline/tree/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad) (06-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b3f16de51dd5c94f9ab8a1a9010210314ee3ba92...d7a236c3a1a1464d77e26d7f1a37f4ef833818ad))
+
+### Changed
+- `snap_run` is now constrained to the Rome part of the Spider cluster (with more memory)
+
+## [v3.2.0](https://github.com/TUDelftGeodesy/caroline/tree/b3f16de51dd5c94f9ab8a1a9010210314ee3ba92) (05-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e...b3f16de51dd5c94f9ab8a1a9010210314ee3ba92))
+
+### Added
+- `znap_to_zarr` and `znap_to_raw` jobs
+- Dependency on the `DePSI_group` repository on the branch `caroline-clone-branch`
+
+### Changed
+- `sarxarray` dependency now requires at least version `1.4.0b2`
+- Overview KML now includes snap-generated coregistered stacks
+- `general:workflow:filters:s1-coregistration-mode` renamed to `general:workflow:filters:coregistration-mode`
+
+### Fixed
+- All jobs in a list of requirements in the [job definitions](config/job-definitions.yaml) are now checked instead of just the first one when determining the correct jobs for the requested workflow.
+- Handle case where zero jobs are necessary in a job array to explicitly not submit a job array but rather a single job
+
+## [v3.1.2](https://github.com/TUDelftGeodesy/caroline/tree/bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e) (17-Jul-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/73187d7db6cea90d02e4d3f2e61a3dea0a910e50...bbe7d9d25ab08ebd5d724313ef5ec2d006cb0c8e))
+
+### Added
+- Module name variables in [spider-config.yaml](config/spider-config.yaml) and [spider-test-config.yaml](config/spider-test-config.yaml)
+
+### Changed
+- `gdal` module now defaults to `gdal/3.4.1-alma9-2`
+- Modules in all jobs are now read from the config file instead of being hardcoded
+- Modules used in the scripts in [scripts](scripts) and in [spider-install.sh](spider-install.sh) are now imported from [imports.sh](scripts/imports.sh) to have them centralized at one location
+
+## [v3.1.1](https://github.com/TUDelftGeodesy/caroline/tree/73187d7db6cea90d02e4d3f2e61a3dea0a910e50) (22-May-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/180a98d5ed017d7e91b6f2d18df1354f77bbbdee...73187d7db6cea90d02e4d3f2e61a3dea0a910e50))
+
+### Fixed
+- Emails are now sent from the `spider.surfsara.nl` domain instead of `surf.nl` domain to match the internal signature and prevent them getting being labeled as phishing by the TU Delft email servers
+
+## [v3.1.0](https://github.com/TUDelftGeodesy/caroline/tree/180a98d5ed017d7e91b6f2d18df1354f77bbbdee) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/95f66a6c273473ba6e0906925a5eee60d2696484...180a98d5ed017d7e91b6f2d18df1354f77bbbdee))
+
+### Added:
+- `snap_preparation`, `snap_run`, and `snap_cleanup` jobs
+- Support for jobarray submission, including the determination of how many jobs the jobarray will need
+- Jobarray and subjob definitions in [the glossary](docs/glossary.md)
+- Jobarray [development documentation](docs/development.md)
+- Support for the Rome cluster which has 16GB memory per core instead of 12GB
+- Temporary storage directory in the [config](config/spider-config.yaml)
+- `general:workflow:filters:s1-coregistration-mode` key, allowing for toggling between `"doris"` and `"snap"`
+- In [job-definitions.yaml](config/job-definitions.yaml), the keys `job-array:run-as-array` (`True`/`False`) and `job-array:njobs-in-array-function` (used to determine how many jobs the jobarray will need)
+- `snap_toolbox` plugin (clone from [snap-coregistration](https://github.com/TUDelftGeodesy/snap-coregistration))
+- [snap-coregistration](https://github.com/TUDelftGeodesy/snap-coregistration) dependency
+- `snap/12.0.0` module system requirement
+- Clarification on how to detect and debug faulty orbit data being ingested from [step.esa.int](https://step.esa.int/auxdata/orbits/Sentinel-1/RESORB/)
+
+### Fixed:
+- `extract_all_values_and_paths_from_dictionary` in [utils.py](caroline/utils.py) no longer returns a faulty path when multiple keys are present at a location which is not the base of the dictionary tree
+- General memory limit now set to 12GB per core instead of 8GB
+
+## [v3.0.13](https://github.com/TUDelftGeodesy/caroline/tree/95f66a6c273473ba6e0906925a5eee60d2696484) (04-Mar-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/cecb5d0e408d5dfe79e3f7cfa162a649c5fdda19...95f66a6c273473ba6e0906925a5eee60d2696484))
+
+### Fixed:
+- `doris_cleanup`, `portal_upload`, `tarball`, and `email` no longer request `--qos=long` from the SLURM system on the `short` partition.
+
+## [v3.0.12](https://github.com/TUDelftGeodesy/caroline/tree/cecb5d0e408d5dfe79e3f7cfa162a649c5fdda19) (18-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0bda0247b64ae9ec9458e17b170cd0679f02e8cb...cecb5d0e408d5dfe79e3f7cfa162a649c5fdda19))
+
+### Added:
+- `crop_to_zarr` now also reads `dem_radar.raw` into an elevation layer called `h`.
+
+
+## [v3.0.11](https://github.com/TUDelftGeodesy/caroline/tree/0bda0247b64ae9ec9458e17b170cd0679f02e8cb) (17-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d884a04d0478230ce7a64bc159527b7f6997e3a9...0bda0247b64ae9ec9458e17b170cd0679f02e8cb))
+
+### Changed:
+- `depsi:depsi-settings:general:run-mode` now defaults to `validation` instead of `normal` (this outputs amplitude information).
+
+
+## [v3.0.10](https://github.com/TUDelftGeodesy/caroline/tree/d884a04d0478230ce7a64bc159527b7f6997e3a9) (17-Dec-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6543634985e0be7fdaf3cf09202f031f584f3396...d884a04d0478230ce7a64bc159527b7f6997e3a9))
+
+### Fixed:
+- `find-new-insar-files.sh` will now take new directories that lack orbit data with it to the next check if the reference timestamp file is updated (by updating the timestamps of the relevant `*.json` files)
+
+
+## [v3.0.9](https://github.com/TUDelftGeodesy/caroline/tree/6543634985e0be7fdaf3cf09202f031f584f3396) (27-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/07b3e59109de44d5c223806757416a132514f112...6543634985e0be7fdaf3cf09202f031f584f3396))
+
+### Added:
+- `s1_download` will now perform a ZIP-file integrity check after the call to `caroline-download` completes. If incomplete downloads are found, those are removed and the call to `caroline-download` is re-initiated. If this loop repeats over 20 times, `s1_download` aborts with exit code `5` to prevent infinite loops. 
+
+### Fixed:
+- `s1_download` will now return exit code 5 instead of 0 if the download fails prematurely
+
+## [v3.0.8](https://github.com/TUDelftGeodesy/caroline/tree/07b3e59109de44d5c223806757416a132514f112) (17-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/414af778adff2e0d2dea270fd6b0ad446e885095...07b3e59109de44d5c223806757416a132514f112))
+
+### Fixed:
+- KML generation no longer crashes on job submissions where the job ID failed to be returned
+
+## [v3.0.7](https://github.com/TUDelftGeodesy/caroline/tree/414af778adff2e0d2dea270fd6b0ad446e885095) (14-Nov-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/8913bf2250f8797cd9f59e3a101c0e781cb79887...414af778adff2e0d2dea270fd6b0ad446e885095))
+
+### Fixed:
+- Height-to-phase files are now assigned to the correct date in `crop_to_zarr` (used to be shifted by one after the mother epoch, causing NaNs at the last epoch)
+- Non-S1 `crop_to_zarr` now splits the mother image search line on the correct tickmark (" instead of ')
+
+## [v3.0.6](https://github.com/TUDelftGeodesy/caroline/tree/8913bf2250f8797cd9f59e3a101c0e781cb79887) (02-Oct-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/60631e5f91055dfea63166edfe985488f4f8645a...8913bf2250f8797cd9f59e3a101c0e781cb79887))
+
+### Fixed:
+- DePSI-post no longer crashes on very large AoIs
+
+## [v3.0.5](https://github.com/TUDelftGeodesy/caroline/tree/60631e5f91055dfea63166edfe985488f4f8645a) (02-Oct-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/1184328f7f84f6734f581ae9d5604fdf1b4e3c13...60631e5f91055dfea63166edfe985488f4f8645a))
+
+### Added:
+- `read_shp_extent` is now able to extract the geometry of MultiPolygons
+
+## [v3.0.4](https://github.com/TUDelftGeodesy/caroline/tree/1184328f7f84f6734f581ae9d5604fdf1b4e3c13) (30-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c536dd68d3c38d6f06f18e74139048087d14c1ba...1184328f7f84f6734f581ae9d5604fdf1b4e3c13))
+
+### Changed:
+- Default for `map-to-vert` in DePSI-post is now `0` instead of `1` (thus Line of Sight)
+
+### Fixed:
+- Descending orbits are now specified with `'desc'` instead of `'dsc'` in the orbit parameter in DePSI.
+
+
+## [v3.0.3](https://github.com/TUDelftGeodesy/caroline/tree/c536dd68d3c38d6f06f18e74139048087d14c1ba) (23-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/25e0fffeb360e1674881b0ee6f4e298dbc80fe2b...c536dd68d3c38d6f06f18e74139048087d14c1ba))
+
+### Changed:
+- Increased the `infinite` partition time-out from 12 to 30 days (since the reasoning for 12 day limits has been obsolete since [v2.3.4](https://github.com/TUDelftGeodesy/caroline/tree/52193011493b2681a7264a3a2be6f6458f940b59))
+
+## [v3.0.2](https://github.com/TUDelftGeodesy/caroline/tree/25e0fffeb360e1674881b0ee6f4e298dbc80fe2b) (02-Sep-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7720af88c66954384a000d4f08738d297660654e...25e0fffeb360e1674881b0ee6f4e298dbc80fe2b))
+
+### Changed:
+- Increased the number of workers for `crop_to_zarr` from 8 to 12 to avoid memory issues
+
+### Fixed:
+- The checks in `stm_generation` for partitioning and outlier detection now check strings against strings instead of floats
+
+
+## [v3.0.1](https://github.com/TUDelftGeodesy/caroline/tree/7720af88c66954384a000d4f08738d297660654e) (06-Aug-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/62524d51bc4d1c40015eb775f8b66553e4daa0f3...7720af88c66954384a000d4f08738d297660654e))
+
+### Fixed:
+- The scheduler dependency manager is now also checking for `YAML` parameter files instead of `txt`
+
+## [v3.0.0](https://github.com/TUDelftGeodesy/caroline/tree/62524d51bc4d1c40015eb775f8b66553e4daa0f3) (05-Aug-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/66b7601d2345567ee0e6d3d2d8c595a58ac00fe1...62524d51bc4d1c40015eb775f8b66553e4daa0f3))
+
+### Added:
+- Default parameter files per job (and a general one for general settings and a machine one for fields you are not supposed to touch)
+- An example user [parameter file](config/parameter-files/example-user-param-file-nl_amsterdam.yaml) for Amsterdam, with all fields required at minimum
+- The installation will verify the parameter files and throw errors if required fields are missing or illegal fields are added
+- The installation now specifies which tracks it adds to the area-track-lists
+
+### Changed:
+- Parameter files are now in `YAML` format instead of `txt`
+- The `read_parameter_file` function in [io.py](caroline/io.py) now traverses through the YAML keys with the `:` separator (e.g. given the parameter file `p={'a': {'b': 1}}`, submitting the key `a:b` will return `p['a']['b']`, in this case `1`)
+- The user no longer specifies which steps to run, but rather which output is wanted and input is provided. CAROLINE will figure out itself which jobs it needs to run to achieve the desired output(s).
+
+### Fixed:
+- The maximum memory for jobs without a SLURM-cluster is properly read in again
+- Crashed emails now send the full traceback instead of just the last line
+- On test installations, the plugins are now linked to the testing versions instead of the live versions by default in all parameter files (unless manually overwritten by the parameter file)
+
+### Removed:
+- The live parameter files (migrated to https://github.com/TUDelftGeodesy/caroline-parameter-files (a private repo))
+
+## [v2.4.7](https://github.com/TUDelftGeodesy/caroline/tree/66b7601d2345567ee0e6d3d2d8c595a58ac00fe1) (15-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d4b82b3e99c06fa298fcd95b3ff748160da07f00...66b7601d2345567ee0e6d3d2d8c595a58ac00fe1))
+
+### Changed:
+- Updated `caroline-download` to `v0.2.0rc2`, prioritising EODAG over ASF_search.
+
+
+## [v2.4.6](https://github.com/TUDelftGeodesy/caroline/tree/d4b82b3e99c06fa298fcd95b3ff748160da07f00) (14-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7ad01c464f9eca051728a30fb2a9923454eacfee...d4b82b3e99c06fa298fcd95b3ff748160da07f00))
+
+### Changed:
+- Shapefile output is disabled in `depsi_post` on all AoIs to prevent memory errors
+
+
+## [v2.4.5](https://github.com/TUDelftGeodesy/caroline/tree/7ad01c464f9eca051728a30fb2a9923454eacfee) (09-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/7cffe1701a72100022b91094ab6655624ec885e3...7ad01c464f9eca051728a30fb2a9923454eacfee))
+
+### Added:
+- `bash-file-slurm-cluster` key in [job-definitions.yaml](config/job-definitions.yaml), and its subkeys `slurm-cluster-n-workers` (the amount of workers) and `slurm-cluster-worker-time` (the time limit per worker)
+
+### Changed:
+- The CLI for [config.py](caroline/config.py) now allows `config.py requested_parameter [config-file] [flatten] [null-value]` instead of `config.py requested_parameter [config-file]`
+- The CLI for [config.py](caroline/config.py) now allows the `:` character in the requested parameter, which can be used to traverse through keys in configuration files (e.g. `"jobs:crop_to_zarr:bash-file:bash-file-slurm-cluster:slurm-cluster-n-workers"` will return the value of the key `slurm-cluster-n-workers` for the `crop_to_zarr` job). If the key cannot be found, the null-value (user-definable) will be returned, default `None`.
+
+### Fixed:
+- The number of SLURM cluster workers is taken into account in the 8GB per core memory limit (each worker has 4 cores, so an additional 32GB per worker is allowed)
+- `bash-file-directory-is-reusable` key from [job-definitions.yaml](config/job-definitions.yaml) is now in the documentation
+
+## [v2.4.4](https://github.com/TUDelftGeodesy/caroline/tree/7cffe1701a72100022b91094ab6655624ec885e3) (09-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6352102043d95557d1bbdd025c62953eee8bdb18...7cffe1701a72100022b91094ab6655624ec885e3))
+
+### Fixed:
+- Portal layers that are uploaded to the SkyGeo portal are now moved away from the limited storage on `\tmp` to an archive directory with more space after they have been added to the correct portal
+
+## [v2.4.3](https://github.com/TUDelftGeodesy/caroline/tree/6352102043d95557d1bbdd025c62953eee8bdb18) (08-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/01e0d9d201657723ecd2b2bf044e662752d60536...6352102043d95557d1bbdd025c62953eee8bdb18))
+
+### Added:
+- `id_jakarta_short` AoI
+
+### Changed:
+- `sg_singapore` now forces track `s1_dsc_t018`
+
+
+## [v2.4.2](https://github.com/TUDelftGeodesy/caroline/tree/01e0d9d201657723ecd2b2bf044e662752d60536) (08-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/a2ffe822ff927b9f04b1363e1eb573273739118a...01e0d9d201657723ecd2b2bf044e662752d60536))
+
+### Added:
+- Force-starting can now be done from the command line when calling `run-caroline.sh` (`run-caroline.sh <AoI_name> <track>`)
+
+
+## [v2.4.1](https://github.com/TUDelftGeodesy/caroline/tree/a2ffe822ff927b9f04b1363e1eb573273739118a) (07-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/52335f4ca962261a878fa6f571329968c03f2cd0...a2ffe822ff927b9f04b1363e1eb573273739118a))
+
+### Fixed:
+- `gr_santorini` now plots in WGS84 instead of RD on the portal.
+
+## [v2.4.0](https://github.com/TUDelftGeodesy/caroline/tree/52335f4ca962261a878fa6f571329968c03f2cd0) (07-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ce16194ed1fd975b497cc1e2f09137ea15a553bc...52335f4ca962261a878fa6f571329968c03f2cd0))
+
+### Added:
+- `stm_generation` job
+- [.pptx](docs/assets/Caroline_drawings.pptx) used to generate the image in [architecture.md](docs/architecture.md#current-architecture-overview).
+
+### Fixed:
+- `crop_to_zarr` now generates in the correct directory instead of in `crop_to_raw`'s directories.
+- `crop_to_zarr`'s documentation no longer refers to Re-SLC
+
+
+## [v2.3.13](https://github.com/TUDelftGeodesy/caroline/tree/ce16194ed1fd975b497cc1e2f09137ea15a553bc) (02-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/b58137efb9ad9e7a497372fe7d8cb3e0d20cda46...ce16194ed1fd975b497cc1e2f09137ea15a553bc))
+
+### Changed:
+- `crop_to_zarr` now runs on 8 cores instead of 4.
+
+## [v2.3.12](https://github.com/TUDelftGeodesy/caroline/tree/b58137efb9ad9e7a497372fe7d8cb3e0d20cda46) (01-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/275e2c121796aae162acae6c0b183100ac5e8322...b58137efb9ad9e7a497372fe7d8cb3e0d20cda46))
+
+### Changed:
+- `crop_to_raw` now runs on 8 cores instead of 2.
+- `mrm` now runs on 4 cores instead of 1.
+
+## [v2.3.11](https://github.com/TUDelftGeodesy/caroline/tree/275e2c121796aae162acae6c0b183100ac5e8322) (01-Jul-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0432f4e019521d70c51098950885cea481810fac...275e2c121796aae162acae6c0b183100ac5e8322))
+
+### Changed:
+- Memory is now restricted to 8GB per requested core per job.
+
+## [v2.3.10](https://github.com/TUDelftGeodesy/caroline/tree/0432f4e019521d70c51098950885cea481810fac) (30-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/932c7ef92da31256770dbacb7be084c38abc6940...0432f4e019521d70c51098950885cea481810fac))
+
+### Changed:
+- Daniel now receives emails from the `gr_santorini` AoI.
+
+## [v2.3.9](https://github.com/TUDelftGeodesy/caroline/tree/932c7ef92da31256770dbacb7be084c38abc6940) (25-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/0024c05a028ff2454075f9a0ca51de4c50e26491...932c7ef92da31256770dbacb7be084c38abc6940))
+
+### Changed:
+- `depsi` and `depsi_post` now run on 8 cores instead of 1 and 4, respectively, to increase the allowed memory usage.
+
+
+## [v2.3.8](https://github.com/TUDelftGeodesy/caroline/tree/0024c05a028ff2454075f9a0ca51de4c50e26491) (11-Jun-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/36e845e8b69cab89872f050065b3b55bbb7cf0d0...0024c05a028ff2454075f9a0ca51de4c50e26491))
+
+### Added:
+- `CAROLINE_PUBLIC_LOG_DIRECTORY` keyword to the configuration files
+
+### Changed:
+- Process logs are no longer appended to the email but rather stored in the `Public` folder, to which a link is provided in the email.
+
+### Fixed:
+- The installation no longer crashes if ASF encounters a `TimeoutError` or `asf_search.exceptions.ASFSearchError`
+
+
+## [v2.3.7](https://github.com/TUDelftGeodesy/caroline/tree/36e845e8b69cab89872f050065b3b55bbb7cf0d0) (26-May-2025, [diff](https://github.com/TUDelftGeodesy/caroline/compare/a0cb0dbe64b7a73229e049185f95b3843eb956da...36e845e8b69cab89872f050065b3b55bbb7cf0d0))
 
 ### Added:
 - The coverage of the detected original SLCs intersecting with the AoI during the determination of the intersecting tracks during installation is now plotted in a KML.

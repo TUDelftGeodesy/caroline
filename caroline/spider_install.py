@@ -21,6 +21,15 @@ def _get_plugins() -> tuple[dict, dict]:
     return github_plugins, tarball_plugins
 
 
+def _copy_parameter_files() -> None:
+    """Copy the parameter files to the correct location."""
+    os.system('''echo "Copying parameter files..."''')
+    os.system(
+        f"cp -p {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/parameter-files/parameter-files/*.yaml "
+        f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files"
+    )
+
+
 def _install_caroline() -> None:
     """Install CAROLINE in the path specified in get_config."""
     os.system('''echo "Starting CAROLINE install..."''')
@@ -65,6 +74,7 @@ def _create_config_directories(config_file: str) -> None:
     os.system('''echo "Creating directories..."''')
 
     config_directories = get_config(config_file, flatten=False)["directories"]
+    config_modules = get_config(config_file, flatten=False)["modules"]
 
     for key in config_directories.keys():
         if not os.path.exists(config_directories[key]):
@@ -76,7 +86,7 @@ def _create_config_directories(config_file: str) -> None:
                 os.system(
                     f"cd {venv_directory}; "
                     "source /project/caroline/Software/bin/init.sh; "
-                    "module load python/3.10.4; "
+                    f"module load {config_modules['PYTHON3_MODULE']}; "
                     f"python3 -m venv {venv_name}"
                 )
                 os.system('''echo "Virtual environment generated!"''')
@@ -172,14 +182,26 @@ def _update_virtualenvironment() -> None:
     """
     os.system('''echo "Updating the Virtual environment..."''')
     os.system(
-        "source /etc/profile.d/modules.sh; "
-        "source /project/caroline/Software/bin/init.sh; "
-        "module load python/3.10.4 gdal/3.4.1-alma9; "
-        "source ~/.bashrc; "
+        f"source {CONFIG['CAROLINE_INSTALL_DIRECTORY']}/scripts/imports.sh; "
         f"source {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
         f"pip install {CONFIG['CAROLINE_INSTALL_DIRECTORY']}[plugins]"
     )
     os.system('''echo "Finished updating the virtual environment!"''')
+
+
+def _setup_esa_snappy() -> None:
+    """Set the correct paths for ESA-snappy after installation."""
+    os.system('''echo "Setting the correct esa-snappy environment variables..."''')
+    os.system(
+        f"source {CONFIG['CAROLINE_INSTALL_DIRECTORY']}/scripts/imports.sh; "
+        f"source {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
+        f"cd {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/lib/python3.10/site-packages/esa_snappy; "
+        f"python snappyutil.py --snap_home /project/caroline/Software/{CONFIG['SNAP_MODULE']} "
+        f"--java_module /project/caroline/Software/{CONFIG['SNAP_MODULE']}/esasnappy/modules/eu-esa-snap-esa-snappy.jar"
+        " --jvm_max_mem 32G "
+        "--log_file ./snappyutil.log"
+    )
+    os.system('''echo "Finished setting esa-snappy environment variables!"''')
 
 
 def _update_start_job() -> None:
@@ -221,7 +243,11 @@ if __name__ == "__main__":
 
     _install_plugins()
 
+    _copy_parameter_files()
+
     _update_virtualenvironment()
+
+    _setup_esa_snappy()
 
     _update_start_job()
 

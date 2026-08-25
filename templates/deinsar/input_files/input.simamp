@@ -28,12 +28,12 @@ I_RESFILE	dummy.res                         // parameter file
 c       ___      ___
 comment ___SIMAMP___
 c
-SAM_IN_DEM          	**dem_file**
-SAM_IN_FORMAT       	**dem_format**
+SAM_IN_DEM          	**general:dem:file**
+SAM_IN_FORMAT       	**general:dem:format**
 SAM_IN_SIZE             **dem_s1** **dem_s2**
 SAM_IN_DELTA            **dem_d1** **dem_d2**
 SAM_IN_UL           	**dem_ul1** **dem_ul2**
-SAM_IN_NODATA       	**dem_nodata**
+SAM_IN_NODATA       	**general:dem:nodata**
 SAM_OUT_FILE      sim_amplitude.raw        // simulated amplitude    
 SAM_OUT_DEM       dem_sam.raw      // cropped DEM
 

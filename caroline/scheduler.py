@@ -1,69 +1,27 @@
 import datetime as dt
 import glob
 import os
-import re
 from sys import argv
 
 from shapely.geometry import Polygon
 
 from caroline.config import get_config
 from caroline.io import (
-    create_shapefile,
-    link_shapefile,
     parse_start_files,
     read_area_track_list,
     read_parameter_file,
     read_shp_extent,
 )
-from caroline.utils import format_process_folder
+from caroline.jobarray_preparation import jobarray_preparation_scheduler_hook
+from caroline.parameter_file import generate_full_parameter_file
+from caroline.utils import format_process_folder, job_schedule_check
 
 CONFIG_PARAMETERS = get_config()
 TIME_LIMITS = {
     "short": "10:00:00",
     "normal": "5-00:00:00",
-    "infinite": "12-00:00:00",
-}  # the true max is 30 days but this will cause interference with new images
-
-
-def job_schedule_check(parameter_file: str, job: str, job_definitions: dict) -> bool:
-    """Check if a job should be scheduled based on the parameter file and the job definitions.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Full path to the parameter file
-    job: str
-        Name of the job to be scheduled
-    job_definitions: dict
-        Dictionary readout of `job-definitions.yaml`
-
-    Returns
-    -------
-    bool
-        Boolean indicating if the job should be scheduled or not.
-    """
-    if job_definitions[job]["parameter-file-step-key"] is None:  # always runs
-        return True
-
-    out_parameters = read_parameter_file(parameter_file, [job_definitions[job]["parameter-file-step-key"]])
-
-    if out_parameters[job_definitions[job]["parameter-file-step-key"]] == "0":  # it is not requested
-        return False
-
-    # if we make it here, the step is requested
-    if job_definitions[job]["filters"] is not None:  # we first need to check the filters. Return False if one filter
-        # is not met
-        for key in job_definitions[job]["filters"].keys():
-            value_check = read_parameter_file(parameter_file, [key])[key]
-            if isinstance(job_definitions[job]["filters"][key], str):
-                if value_check.lower() != job_definitions[job]["filters"][key].lower():  # it meets the filter
-                    return False
-            else:  # it's a list, so we check if it exists in the list
-                if value_check.lower() not in [s.lower() for s in job_definitions[job]["filters"][key]]:
-                    return False
-
-    # if it was not kicked out by the filters, we return True
-    return True
+    "infinite": "30-00:00:00",
+}
 
 
 def scheduler(new_tracks: dict, force_tracks: list) -> list:
@@ -84,7 +42,7 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
         The list is sorted in such a way that if process x depends on process y, process y will be earlier in the list.
     """
     area_track_files = glob.glob(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/area-track-lists/*.dat")
-    parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param_file"
+    parameter_file_base = f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/parameter-files/param-file"
 
     track_dict = {}
     for new_track in new_tracks.keys():
@@ -99,14 +57,22 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
         dependency, tracks = read_area_track_list(area_track_file)
         for new_track in new_tracks.keys():
             if new_track in tracks:
-                AoI_name = area_track_file.split("/")[-1].split(".")[0]
+                AoI_name = area_track_file.split("/")[-1].split(".")[0].replace("_", "-")
                 # check the AoI overlap first. The AoIs are already generated during installation so we can just proceed
-                parameter_file = f"{parameter_file_base}_{AoI_name}.txt"
-                parameters = read_parameter_file(parameter_file, ["shape_directory", "shape_AoI_name"])
+                parameter_file = f"{parameter_file_base}-{AoI_name}.yaml"
+                parameters = generate_full_parameter_file(
+                    parameter_file,
+                    eval(new_track.split("_")[2][1:].lstrip("0")),
+                    new_track.split("_")[1],
+                    "dummy.yaml",
+                    "dict",
+                )
 
                 shapefile_extent = Polygon(
                     read_shp_extent(
-                        f"{parameters['shape_directory']}/{parameters['shape_AoI_name']}_shape.shp", shp_type="AoI"
+                        f"{parameters['general']['shape-file']['directory']}/"
+                        f"{parameters['general']['shape-file']['aoi-name']}_shape.shp",
+                        shp_type="AoI",
                     )["0"]
                 )
                 if any([shapefile_extent.intersects(poly[1]) for poly in new_tracks[new_track]]):
@@ -153,10 +119,18 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
 
     for new_track in track_dict.keys():
         for data in track_dict[new_track]:
+            parameters = generate_full_parameter_file(
+                f"{parameter_file_base}-{data[0].replace('_', '-')}.yaml",
+                eval(new_track.split("_")[2][1:].lstrip("0")),
+                new_track.split("_")[1],
+                "dummy.yaml",
+                "dict",
+            )
+
             out_parameters = {}
 
             for job in job_definitions.keys():
-                if job_schedule_check(f"{parameter_file_base}_{data[0]}.txt", job, job_definitions):
+                if job_schedule_check(parameters, job, job_definitions):
                     out_parameters[f"do_{job}"] = "1"
                 else:
                     out_parameters[f"do_{job}"] = "0"
@@ -197,7 +171,15 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
                                     dependency_id.append(f"{data[0]}-{req}-{new_track}")
                                 # if not, and there is a dependency parameter file, check if it is run there
                                 elif data[1] is not None:
-                                    if job_schedule_check(f"{parameter_file_base}_{data[1]}.txt", req, job_definitions):
+                                    dep_parameter_file = f"{parameter_file_base}-{data[1].replace('_', '-')}.yaml"
+                                    dep_parameters = generate_full_parameter_file(
+                                        dep_parameter_file,
+                                        eval(new_track.split("_")[2][1:].lstrip("0")),
+                                        new_track.split("_")[1],
+                                        "dummy.yaml",
+                                        "dict",
+                                    )
+                                    if job_schedule_check(dep_parameters, req, job_definitions):
                                         # Check if the dependency is actually active or not
                                         if (
                                             f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
@@ -249,37 +231,6 @@ def scheduler(new_tracks: dict, force_tracks: list) -> list:
     return sorted_processes
 
 
-def _generate_all_shapefiles(sorted_processes: list) -> None:
-    """Generate the shapefiles of all processes that are being scheduled.
-
-    Parameters
-    ----------
-    sorted_processes: list
-        All processes to be scheduled.
-    """
-    for process in sorted_processes:
-        parameter_file = (
-            f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
-            f"parameter-files/param_file_{process[0].split('-')[0]}.txt"
-        )
-        parameter_file_parameters = read_parameter_file(
-            parameter_file, ["shape_directory", "shape_AoI_name", "shape_file"]
-        )
-
-        # first create the directory
-        os.makedirs(parameter_file_parameters["shape_directory"], exist_ok=True)
-
-        # then create or link the shapefile
-        if not os.path.exists(
-            f"{parameter_file_parameters['shape_directory']}/"
-            f"{parameter_file_parameters['shape_AoI_name']}_shape.shp"
-        ):
-            if parameter_file_parameters["shape_file"] == "":
-                create_shapefile(parameter_file)
-            else:
-                link_shapefile(parameter_file)
-
-
 def submit_processes(sorted_processes: list) -> None:
     """Submit all processes to the SLURM scheduler.
 
@@ -288,9 +239,6 @@ def submit_processes(sorted_processes: list) -> None:
     sorted_processes: list
         All processes to be scheduled.
     """
-    # first generate all the shapefiles
-    _generate_all_shapefiles(sorted_processes)
-
     run_timestamp = dt.datetime.now().strftime("%Y%m%dT%H%M%S")
 
     job_definitions = get_config(
@@ -303,7 +251,7 @@ def submit_processes(sorted_processes: list) -> None:
     for process in sorted_processes:
         parameter_file = (
             f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/"
-            f"parameter-files/param_file_{process[0].split('-')[0]}.txt"
+            f"parameter-files/param-file-{process[0].split('-')[0].replace('_', '-')}.yaml"
         )
         job = process[0].split("-")[1]
         track = process[0].split("-")[2]
@@ -311,28 +259,18 @@ def submit_processes(sorted_processes: list) -> None:
             # freeze the configuration
             frozen_parameter_file = (
                 f"{CONFIG_PARAMETERS['FROZEN_PARAMETER_FILE_DIRECTORY']}/"
-                f"{parameter_file.split('/')[-1].split('.')[0]}_{track}_{run_timestamp}.txt"
+                f"{parameter_file.split('/')[-1].split('.')[0].replace('-', '_')}_{track}_{run_timestamp}.yaml"
             )
             frozen_parameter_files[f"{parameter_file}_{track}"] = frozen_parameter_file
 
             # fill in the correct track
-            f = open(parameter_file)
-            parameter_file_data = f.read()
-            f.close()
-            track_number = track.split("_")[-1][1:].lstrip("0")  # 1: to cut off the t
-            track_direction = track.split("_")[1]
-
-            parameter_file_data = re.sub(
-                r"track = \[[0123456789, ]*]", f"track = [{track_number}]", parameter_file_data
+            generate_full_parameter_file(
+                user_parameter_file=parameter_file,
+                track=eval(track.split("_")[-1][1:].lstrip("0")),
+                asc_dsc=track.split("_")[1],
+                output_file=frozen_parameter_file,
+                mode="write",
             )
-            parameter_file_data = re.sub(
-                r"asc_dsc = \[['adsc, ]*]", f"asc_dsc = ['{track_direction}']", parameter_file_data
-            )
-
-            # and write the frozen file
-            f = open(frozen_parameter_file, "w")
-            f.write(parameter_file_data)
-            f.close()
 
         frozen_parameter_file = frozen_parameter_files[f"{parameter_file}_{track}"]
 
@@ -367,14 +305,27 @@ def submit_processes(sorted_processes: list) -> None:
                 dependency_string = f" --dependency=afterok:{':'.join(dependency_job_id)} --kill-on-invalid-dep=yes "
 
         # then the job name
-        three_letter_id = read_parameter_file(frozen_parameter_file, ["three_letter_id"])["three_letter_id"]
+        three_letter_id = read_parameter_file(frozen_parameter_file, ["general:project:three-letter-id"])[
+            "general:project:three-letter-id"
+        ]
 
         # e.g. D5088NVW for Doris v5, track 88, AoI nl_veenweiden
         job_name = f"{job_definitions[job]['two-letter-id']}{track.split('_')[-1][1:]}{three_letter_id}"
 
+        if job_definitions[job]["job-array"]["run-as-array"]:
+            n_array_jobs = jobarray_preparation_scheduler_hook(
+                frozen_parameter_file, job_definitions[job]["job-array"]["njobs-in-array-function"]
+            )
+            if n_array_jobs == 0:
+                array_args = ""  # if no jobs need to run don't request the array
+            else:
+                array_args = f"--array=1-{n_array_jobs} "
+        else:
+            array_args = ""
+
         # finally, combine everything
         sbatch_arguments = (
-            f"--partition={partition} --job-name={job_name} "
+            f"{array_args}--partition={partition} --job-name={job_name} "
             f"--time={TIME_LIMITS[partition]}{dependency_string}{job_definitions[job]['sbatch-args']}"
         )
 

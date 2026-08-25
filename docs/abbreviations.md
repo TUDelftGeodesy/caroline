@@ -17,12 +17,17 @@ and `NNN` the three-letter area of interest abbreviation.
 - `D4`: DeInSAR
 - `D5`: Doris v5
 - `DC`: Doris v5 cleanup
+- `SE`: SNAP-permissions
+- `SP`: SNAP Preparation
+- `SR`: SNAP-run
 
 #### Cropping submodule
 
 - `CR`: crop-to-raw
 - `CZ`: crop-to-zarr
 - `RE`: Re-SLC (deprecated)
+- `ZR`: znap-to-raw
+- `ZZ`: znap-to-zarr
 
 ### AAA Job Definition module
 
@@ -37,6 +42,7 @@ None yet, managed by [contextual-data-definitions.yaml](../config/contextual-dat
 #### PSI-batch submodule
 
 - `DE`: DePSI
+- `SG`: STM_generation
 
 ### Autonomous Analysis module
 
@@ -81,9 +87,11 @@ None yet
 
 ### Indonesia
 
-- `IJC`: id_jakarta_cubic
-- `IJL`: id_jakarta_large (inactive)
-- `IJQ`: id_jakarta
+- `IJC`: id_jakarta_cubic (inactive)
+- `IJL`: id_jakarta_large 
+- `IJQ`: id_jakarta (inactive)
+- `IJS`: id_jakarta_short (inactive)
+- `IME`: id_merapi
 
 ### Netherlands
 
@@ -110,3 +118,7 @@ None yet
 ### Singapore
 
 - `SSG`: sg_singapore
+
+### Spain
+
+- `EEX`: es_extremadura

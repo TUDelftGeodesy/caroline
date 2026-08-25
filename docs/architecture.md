@@ -1,7 +1,7 @@
 # CAROLINE Architecture
 
 ## Current architecture overview
-![Architecture_v2.3.4](assets/Caroline_v2.3.4.png)
+![Architecture_v3.2.0](assets/Caroline_v3.2.0.png)
 
 
 ## Modules

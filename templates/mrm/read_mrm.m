@@ -1,7 +1,7 @@
 clear all
 close all
 
-load **depsi_AoI_name**_**sensor**_**asc_dsc**_t**fill_track**_project.mat
+load **depsi:general:AoI-name**_**general:input-data:sensor**_**asc_dsc**_t**fill_track**_project.mat
 
 if ~exist([project_id '_mrm_uint8_orig.raw'],'file');
   copyfile([project_id '_mrm_uint8.raw'],[project_id '_mrm_uint8_orig.raw']);

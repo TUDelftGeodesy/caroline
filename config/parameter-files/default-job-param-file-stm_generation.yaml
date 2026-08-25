@@ -1,0 +1,43 @@
+# the default settings for the STM generation, running in the stm_generation job
+
+stm_generation:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/stms_zarr'
+    partition: 'normal'
+    stm_generation-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'
+
+  stm_generation-settings:
+
+    ps-selection:
+      mode: 'full'  # initialization / full
+      initialization-mode-settings:  # ignored if mode is full
+        start-date: '2013-03-01'
+        initialization-length: 50
+
+      method: "nmad" # nmad / nad
+      threshold: 0.35
+
+    incremental-statistics:
+      increment-mode: "incremental"  # incremental (every epoch) / recalibration (every jump-size epochs)
+      recalibration-jump-size: 10
+
+    single-differences:
+      mother: "auto" # YYYY-MM-DD or auto, latter uses already existing mother
+
+    extra-projection: 'RD'  # '' for no new projection, accepts all EPSG codes and RD for the Dutch Rijksdriehoek
+
+    partitioning:
+      do-partitioning: 1
+      search-method: 'pelt'
+      cost-function: 'l2'
+      db-mode: 0
+      min-partition-length: 27
+      undifferenced-output-layers: ['nmad', 'nad', 'quality_nmad_2sigma']
+      single-difference-output-layers: ['mad', 'amplitude_sigma', 'amplitude_mean', 'amplitude_median']
+
+    outlier-detection:
+      do-outlier-detection: 1
+      window-size: 15
+      db-mode: 1
+      n-sigma: 3  # number of sigma before something is considered an outlier

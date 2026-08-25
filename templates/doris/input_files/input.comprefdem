@@ -25,10 +25,10 @@ CRD_OUT_FILE        	refdem.raw
 CRD_OUT_DEM_LP      	dem_radar.raw       
 CRD_OUT_H2PH    	h2ph_srd.raw        
 CRD_OUT_FILE        	master_slave.crd    
-CRD_IN_DEM          	**dem_file**
-CRD_IN_FORMAT       	**dem_format**
+CRD_IN_DEM          	**general:dem:file**
+CRD_IN_FORMAT       	**general:dem:format**
 CRD_IN_SIZE             **dem_s1** **dem_s2**
 CRD_IN_DELTA            **dem_d1** **dem_d2**
 CRD_IN_UL           	**dem_ul1** **dem_ul2**
-CRD_IN_NODATA       	**dem_nodata**
+CRD_IN_NODATA       	**general:dem:nodata**
 STOP                          

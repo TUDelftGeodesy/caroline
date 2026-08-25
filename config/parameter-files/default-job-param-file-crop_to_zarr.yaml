@@ -1,0 +1,8 @@
+# the default settings for crop-to-zarr, running in the crop_to_zarr job
+
+crop_to_zarr:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/stacks_zarr'
+    partition: 'normal'
+    crop_to_zarr-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'

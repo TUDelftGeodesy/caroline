@@ -21,6 +21,7 @@ TIMESTAMP_FILE="/project/caroline/Share/users/${USER}/run/find-new-insar-files-t
 
 main () {
 	local NEW_DOWNLOADS=()
+	local DOWNLOADS_TO_TAKE_TO_NEXT_CHECK=()
 	local OPTIONS=''
 	local NEW_TIMESTAMP=''
 	local TRACK=''
@@ -102,6 +103,8 @@ main () {
 		if is_download_complete "${DOWNLOAD_DIR}"; then
 			if orbits_downloaded "${DOWNLOAD_DIR}"; then
 				NEW_DOWNLOADS+=("${DOWNLOAD_DIR}")
+			else
+			  DOWNLOADS_TO_TAKE_TO_NEXT_CHECK+=("${DOWNLOAD_DIR}")
 			fi
 		fi
 	done
@@ -112,7 +115,7 @@ main () {
 	# we report this and return exit 1 so that if this script is used as
 	# a test the test will fail
 	if [ ${#NEW_DOWNLOADS[@]} -gt 0 ]; then
-		# Upate the timestamp file
+		# Update the timestamp file
 		touch "${TIMESTAMP_FILE}"
 
 		# List the zipfiles we found
@@ -120,7 +123,19 @@ main () {
 			ls "${DOWNLOAD_DIR}"/*.zip
 		done
 
-		# Return succes so that if this script is used as a test
+    # If orbit data was lacking for one or more of the found data directories
+    # but was found for one or more others, the timestamp file is updated and
+    # we will no longer detect the data directories with the missing orbits.
+    # We take those ones with us to the next check by updating its timestamp to
+    # be later than the TIMESTAMP FILE. Only touch the json files so that the
+    # zip files still retain their original download date
+    # First sleep 2 seconds so the timestamps cannot be the same
+		sleep 2
+		for DOWNLOAD_DIR in ${DOWNLOADS_TO_TAKE_TO_NEXT_CHECK[@]}; do
+		  touch "${DOWNLOAD_DIR}"/*.json
+		done
+
+		# Return success so that if this script is used as a test
 		# the test will pass
 		exit 0
 	else

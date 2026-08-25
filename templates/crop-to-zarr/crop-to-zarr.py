@@ -21,6 +21,11 @@ from depsi.io import read_metadata
 from depsi.slc import ifg_to_slc
 from depsi.utils import crop_slc_spacetime
 
+from caroline.config import get_config
+
+CONFIG = get_config()
+JOB_DEFINITIONS = get_config(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
+
 # Make a logger to log the stages of processing
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -43,7 +48,7 @@ def get_free_port():
 stack_dir = Path("**coregistration_directory**/**stack_folder_name**")  # ifg stack dir
 mother_dir = stack_dir / "**mother**"  # Mother image dir
 reading_chunks = (4000, 4000)  # Reading chunks (azimuth, range) from binary
-sensor = "**sensor**"
+sensor = "**general:input-data:sensor**"
 
 # Output config
 overwrite_zarr = False  # Flag for zarr overwrite
@@ -56,7 +61,9 @@ path_figure.mkdir(exist_ok=True)  # Make figure directory if not exists
 
 # Option 1: Initiate a new SLURMCluster
 # Uncomment the following part to setup a new Dask SLURMCluster
-N_WORKERS = 8  # Manual input: number of workers to spin-up
+N_WORKERS = JOB_DEFINITIONS["jobs"]["crop_to_zarr"]["bash-file"]["bash-file-slurm-cluster"][
+    "slurm-cluster-n-workers"
+]  # Manual input: number of workers to spin-up
 FREE_SOCKET = get_free_port()  # Get a free port
 cluster = SLURMCluster(
     name="dask-worker",  # Name of the Slurm job
@@ -64,7 +71,9 @@ cluster = SLURMCluster(
     cores=4,  # Number of cores per worker
     memory="30 GB",  # Total amount of memory per worker
     processes=1,  # Number of Python processes per worker
-    walltime="10:00:00",  # Reserve each worker for X hour
+    walltime=JOB_DEFINITIONS["jobs"]["crop_to_zarr"]["bash-file"]["bash-file-slurm-cluster"][
+        "slurm-cluster-worker-time"
+    ],  # Reserve each worker for X hour
     scheduler_options={
         "dashboard_address": f":{FREE_SOCKET}",  # Host Dashboard in a free socket
     },
@@ -122,17 +131,21 @@ if __name__ == "__main__":
     f_lam = mother_dir / "lam.raw"  # lon
     f_phi = mother_dir / "phi.raw"  # lat
 
+    # DEM
+    f_dem = mother_dir / "dem_radar.raw"
+
     # Mother SLC
     f_mother_slc = mother_dir / "**mother_slc_name**"
 
     # List of SLC
     f_ifgs = list(sorted(stack_dir.rglob("2*/cint_srd.raw")))
-    f_h2phs = list(sorted(stack_dir.rglob("2*/h2ph_srd.raw")))
+    f_h2phs = [f_ifg.parents[0] / "h2ph_srd.raw" for f_ifg in f_ifgs]
 
     shape = (metadata["n_lines"], metadata["n_pixels"])
 
     dtype_slc_ifg = np.dtype([("re", np.float32), ("im", np.float32)])
     dtype_lam_phi = np.float32
+    dtype_dem = np.float32
 
     # Lazy loading ifg stack
     ifgs = sarxarray.from_binary(f_ifgs, shape, dtype=dtype_slc_ifg, chunks=reading_chunks)  # Load ifgs
@@ -187,7 +200,13 @@ if __name__ == "__main__":
     ]
     slcs_output = slcs_output.assign({"lon": lon, "lat": lat})
 
-    slcs_output = crop_slc_spacetime(slcs_output, aoi_filename="**shape_directory**/**shape_AoI_name**_shape.shp")
+    # Add DEM
+    dem = sarxarray.from_binary([f_dem], shape, vlabel="h", dtype=dtype_dem, chunks=reading_chunks).isel(time=0)["h"]
+    slcs_output = slcs_output.assign({"h": dem})
+
+    slcs_output = crop_slc_spacetime(
+        slcs_output, aoi_filename="**general:shape-file:directory**/**general:shape-file:aoi-name**_shape.shp"
+    )
     # Rechunk and write as zarr
     slcs_output = slcs_output.chunk(writing_chunks)
     if not os.path.exists("**crop_to_zarr_output_filename**.zarr"):

@@ -1,0 +1,6 @@
+# the default settings for snap, running in the snap_preparation and snap_run jobs
+
+snap:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/stacks_snap'

@@ -1,0 +1,35 @@
+general:
+  project:
+    owner:
+      name: "Simon"
+      email: "s.a.n.vandiepen@tudelft.nl"
+    engineer:
+      name: "Simon"
+      email: "s.a.n.vandiepen@tudelft.nl"
+    objective: "Time series production over the Amsterdam quay walls for LiveQuay."
+    notes: ""
+    three-letter-id: "NAM"
+
+  workflow:
+    dependency:
+      aoi-name: 'nl_veenweiden'
+      input-step: 'doris'
+    output-steps: ["stm_generation", "portal_upload"]
+
+  shape-file:
+    rectangular-shape-file:
+      center-AoI: [52.371436, 4.897088]  # Latitude, longitude
+      AoI-width: 1 # km, east-west
+      AoI-length: 1 # km, north-south
+
+
+  email:
+    recipients: "s.a.n.vandiepen@tudelft.nl,y.wang-29@tudelft.nl,w.s.brouwer@tudelft.nl,r.f.hanssen@tudelft.nl"
+
+doris:
+  general:
+    AoI-name: "nl_veenweiden"
+
+depsi_post:
+  depsi_post-settings:
+    shift-to-mean: 1

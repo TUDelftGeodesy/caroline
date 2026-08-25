@@ -6,6 +6,8 @@ This file details the definitions of terms used in the [CAROLINE architecture](#
 - <b>module</b>: a block in the CAROLINE [architecture](architecture.md). An example is the <i>autonomous stack building</i> module. A module has one or more submodules.
 - <b>submodule</b>: a component of a module. An example is <i>coregistration</i>, part of the <i>autonomous stack building</i> module. A submodule has one or more jobs.
 - <b>job</b>: a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>coregistration</i> submodule contains three jobs: <i>Doris v5</i> (Sentinel-1 coregistration), <i>Doris v5 cleanup</i>, and <i>DeInSAR</i> (for coregistration of other sensors). A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.
+- <b>job array</b>: a group of jobs running the same single program that achieves a clearly specified goal, where each individual subjob within the job array uses different parameter settings. The <i>snap_run</i> job is submitted as a job array. See the [SLURM documentation](https://slurm.schedmd.com/job_array.html) for more details on how this works.
+- <b>subjob</b>: one of the jobs running in a job array. They differentiate themselves from a job since they also have a task ID (e.g. 12345_1 instead of just 12345)
 - <b>function</b>: a Python function.
 - <b>plugin</b>: an external software package that is called by CAROLINE to execute a job. An example is the <i>Doris v5.0.4</i> plugin, used in the job <i>Doris v5</i> in the coregistration submodule.
 - <b>patch</b>: an amendment to a plugin, where the original plugin code does not function as intended for CAROLINE. All patches are located in the `patches` directory, using the exact same folder structure as will be generated in the directory read from the `CAROLINE_PLUGINS_DIRECTORY` setting.
@@ -32,7 +34,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * AoI in `.shp` format
     * output:
       * Original SLCs
-- <b>doris_v5</b>: this job performs the basic interferometric Sentinel-1 procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
+- <b>doris</b>: this job uses Doris v5 to perform the basic interferometric Sentinel-1 procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
     * input:
       * Original SLCs
       * AoI in `.shp` format
@@ -63,7 +65,40 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * Geocoded pixel coordinates cropped to the AoI (`lam.raw` and `phi.raw`)
       * Resampled SLC of the mother image with the reference DEM subtracted cropped to the AoI (`slave_rsmp.raw`)
       * Radarcoded DEM (`dem_radar.raw`)
-- <b>matlab_preparation</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
+- <b>snap_preparation</b>: this job prepares the necessary files and directories for the basic Sentinel-1 interferometric procedure in <b>snap_run</b>. It will not run SNAP.
+    * input:
+      * Original SLCs
+      * AoI in .shp format
+      * (Optionally) previous output from `snap_run`, used to filter which jobs should run and which can be skipped
+    * output:
+      * XML graphs to be processed by SNAP called `PROCESSID-<subjob-ID>-<motherEpoch>-<daughterEpoch>-graph.xml`, one for each mother/daughter combination to be processed (they will be processed by individual subjobs in `snap_run`, hence the subjob ID identifier).
+      * A datestamped archive folder containing all previously present XML graphs in the processing folder
+- <b>snap_run</b>: this job uses SNAP to perform the basic interferometric Sentinel-1 procedure per image pair as a job array (one subjob per mother/daughter combination). This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
+    * input:
+      * XML graphs, one for each subjob 
+    * output:
+      * A `.znap` (SNAP-specific `.zarr`)-archive, one per acquisition, containing the following layers:
+        * `h2ph_<polarisation>_<epoch>`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
+        * `i_<polarisation>_<epoch>`: real component of the reduced SLCs cropped to the AoI
+        * `q_<polarisation>_<epoch>`: imaginary component of the reduced SLCs cropped to the AoI
+        * `incident_angle`: incidence angle at each pixel
+        * `slant_range_time`: slant range time at each pixel
+        * `elevation`: DEM (only at the mother epoch)
+      - coordinates:
+        * `latitude`: latitude coordinates cropped to the AoI
+        * `latitude_<polarisation>`: latitude coordinates cropped to the AoI (only at the mother epoch, difference unclear)
+        * `longitude`: longitude coordinates cropped to the AoI
+        * `longitude_<polarisation>`: longitude coordinates cropped to the AoI (only at the mother epoch, difference unclear)
+      - metadata:
+        * product metadata
+        * ground control points (empty)
+        * pins (empty)
+- <b>snap_permissions</b>: this job sets the correct permissions on the `.znap` archives.
+    * input:
+      * The `.znap` archives outputted by `snap_run`
+    * output:
+      * `.znap`-archives, one per acquisition, with permissions `775`
+- <b>crop_to_raw</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `deinsar` or `doris` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)
     * Height-to-phase screens with the reference DEM subtracted (`h2ph_srd.raw`)
@@ -100,6 +135,80 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * `lat`: latitude coordinates cropped to the AoI
         * `lon`: longitude coordinates cropped to the AoI
         * `time`: epochs of the acquisitions
+- <b>znap_to_raw</b>: this job crops the output SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) complex interferograms from the cropped SLCs and the mother SLC, before writing everything to `.raw` format
+  * input:
+    * `.znap`-archives, one per acquisition, with permissions `775`
+    * AoI in `.shp` format
+  * output:
+    * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)
+    * Geocoded pixel coordinates cropped to the AoI (`lam.raw` and `phi.raw`)
+    * Complex interferograms with reference DEM subtracted cropped to the AoI (`cint_srd.raw`)
+    * Height-to-phase screens with reference DEM subtracted cropped to the AoI (`h2ph_srd.raw`)
+    * Reduced SLCs with reference DEM subtracted cropped to the AoI (`slc_srd.raw`)
+    * Line and pixel specification of the crop (`nlines_crop.txt` and `npixels_crop.txt`)
+- <b>znap_to_zarr</b>: this job converts the output  SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI.
+  * input:
+    * `.znap`-archives, one per acquisition, with permissions `775`
+    * AoI in `.shp` format
+  * output:
+    * `.zarr` archive with the following fields:
+      - variables:
+        * `h2ph`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
+        * `imag`: imaginary component of the reduced SLCs cropped to the AoI
+        * `real`: real component of the reduced SLCs cropped to the AoI
+      - coordinates:
+        * `azimuth`: azimuth coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `range`: range coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `lat`: latitude coordinates cropped to the AoI
+        * `lon`: longitude coordinates cropped to the AoI
+        * `time`: epochs of the acquisitions
+- <b>stm_generation</b>: this job identifies PS in a `.zarr`-archive with a stack of coregistered, resampled, reduced SLCs.
+  * input:
+    * `.zarr` archive with the following fields:
+      - variables:
+        * `h2ph`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
+        * `imag`: imaginary component of the reduced SLCs cropped to the AoI
+        * `real`: real component of the reduced SLCs cropped to the AoI
+      - coordinates:
+        * `azimuth`: azimuth coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `range`: range coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `lat`: latitude coordinates cropped to the AoI
+        * `lon`: longitude coordinates cropped to the AoI
+        * `time`: epochs of the acquisitions
+  * output:
+    * `.zarr` archive with the following fields (note: this is in STM format, not in gridded format):
+      - variables:
+        * `amplitude`: amplitude of the reduced SLCs
+        * `complex`: complex value of the reduced SLCs
+        * `full_ts_nad`: NAD of the full time series per point
+        * `tull_ts_nmad`: NMAD of the full time series per point
+        * `h2ph`: height-to-phase screen with the reference DEM subtracted
+        * `incremental_nmad` / `recalibration_nmad` / `incremental_nad` / `recalibration_nad`: based on the settings `stm_nad_nmad_increment_mode`_`stm_ps_selection_method`, the [incremental or recalibration](https://github.com/TUDelftGeodesy/DePSI_group/blob/dev/depsi/point_quality.py#L148) NAD or NMAD per point
+        * `phase`: phase of the reduced SLCs
+        * `pnt_class`: `1` (set ID for Continuously Coherent Point Scatterers, for identification purposes in mixed runs)
+        * `sd_amplitude_unnormalized`: unnormalized multiplicative amplitude of the single differences with respect to the specified mother image
+        * `sd_complex`: complex phasor with respect to the specified mother image
+        * `sd_h2ph`: single difference height-to-phase screen
+        * `sd_phase`: phase of the single differences with respect to the specified mother image
+        * `time_selection_nad` / `time_selection_nmad`: the time frame used for the selection 
+      - optional variables:
+        * if `stm_do_partitioning=1`:
+          * `breakpoints`: boolean array with `True` if that epoch is selected as a breakpoint (i.e., at that epoch a new partition starts)
+          * `partition_id`: unique identifier of each partition
+          * other output layers prefixed with `partition` are defined by the [settings](parameter-file.md#stmgeneration-parameters) `stm_partitioning_undifferenced_output_layers` and `stm_partitioning_single_difference_output_layers`, and yield their respective values per partition (constant across each partition)
+        * if `stm_do_outlier_detection=1`:
+          * `outliers`: boolean array with `True` if that epoch is identified as an outlier
+      - coordinates:
+        * `azimuth`: azimuth coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `range`: range coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `lat`: latitude coordinates cropped to the AoI
+        * `lon`: longitude coordinates cropped to the AoI
+        * `time`: epochs of the acquisitions
+        * `days_since_first_img`: number of days of each acquisition since the first acquisition in the image stack
+        * `years_since_first_img`: same as `days_since_first_img`, but divided by 365.2425
+      - optional coordinates:
+        * `rd_x` / `epsg:xxx_x`: x coordinate of requested projection from variable `stm_extra_projection`
+        * `rd_y` / `epsg:xxx_y`: y coordinate of requested projection from variable `stm_extra_projection`
 - <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `crop_to_raw`.
     * input:
       * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)

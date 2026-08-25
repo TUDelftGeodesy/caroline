@@ -13,23 +13,43 @@ JOB_TYPE=$3
 INSTALL_LOCATION=$4
 VENV_LOCATION=$5
 
-echo "-----------------------------------------------"
+echo "----------------------------------------------------"
 echo "Starting job with the following characteristics"
-echo "-----------------------------------------------"
+echo "----------------------------------------------------"
 echo "Parameter file: ${PARAMETER_FILE}"
 echo "Track: ${TRACK_NUMBER}"
 echo "Job: ${JOB_TYPE}"
 echo "Caroline install location: ${INSTALL_LOCATION}"
 echo "Caroline virtual environment: ${VENV_LOCATION}"
-echo "-----------------------------------------------"
+echo "----------------------------------------------------"
 echo ""
 
 # Load required python and gdal modules
-source /etc/profile.d/modules.sh
-source /project/caroline/Software/bin/init.sh
-module load python/3.10.4 gdal/3.4.1-alma9
-source ~/.bashrc
+source ${INSTALL_LOCATION}/scripts/imports.sh
 source ${VENV_LOCATION}/bin/activate
+
+# we can access the number of slurm cluster workers from the job definition script (each key split by : , not flattened, and 0 if no value found
+SLURM_CLUSTER_NODES=$(python3 ${INSTALL_LOCATION}/caroline/config.py "jobs:${JOB_TYPE}:bash-file:bash-file-slurm-cluster:slurm-cluster-n-workers" ${INSTALL_LOCATION}/config/job-definitions.yaml False 0)
+SLURM_CLUSTER_SBATCHARGS=$(python3 ${INSTALL_LOCATION}/caroline/config.py "jobs:${JOB_TYPE}:sbatch-args" ${INSTALL_LOCATION}/config/job-definitions.yaml False 0)
+
+if [[ ${SLURM_CLUSTER_SBATCHARGS} == *"--constraint=rome"* ]]; then
+  MEM_PER_CPU=16  # the Rome cluster nodes have 16GB per core. If this constraint is there we can be sure that we can allocate more memory
+else
+  MEM_PER_CPU=12
+fi
+
+# workers always have 12 GB per core since they aren't constrained to Rome cluster
+ulimit -Sv $((($SLURM_JOB_CPUS_PER_NODE * $MEM_PER_CPU + 4 * $SLURM_CLUSTER_NODES * 12)  * 1024 * 1024))
+
+echo "----------------------------------------------------"
+echo "Number of CPUS: $SLURM_JOB_CPUS_PER_NODE"
+if [[ ${SLURM_CLUSTER_SBATCHARGS} == *"--constraint=rome"* ]]; then
+  echo "CPUS requested on Rome cluster, allowing for 16GB per CPU"
+fi
+echo "Number of cluster workers: ${SLURM_CLUSTER_NODES}"
+echo "Setting virtual memory limit to $(($SLURM_JOB_CPUS_PER_NODE * $MEM_PER_CPU + 4 * $SLURM_CLUSTER_NODES * 12))GB"
+echo "----------------------------------------------------"
+echo ""
 
 if [ $# -eq 5 ]; then  # put a note in the working directory as we're not running a bash file
   CAROLINE_WORK=$(python3 ${INSTALL_LOCATION}/caroline/config.py "CAROLINE_WORK_DIRECTORY")
@@ -50,7 +70,7 @@ else  # backwards compatibility
   echo "----------------------------------------------------"
   echo "Directory: ${BASH_FILE_DIRECTORY}"
   echo "File: ${BASH_FILE}"
-  echo "-----------------------------------------------"
+  echo "----------------------------------------------------"
   echo ""
 
   cd ${BASH_FILE_DIRECTORY}

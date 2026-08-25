@@ -1,0 +1,136 @@
+"""All functions in this file aim at figuring out how many jobs are necessary for a job array submission."""
+
+import glob
+import os
+
+from caroline.config import get_config
+from caroline.io import read_parameter_file, write_run_file
+from caroline.utils import format_process_folder
+
+CONFIG_PARAMETERS = get_config()
+JOB_DEFINITIONS = get_config(
+    f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False
+)["jobs"]
+
+
+def jobarray_preparation_scheduler_hook(parameter_file: str, njobs_function: str) -> int:
+    """Allow the scheduler to access all functions in this file via job-definitions.yaml without ruff complaining.
+
+    This function acts as a hook for the scheduler in `scheduler.py`. Its purpose is to be called by the scheduler with
+    two arguments: the parameter file that is being scheduled, and the name of one of the functions in this file, which
+    it has read from `config/job_definitions.yaml` (the `job-array:njobs-in-array-function` key). This function will
+    evaluate which function it is, call that function with the parameter file argument, and return the results. This
+    way all functions in this file are accessible to the scheduler without having to modify the scheduler when a new
+    job requiring array computation is added to Caroline.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to the parameter file
+    njobs_function: str
+        Name of the function to be called, which needs to exist in this file.
+
+    Returns
+    -------
+     int
+        The number of jobs necessary for the array
+    """
+    return eval(f"{njobs_function}('{parameter_file}')")
+
+
+def njobs_snap_run(parameter_file: str) -> int:
+    """Figure out how many jobs are necessary in the array to successfully run the job run_snap.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Full path to the parameter file
+
+    Returns
+    -------
+    int
+        The number of jobs necessary for the array
+    """
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "general:timeframe:mother",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+    if len(out_parameters["general:tracks:track"]) > 1:
+        raise ValueError(f"Expected single track, got {out_parameters['general:tracks:track']}!")
+
+    track_fmt = (
+        f"{out_parameters['general:input-data:sensor'].lower()}_{out_parameters['general:tracks:asc_dsc'][0]}_"
+        f"t{out_parameters['general:tracks:track'][0]:0>3d}"
+    )
+
+    snap_directory = format_process_folder(
+        parameter_file=parameter_file,
+        job_description=JOB_DEFINITIONS["snap_preparation"],
+        track=out_parameters["general:tracks:track"][0],
+    )
+
+    other_parameters = {
+        "track": out_parameters["general:tracks:track"][0],
+        "snap-output-path": snap_directory,
+        "dry_run": "1",
+        "track_formatted": track_fmt,
+    }
+
+    # and the start, end, and mother dates
+    images = glob.glob(f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/{track_fmt}/IW_SLC__1SDV_VVVH/2*")
+    images = [eval(image.split("/")[-1]) for image in images]
+
+    start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
+    end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
+    mother_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
+
+    # then select and format the start, end, and master dates
+    other_parameters["start_date"] = str(min([image for image in images if image >= start_date]))
+    other_parameters["start_date"] = (
+        f"{other_parameters['start_date'][:4]}-"
+        f"{other_parameters['start_date'][4:6]}-"
+        f"{other_parameters['start_date'][6:]}"
+    )
+    other_parameters["end_date"] = str(max([image for image in images if image <= end_date]))
+    other_parameters["end_date"] = (
+        f"{other_parameters['end_date'][:4]}-"
+        f"{other_parameters['end_date'][4:6]}-"
+        f"{other_parameters['end_date'][6:]}"
+    )
+    other_parameters["mother_date"] = str(min([image for image in images if image >= mother_date]))
+    other_parameters["mother_date"] = (
+        f"{other_parameters['mother_date'][:4]}-"
+        f"{other_parameters['mother_date'][4:6]}-"
+        f"{other_parameters['mother_date'][6:]}"
+    )
+
+    write_run_file(
+        save_path=f"{CONFIG_PARAMETERS['TEMPORARY_STORAGE_DIRECTORY']}/njobs_run_snap.sh",
+        template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/generate-snap-graphs.sh",
+        asc_dsc=out_parameters["general:tracks:asc_dsc"][0],
+        track=out_parameters["general:tracks:track"][0],
+        parameter_file=parameter_file,
+        parameter_file_parameters=[
+            "snap:general:AoI-name",
+        ],
+        config_parameters=[
+            "caroline_work_directory",
+            "caroline_virtual_environment_directory",
+            "caroline_install_directory",
+            "slc_base_directory",
+            "python3_module",
+            "gdal_module",
+            "snap_module",
+        ],
+        other_parameters=other_parameters,
+    )
+
+    njobs = os.popen(f"cd {CONFIG_PARAMETERS['TEMPORARY_STORAGE_DIRECTORY']}; " "bash njobs_run_snap.sh; ").read()
+    os.system(f"rm -rf {CONFIG_PARAMETERS['TEMPORARY_STORAGE_DIRECTORY']}/njobs_run_snap.sh")
+
+    return int(njobs)

@@ -1,5 +1,6 @@
 import glob
 import os
+import traceback
 import zipfile
 from math import log
 
@@ -7,7 +8,7 @@ import asf_search as asf
 import numpy as np
 
 from caroline.config import get_config
-from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent
+from caroline.io import read_parameter_file, read_shp_extent
 
 BYTE_PREFIX = " kMGTPEZYRQ"
 CONFIG_PARAMETERS = get_config()
@@ -44,12 +45,18 @@ def format_process_folder(job_description: dict, parameter_file: str, track: int
 
     parameters = read_parameter_file(
         parameter_file,
-        [f"{directory_key}_directory", f"{directory_key}_AoI_name", "sensor", "asc_dsc", "track"],
+        [
+            f"{directory_key}:general:directory",
+            f"{directory_key}:general:AoI-name",
+            "general:input-data:sensor",
+            "general:tracks:asc_dsc",
+            "general:tracks:track",
+        ],
     )
-    base_folder = parameters[f"{directory_key}_directory"]
-    AoI_name = parameters[f"{directory_key}_AoI_name"]
-    sensor = parameters["sensor"]
-    asc_dsc = eval(parameters["asc_dsc"])[eval(parameters["track"]).index(track)]
+    base_folder = parameters[f"{directory_key}:general:directory"]
+    AoI_name = parameters[f"{directory_key}:general:AoI-name"]
+    sensor = parameters["general:input-data:sensor"]
+    asc_dsc = parameters["general:tracks:asc_dsc"][parameters["general:tracks:track"].index(track)]
 
     return f"{base_folder}/{AoI_name}_{sensor.lower()}_{asc_dsc.lower()}_t{track:0>3d}{directory_appendix}"
 
@@ -65,10 +72,10 @@ def remove_incomplete_sentinel1_images(parameter_file: str) -> None:
         Full path to the parameter file of the processing run where the images are to be filtered
 
     """
-    search_parameters = ["track"]
+    search_parameters = ["general:tracks:track"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = eval(out_parameters["track"])
+    tracks = out_parameters["general:tracks:track"]
 
     status = []
 
@@ -170,27 +177,6 @@ def find_slurm_job_id(parameter_file: str, job: str) -> int:
     return eval(job_id)
 
 
-def generate_shapefile(parameter_file: str) -> None:
-    """Generate a shapefile based on a CAROLINE parameter file.
-
-    If `shape_file` is a shapefile, this file will be linked. Otherwise a square is shapefile is generated.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Full path to the parameter file
-
-    """
-    search_parameters = ["shape_file"]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    if len(out_parameters["shape_file"]) == 0:
-        # no shapefile is generated --> we need a new one
-        create_shapefile(parameter_file)
-    else:
-        link_shapefile(parameter_file)
-
-
 def _generate_email(parameter_file: str) -> str:
     """Generate the CAROLINE email.
 
@@ -207,32 +193,24 @@ def _generate_email(parameter_file: str) -> str:
     jobs = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
 
     search_parameters = [
-        "track",
-        "asc_dsc",
-        "skygeo_viewer",
-        "skygeo_customer",
-        "sensor",
-        "project_owner",
-        "project_owner_email",
-        "project_engineer",
-        "project_engineer_email",
-        "project_objective",
-        "project_notes",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:portal:skygeo-viewer",
+        "general:portal:skygeo-customer",
+        "general:input-data:sensor",
+        "general:project:owner:name",
+        "general:project:owner:email",
+        "general:project:engineer:name",
+        "general:project:engineer:email",
+        "general:project:objective",
+        "general:project:notes",
     ]
 
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    # for appending to the email, we read the entire file anyways
-    f = open(parameter_file)
-    parameter_file_content = f.read()
-    f.close()
-
-    if out_parameters["skygeo_customer"] is None:  # backwards compatibility for #12
-        out_parameters["skygeo_customer"] = "caroline"
-
     # Format the tracks nicely
-    tracks = eval(out_parameters["track"])
-    asc_dsc = eval(out_parameters["asc_dsc"])
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
     tracks_formatted = []
     for i in range(len(tracks)):
@@ -245,81 +223,99 @@ def _generate_email(parameter_file: str) -> str:
     run_id = "_".join(parameter_file.split("/")[-1].split("_")[2:-4])
 
     # Generate the logs
-    log = "==========DEBUG LOGS===========\n\n"
+    log_folder_name = (
+        f'{CONFIG_PARAMETERS["CAROLINE_PUBLIC_LOG_DIRECTORY"]}/'
+        f'{"_".join(parameter_file.split("/")[-1].split("_")[2:]).split(".")[0]}'
+    )
+
+    os.makedirs(f"{log_folder_name}/parameter-file")
+    os.system(f"cp -p {parameter_file} {log_folder_name}/parameter-file/{parameter_file.split('/')[-1]}")
+
+    os.makedirs(f"{log_folder_name}/overview")
 
     status_checks = ""
     for job in jobs["jobs"].keys():
-        if jobs["jobs"][job]["email"]["include-in-email"]:
-            do_key = jobs["jobs"][job]["parameter-file-step-key"]
-            job_ran = read_parameter_file(parameter_file, [do_key])[do_key]
+        if job_schedule_check(parameter_file, job, jobs["jobs"]):  # it has run
+            job_id = find_slurm_job_id(parameter_file, job)
+            check = proper_finish_check(parameter_file, job, job_id)
 
-            if job_ran == "1":
-                # first check the filters
-                if jobs["jobs"][job]["filters"] is not None:  # we need to filter on the sensor
-                    for key in jobs["jobs"][job]["filters"].keys():
-                        value_check = read_parameter_file(parameter_file, [key])[key]
-                        if isinstance(jobs["jobs"][job]["filters"][key], str):
-                            if value_check.lower() != jobs["jobs"][job]["filters"][key].lower():
-                                job_ran = "0"
-                        else:  # it's a list, so we check if it exists in the list
-                            if value_check.lower() not in [s.lower() for s in jobs["jobs"][job]["filters"][key]]:
-                                job_ran = "0"
+            os.makedirs(f"{log_folder_name}/{job}")
+            os.system(f"sacct --jobs={job_id} >> {log_folder_name}/{job}/SACCT-STATUS.txt")  # dump sacct output
 
-            if job_ran == "1":  # if it's still 1, it ran
-                job_id = find_slurm_job_id(parameter_file, job)
+            if jobs["jobs"][job]["bash-file"] is not None:
+                f = open(f"{log_folder_name}/{job}/STORAGE-DIRECTORY.txt", "w")
+                f.write(format_process_folder(jobs["jobs"][job], parameter_file, tracks[0]))
+                f.close()
 
+            if check["successful_finish"]:
+                f = open(f"{log_folder_name}/{job}/STATUS-job-finished.log", "w")
+                f.close()
+                for i in range(len(check["slurm_file"])):
+                    os.system(
+                        f"cp -p {check['slurm_file'][i]} "
+                        f"{log_folder_name}/{job}/{check['slurm_file'][i].split('/')[-1]}"
+                    )
+                os.system(f"""echo "{job} finished properly\n" >> {log_folder_name}/overview/STATUS-overview.txt""")
+                if check["status_file"] is not None:
+                    os.system(
+                        f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]};"
+                    )
+            elif check["successful_start"]:
+                if job != "email":  # since this one cannot be finished (it is calling this function), ignore it
+                    f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-finish.log", "w")
+                    f.close()
+                    os.system(
+                        f"""echo "{job} did not finish properly" >> {log_folder_name}/overview/STATUS-overview.txt"""
+                    )
+                for i in range(len(check["slurm_file"])):
+                    os.system(
+                        f"cp -p {check['slurm_file'][i]} "
+                        f"{log_folder_name}/{job}/{check['slurm_file'][i].split('/')[-1]}"
+                    )
+                if check["status_file"] is not None:
+                    os.system(
+                        f"cp -p {check['status_file']} {log_folder_name}/{job}/{check['status_file'].split('/')[-1]}"
+                    )
+            else:
+                f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-start.log", "w")
+                f.close()
+                os.system(f"""echo "{job} did not start" >> {log_folder_name}/overview/STATUS-overview.txt""")
+
+            if jobs["jobs"][job]["email"]["include-in-email"]:
                 if jobs["jobs"][job]["bash-file"] is not None:
                     directory = read_parameter_file(
-                        parameter_file, [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
-                    )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}_directory"]
+                        parameter_file,
+                        [f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}:general:directory"],
+                    )[f"{jobs['jobs'][job]['bash-file']['bash-file-base-directory']}:general:directory"]
                 else:
                     directory = CONFIG_PARAMETERS["SLURM_OUTPUT_DIRECTORY"]
-
-                log += f"\n\n-------{job}--------\n\n"
-
-                log += f"---Track {tracks_formatted}---\n\n"
-
-                check = proper_finish_check(parameter_file, job, job_id)
-
                 if check["successful_finish"]:
-                    log += "Step finished successfully!\n\n"
                     if job == "portal_upload":
                         status_checks += (
                             "NOTE: it can take a few hours for the results to show up in the portal.\n"
                             + "The DePSI-post results can be accessed at "
                             + "https://caroline.portal-tud.skygeo.com/portal/"
-                            + f"{out_parameters['skygeo_customer']}/{out_parameters['skygeo_viewer']} .\n\n"
+                            + f"{out_parameters['general:portal:skygeo-customer']}/"
+                            + f"{out_parameters['general:portal:skygeo-viewer']} .\n\n"
                         )
                     else:
                         status_checks += f"{job}: {tracks_formatted} finished properly! (located in {directory} )\n\n"
                 elif check["successful_start"]:
-                    log += "!!! Step did not finish properly!\n\n"
                     status_checks += (
                         f"!!! {job}: {tracks_formatted} did not finish properly! " f"(located in {directory} )\n\n"
                     )
                 else:
-                    log += "!!! Step did not start properly!\n\n"
                     status_checks += (
                         f"!!! {job}: {tracks_formatted} did not start properly! " f"(located in {directory} )\n\n"
                     )
 
-                if check["status_file"] is not None:
-                    log += f"Status file: {check['status_file']}\nSlurm output: {check['slurm_file']}\n\n"
-
-                    f = open(check["status_file"])
-                    status = f.read()
-                    f.close()
-                    log += f"Status file output: \n\n{status}\n\n"
-                else:
-                    log += f"Slurm output: {check['slurm_file']}\n\n"
-
-    log += "================"
+    os.system(f"chmod -R 777 {log_folder_name}")  # to make everything downloadable by everyone
 
     project_characteristics = f"""Project characteristics:
-Owner: {out_parameters['project_owner']} ({out_parameters['project_owner_email']})
-Engineer: {out_parameters['project_engineer']} ({out_parameters['project_engineer_email']})
-Objective: {out_parameters['project_objective']}
-Notes: {out_parameters['project_notes']}
+Owner: {out_parameters['general:project:owner:name']} ({out_parameters['general:project:owner:email']})
+Engineer: {out_parameters['general:project:engineer:name']} ({out_parameters['general:project:engineer:email']})
+Objective: {out_parameters['general:project:objective']}
+Notes: {out_parameters['general:project:notes']}
 """
 
     message = f"""Dear radargroup,
@@ -329,7 +325,7 @@ A new CAROLINE run has just finished on run {run_id}!
 {project_characteristics}
 Run characteristics:
 Track(s): {tracks_formatted}
-Sensor: {out_parameters['sensor']}
+Sensor: {out_parameters['general:input-data:sensor']}
     
 The following steps were run:
 {status_checks}
@@ -343,14 +339,10 @@ Freek, Niels, and Simon
 =======================================
 ===========DEBUG info==================
 =======================================
-First logs of the subprocesses, then the parameter file.
-=======================================
-    
-{log}
-    
---- PARAMETER FILE: {parameter_file} ---
-    
-{parameter_file_content}"""
+All debug logs, SLURM output and the parameter file can be accessed at 
+https://public.spider.surfsara.nl{log_folder_name.replace("Public/", "")} .
+
+"""
 
     return message
 
@@ -377,12 +369,24 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
             status_file: file as defined by `status-file-search-key` in `job-definitions.yaml`. None if it does not
                 exist
     """
+    data = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)[
+        "jobs"
+    ][job]
+
     status_file = None
-    slurm_file = f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"
+    if data["job-array"]["run-as-array"]:
+        slurm_file = glob.glob(f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}_*.out")
+        if len(slurm_file) == 0:
+            # if none are found it either did not run (so no file should exist) or it ran as a regular job, so change
+            # the search criterion
+            slurm_file = [f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"]
+    else:
+        slurm_file = [f"{CONFIG_PARAMETERS['SLURM_OUTPUT_DIRECTORY']}/slurm-{job_id}.out"]
     successful_finish = True
     successful_start = True
 
-    if not os.path.exists(slurm_file):  # if the slurm file output does not exist, thus the job did not start
+    if not any([os.path.exists(sf) for sf in slurm_file]) or len(slurm_file) == 0:
+        # if the slurm file output does not exist, thus the job did not start
         # Return immediately
         successful_start = False
         successful_finish = False
@@ -397,10 +401,6 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
 
         return output
 
-    data = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)[
-        "jobs"
-    ][job]
-
     # first find the status file
     if data["email"]["status-file-search-key"] is not None:  # search for the status file
         assert data["bash-file"] is not None, (
@@ -409,8 +409,8 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
         )
 
         # find the directory
-        parameters = read_parameter_file(parameter_file, ["track"])
-        track = eval(parameters["track"])[0]  # as there is only one
+        parameters = read_parameter_file(parameter_file, ["general:tracks:track"])
+        track = parameters["general:tracks:track"][0]  # as there is only one
 
         base_directory = format_process_folder(parameter_file=parameter_file, job_description=data, track=track)
 
@@ -441,11 +441,12 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
                 successful_finish = False
             elif status_data[1] == "matlab":  # Matlab can return a zero exit code while still experiencing an error
                 # So we need to check for a matlab error in the SLURM output
-                f = open(slurm_file)
-                slurm_output = f.read()
-                f.close()
-                if "Error in " in slurm_output:  # this means Matlab has in fact encountered an error
-                    successful_finish = False
+                for sf in slurm_file:
+                    f = open(sf)
+                    slurm_output = f.read()
+                    f.close()
+                    if "Error in " in slurm_output:  # this means Matlab has in fact encountered an error
+                        successful_finish = False
 
     output = {
         "successful_start": successful_start,
@@ -478,7 +479,7 @@ https://github.com/TUDelftGeodesy/caroline/issues mentioning:
 2) the subject of this mail
 3) the following error message:
 
-{error}
+{''.join(traceback.format_exception(error))}
 
 
 Please add the labels Priority-0 and bug, and assign Simon.
@@ -662,7 +663,7 @@ def identify_s1_orbits_in_aoi(shp_filename: str) -> tuple[list[str], dict]:
                 start="one month ago",
                 end="now",
             )
-        except asf.exceptions.ASFSearch5xxError:
+        except (asf.exceptions.ASFSearch5xxError, asf.exceptions.ASFSearchError, TimeoutError):
             counter += 1
             os.system(f'''echo "ASF encountered an internal error. Retrying... (#{counter})"''')
 
@@ -748,3 +749,81 @@ def get_processing_time(job_id: int) -> int:
         if time_elapsed != "":  # 0 will be stripped completely, but adds nothing anyways so we can ignore it
             total_time += mult * eval(time_elapsed)
     return total_time
+
+
+def job_schedule_check(parameter_file: str | dict, job: str, job_definitions: dict) -> bool:
+    """Check if a job should be scheduled based on the parameter file and the job definitions.
+
+    Parameters
+    ----------
+    parameter_file: str | dict
+        Full path to the parameter file, or dictionary readout of the parameter file
+    job: str
+        Name of the job to be scheduled
+    job_definitions: dict
+        Dictionary readout of `job-definitions.yaml`
+
+    Returns
+    -------
+    bool
+        Boolean indicating if the job should be scheduled or not.
+    """
+    if job_definitions[job]["parameter-file-step-key"] is None:  # always runs
+        return True
+
+    if isinstance(parameter_file, str):
+        out_parameters = read_parameter_file(parameter_file, [job_definitions[job]["parameter-file-step-key"]])
+    else:
+        val = parameter_file
+        for key in job_definitions[job]["parameter-file-step-key"].split(":"):
+            val = val[key]
+        out_parameters = {job_definitions[job]["parameter-file-step-key"]: val}
+
+    if out_parameters[job_definitions[job]["parameter-file-step-key"]] == 0:  # it is not requested
+        return False
+
+    # if we make it here, the step is requested
+    if job_definitions[job]["filters"] is not None:  # if there are filters, extract them and check against them
+        filters = extract_all_values_and_paths_from_dictionary(job_definitions[job]["filters"])
+        for filt in filters:
+            if isinstance(parameter_file, str):  # extract the requested value from the parameter file
+                value_check = read_parameter_file(parameter_file, [":".join(filt[1])])[":".join(filt[1])]
+            else:
+                value_check = parameter_file  # or from the dictionary
+                for key in filt[1]:
+                    value_check = value_check[key]
+            if isinstance(filt[0], str):  # it meets the filter
+                if value_check.lower() != filt[0].lower():
+                    return False
+            elif isinstance(filt[0], list):  # it's a list, so we check if it exists in the list
+                if value_check.lower() not in [s.lower() for s in filt[0]]:
+                    return False
+
+    # if it was not kicked out by the filters, we return True
+    return True
+
+
+def extract_all_values_and_paths_from_dictionary(dictionary: dict, cur_keys: tuple = ()) -> list:
+    """Extract all values and the paths to get there from a dictionary.
+
+    Parameters
+    ----------
+    dictionary: dict
+        Dictionary of which all values should be extracted
+    cur_keys: tuple, default ()
+        Way to keep track of the keys through recursion
+
+    Returns
+    -------
+    list
+        List of [value, [list of keys to get there]]
+    """
+    all_values = []
+    for key in dictionary.keys():
+        cur_keys_loop = cur_keys + (key,)
+        if isinstance(dictionary[key], dict):
+            part_values = extract_all_values_and_paths_from_dictionary(dictionary[key], cur_keys_loop)
+            all_values = [*all_values, *part_values]
+        else:
+            all_values.append([dictionary[key], cur_keys_loop])
+    return all_values

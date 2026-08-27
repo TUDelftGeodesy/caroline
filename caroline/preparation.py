@@ -286,8 +286,8 @@ def finish_installation() -> None:
             os.system(f"rm -rf {download_config}")
 
 
-def prepare_reduce_slc_matlab(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for cropping.
+def prepare_create_mrm(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and files for mrm creation, part of DePSI-post.
 
     Parameters
     ----------
@@ -301,6 +301,8 @@ def prepare_reduce_slc_matlab(parameter_file: str, do_track: int | list | None =
         "general:tracks:track",
         "general:tracks:asc_dsc",
         "general:input-data:sensor",
+        "depsi_post:general:cpxfiddle-directory",
+        "general:workflow:filters:coregistration-mode",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -315,198 +317,80 @@ def prepare_reduce_slc_matlab(parameter_file: str, do_track: int | list | None =
             if tracks[track] not in do_track:
                 continue
 
-        crop_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_matlab"], track=tracks[track]
-        )
-
-        if out_parameters["general:input-data:sensor"] == "S1":
-            coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v5"], track=tracks[track]
+        # determine if we came from reduce_slc_matlab or merge_to_stack_matlab
+        if (
+            out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
+            or out_parameters["general:input-data:sensor"].lower() != "s1"
+        ):
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_matlab"], track=tracks[track]
+            )
+        else:
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file,
+                job_description=JOB_DEFINITIONS["merge_to_stack_matlab"],
+                track=tracks[track],
             )
 
-        else:
-            coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
-            )
-
-        os.makedirs(crop_directory, exist_ok=True)
-
-        # soft-link the processing directory without job_id.txt, dir_contents.txt and queue.txt
-        # Sentinel-1 has more files starting with d as Doris-v5 output, other sensors do not have that
-        if out_parameters["general:input-data:sensor"] == "S1":
-            link_keys = ["[bgiprs]*", "doris*", "dem"]
-        else:
-            link_keys = ["[bgiprs]*"]
-        for key in link_keys:
-            # run the soft-link command
-            os.system(f"ln -sfn {coregistration_directory}/{key} {crop_directory}")
-
-        # generate crop.sh
-        write_run_file(
-            save_path=f"{crop_directory}/crop-to-raw.sh",
-            template_path=(
-                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-matlab/reduce-slc-matlab.sh"
-            ),
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=["reduce_slc_matlab:general:AoI-name"],
-            config_parameters=["caroline_work_directory", "matlab_module"],
-            other_parameters={"track": tracks[track], "crop_base_directory": crop_directory},
+        depsi_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
         )
 
-        # generate crop.m
+        # we need to run cpxfiddle first. This requires two parameters: n_lines, and the project ID
+        fr = open(f"{crop_directory}/cropped_stack/nlines_crp.txt")
+        data = fr.read().split("\n")
+        fr.close()
+        n_lines = data[0]
+
+        project_id = depsi_directory.split("/")[-2].split("-")[0]
+
+        # format the arguments in the correct order
+        command_args = (
+            f"{project_id} {n_lines} 1 1 {out_parameters['depsi_post:general:cpxfiddle-directory']} {depsi_directory}"
+        )
+        os.system(
+            f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_mrm_ras_header.sh "
+            f"{command_args}"
+        )
+
         write_run_file(
-            save_path=f"{crop_directory}/reduce_slc_matlab.m",
-            template_path=(
-                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-matlab/reduce_slc_matlab.m"
-            ),
+            save_path=f"{depsi_directory}/create_mrm.m",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/create_mrm/create_mrm.m",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "general:shape-file:aoi-name",
-                "general:shape-file:directory",
-                "general:input-data:sensor",
-            ],
-            config_parameters=["caroline_install_directory"],
-        )
-
-        write_directory_contents(
-            crop_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["reduce_slc_matlab"]["directory-contents-file-appendix"]}.txt',
-        )
-
-
-def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for reduce_slc_python.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Absolute path to the parameter file.
-    do_track: int | list | None, optional
-        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
-        the parameter file
-
-    Raises
-    ------
-    ValueError
-        If the mother image cannot be detected from doris_input.xml (S1) or doris_v4.py (otherwise)
-    """
-    search_parameters = [
-        "general:tracks:track",
-        "general:tracks:asc_dsc",
-        "general:input-data:sensor",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    tracks = out_parameters["general:tracks:track"]
-    asc_dsc = out_parameters["general:tracks:asc_dsc"]
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        reduce_slc_python_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_python"], track=tracks[track]
-        )
-
-        if out_parameters["general:input-data:sensor"] == "S1":
-            coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v5"], track=tracks[track]
-            )
-
-        else:
-            coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
-            )
-
-        os.makedirs(reduce_slc_python_directory, exist_ok=True)
-
-        # detect the mother image
-        if out_parameters["general:input-data:sensor"].lower() == "s1":
-            f = open(f"{coregistration_directory}/doris_input.xml")
-            data = f.read().split("\n")
-            f.close()
-            mother = None
-            for line in data:
-                if "<master_date>" in line:
-                    mother = line.split(">")[1].split("<")[0].replace("-", "")
-                    break
-
-            if mother is None:
-                raise ValueError(f"Failed to detect mother in {coregistration_directory}/doris_input.xml!")
-
-        else:
-            f = open(f"{coregistration_directory}/run_doris_v4.py")
-            data = f.read().split("\n")
-            f.close()
-            mother = None
-            for line in data:
-                if "master = " in line:
-                    mother = line.split('"')[1]
-                    break
-
-            if mother is None:
-                raise ValueError(f"Failed to detect mother in {coregistration_directory}/run_doris_v4.py !")
-
-        # generate crop-to-zarr.py
-        reduce_slc_python_output_name = reduce_slc_python_directory.split("/")[-1]
-
-        write_run_file(
-            save_path=f"{reduce_slc_python_directory}/reduce-slc-python.py",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-python/reduce-slc-python.py",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=[
-                "general:shape-file:aoi-name",
-                "general:input-data:sensor",
-                "general:shape-file:directory",
+                "depsi_matlab:general:AoI-name",
+                ["general:input-data:sensor", "lowercase"],
             ],
             other_parameters={
-                "coregistration_directory": coregistration_directory,
-                "stack_folder_name": "stack" if out_parameters["general:input-data:sensor"] == "S1" else "process",
-                "mother": mother,
-                "mother_slc_name": "slave_rsmp_reramped.raw"
-                if out_parameters["general:input-data:sensor"] == "S1"
-                else "slave_rsmp.raw",
-                "reduce_slc_python_output_filename": reduce_slc_python_output_name,
+                "fill_track": f"{tracks[track]:0>3d}",
+                "asc_dsc": asc_dsc[track],
             },
         )
 
-        # generate crop-to-zarr.sh
         write_run_file(
-            save_path=f"{reduce_slc_python_directory}/reduce-slc-python.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-python/reduce-slc-python.sh",
+            save_path=f"{depsi_directory}/create_mrm.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/create_mrm/create_mrm.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=[
-                "reduce_slc_python:general:AoI-name",
-                "reduce_slc_python:general:depsi_group-code-directory",
-            ],
-            config_parameters=[
-                "caroline_work_directory",
-                "caroline_virtual_environment_directory",
-                "python3_module",
-                "gdal_module",
-            ],
-            other_parameters={"track": tracks[track]},
+            parameter_file_parameters=["depsi_matlab:general:AoI-name"],
+            config_parameters=["caroline_work_directory", "matlab_module"],
+            other_parameters={
+                "track": tracks[track],
+                "depsi_base_directory": depsi_directory,
+            },
         )
 
         write_directory_contents(
-            reduce_slc_python_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["reduce_slc_python"]["directory-contents-file-appendix"]}.txt',
+            depsi_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["create_mrm"]["directory-contents-file-appendix"]}.txt',
         )
 
 
-def prepare_doris_v4(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for doris_v4.
+def prepare_create_tarball(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Create the tarball after DePSI-post.
 
     Parameters
     ----------
@@ -515,49 +399,11 @@ def prepare_doris_v4(parameter_file: str, do_track: int | list | None = None) ->
     do_track: int | list | None, optional
         Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
         the parameter file
-
-    Raises
-    ------
-    AssertionError
-        If one of the tracks is not provided in `di_data_directories`
-    ValueError
-        If an unknown sensor is provided in the parameter file
     """
-    search_parameters = [
-        "general:tracks:track",
-        "general:tracks:asc_dsc",
-        "general:input-data:sensor",
-        "doris_v4:input:data-directories",
-        "general:timeframe:start",
-        "general:timeframe:end",
-        "general:timeframe:mother",
-        "general:dem:file",
-        "general:dem:upperleft",
-        "general:dem:delta",
-        "general:shape-file:directory",
-        "general:shape-file:aoi-name",
-        "doris_v4:doris_v4-settings:finecoreg:finecoreg-mode",
-        "default:input-data:polarisation",
-    ]
+    search_parameters = ["track"]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
-    tracks = out_parameters["general:tracks:track"]
-    asc_dsc = out_parameters["general:tracks:asc_dsc"]
-
-    datadirs = out_parameters["doris_v4:input:data-directories"]
-
-    start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
-    master_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
-    end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
-
-    polarisation = out_parameters["general:input-data:polarisation"]
-    polarisation = [f"_{pol}" for pol in polarisation]
-    if "_HH" in polarisation:
-        polarisation[polarisation.index("_HH")] = ""
-
-    dem_delta = out_parameters["general:dem:delta"]
-    dem_size = out_parameters["general:dem:size"]
-    dem_upperleft = out_parameters["general:dem:upperleft"]
+    tracks = out_parameters["track"]
 
     for track in range(len(tracks)):
         if isinstance(do_track, int):
@@ -567,374 +413,14 @@ def prepare_doris_v4(parameter_file: str, do_track: int | list | None = None) ->
             if tracks[track] not in do_track:
                 continue
 
-        assert (
-            f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
-            in datadirs.keys()
-        ), (
-            f"{out_parameters['general:input-data:sensor'].lower()}_"
-            f"{asc_dsc[track]}_t{tracks[track]:0>3d} is not in doris_v4:input:data-directories!"
+        depsi_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
         )
 
-        coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
-        )
-
-        # we need a process folder in the coregistration directory, so we can combine that command
-        os.makedirs(f"{coregistration_directory}/process", exist_ok=True)
-
-        # generate doris_v4.sh
-        write_run_file(
-            save_path=f"{coregistration_directory}/run_doris_v4.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/run_doris_v4.sh",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=[
-                "doris_v4:general:deinsar-code-directory",
-                "doris_v4:general:doris-v4-code-directory",
-                "doris_v4:general:AoI-name",
-            ],
-            config_parameters=["caroline_work_directory", "orbit_directory", "python2_module", "gdal_module"],
-            other_parameters={"track": tracks[track], "coregistration_base_directory": coregistration_directory},
-        )
-
-        # generate run_doris_v4.py
-
-        # first search for the start, end, and master dates by parsing all data in the data directory,
-        # which is different per sensor
-        datadir = datadirs[
-            f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
-        ]
-        if out_parameters["general:input-data:sensor"] in ["ALOS2", "ERS"]:
-            dirs = glob.glob(f"{datadir}/[12]*")
-            images = list(sorted([eval(image.split("/")[-1]) for image in dirs]))
-        elif out_parameters["general:input-data:sensor"] in ["RSAT2"]:
-            dirs = glob.glob(f"{datadir}/RS2*")
-            images = list(sorted([eval(image.split("/")[-1].split("FQ2_")[1].split("_")[0]) for image in dirs]))
-        elif out_parameters["general:input-data:sensor"] in ["TSX"]:
-            dirs = glob.glob(f"{datadir}/*/iif/*")
-            images = list(sorted([eval(image.split("/")[-1].split("SRA_")[1].split("T")[0]) for image in dirs]))
-        elif out_parameters["general:input-data:sensor"] in ["SAOCOM"]:
-            dirs = glob.glob(f"{datadir}/*/*.xemt")
-            images = list(sorted([eval(image.split("/")[-1].split("OLF_")[1].split("T")[0]) for image in dirs]))
-        elif out_parameters["general:input-data:sensor"] in ["ENV"]:
-            # 2 different formats for some reason
-            dirs1 = glob.glob(f"{datadir}/*.N1")
-            dirs2 = glob.glob(f"{datadir}/*/*.N1")
-            dirs = []
-            for d in dirs1:
-                dirs.append(d)
-            for d in dirs2:
-                dirs.append(d)
-            images = list(sorted([eval(image.split("/")[-1].split("PA")[1].split("_")[0]) for image in dirs]))
-        else:
-            raise ValueError(f'Unknown directory format for sensor {out_parameters["general:input-data:sensor"]}!')
-
-        # then select the start, end, and master dates
-        act_start_date = str(min([image for image in images if image >= start_date]))
-        act_end_date = str(max([image for image in images if image <= end_date]))
-        act_master_date = str(min([image for image in images if image >= master_date]))
-
-        # finally, write run_doris_v4.py
-        write_run_file(
-            save_path=f"{coregistration_directory}/run_doris_v4.py",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/run_doris_v4.py",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=[
-                ["doris_v4:input:data-directories", "dictionary"],
-                "general:input-data:sensor",
-                "general:input-data:polarisation",
-                "doris_v4:doris_v4-settings:do-orbit",
-                "doris_v4:doris_v4-settings:do-crop",
-                "doris_v4:doris_v4-settings:do-tsx-deramp",
-                "doris_v4:doris_v4-settings:do-simamp",
-                "doris_v4:doris_v4-settings:do-mtiming",
-                "doris_v4:doris_v4-settings:do-ovs",
-                "doris_v4:doris_v4-settings:do-choose-master",
-                "doris_v4:doris_v4-settings:do-coarseorb",
-                "doris_v4:doris_v4-settings:do-coarsecorr",
-                "doris_v4:doris_v4-settings:finecoreg:do-finecoreg",
-                "doris_v4:doris_v4-settings:do-reltiming",
-                "doris_v4:doris_v4-settings:do-dembased",
-                "doris_v4:doris_v4-settings:do-coregpm",
-                "doris_v4:doris_v4-settings:do-comprefpha",
-                "doris_v4:doris_v4-settings:do-comprefdem",
-                "doris_v4:doris_v4-settings:do-resample",
-                "doris_v4:doris_v4-settings:do-tsx-reramp",
-                "doris_v4:doris_v4-settings:do-interferogram",
-                "doris_v4:doris_v4-settings:do-subtrrefpha",
-                "doris_v4:doris_v4-settings:do-subtrrefdem",
-                "doris_v4:doris_v4-settings:do-coherence",
-                "doris_v4:doris_v4-settings:do-geocoding",
-            ],
-            other_parameters={"master": act_master_date, "startdate": act_start_date, "enddate": act_end_date},
-        )
-
-        # finally, create the input files
-
-        # these ones can be copied directly
-        for file in [
-            "input.baselines",
-            "input.coarsecorr",
-            "input.coarseorb",
-            "input.comprefpha",
-            "input.coregpm",
-            "input.mtiming",
-            "input.reltiming",
-            "input.geocoding",
-        ]:
-            write_run_file(
-                save_path=f"{coregistration_directory}/process/{file}",
-                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/input_files/{file}",
-                asc_dsc=asc_dsc[track],
-                track=tracks[track],
-                parameter_file=parameter_file,
-            )
-
-        # these ones are polarisation-dependent
-        for file in ["input.coherence", "input.interferogram", "input.subtrrefdem", "input.subtrrefpha", "input.ovs"]:
-            for pol in polarisation:
-                write_run_file(
-                    save_path=f"{coregistration_directory}/process/{file}{pol}",
-                    template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                    f"templates/doris_v4/input_files/{file}",
-                    asc_dsc=asc_dsc[track],
-                    track=tracks[track],
-                    parameter_file=parameter_file,
-                    other_parameters={"pol": pol},
-                )
-
-        # these ones need the DEM variables
-        for file in ["input.comprefdem", "input.dembased", "input.simamp"]:
-            write_run_file(
-                save_path=f"{coregistration_directory}/process/{file}",
-                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/input_files/{file}",
-                asc_dsc=asc_dsc[track],
-                track=tracks[track],
-                parameter_file=parameter_file,
-                parameter_file_parameters=["general:dem:file", "general:dem:format", "general:dem:nodata"],
-                other_parameters={
-                    "dem_s1": dem_size[0],
-                    "dem_s2": dem_size[1],
-                    "dem_d1": dem_delta[0],
-                    "dem_d2": dem_delta[1],
-                    "dem_ul1": dem_upperleft[0],
-                    "dem_ul2": dem_upperleft[1],
-                },
-            )
-
-        # finecoreg changes based on the fine coregistration mode
-        if out_parameters["doris_v4:doris_v4-settings:finecoreg:finecoreg-mode"] == "simple":
-            write_run_file(
-                save_path=f"{coregistration_directory}/process/input.finecoreg_simple",
-                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/doris_v4/input_files/input.finecoreg",
-                asc_dsc=asc_dsc[track],
-                track=tracks[track],
-                parameter_file=parameter_file,
-                other_parameters={"nwin": 5000},
-            )
-        else:  # normal mode
-            write_run_file(
-                save_path=f"{coregistration_directory}/process/input.finecoreg",
-                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/doris_v4/input_files/input.finecoreg",
-                asc_dsc=asc_dsc[track],
-                track=tracks[track],
-                parameter_file=parameter_file,
-                other_parameters={"nwin": 8000},
-            )
-
-        # porbit is only necessary for ERS and ENV
-        if out_parameters["general:input-data:sensor"] == "ERS":
-            # this one requires two copies
-            for satellite in [1, 2]:
-                write_run_file(
-                    save_path=f"{coregistration_directory}/process/input.porbit_ERS{satellite}",
-                    template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                    f"templates/doris_v4/input_files/input.porbit",
-                    asc_dsc=asc_dsc[track],
-                    track=tracks[track],
-                    parameter_file=parameter_file,
-                    other_parameters={"directory": f"ERS{satellite}"},
-                )
-        elif out_parameters["general:input-data:sensor"] == "ENV":
-            write_run_file(
-                save_path=f"{coregistration_directory}/process/input.porbit",
-                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/doris_v4/input_files/input.porbit",
-                asc_dsc=asc_dsc[track],
-                track=tracks[track],
-                parameter_file=parameter_file,
-                other_parameters={"directory": "envisat/dor_vor_odr"},
-            )
-
-        # for input.crop and input.resample we need to read the shapefile extent and calculate the amount of pixels
-        coordinates = np.array(
-            read_shp_extent(
-                f"{out_parameters['general:shape-file:directory']}/"
-                f"{out_parameters['general:shape-file:aoi-name']}_shape.shp",
-                shp_type="AoI",
-            )["0"]
-        )
-        min_lat = min(coordinates[:, 1])
-        max_lat = max(coordinates[:, 1])
-        min_lon = min(coordinates[:, 0])
-        max_lon = max(coordinates[:, 0])
-
-        # get the central coordinates
-        center_lon = (max_lon + min_lon) / 2
-        center_lat = (max_lat + min_lat) / 2
-
-        # get the latitude at which the crop is widest
-        if min_lat < 0:
-            if max_lat > 0:
-                ref_lat = 0
-            else:
-                ref_lat = max_lat
-        else:
-            ref_lat = min_lat
-
-        # calculate the extent of the AoI
-        dist_lat = haversine(min_lat, max_lat, min_lon, min_lon)
-        dist_lon = haversine(ref_lat, ref_lat, min_lon, max_lon)  # calculated at the widest part of the AoI
-
-        # determine the number of pixels
-        d_az, d_r = detect_sensor_pixelsize(out_parameters["general:input-data:sensor"])
-        pix_dr = int(np.ceil(dist_lon / d_r * 1.05))
-        pix_daz = int(np.ceil(dist_lat / d_az * 1.05))
-
-        # for input.crop we will add 500 to eliminate edge effects
-        if out_parameters["general:input-data:sensor"] == "ALOS2":
-            img_name = "IMG.1"
-        elif out_parameters["general:input-data:sensor"] == "Cosmo":
-            img_name = "image.h5"
-        elif out_parameters["general:input-data:sensor"] == "ENV":
-            img_name = "image.N1"
-        elif out_parameters["general:input-data:sensor"] == "ERS":
-            img_name = "DAT_01.001"
-        elif out_parameters["general:input-data:sensor"] == "RSAT2":
-            img_name = "imagery{pol}.tif"
-            # requires loop over polarisations to get additional crop files
-        elif out_parameters["general:input-data:sensor"] == "TSX":
-            img_name = "image.cos"
-        else:
-            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]}!')
-
-        # write input.crop
-        if (
-            out_parameters["general:input-data:sensor"] == "RSAT2"
-        ):  # for RSAT2 this is per polarisation, otherwise there just is one
-            for pol in polarisation:
-                write_run_file(
-                    save_path=f"{coregistration_directory}/process/input.crop{pol}",
-                    template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                    f"templates/doris_v4/input_files/input.crop",
-                    asc_dsc=asc_dsc[track],
-                    track=tracks[track],
-                    parameter_file=parameter_file,
-                    other_parameters={
-                        "img_name": img_name.format(pol),
-                        "pol": pol,
-                        "center_lat": center_lat,
-                        "center_lon": center_lon,
-                        "pix_az": pix_daz + 500,
-                        "pix_r": pix_dr + 500,
-                    },
-                )
-        else:
-            write_run_file(
-                save_path=f"{coregistration_directory}/process/input.crop",
-                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/doris_v4/input_files/input.crop",
-                asc_dsc=asc_dsc[track],
-                track=tracks[track],
-                parameter_file=parameter_file,
-                other_parameters={
-                    "img_name": img_name,
-                    "pol": "",
-                    "center_lat": center_lat,
-                    "center_lon": center_lon,
-                    "pix_az": pix_daz + 500,
-                    "pix_r": pix_dr + 500,
-                },
-            )
-
-        # write input.resample
-        for pol in polarisation:
-            write_run_file(
-                save_path=f"{coregistration_directory}/process/input.resample{pol}",
-                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/doris_v4/input_files/input.resample",
-                asc_dsc=asc_dsc[track],
-                track=tracks[track],
-                parameter_file=parameter_file,
-                other_parameters={
-                    "pol": pol,
-                    "center_lat": center_lat,
-                    "center_lon": center_lon,
-                    "pix_az": pix_daz,
-                    "pix_r": pix_dr,
-                },
-            )
-
-        # finally, we need input.readfiles, which requires a data string composed of sensor-specific data
-        if out_parameters["general:input-data:sensor"] == "ALOS2":
-            data_string = """S_IN_METHOD     ALOS2
-S_IN_DAT        IMG.1
-S_IN_LEA        LED.1
-S_IN_VOL        VOL.1"""
-
-        elif out_parameters["general:input-data:sensor"] == "Cosmo":
-            data_string = """S_IN_METHOD     CSK
-S_IN_DAT        image.h5"""
-
-        elif out_parameters["general:input-data:sensor"] == "ERS":
-            data_string = """S_IN_METHOD     ERS
-S_IN_VOL        VRD_DAT.001
-S_IN_DAT        DAT_01.001
-S_IN_LEA        LEA_01.001
-S_IN_NULL       dummy"""
-
-        elif out_parameters["general:input-data:sensor"] == "ENV":
-            data_string = """S_IN_METHOD     ASAR
-S_IN_DAT        image.N1"""
-
-        elif out_parameters["general:input-data:sensor"] == "RSAT":
-            data_string = """S_IN_METHOD     RSAT
-S_IN_VOL        VDF_DAT.001
-S_IN_DAT        DAT_01.001
-S_IN_LEA        LEA_01.001
-S_IN_NULL       dummy"""
-
-        elif out_parameters["general:input-data:sensor"] == "RSAT2":
-            data_string = """S_IN_METHOD     RADARSAT-2
-S_IN_DAT        imagery_HH.tif
-S_IN_LEA        product.xml"""
-
-        elif out_parameters["general:input-data:sensor"] == "TSX":
-            data_string = """S_IN_METHOD     TSX
-S_IN_DAT        image.cos
-S_IN_LEA        leader.xml"""
-
-        else:
-            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]} for input.readfiles!')
-
-        write_run_file(
-            save_path=f"{coregistration_directory}/process/input.readfiles",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-            f"templates/doris_v4/input_files/input.readfiles",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            other_parameters={"data_string": data_string},
-        )
-
-        write_directory_contents(
-            coregistration_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["doris_v4"]["directory-contents-file-appendix"]}.txt',
+        project_id = depsi_directory.split("/")[-2].split("-")[0]
+        os.system(
+            f"cd {depsi_directory}; "
+            f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_post_project_tar.sh {project_id}"
         )
 
 
@@ -1381,6 +867,439 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
         )
 
 
+def prepare_doris_v4(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for doris_v4.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+
+    Raises
+    ------
+    AssertionError
+        If one of the tracks is not provided in `di_data_directories`
+    ValueError
+        If an unknown sensor is provided in the parameter file
+    """
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "doris_v4:input:data-directories",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "general:timeframe:mother",
+        "general:dem:file",
+        "general:dem:upperleft",
+        "general:dem:delta",
+        "general:shape-file:directory",
+        "general:shape-file:aoi-name",
+        "doris_v4:doris_v4-settings:finecoreg:finecoreg-mode",
+        "default:input-data:polarisation",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+
+    datadirs = out_parameters["doris_v4:input:data-directories"]
+
+    start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
+    master_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
+    end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
+
+    polarisation = out_parameters["general:input-data:polarisation"]
+    polarisation = [f"_{pol}" for pol in polarisation]
+    if "_HH" in polarisation:
+        polarisation[polarisation.index("_HH")] = ""
+
+    dem_delta = out_parameters["general:dem:delta"]
+    dem_size = out_parameters["general:dem:size"]
+    dem_upperleft = out_parameters["general:dem:upperleft"]
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        assert (
+            f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
+            in datadirs.keys()
+        ), (
+            f"{out_parameters['general:input-data:sensor'].lower()}_"
+            f"{asc_dsc[track]}_t{tracks[track]:0>3d} is not in doris_v4:input:data-directories!"
+        )
+
+        coregistration_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
+        )
+
+        # we need a process folder in the coregistration directory, so we can combine that command
+        os.makedirs(f"{coregistration_directory}/process", exist_ok=True)
+
+        # generate doris_v4.sh
+        write_run_file(
+            save_path=f"{coregistration_directory}/run_doris_v4.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/run_doris_v4.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "doris_v4:general:deinsar-code-directory",
+                "doris_v4:general:doris-v4-code-directory",
+                "doris_v4:general:AoI-name",
+            ],
+            config_parameters=["caroline_work_directory", "orbit_directory", "python2_module", "gdal_module"],
+            other_parameters={"track": tracks[track], "coregistration_base_directory": coregistration_directory},
+        )
+
+        # generate run_doris_v4.py
+
+        # first search for the start, end, and master dates by parsing all data in the data directory,
+        # which is different per sensor
+        datadir = datadirs[
+            f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
+        ]
+        if out_parameters["general:input-data:sensor"] in ["ALOS2", "ERS"]:
+            dirs = glob.glob(f"{datadir}/[12]*")
+            images = list(sorted([eval(image.split("/")[-1]) for image in dirs]))
+        elif out_parameters["general:input-data:sensor"] in ["RSAT2"]:
+            dirs = glob.glob(f"{datadir}/RS2*")
+            images = list(sorted([eval(image.split("/")[-1].split("FQ2_")[1].split("_")[0]) for image in dirs]))
+        elif out_parameters["general:input-data:sensor"] in ["TSX"]:
+            dirs = glob.glob(f"{datadir}/*/iif/*")
+            images = list(sorted([eval(image.split("/")[-1].split("SRA_")[1].split("T")[0]) for image in dirs]))
+        elif out_parameters["general:input-data:sensor"] in ["SAOCOM"]:
+            dirs = glob.glob(f"{datadir}/*/*.xemt")
+            images = list(sorted([eval(image.split("/")[-1].split("OLF_")[1].split("T")[0]) for image in dirs]))
+        elif out_parameters["general:input-data:sensor"] in ["ENV"]:
+            # 2 different formats for some reason
+            dirs1 = glob.glob(f"{datadir}/*.N1")
+            dirs2 = glob.glob(f"{datadir}/*/*.N1")
+            dirs = []
+            for d in dirs1:
+                dirs.append(d)
+            for d in dirs2:
+                dirs.append(d)
+            images = list(sorted([eval(image.split("/")[-1].split("PA")[1].split("_")[0]) for image in dirs]))
+        else:
+            raise ValueError(f'Unknown directory format for sensor {out_parameters["general:input-data:sensor"]}!')
+
+        # then select the start, end, and master dates
+        act_start_date = str(min([image for image in images if image >= start_date]))
+        act_end_date = str(max([image for image in images if image <= end_date]))
+        act_master_date = str(min([image for image in images if image >= master_date]))
+
+        # finally, write run_doris_v4.py
+        write_run_file(
+            save_path=f"{coregistration_directory}/run_doris_v4.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/run_doris_v4.py",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                ["doris_v4:input:data-directories", "dictionary"],
+                "general:input-data:sensor",
+                "general:input-data:polarisation",
+                "doris_v4:doris_v4-settings:do-orbit",
+                "doris_v4:doris_v4-settings:do-crop",
+                "doris_v4:doris_v4-settings:do-tsx-deramp",
+                "doris_v4:doris_v4-settings:do-simamp",
+                "doris_v4:doris_v4-settings:do-mtiming",
+                "doris_v4:doris_v4-settings:do-ovs",
+                "doris_v4:doris_v4-settings:do-choose-master",
+                "doris_v4:doris_v4-settings:do-coarseorb",
+                "doris_v4:doris_v4-settings:do-coarsecorr",
+                "doris_v4:doris_v4-settings:finecoreg:do-finecoreg",
+                "doris_v4:doris_v4-settings:do-reltiming",
+                "doris_v4:doris_v4-settings:do-dembased",
+                "doris_v4:doris_v4-settings:do-coregpm",
+                "doris_v4:doris_v4-settings:do-comprefpha",
+                "doris_v4:doris_v4-settings:do-comprefdem",
+                "doris_v4:doris_v4-settings:do-resample",
+                "doris_v4:doris_v4-settings:do-tsx-reramp",
+                "doris_v4:doris_v4-settings:do-interferogram",
+                "doris_v4:doris_v4-settings:do-subtrrefpha",
+                "doris_v4:doris_v4-settings:do-subtrrefdem",
+                "doris_v4:doris_v4-settings:do-coherence",
+                "doris_v4:doris_v4-settings:do-geocoding",
+            ],
+            other_parameters={"master": act_master_date, "startdate": act_start_date, "enddate": act_end_date},
+        )
+
+        # finally, create the input files
+
+        # these ones can be copied directly
+        for file in [
+            "input.baselines",
+            "input.coarsecorr",
+            "input.coarseorb",
+            "input.comprefpha",
+            "input.coregpm",
+            "input.mtiming",
+            "input.reltiming",
+            "input.geocoding",
+        ]:
+            write_run_file(
+                save_path=f"{coregistration_directory}/process/{file}",
+                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/input_files/{file}",
+                asc_dsc=asc_dsc[track],
+                track=tracks[track],
+                parameter_file=parameter_file,
+            )
+
+        # these ones are polarisation-dependent
+        for file in ["input.coherence", "input.interferogram", "input.subtrrefdem", "input.subtrrefpha", "input.ovs"]:
+            for pol in polarisation:
+                write_run_file(
+                    save_path=f"{coregistration_directory}/process/{file}{pol}",
+                    template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
+                    f"templates/doris_v4/input_files/{file}",
+                    asc_dsc=asc_dsc[track],
+                    track=tracks[track],
+                    parameter_file=parameter_file,
+                    other_parameters={"pol": pol},
+                )
+
+        # these ones need the DEM variables
+        for file in ["input.comprefdem", "input.dembased", "input.simamp"]:
+            write_run_file(
+                save_path=f"{coregistration_directory}/process/{file}",
+                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/input_files/{file}",
+                asc_dsc=asc_dsc[track],
+                track=tracks[track],
+                parameter_file=parameter_file,
+                parameter_file_parameters=["general:dem:file", "general:dem:format", "general:dem:nodata"],
+                other_parameters={
+                    "dem_s1": dem_size[0],
+                    "dem_s2": dem_size[1],
+                    "dem_d1": dem_delta[0],
+                    "dem_d2": dem_delta[1],
+                    "dem_ul1": dem_upperleft[0],
+                    "dem_ul2": dem_upperleft[1],
+                },
+            )
+
+        # finecoreg changes based on the fine coregistration mode
+        if out_parameters["doris_v4:doris_v4-settings:finecoreg:finecoreg-mode"] == "simple":
+            write_run_file(
+                save_path=f"{coregistration_directory}/process/input.finecoreg_simple",
+                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
+                f"templates/doris_v4/input_files/input.finecoreg",
+                asc_dsc=asc_dsc[track],
+                track=tracks[track],
+                parameter_file=parameter_file,
+                other_parameters={"nwin": 5000},
+            )
+        else:  # normal mode
+            write_run_file(
+                save_path=f"{coregistration_directory}/process/input.finecoreg",
+                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
+                f"templates/doris_v4/input_files/input.finecoreg",
+                asc_dsc=asc_dsc[track],
+                track=tracks[track],
+                parameter_file=parameter_file,
+                other_parameters={"nwin": 8000},
+            )
+
+        # porbit is only necessary for ERS and ENV
+        if out_parameters["general:input-data:sensor"] == "ERS":
+            # this one requires two copies
+            for satellite in [1, 2]:
+                write_run_file(
+                    save_path=f"{coregistration_directory}/process/input.porbit_ERS{satellite}",
+                    template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
+                    f"templates/doris_v4/input_files/input.porbit",
+                    asc_dsc=asc_dsc[track],
+                    track=tracks[track],
+                    parameter_file=parameter_file,
+                    other_parameters={"directory": f"ERS{satellite}"},
+                )
+        elif out_parameters["general:input-data:sensor"] == "ENV":
+            write_run_file(
+                save_path=f"{coregistration_directory}/process/input.porbit",
+                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
+                f"templates/doris_v4/input_files/input.porbit",
+                asc_dsc=asc_dsc[track],
+                track=tracks[track],
+                parameter_file=parameter_file,
+                other_parameters={"directory": "envisat/dor_vor_odr"},
+            )
+
+        # for input.crop and input.resample we need to read the shapefile extent and calculate the amount of pixels
+        coordinates = np.array(
+            read_shp_extent(
+                f"{out_parameters['general:shape-file:directory']}/"
+                f"{out_parameters['general:shape-file:aoi-name']}_shape.shp",
+                shp_type="AoI",
+            )["0"]
+        )
+        min_lat = min(coordinates[:, 1])
+        max_lat = max(coordinates[:, 1])
+        min_lon = min(coordinates[:, 0])
+        max_lon = max(coordinates[:, 0])
+
+        # get the central coordinates
+        center_lon = (max_lon + min_lon) / 2
+        center_lat = (max_lat + min_lat) / 2
+
+        # get the latitude at which the crop is widest
+        if min_lat < 0:
+            if max_lat > 0:
+                ref_lat = 0
+            else:
+                ref_lat = max_lat
+        else:
+            ref_lat = min_lat
+
+        # calculate the extent of the AoI
+        dist_lat = haversine(min_lat, max_lat, min_lon, min_lon)
+        dist_lon = haversine(ref_lat, ref_lat, min_lon, max_lon)  # calculated at the widest part of the AoI
+
+        # determine the number of pixels
+        d_az, d_r = detect_sensor_pixelsize(out_parameters["general:input-data:sensor"])
+        pix_dr = int(np.ceil(dist_lon / d_r * 1.05))
+        pix_daz = int(np.ceil(dist_lat / d_az * 1.05))
+
+        # for input.crop we will add 500 to eliminate edge effects
+        if out_parameters["general:input-data:sensor"] == "ALOS2":
+            img_name = "IMG.1"
+        elif out_parameters["general:input-data:sensor"] == "Cosmo":
+            img_name = "image.h5"
+        elif out_parameters["general:input-data:sensor"] == "ENV":
+            img_name = "image.N1"
+        elif out_parameters["general:input-data:sensor"] == "ERS":
+            img_name = "DAT_01.001"
+        elif out_parameters["general:input-data:sensor"] == "RSAT2":
+            img_name = "imagery{pol}.tif"
+            # requires loop over polarisations to get additional crop files
+        elif out_parameters["general:input-data:sensor"] == "TSX":
+            img_name = "image.cos"
+        else:
+            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]}!')
+
+        # write input.crop
+        if (
+            out_parameters["general:input-data:sensor"] == "RSAT2"
+        ):  # for RSAT2 this is per polarisation, otherwise there just is one
+            for pol in polarisation:
+                write_run_file(
+                    save_path=f"{coregistration_directory}/process/input.crop{pol}",
+                    template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
+                    f"templates/doris_v4/input_files/input.crop",
+                    asc_dsc=asc_dsc[track],
+                    track=tracks[track],
+                    parameter_file=parameter_file,
+                    other_parameters={
+                        "img_name": img_name.format(pol),
+                        "pol": pol,
+                        "center_lat": center_lat,
+                        "center_lon": center_lon,
+                        "pix_az": pix_daz + 500,
+                        "pix_r": pix_dr + 500,
+                    },
+                )
+        else:
+            write_run_file(
+                save_path=f"{coregistration_directory}/process/input.crop",
+                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
+                f"templates/doris_v4/input_files/input.crop",
+                asc_dsc=asc_dsc[track],
+                track=tracks[track],
+                parameter_file=parameter_file,
+                other_parameters={
+                    "img_name": img_name,
+                    "pol": "",
+                    "center_lat": center_lat,
+                    "center_lon": center_lon,
+                    "pix_az": pix_daz + 500,
+                    "pix_r": pix_dr + 500,
+                },
+            )
+
+        # write input.resample
+        for pol in polarisation:
+            write_run_file(
+                save_path=f"{coregistration_directory}/process/input.resample{pol}",
+                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
+                f"templates/doris_v4/input_files/input.resample",
+                asc_dsc=asc_dsc[track],
+                track=tracks[track],
+                parameter_file=parameter_file,
+                other_parameters={
+                    "pol": pol,
+                    "center_lat": center_lat,
+                    "center_lon": center_lon,
+                    "pix_az": pix_daz,
+                    "pix_r": pix_dr,
+                },
+            )
+
+        # finally, we need input.readfiles, which requires a data string composed of sensor-specific data
+        if out_parameters["general:input-data:sensor"] == "ALOS2":
+            data_string = """S_IN_METHOD     ALOS2
+S_IN_DAT        IMG.1
+S_IN_LEA        LED.1
+S_IN_VOL        VOL.1"""
+
+        elif out_parameters["general:input-data:sensor"] == "Cosmo":
+            data_string = """S_IN_METHOD     CSK
+S_IN_DAT        image.h5"""
+
+        elif out_parameters["general:input-data:sensor"] == "ERS":
+            data_string = """S_IN_METHOD     ERS
+S_IN_VOL        VRD_DAT.001
+S_IN_DAT        DAT_01.001
+S_IN_LEA        LEA_01.001
+S_IN_NULL       dummy"""
+
+        elif out_parameters["general:input-data:sensor"] == "ENV":
+            data_string = """S_IN_METHOD     ASAR
+S_IN_DAT        image.N1"""
+
+        elif out_parameters["general:input-data:sensor"] == "RSAT":
+            data_string = """S_IN_METHOD     RSAT
+S_IN_VOL        VDF_DAT.001
+S_IN_DAT        DAT_01.001
+S_IN_LEA        LEA_01.001
+S_IN_NULL       dummy"""
+
+        elif out_parameters["general:input-data:sensor"] == "RSAT2":
+            data_string = """S_IN_METHOD     RADARSAT-2
+S_IN_DAT        imagery_HH.tif
+S_IN_LEA        product.xml"""
+
+        elif out_parameters["general:input-data:sensor"] == "TSX":
+            data_string = """S_IN_METHOD     TSX
+S_IN_DAT        image.cos
+S_IN_LEA        leader.xml"""
+
+        else:
+            raise ValueError(f'Unknown sensor {out_parameters["general:input-data:sensor"]} for input.readfiles!')
+
+        write_run_file(
+            save_path=f"{coregistration_directory}/process/input.readfiles",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
+            f"templates/doris_v4/input_files/input.readfiles",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            other_parameters={"data_string": data_string},
+        )
+
+        write_directory_contents(
+            coregistration_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["doris_v4"]["directory-contents-file-appendix"]}.txt',
+        )
+
+
 def prepare_doris_v5(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for Doris v5.
 
@@ -1675,523 +1594,6 @@ from:noreply@spider.surfsara.nl
 {body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {out_parameters['general:email:recipients']}""")
 
 
-def prepare_create_mrm(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and files for mrm creation, part of DePSI-post.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Absolute path to the parameter file.
-    do_track: int | list | None, optional
-        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
-        the parameter file
-    """
-    search_parameters = [
-        "general:tracks:track",
-        "general:tracks:asc_dsc",
-        "general:input-data:sensor",
-        "depsi_post:general:cpxfiddle-directory",
-        "general:workflow:filters:coregistration-mode",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    tracks = out_parameters["general:tracks:track"]
-    asc_dsc = out_parameters["general:tracks:asc_dsc"]
-
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        # determine if we came from reduce_slc_matlab or merge_to_stack_matlab
-        if (
-            out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
-            or out_parameters["general:input-data:sensor"].lower() != "s1"
-        ):
-            crop_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_matlab"], track=tracks[track]
-            )
-        else:
-            crop_directory = format_process_folder(
-                parameter_file=parameter_file,
-                job_description=JOB_DEFINITIONS["merge_to_stack_matlab"],
-                track=tracks[track],
-            )
-
-        depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
-        )
-
-        # we need to run cpxfiddle first. This requires two parameters: n_lines, and the project ID
-        fr = open(f"{crop_directory}/cropped_stack/nlines_crp.txt")
-        data = fr.read().split("\n")
-        fr.close()
-        n_lines = data[0]
-
-        project_id = depsi_directory.split("/")[-2].split("-")[0]
-
-        # format the arguments in the correct order
-        command_args = (
-            f"{project_id} {n_lines} 1 1 {out_parameters['depsi_post:general:cpxfiddle-directory']} {depsi_directory}"
-        )
-        os.system(
-            f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_mrm_ras_header.sh "
-            f"{command_args}"
-        )
-
-        write_run_file(
-            save_path=f"{depsi_directory}/create_mrm.m",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/create_mrm/create_mrm.m",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=[
-                "depsi_matlab:general:AoI-name",
-                ["general:input-data:sensor", "lowercase"],
-            ],
-            other_parameters={
-                "fill_track": f"{tracks[track]:0>3d}",
-                "asc_dsc": asc_dsc[track],
-            },
-        )
-
-        write_run_file(
-            save_path=f"{depsi_directory}/create_mrm.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/create_mrm/create_mrm.sh",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=["depsi_matlab:general:AoI-name"],
-            config_parameters=["caroline_work_directory", "matlab_module"],
-            other_parameters={
-                "track": tracks[track],
-                "depsi_base_directory": depsi_directory,
-            },
-        )
-
-        write_directory_contents(
-            depsi_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["create_mrm"]["directory-contents-file-appendix"]}.txt',
-        )
-
-
-def prepare_set_portal_upload_flag(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Create the indication for a portal upload.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Absolute path to the parameter file.
-    do_track: int | list | None, optional
-        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
-        the parameter file
-    """
-    search_parameters = [
-        "general:tracks:track",
-        "general:portal:skygeo-customer",
-        "general:portal:skygeo-viewer",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    tracks = out_parameters["general:tracks:track"]
-
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
-        )
-
-        # The parameter file already contains a datestamp so we don't need to redo that
-        portal_upload_file = (
-            f"{CONFIG_PARAMETERS['PORTAL_UPLOAD_FLAG_DIRECTORY']}/"
-            f"{parameter_file.split('/')[-1].split('.')[0]}_t{tracks[track]:0>3d}_upload.txt"
-        )
-        f = open(portal_upload_file, "w")
-        f.write(
-            f"Status: TBD\n"
-            f"Directory: {depsi_directory}\n"
-            f"Viewer: {out_parameters['general:portal:skygeo-viewer']}\n"
-            f"Customer: {out_parameters['general:portal:skygeo-customer']}"
-        )
-        f.close()
-
-
-def prepare_s1_download(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Prepare the scripts for the download.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Absolute path to the parameter file.
-    do_track: int | list | None, optional
-        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
-        the parameter file
-    """
-    aoi_name = parameter_file.split("/")[-1].split("param_file_")[-1].split(".")[0]
-
-    search_parameters = [
-        "general:tracks:track",
-        "general:tracks:asc_dsc",
-        "general:shape-file:directory",
-        "general:shape-file:aoi-name",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    shapefile_name = (
-        f"{out_parameters['general:shape-file:directory']}/{out_parameters['general:shape-file:aoi-name']}_shape.shp"
-    )
-
-    tracks = out_parameters["general:tracks:track"]
-    asc_dsc = out_parameters["general:tracks:asc_dsc"]
-
-    date = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
-
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        os.makedirs(
-            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
-            f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}",
-            exist_ok=True,
-        )
-        write_run_file(
-            save_path=(
-                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
-                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/roi.wkt"
-            ),
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/roi.wkt",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            other_parameters={"wkt_string": convert_shp_to_wkt(shapefile_name)},
-        )
-
-        write_run_file(
-            save_path=(
-                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
-                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/geosearch.yaml"
-            ),
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/geosearch.yaml",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=["general:input-data:product-type", "general:timeframe:start"],
-            other_parameters={
-                "wkt_file": (
-                    f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
-                    f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/roi.wkt"
-                ),
-                "orbits_csv": tracks[track],
-            },
-        )
-
-        download_completed = False
-        repeat_counter = 0  # to keep track of how many times the download call is performed
-        while not download_completed:
-            # actually perform the download (first load the virtual environment, then run the caroline-download command)
-            os.system(
-                f"source {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/imports.sh; "
-                f"source {CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
-                "caroline-download --config "
-                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/download-config.yaml "
-                "--geo-search "
-                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
-                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/geosearch.yaml"
-            )
-            os.system('''echo "\n\n\nDownload finished. Starting ZIP file integrity check...\n"''')
-
-            zip_files = glob.glob(
-                f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/s1_{asc_dsc[track]}_t{tracks[track]:0>3d}/"
-                f"IW_SLC__1SDV_VVVH/*/*.zip"
-            )
-            bad_zip_files = []
-            for zip_file in zip_files:
-                try:
-                    _ = zipfile.ZipFile(zip_file)
-                except zipfile.BadZipFile:  # zip file cannot be opened --> incomplete download
-                    bad_zip_files.append(zip_file)
-
-            if len(bad_zip_files) == 0:  # download is complete
-                os.system('''echo "ZIP File Integrity Check Passed!\n"''')
-                download_completed = True
-            else:  # download failed early. Remove the bad zips and try again
-                os.system('''echo "ZIP File Integrity Check Failed!\n"''')
-                os.system(f'''echo "Failed on {str(bad_zip_files).replace('"', "'")}. Removing and restarting...\n"''')
-                for zip_file in bad_zip_files:
-                    os.system(f"rm -f {zip_file}")
-                repeat_counter += 1
-                if repeat_counter > S1_DOWNLOAD_CALL_REPEAT_LIMIT:
-                    os.system('''echo "Download failed over 20 times. Please check logs. Killing process...\n"''')
-                    exit(5)
-
-    # final integrity check on all tracks (in case the loop above somehow exited early)
-    bad_zip_files = []
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        zip_files = glob.glob(
-            f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/s1_{asc_dsc[track]}_t{tracks[track]:0>3d}/"
-            f"IW_SLC__1SDV_VVVH/*/*.zip"
-        )
-
-        for zip_file in zip_files:
-            try:
-                _ = zipfile.ZipFile(zip_file)
-            except zipfile.BadZipFile:  # zip file cannot be opened --> incomplete download
-                bad_zip_files.append(zip_file)
-
-    if len(bad_zip_files) > 0:
-        os.system('''echo "\n\n\nZIP File Integrity Check Failed!\n"''')
-        os.system(f'''echo "Failed on zip file(s) {str(bad_zip_files).replace('"', "'")}. Exiting with code 5...\n"''')
-        exit(5)  # Make the code exit with a non-zero exit code so the next steps won't run
-
-
-def prepare_snap_fix_permissions(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Change all the permissions for the SNAP output to 775.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Absolute path to the parameter file.
-    do_track: int | list | None, optional
-        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
-        the parameter file
-    """
-    search_parameters = [
-        "general:tracks:track",
-        "general:tracks:asc_dsc",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    tracks = out_parameters["general:tracks:track"]
-
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        snap_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
-        )
-
-        znaps = glob.glob(f"{snap_directory}/*-coreg.znap")
-        for zf in znaps:
-            os.system(f"chmod 775 {zf}; chmod 775 {zf}/*; chmod 775 {zf}/*/*; chmod 775 {zf}/*/*/*")
-
-
-def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for SNAP preparation.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Absolute path to the parameter file.
-    do_track: int | list | None, optional
-        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
-        the parameter file
-    """
-    search_parameters = [
-        "snap:general:AoI-name",
-        "snap:general:directory",
-        "general:tracks:track",
-        "general:tracks:asc_dsc",
-        "general:input-data:sensor",
-        "general:shape-file:aoi-name",
-        "general:shape-file:directory",
-        "general:timeframe:start",
-        "general:timeframe:end",
-        "general:timeframe:mother",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    tracks = out_parameters["general:tracks:track"]
-    asc_dsc = out_parameters["general:tracks:asc_dsc"]
-
-    shapefile_name = (
-        f"{out_parameters['general:shape-file:directory']}/{out_parameters['general:shape-file:aoi-name']}_shape.shp"
-    )
-
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        snap_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_preparation"], track=tracks[track]
-        )
-
-        os.makedirs(snap_directory, exist_ok=True)
-
-        track_fmt = f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
-
-        other_parameters = {
-            "track": tracks[track],
-            "snap-output-path": snap_directory,
-            "dry_run": "0",
-            "track_formatted": track_fmt,
-        }
-
-        # and the start, end, and mother dates
-        images = glob.glob(f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/{track_fmt}/IW_SLC__1SDV_VVVH/2*")
-        images = [eval(image.split("/")[-1]) for image in images]
-
-        start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
-        end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
-        mother_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
-
-        # then select and format the start, end, and master dates
-        other_parameters["start_date"] = str(min([image for image in images if image >= start_date]))
-        other_parameters["start_date"] = (
-            f"{other_parameters['start_date'][:4]}-"
-            f"{other_parameters['start_date'][4:6]}-"
-            f"{other_parameters['start_date'][6:]}"
-        )
-        other_parameters["end_date"] = str(max([image for image in images if image <= end_date]))
-        other_parameters["end_date"] = (
-            f"{other_parameters['end_date'][:4]}-"
-            f"{other_parameters['end_date'][4:6]}-"
-            f"{other_parameters['end_date'][6:]}"
-        )
-        other_parameters["mother_date"] = str(min([image for image in images if image >= mother_date]))
-        other_parameters["mother_date"] = (
-            f"{other_parameters['mother_date'][:4]}-"
-            f"{other_parameters['mother_date'][4:6]}-"
-            f"{other_parameters['mother_date'][6:]}"
-        )
-
-        # generate the WKT file
-        write_run_file(
-            save_path=f"{snap_directory}/aoi.wkt",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/aoi.wkt",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            other_parameters={"wkt_string": convert_shp_to_wkt(shapefile_name)},
-        )
-
-        # generate generate-snap-graphs.sh
-        write_run_file(
-            save_path=f"{snap_directory}/generate-snap-graphs.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/generate-snap-graphs.sh",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=[
-                "snap:general:AoI-name",
-            ],
-            config_parameters=[
-                "caroline_work_directory",
-                "caroline_virtual_environment_directory",
-                "caroline_install_directory",
-                "slc_base_directory",
-                "python3_module",
-                "gdal_module",
-                "snap_module",
-            ],
-            other_parameters=other_parameters,
-        )
-
-        write_directory_contents(
-            snap_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["snap_preparation"]["directory-contents-file-appendix"]}.txt',
-        )
-
-
-def prepare_snap(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for SNAP run.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Absolute path to the parameter file.
-    do_track: int | list | None, optional
-        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
-        the parameter file
-    """
-    search_parameters = [
-        "snap:general:AoI-name",
-        "snap:general:directory",
-        "general:tracks:track",
-        "general:tracks:asc_dsc",
-        "general:input-data:sensor",
-    ]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    tracks = out_parameters["general:tracks:track"]
-    asc_dsc = out_parameters["general:tracks:asc_dsc"]
-
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        snap_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
-        )
-
-        if "--constraint=rome" in JOB_DEFINITIONS["snap"]["sbatch-args"]:
-            rome_constrained = "1"
-        else:
-            rome_constrained = "0"
-
-        os.makedirs(snap_directory, exist_ok=True)
-
-        # generate run-snap-graph.sh
-        write_run_file(
-            save_path=f"{snap_directory}/run-snap-graph.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/run-snap-graph.sh",
-            asc_dsc=asc_dsc[track],
-            track=tracks[track],
-            parameter_file=parameter_file,
-            parameter_file_parameters=["snap:general:AoI-name"],
-            config_parameters=[
-                "caroline_work_directory",
-                "caroline_virtual_environment_directory",
-                "python3_module",
-                "gdal_module",
-                "snap_module",
-            ],
-            other_parameters={
-                "track": tracks[track],
-                "snap-output-path": snap_directory,
-                "rome-constrained": rome_constrained,
-            },
-        )
-
-        write_directory_contents(
-            snap_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["snap"]["directory-contents-file-appendix"]}.txt',
-        )
-
-
 def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for STM generation.
 
@@ -2293,7 +1695,10 @@ def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list |
         # generate stm-generation.sh
         write_run_file(
             save_path=f"{stm_directory}/generate-partitioned-stm.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/generate-partitioned-stm/generate-partitioned-stm.sh",
+            template_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/generate-partitioned-stm/"
+                "generate-partitioned-stm.sh"
+            ),
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -2312,42 +1717,9 @@ def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list |
 
         write_directory_contents(
             stm_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["generate_partitioned_stm"]["directory-contents-file-appendix"]}.txt',
-        )
-
-
-def prepare_create_tarball(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Create the tarball after DePSI-post.
-
-    Parameters
-    ----------
-    parameter_file: str
-        Absolute path to the parameter file.
-    do_track: int | list | None, optional
-        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
-        the parameter file
-    """
-    search_parameters = ["track"]
-    out_parameters = read_parameter_file(parameter_file, search_parameters)
-
-    tracks = out_parameters["track"]
-
-    for track in range(len(tracks)):
-        if isinstance(do_track, int):
-            if tracks[track] != do_track:
-                continue
-        elif isinstance(do_track, list):
-            if tracks[track] not in do_track:
-                continue
-
-        depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
-        )
-
-        project_id = depsi_directory.split("/")[-2].split("-")[0]
-        os.system(
-            f"cd {depsi_directory}; "
-            f"bash {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/create_post_project_tar.sh {project_id}"
+            filename=(
+                f'dir_contents{JOB_DEFINITIONS["generate_partitioned_stm"]["directory-contents-file-appendix"]}.txt'
+            ),
         )
 
 
@@ -2512,6 +1884,639 @@ def prepare_merge_to_stack_python(parameter_file: str, do_track: int | list | No
         write_directory_contents(
             merge_to_stack_python_directory,
             filename=f'dir_contents{JOB_DEFINITIONS["merge_to_stack_python"]["directory-contents-file-appendix"]}.txt',
+        )
+
+
+def prepare_reduce_slc_matlab(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for cropping.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        crop_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_matlab"], track=tracks[track]
+        )
+
+        if out_parameters["general:input-data:sensor"] == "S1":
+            coregistration_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v5"], track=tracks[track]
+            )
+
+        else:
+            coregistration_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
+            )
+
+        os.makedirs(crop_directory, exist_ok=True)
+
+        # soft-link the processing directory without job_id.txt, dir_contents.txt and queue.txt
+        # Sentinel-1 has more files starting with d as Doris-v5 output, other sensors do not have that
+        if out_parameters["general:input-data:sensor"] == "S1":
+            link_keys = ["[bgiprs]*", "doris*", "dem"]
+        else:
+            link_keys = ["[bgiprs]*"]
+        for key in link_keys:
+            # run the soft-link command
+            os.system(f"ln -sfn {coregistration_directory}/{key} {crop_directory}")
+
+        # generate crop.sh
+        write_run_file(
+            save_path=f"{crop_directory}/crop-to-raw.sh",
+            template_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-matlab/reduce-slc-matlab.sh"
+            ),
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["reduce_slc_matlab:general:AoI-name"],
+            config_parameters=["caroline_work_directory", "matlab_module"],
+            other_parameters={"track": tracks[track], "crop_base_directory": crop_directory},
+        )
+
+        # generate crop.m
+        write_run_file(
+            save_path=f"{crop_directory}/reduce_slc_matlab.m",
+            template_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-matlab/reduce_slc_matlab.m"
+            ),
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "general:shape-file:aoi-name",
+                "general:shape-file:directory",
+                "general:input-data:sensor",
+            ],
+            config_parameters=["caroline_install_directory"],
+        )
+
+        write_directory_contents(
+            crop_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["reduce_slc_matlab"]["directory-contents-file-appendix"]}.txt',
+        )
+
+
+def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for reduce_slc_python.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+
+    Raises
+    ------
+    ValueError
+        If the mother image cannot be detected from doris_input.xml (S1) or doris_v4.py (otherwise)
+    """
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        reduce_slc_python_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_python"], track=tracks[track]
+        )
+
+        if out_parameters["general:input-data:sensor"] == "S1":
+            coregistration_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v5"], track=tracks[track]
+            )
+
+        else:
+            coregistration_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
+            )
+
+        os.makedirs(reduce_slc_python_directory, exist_ok=True)
+
+        # detect the mother image
+        if out_parameters["general:input-data:sensor"].lower() == "s1":
+            f = open(f"{coregistration_directory}/doris_input.xml")
+            data = f.read().split("\n")
+            f.close()
+            mother = None
+            for line in data:
+                if "<master_date>" in line:
+                    mother = line.split(">")[1].split("<")[0].replace("-", "")
+                    break
+
+            if mother is None:
+                raise ValueError(f"Failed to detect mother in {coregistration_directory}/doris_input.xml!")
+
+        else:
+            f = open(f"{coregistration_directory}/run_doris_v4.py")
+            data = f.read().split("\n")
+            f.close()
+            mother = None
+            for line in data:
+                if "master = " in line:
+                    mother = line.split('"')[1]
+                    break
+
+            if mother is None:
+                raise ValueError(f"Failed to detect mother in {coregistration_directory}/run_doris_v4.py !")
+
+        # generate crop-to-zarr.py
+        reduce_slc_python_output_name = reduce_slc_python_directory.split("/")[-1]
+
+        write_run_file(
+            save_path=f"{reduce_slc_python_directory}/reduce-slc-python.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-python/reduce-slc-python.py",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "general:shape-file:aoi-name",
+                "general:input-data:sensor",
+                "general:shape-file:directory",
+            ],
+            other_parameters={
+                "coregistration_directory": coregistration_directory,
+                "stack_folder_name": "stack" if out_parameters["general:input-data:sensor"] == "S1" else "process",
+                "mother": mother,
+                "mother_slc_name": "slave_rsmp_reramped.raw"
+                if out_parameters["general:input-data:sensor"] == "S1"
+                else "slave_rsmp.raw",
+                "reduce_slc_python_output_filename": reduce_slc_python_output_name,
+            },
+        )
+
+        # generate crop-to-zarr.sh
+        write_run_file(
+            save_path=f"{reduce_slc_python_directory}/reduce-slc-python.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-python/reduce-slc-python.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "reduce_slc_python:general:AoI-name",
+                "reduce_slc_python:general:depsi_group-code-directory",
+            ],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+            ],
+            other_parameters={"track": tracks[track]},
+        )
+
+        write_directory_contents(
+            reduce_slc_python_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["reduce_slc_python"]["directory-contents-file-appendix"]}.txt',
+        )
+
+
+def prepare_s1_download(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Prepare the scripts for the download.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    aoi_name = parameter_file.split("/")[-1].split("param_file_")[-1].split(".")[0]
+
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:shape-file:directory",
+        "general:shape-file:aoi-name",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    shapefile_name = (
+        f"{out_parameters['general:shape-file:directory']}/{out_parameters['general:shape-file:aoi-name']}_shape.shp"
+    )
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+
+    date = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        os.makedirs(
+            f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+            f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}",
+            exist_ok=True,
+        )
+        write_run_file(
+            save_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/roi.wkt"
+            ),
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/roi.wkt",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            other_parameters={"wkt_string": convert_shp_to_wkt(shapefile_name)},
+        )
+
+        write_run_file(
+            save_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/geosearch.yaml"
+            ),
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/download/geosearch.yaml",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["general:input-data:product-type", "general:timeframe:start"],
+            other_parameters={
+                "wkt_file": (
+                    f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+                    f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/roi.wkt"
+                ),
+                "orbits_csv": tracks[track],
+            },
+        )
+
+        download_completed = False
+        repeat_counter = 0  # to keep track of how many times the download call is performed
+        while not download_completed:
+            # actually perform the download (first load the virtual environment, then run the caroline-download command)
+            os.system(
+                f"source {CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/scripts/imports.sh; "
+                f"source {CONFIG_PARAMETERS['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
+                "caroline-download --config "
+                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/download-config.yaml "
+                "--geo-search "
+                f"{CONFIG_PARAMETERS['CAROLINE_DOWNLOAD_CONFIGURATION_DIRECTORY']}/once/"
+                f"{aoi_name}_{asc_dsc[track]}_t{tracks[track]:0>3d}-{date}/geosearch.yaml"
+            )
+            os.system('''echo "\n\n\nDownload finished. Starting ZIP file integrity check...\n"''')
+
+            zip_files = glob.glob(
+                f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/s1_{asc_dsc[track]}_t{tracks[track]:0>3d}/"
+                f"IW_SLC__1SDV_VVVH/*/*.zip"
+            )
+            bad_zip_files = []
+            for zip_file in zip_files:
+                try:
+                    _ = zipfile.ZipFile(zip_file)
+                except zipfile.BadZipFile:  # zip file cannot be opened --> incomplete download
+                    bad_zip_files.append(zip_file)
+
+            if len(bad_zip_files) == 0:  # download is complete
+                os.system('''echo "ZIP File Integrity Check Passed!\n"''')
+                download_completed = True
+            else:  # download failed early. Remove the bad zips and try again
+                os.system('''echo "ZIP File Integrity Check Failed!\n"''')
+                os.system(f'''echo "Failed on {str(bad_zip_files).replace('"', "'")}. Removing and restarting...\n"''')
+                for zip_file in bad_zip_files:
+                    os.system(f"rm -f {zip_file}")
+                repeat_counter += 1
+                if repeat_counter > S1_DOWNLOAD_CALL_REPEAT_LIMIT:
+                    os.system('''echo "Download failed over 20 times. Please check logs. Killing process...\n"''')
+                    exit(5)
+
+    # final integrity check on all tracks (in case the loop above somehow exited early)
+    bad_zip_files = []
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        zip_files = glob.glob(
+            f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/s1_{asc_dsc[track]}_t{tracks[track]:0>3d}/"
+            f"IW_SLC__1SDV_VVVH/*/*.zip"
+        )
+
+        for zip_file in zip_files:
+            try:
+                _ = zipfile.ZipFile(zip_file)
+            except zipfile.BadZipFile:  # zip file cannot be opened --> incomplete download
+                bad_zip_files.append(zip_file)
+
+    if len(bad_zip_files) > 0:
+        os.system('''echo "\n\n\nZIP File Integrity Check Failed!\n"''')
+        os.system(f'''echo "Failed on zip file(s) {str(bad_zip_files).replace('"', "'")}. Exiting with code 5...\n"''')
+        exit(5)  # Make the code exit with a non-zero exit code so the next steps won't run
+
+
+def prepare_set_portal_upload_flag(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Create the indication for a portal upload.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "general:tracks:track",
+        "general:portal:skygeo-customer",
+        "general:portal:skygeo-viewer",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        depsi_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
+        )
+
+        # The parameter file already contains a datestamp so we don't need to redo that
+        portal_upload_file = (
+            f"{CONFIG_PARAMETERS['PORTAL_UPLOAD_FLAG_DIRECTORY']}/"
+            f"{parameter_file.split('/')[-1].split('.')[0]}_t{tracks[track]:0>3d}_upload.txt"
+        )
+        f = open(portal_upload_file, "w")
+        f.write(
+            f"Status: TBD\n"
+            f"Directory: {depsi_directory}\n"
+            f"Viewer: {out_parameters['general:portal:skygeo-viewer']}\n"
+            f"Customer: {out_parameters['general:portal:skygeo-customer']}"
+        )
+        f.close()
+
+
+def prepare_snap(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for SNAP run.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "snap:general:AoI-name",
+        "snap:general:directory",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        snap_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
+        )
+
+        if "--constraint=rome" in JOB_DEFINITIONS["snap"]["sbatch-args"]:
+            rome_constrained = "1"
+        else:
+            rome_constrained = "0"
+
+        os.makedirs(snap_directory, exist_ok=True)
+
+        # generate run-snap-graph.sh
+        write_run_file(
+            save_path=f"{snap_directory}/run-snap-graph.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/run-snap-graph.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["snap:general:AoI-name"],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+                "snap_module",
+            ],
+            other_parameters={
+                "track": tracks[track],
+                "snap-output-path": snap_directory,
+                "rome-constrained": rome_constrained,
+            },
+        )
+
+        write_directory_contents(
+            snap_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["snap"]["directory-contents-file-appendix"]}.txt',
+        )
+
+
+def prepare_snap_fix_permissions(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Change all the permissions for the SNAP output to 775.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        snap_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
+        )
+
+        znaps = glob.glob(f"{snap_directory}/*-coreg.znap")
+        for zf in znaps:
+            os.system(f"chmod 775 {zf}; chmod 775 {zf}/*; chmod 775 {zf}/*/*; chmod 775 {zf}/*/*/*")
+
+
+def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for SNAP preparation.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+    """
+    search_parameters = [
+        "snap:general:AoI-name",
+        "snap:general:directory",
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "general:shape-file:aoi-name",
+        "general:shape-file:directory",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "general:timeframe:mother",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+
+    shapefile_name = (
+        f"{out_parameters['general:shape-file:directory']}/{out_parameters['general:shape-file:aoi-name']}_shape.shp"
+    )
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        snap_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_preparation"], track=tracks[track]
+        )
+
+        os.makedirs(snap_directory, exist_ok=True)
+
+        track_fmt = f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
+
+        other_parameters = {
+            "track": tracks[track],
+            "snap-output-path": snap_directory,
+            "dry_run": "0",
+            "track_formatted": track_fmt,
+        }
+
+        # and the start, end, and mother dates
+        images = glob.glob(f"{CONFIG_PARAMETERS['SLC_BASE_DIRECTORY']}/{track_fmt}/IW_SLC__1SDV_VVVH/2*")
+        images = [eval(image.split("/")[-1]) for image in images]
+
+        start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
+        end_date = eval(out_parameters["general:timeframe:end"].replace("-", ""))
+        mother_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
+
+        # then select and format the start, end, and master dates
+        other_parameters["start_date"] = str(min([image for image in images if image >= start_date]))
+        other_parameters["start_date"] = (
+            f"{other_parameters['start_date'][:4]}-"
+            f"{other_parameters['start_date'][4:6]}-"
+            f"{other_parameters['start_date'][6:]}"
+        )
+        other_parameters["end_date"] = str(max([image for image in images if image <= end_date]))
+        other_parameters["end_date"] = (
+            f"{other_parameters['end_date'][:4]}-"
+            f"{other_parameters['end_date'][4:6]}-"
+            f"{other_parameters['end_date'][6:]}"
+        )
+        other_parameters["mother_date"] = str(min([image for image in images if image >= mother_date]))
+        other_parameters["mother_date"] = (
+            f"{other_parameters['mother_date'][:4]}-"
+            f"{other_parameters['mother_date'][4:6]}-"
+            f"{other_parameters['mother_date'][6:]}"
+        )
+
+        # generate the WKT file
+        write_run_file(
+            save_path=f"{snap_directory}/aoi.wkt",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/aoi.wkt",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            other_parameters={"wkt_string": convert_shp_to_wkt(shapefile_name)},
+        )
+
+        # generate generate-snap-graphs.sh
+        write_run_file(
+            save_path=f"{snap_directory}/generate-snap-graphs.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/snap/generate-snap-graphs.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                "snap:general:AoI-name",
+            ],
+            config_parameters=[
+                "caroline_work_directory",
+                "caroline_virtual_environment_directory",
+                "caroline_install_directory",
+                "slc_base_directory",
+                "python3_module",
+                "gdal_module",
+                "snap_module",
+            ],
+            other_parameters=other_parameters,
+        )
+
+        write_directory_contents(
+            snap_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["snap_preparation"]["directory-contents-file-appendix"]}.txt',
         )
 
 

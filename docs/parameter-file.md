@@ -161,132 +161,132 @@ These parameters are used in the job `reduce_slc_python`. Defaults in [the defau
   - Function: specify where the DePSI_group code is, containing the functionality for `reduce_slc_python`
   - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
 
-## DeInSAR parameters
+## doris_v4 parameters
 
-These parameters are used in the job `deinsar`. Defaults in [the default DeInSAR config file](../config/parameter-files/default-job-param-file-deinsar.yaml).
+These parameters are used in the job `doris_v4`. Defaults in [the default doris_v4 config file](../config/parameter-files/default-job-param-file-doris_v4.yaml).
 
 
-- `deinsar:general:AoI-name`: 
-  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `deinsar`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+- `doris_v4:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `doris_v4`. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
-- `deinsar:general:directory`
-  - Function: specify the base directory where the [job](glossary.md#jobs) `deinsar` should run. 
+- `doris_v4:general:directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `doris_v4` should run. 
   - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
-- `deinsar:general:partition`
-  - Function: specify the partition on which the [job](glossary.md#jobs) `deinsar` should be run
+- `doris_v4:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `doris_v4` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `deinsar:general:deinsar-code-directory`
+- `doris_v4:general:deinsar-code-directory`
   - Function: specify the absolute path to the DeINSAR code
   - Possible values: `string` with the absolute path to the base directory of `DeInSAR`
-- `deinsar:general:doris-v4-code-directory`
+- `doris_v4:general:doris-v4-code-directory`
   - Function: specify the absolute path to the Doris v4 code
   - Possible values: `string` with the absolute path to the base directory of `doris_v4`
-- `deinsar:input:data-directories`
+- `doris_v4:input:data-directories`
   - Function: specify the data directories where the original images are stored (as the non-Sentinel-1 data archive is not sorted in a machine-readable way)
   - Possible values: e.g. `{'tsx_asc_t116': '/project/caroline/Data/radar_data/eurasia/netherlands/tsx/nl_amsterdam_tsx_asc_t116_T171816_171824_007_hh/data_backup'}`, as keys the tracks, as arguments the full path to the data directory, each key on a new line one tab in.
-- `deinsar:deinsar-settings:do-orbit`
+- `doris_v4:doris_v4-settings:do-orbit`
   - Function: specify whether the step `orbit` should be run (note: only for ENV, ERS and RSAT2)
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-crop`
+- `doris_v4:doris_v4-settings:do-crop`
   - Function: specify whether the step `crop` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-tsx-deramp`
+- `doris_v4:doris_v4-settings:do-tsx-deramp`
   - Function: specify whether the step `tsx-deramp` should be run (note: only for TSX)
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-simamp`
+- `doris_v4:doris_v4-settings:do-simamp`
   - Function: specify whether the step `simamp` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-mtiming`
+- `doris_v4:doris_v4-settings:do-mtiming`
   - Function: specify whether the step `mtiming` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-ovs`
+- `doris_v4:doris_v4-settings:do-ovs`
   - Function: specify whether the step `ovs` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-choose-master`
+- `doris_v4:doris_v4-settings:do-choose-master`
   - Function: specify whether the step `choose-master` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-coarseorb`
+- `doris_v4:doris_v4-settings:do-coarseorb`
   - Function: specify whether the step `coarseorb` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-coarsecorr`
+- `doris_v4:doris_v4-settings:do-coarsecorr`
   - Function: specify whether the step `coarsecorr` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:finecoreg:do-finecoreg`
+- `doris_v4:doris_v4-settings:finecoreg:do-finecoreg`
   - Function: specify whether the step `finecoreg` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:finecoreg:finecoreg-mode`
+- `doris_v4:doris_v4-settings:finecoreg:finecoreg-mode`
   - Function: specify which version of `finecoreg` should be run
   - Possible values: `'simple'`, `'normal'`
-- `deinsar:deinsar-settings:do-reltiming`
+- `doris_v4:doris_v4-settings:do-reltiming`
   - Function: specify whether the step `reltiming` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-dembased`
+- `doris_v4:doris_v4-settings:do-dembased`
   - Function: specify whether the step `dembased` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-coregpm`
+- `doris_v4:doris_v4-settings:do-coregpm`
   - Function: specify whether the step `coregpm` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-resample`
+- `doris_v4:doris_v4-settings:do-resample`
   - Function: specify whether the step `resample` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-tsx-reramp`
+- `doris_v4:doris_v4-settings:do-tsx-reramp`
   - Function: specify whether the step `tsx-reramp` should be run (note: only for TSX)
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-comprefpha`
+- `doris_v4:doris_v4-settings:do-comprefpha`
   - Function: specify whether the step `comprefpha` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-comprefdem`
+- `doris_v4:doris_v4-settings:do-comprefdem`
   - Function: specify whether the step `comprefdem` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-interferogram`
+- `doris_v4:doris_v4-settings:do-interferogram`
   - Function: specify whether the step `interferogram` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-subtrrefpha`
+- `doris_v4:doris_v4-settings:do-subtrrefpha`
   - Function: specify whether the step `subtrrefpha` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-subtrrefdem`
+- `doris_v4:doris_v4-settings:do-subtrrefdem`
   - Function: specify whether the step `subtrrefdem` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-coherence`
+- `doris_v4:doris_v4-settings:do-coherence`
   - Function: specify whether the step `coherence` should be run
   - Possible values: `0`, `1`
-- `deinsar:deinsar-settings:do-geocoding`
+- `doris_v4:doris_v4-settings:do-geocoding`
   - Function: specify whether the step `geocoding` should be run
   - Possible values: `0`, `1`
 
 
-## DePSI parameters
+## DePSI_matlab parameters
 
-These parameters are used in the job `depsi`. Defaults in [the default DePSI config file](../config/parameter-files/default-job-param-file-depsi.yaml)
+These parameters are used in the job `depsi_matlab`. Defaults in [the default DePSI config file](../config/parameter-files/default-job-param-file-depsi_matlab.yaml)
 Most parameters are explained in the [PhD thesis of Freek](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) using the same naming (underscores and dashes may be swapped). Those that aren't:
 
-- `depsi:general:AoI-name`: 
-  - Function: specify the AoI name for the directory naming in the [jobs](glossary.md#jobs) `depsi`, `mrm`, and `depsi_post`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+- `depsi_matlab:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [jobs](glossary.md#jobs) `depsi_matlab`, `create_mrm`, and `depsi_post`. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
-- `depsi:general:directory`
-  - Function: specify the base directory where the [jobs](glossary.md#jobs) `depsi`, `mrm`, and `depsi_post` should run. 
+- `depsi_matlab:general:directory`
+  - Function: specify the base directory where the [jobs](glossary.md#jobs) `depsi_matlab`, `create_mrm`, and `depsi_post` should run. 
   - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
-- `depsi:general:partition`
-  - Function: specify the partition on which the [job](glossary.md#jobs) `depsi` should be run
+- `depsi_matlab:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `depsi_matlab` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `depsi:general:depsi-code-directory`
+- `depsi_matlab:general:depsi_matlab-code-directory`
   - Function: specify where the DePSI code is
-  - Possible values: `string` with the absolute path to the base directory of `depsi`
-- `depsi:general:rdnaptrans-directory`
+  - Possible values: `string` with the absolute path to the base directory of `depsi_matlab`
+- `depsi_matlab:general:rdnaptrans-directory`
   - Function: specify where the [RDNAPtrans](https://www.nsgi.nl/coordinatenstelsels-en-transformaties/coordinatentransformaties/rdnap-etrs89-rdnaptrans) code is
   - Possible values: `string` with the absolute path to the base directory of RDNAPtrans
-- `depsi:general:geocoding-directory`
+- `depsi_matlab:general:geocoding-directory`
   - Function: specify where the Geocoding code is
   - Possible values: `string` with the absolute path to the base directory of Geocoding
-- `depsi:depsi-settings:general:ref-cn`
+- `depsi_matlab:depsi_matlab-settings:general:ref-cn`
   - Function: specify the mode of how the reference point in DePSI should be determined
   - Possible values for the key `all`:
     - `[]` or `'independent'`: consecutive runs are treated as completely independent, and can therefore have different reference points. This can have unintended consequences as the behaviour of the reference point can change drastically. The reference point is determined using the NAD metric.
     - `'constant'`: consecutive runs on the same track use the same reference point, where the first run runs on mode `'independent'` to select a reference point, and further runs retain this point.
     - `[azimuth, range]`: all runs are forced to the specified reference point regardless of what is there. If the reference point is not in the selection, DePSI will throw an error
   - Additionally, one can add keys for individual tracks as new lines one tab in from `ref-cn`. This generates a dictionary that looks like this. `{'s1_asc_t088': 'constant', 's1_dsc_t110': [100, 300], 'all': 'constant'}`. Different behaviours are specified for different tracks. This is almost always necessary for the `[azimuth, range]` mode. If tracks are missing from this specification, the `'all'` key is used for those instead. All of the above options are allowed in this mode as arguments.
-- `depsi:depsi-settings:psc:do-water-mask`
-  - Function: specify whether a water mask should be applied. If it should be applied, a water mask named `water_mask_<depsi_AoI_name>_<sensor>_<asc_dsc>_t<track:0>3d>.raw` is expected in the water-mask directory in the [configuration file](../config/spider-config.yaml).
+- `depsi_matlab:depsi_matlab-settings:psc:do-water-mask`
+  - Function: specify whether a water mask should be applied. If it should be applied, a water mask named `water_mask_<depsi_matlab_AoI_name>_<sensor>_<asc_dsc>_t<track:0>3d>.raw` is expected in the water-mask directory in the [configuration file](../config/spider-config.yaml).
   - Possible values: `'yes'`, `'no'`
 
 ## DePSI_post parameters
@@ -305,170 +305,170 @@ Most parameters are explained in [How to DePSI-post](https://sites.google.com/si
   - Possible values: `string` with the absolute path to `cpxfiddle`
 
 
-## Doris parameters
-These parameters are used in the job `doris`. Defaults in [the default doris config file](../config/parameter-files/default-job-param-file-doris.yaml).
+## Doris_v5 parameters
+These parameters are used in the job `doris_v5`. Defaults in [the default doris_v5 config file](../config/parameter-files/default-job-param-file-doris_v5.yaml).
 
-- `doris:general:AoI-name`: 
-  - Function: specify the AoI name for the directory naming in the [jobs](glossary.md#jobs) `doris` and `doris_cleanup`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+- `doris_v5:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [jobs](glossary.md#jobs) `doris_v5` and `doris_v5_cleanup`. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
-- `doris:general:directory`
-  - Function: specify the base directory where the [jobs](glossary.md#jobs) `doris` and `doris_cleanup` should run. 
+- `doris_v5:general:directory`
+  - Function: specify the base directory where the [jobs](glossary.md#jobs) `doris_v5` and `doris_v5_cleanup` should run. 
   - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
-- `doris:general:partition`
-  - Function: specify the partition on which the [job](glossary.md#jobs) `doris` should be run
+- `doris_v5:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `doris_v5` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `doris:general:code-directory`
+- `doris_v5:general:code-directory`
   - Function: specify the location of the Doris code.
-  - Possible values: `string` with absolute path to the base of the Doris code
-- `doris:doris-settings:do-coarse-orbits`
+  - Possible values: `string` with absolute path to the base of the Doris v5 code
+- `doris_v5:doris_v5-settings:do-coarse-orbits`
   - Function: specify whether the Doris step `coarse_orbits` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-deramp`
+- `doris_v5:doris_v5-settings:do-deramp`
   - Function: specify whether the Doris step `deramp` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-reramp`
+- `doris_v5:doris_v5-settings:do-reramp`
   - Function: specify whether the Doris step `reramp` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-fake-fine-coreg-bursts`
+- `doris_v5:doris_v5-settings:do-fake-fine-coreg-bursts`
   - Function: specify whether the Doris step `fake_fine_coreg_bursts` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-fake-master-resample`
+- `doris_v5:doris_v5-settings:do-fake-master-resample`
   - Function: specify whether the Doris step `fake_master_resample` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-dac-bursts`
+- `doris_v5:doris_v5-settings:do-dac-bursts`
   - Function: specify whether the Doris step `dac_bursts` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-fake-coreg-bursts`
+- `doris_v5:doris_v5-settings:do-fake-coreg-bursts`
   - Function: specify whether the Doris step `fake_coreg_bursts` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-resample`
+- `doris_v5:doris_v5-settings:do-resample`
   - Function: specify whether the Doris step `resample` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-reramp2`
+- `doris_v5:doris_v5-settings:do-reramp2`
   - Function: specify whether the Doris step `reramp` should be run (the second time it appears in the parameter file)
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-interferogram`
+- `doris_v5:doris_v5-settings:do-interferogram`
   - Function: specify whether the Doris step `interferogram` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-compref-phase`
+- `doris_v5:doris_v5-settings:do-compref-phase`
   - Function: specify whether the Doris step `compref_phase` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-compref-dem`
+- `doris_v5:doris_v5-settings:do-compref-dem`
   - Function: specify whether the Doris step `compref_dem` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-coherence`
+- `doris_v5:doris_v5-settings:do-coherence`
   - Function: specify whether the Doris step `coherence` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-esd`
+- `doris_v5:doris_v5-settings:do-esd`
   - Function: specify whether the Doris step `esd` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-network-esd`
+- `doris_v5:doris_v5-settings:do-network-esd`
   - Function: specify whether the Doris step `network_esd` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-ESD-correct`
+- `doris_v5:doris_v5-settings:do-ESD-correct`
   - Function: specify whether the Doris step `ESD_correct` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-combine-master`
+- `doris_v5:doris_v5-settings:do-combine-master`
   - Function: specify whether the Doris step `combine_master` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-combine-slave`
+- `doris_v5:doris_v5-settings:do-combine-slave`
   - Function: specify whether the Doris step `combine_slave` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-ref-phase`
+- `doris_v5:doris_v5-settings:do-ref-phase`
   - Function: specify whether the Doris step `ref_phase` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-ref-dem`
+- `doris_v5:doris_v5-settings:do-ref-dem`
   - Function: specify whether the Doris step `ref_dem` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-phasefilt`
+- `doris_v5:doris_v5-settings:do-phasefilt`
   - Function: specify whether the Doris step `phasefilt` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-calc-coordinates`
+- `doris_v5:doris_v5-settings:do-calc-coordinates`
   - Function: specify whether the Doris step `calc_coordinates` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-multilooking`
+- `doris_v5:doris_v5-settings:do-multilooking`
   - Function: specify whether the Doris step `multilooking` should be run
   - Possible values: `0`, `1`
-- `doris:doris-settings:do-unwrap`
+- `doris_v5:doris_v5-settings:do-unwrap`
   - Function: specify whether the Doris step `unwrap` should be run
   - Possible values: `0`, `1`
 
 
-## STM_generation parameters
-These parameters are used in the job `stm_generation`. Defaults in [the default stm_generation config file](../config/parameter-files/default-job-param-file-stm_generation.yaml).
+## generate_partitioned_stm parameters
+These parameters are used in the job `generate_partitioned_stm`. Defaults in [the default generate_partitioned_stm config file](../config/parameter-files/default-job-param-file-generate_partitioned_stm.yaml).
 
 
-- `stm_generation:general:AoI-name`: 
-  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `stm_generation`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+- `generate_partitioned_stm:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `generate_partitioned_stm`. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
-- `stm_generation:general:directory`
-  - Function: specify the base directory where the [job](glossary.md#jobs) `stm_generation` should run. 
-  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
-- `stm_generation:general:partition`
-  - Function: specify the partition on which the [job](glossary.md#jobs) `stm_generation` should be run
+- `generate_partitioned_stm:general:directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `generate_partitioned_stm` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stms_zarr'`
+- `generate_partitioned_stm:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `generate_partitioned_stm` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `stm_generation:general:stm_generation-code-directory`
-  - Function: specify where the DePSI_group code is, containing the functionality for `stm_generation`
+- `generate_partitioned_stm:general:depsi_group-code-directory`
+  - Function: specify where the DePSI_group code is, containing the functionality for `generate_partitioned_stm`
   - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
 
-- `stm_generation:stm_generation-settings:ps-selection:mode`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:mode`
   - Function: specify the mode to be used for the time frame selection during the PS selection
   - Possible values: `'full'` (full time series), `'initialization'` (using part of the time series defined by `stm_start_date_ps_selection` and `stm_initialization_length`)
-- `stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:start-date`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:start-date`
   - Function: specify the start date of the time frame to be used for PS selection in `initialization` mode
   - Possible values: `'YYYY-MM-DD'`
-- `stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:initialization-length`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:initialization-length`
   - Function: specify the length of the time frame to be used for PS selection in `initialization` mode
   - Possible values: any positive integer (# of epochs), or `'YYYY-MM-DD'` (end date)
-- `stm_generation:stm_generation-settings:ps-selection:method`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:method`
   - Function: specify the method to be used for the PS selection
   - Possible values: `'nmad'`, `'nad'` 
-- `stm_generation:stm_generation-settings:ps-selection:threshold`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:threshold`
   - Function: set the threshold for when a point is considered a PS (all PS below the threshold are accepted)
   - Possible values: any positive `float` 
-- `stm_generation:stm_generation-settings:incremental-statistics:increment-mode`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:increment-mode`
   - Function: specify the mode to add either the [incremental or recalibration](https://github.com/TUDelftGeodesy/DePSI_group/blob/dev/depsi/point_quality.py#L148) NAD or NMAD (based on `stm_ps_selection_method`)
   - Possible values: `'incremental'` (update every epoch), `'recalibration'` (update every `stm_nad_nmad_recalibration_jump_size` epochs)
-- `stm_generation:stm_generation-settings:incremental-statistics:recalibration-jump-size`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size`
   - Function: specify the jump size to be used for `recalibration` mode for the updating NAD or NMAD
   - Possible values: any positive integer
-- `stm_generation:stm_generation-settings:single-differences:mother`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:single-differences:mother`
   - Function: specify the mother epoch for single difference computations
   - Possible values: `'auto'` (uses the mother from the input `.zarr` archive), `'YYYY-MM-DD'`
-- `stm_generation:stm_generation-settings:extra-projection`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:extra-projection`
   - Function: specify an extra projection to project the geolocation coordinates into
   - Possible values: `'RD'` (Dutch Rijksdriehoek, Netherlands only), `'EPSG:###'` (any code works), `''` (no new projection)
-- `stm_generation:stm_generation-settings:partitioning:do-partitioning`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:do-partitioning`
   - Function: switch to do or not do partitioning in time
   - Possible values: `0`, `1`
-- `stm_generation:stm_generation-settings:partitioning:search-method`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:search-method`
   - Function: specify the method to search for the partitions
   - Possible values: `'pelt'`, `'binseg'`
-- `stm_generation:stm_generation-settings:partitioning:cost-function`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:cost-function`
   - Function: specify the cost function in the partition search
   - Possible values: `'l2'`
-- `stm_generation:stm_generation-settings:partitioning:db-mode`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:db-mode`
   - Function: specify whether or not to do the partition search on the Decibel scale
   - Possible values: `0` (advised), `1`
-- `stm_generation:stm_generation-settings:partitioning:min-partition-length`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:min-partition-length`
   - Function: specify the minimum number of acquisitions per partition
   - Possible values: any positive integer
-- `stm_generation:stm_generation-settings:partitioning:undifferenced-output-layers`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:undifferenced-output-lyrs`
   - Function: specify the output data layers per partition using the undifferenced input data
   - Possible values: `list` containing a subset of the following: `'nad'`, `'nmad'`, `mad`, `'quality_nmad_2sigma'`, `'quality_nmad_mean'`, `'quality_nad_2sigma'`, `'quality_nad_mean'`, `'amplitude_mean'`, `'amplitude_sigma'`, `'amplitude_median'`.
-- `stm_generation:stm_generation-settings:partitioning:single-difference-output-layers`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:single-difference-output-lyrs`
   - Function: specify the output data layers per partition using the input data with a single difference in time with respect to `stm_single_difference_mother`
   - Possible values: `list` containing a subset of the following: `'nad'`, `'nmad'`, `mad`, `'quality_nmad_2sigma'`, `'quality_nmad_mean'`, `'quality_nad_2sigma'`, `'quality_nad_mean'`, `'amplitude_mean'`, `'amplitude_sigma'`, `'amplitude_median'`.
-- `stm_generation:stm_generation-settings:outlier-detection:do-outlier-detection`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:do-outlier-detection`
   - Function: switch to do or not do outlier detection in time
   - Possible values: `0`, `1`
-- `stm_generation:stm_generation-settings:outlier-detection:window-size`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:window-size`
   - Function: specify the size of the rolling window across which the statistics are computed to determine whether or not an observation is an outlier
   - Possible values: any positive integer
-- `stm_generation:stm_generation-settings:outlier-detection:db-mode`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:db-mode`
   - Function: specify whether or not to do outlier detection on the Decibel scale
   - Possible values: `0`, `1` (advised)
-- `stm_generation:stm_generation-settings:outlier-detection:n-sigma`
+- `generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:n-sigma`
   - Function: specify the minimum number of sigma deviation from the median of the observations in the window before an observation is considered an outlier
   - Possible values: any positive `float` (advised 3)
 

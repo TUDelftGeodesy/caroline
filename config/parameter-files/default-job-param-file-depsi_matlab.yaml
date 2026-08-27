@@ -1,15 +1,15 @@
-# the default settings for DePSI, running in the depsi job
+# the default settings for DePSI, running in the depsi_matlab job
 
-depsi:
+depsi_matlab:
   general:
     AoI-name: "**AoI_name**"
     directory: '/project/caroline/Share/projects/**AoI_name**/depsi'
     partition: 'normal'
-    depsi-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/depsi_v2.2.1.1'
+    depsi_matlab-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/depsi_v2.2.1.1'
     rdnaptrans-directory: '**CAROLINE_PLUGINS_DIRECTORY**/rdnaptrans'
     geocoding-directory: '**CAROLINE_PLUGINS_DIRECTORY**/geocoding_v0.9'
 
-  depsi-settings:
+  depsi_matlab-settings:
     general:
       max-mem-buffer: 50e7
       visible-plots: 'n'

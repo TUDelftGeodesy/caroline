@@ -13,9 +13,10 @@ general:
     do-merge_to_stack_matlab: 0
     do-reduce_slc_python: 0
     do-merge_to_stack_python: 0
-    do-stm_generation: 0
-    do-depsi: 0
+    do-generate_partitioned_stm: 0
+    do-depsi_matlab: 0
     do-depsi_post: 0
+    do-set_portal_upload_flag: 0
 
   shape-file:
     aoi-name: "**AoI_name**"

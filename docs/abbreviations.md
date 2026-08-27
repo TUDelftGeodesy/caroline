@@ -22,8 +22,9 @@ and `NNN` the three-letter area of interest abbreviation.
 - `RM`: reduce-slc-matlab
 - `RP`: reduce-slc-python
 - `SF`: SNAP-fix permissions
-- `SP`: SNAP Preparation
 - `SN`: SNAP
+- `SP`: SNAP Preparation
+
 
 ### AAA Job Definition module
 
@@ -37,8 +38,8 @@ None yet, managed by [contextual-data-definitions.yaml](../config/contextual-dat
 
 #### PSI-batch submodule
 
-- `DE`: DePSI
-- `SG`: STM_generation
+- `DM`: DePSI_matlab
+- `GS`: generate_partitioned_STM
 
 ### Autonomous Analysis module
 
@@ -52,10 +53,11 @@ None yet
 
 #### PSI-batch submodule
 
+- `CM`: Create mrm
+- `CT`: Create tarball
 - `DP`: DePSI-post
-- `MR`: Read mrm
-- `PU`: Portal upload preparation (the actual upload is managed by [manage-portal-upload.sh](../scripts/manage-portal-upload.sh))
-- `TB`: Tarball creation
+- `PU`: Set portal upload flag (the actual upload is managed by [manage-portal-upload.sh](../scripts/manage-portal-upload.sh))
+
 
 ### Push module
 

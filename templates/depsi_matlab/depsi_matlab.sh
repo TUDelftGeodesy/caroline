@@ -34,8 +34,8 @@
 
 module --ignore-cache load **matlab_module**
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started depsi.sh (AoI **depsi:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started depsi_matlab.sh (AoI **depsi_matlab:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
 srun matlab -nodisplay -nosplash -nodesktop -r "run('**depsi_base_directory**/depsi.m');exit;" || exit 5
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished depsi.sh (AoI **depsi:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished depsi_matlab.sh (AoI **depsi_matlab:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

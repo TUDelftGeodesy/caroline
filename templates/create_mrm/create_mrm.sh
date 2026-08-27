@@ -34,8 +34,8 @@
 
 module --ignore-cache load **matlab_module**
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started read_mrm.sh (AoI **depsi:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started create_mrm.sh (AoI **depsi_matlab:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
-srun matlab -nodisplay -nosplash -nodesktop -r "run('**depsi_base_directory**/read_mrm.m');exit;" || exit 5
+srun matlab -nodisplay -nosplash -nodesktop -r "run('**depsi_base_directory**/create_mrm.m');exit;" || exit 5
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished read_mrm.sh (AoI **depsi:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished create_mrm.sh (AoI **depsi_matlab:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

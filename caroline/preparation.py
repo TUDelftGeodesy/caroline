@@ -938,8 +938,8 @@ S_IN_LEA        leader.xml"""
         )
 
 
-def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and files for DePSI.
+def prepare_depsi_matlab(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and files for DePSI matlab.
 
     Parameters
     ----------
@@ -960,14 +960,14 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         "general:tracks:track",
         "general:tracks:asc_dsc",
         "general:input-data:sensor",
-        "depsi:general:depsi-code-directory",
-        "depsi:general:rdnaptrans-directory",
-        "depsi:general:geocoding-directory",
+        "depsi_matlab:general:depsi_matlab-code-directory",
+        "depsi_matlab:general:rdnaptrans-directory",
+        "depsi_matlab:general:geocoding-directory",
         "general:timeframe:start",
         "general:timeframe:end",
-        "depsi:depsi-settings:general:ref-cn",
-        "depsi:depsi-settings:psc:do-water-mask",
-        "depsi:general:AoI-name",
+        "depsi_matlab:depsi_matlab-settings:general:ref-cn",
+        "depsi_matlab:depsi_matlab-settings:psc:do-water-mask",
+        "depsi_matlab:general:AoI-name",
         "general:workflow:filters:coregistration-mode",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
@@ -986,7 +986,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 continue
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
         )
 
         # determine if we came from reduce_slc_matlab or merge_to_stack_matlab
@@ -1009,9 +1009,11 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         os.makedirs(f"{depsi_directory}/../boxes", exist_ok=True)
 
         # link the necessary boxes
-        os.system(f"cp -Rp {out_parameters['depsi:general:depsi-code-directory']} {depsi_directory}/../boxes")
-        os.system(f"cp -Rp {out_parameters['depsi:general:rdnaptrans-directory']} {depsi_directory}/../boxes")
-        os.system(f"cp -Rp {out_parameters['depsi:general:geocoding-directory']} {depsi_directory}/../boxes")
+        os.system(
+            f"cp -Rp {out_parameters['depsi_matlab:general:depsi_matlab-code-directory']} {depsi_directory}/../boxes"
+        )
+        os.system(f"cp -Rp {out_parameters['depsi_matlab:general:rdnaptrans-directory']} {depsi_directory}/../boxes")
+        os.system(f"cp -Rp {out_parameters['depsi_matlab:general:geocoding-directory']} {depsi_directory}/../boxes")
 
         # detect the mother and dem_radar from the mother
         mother = glob.glob(f"{crop_directory}/*cropped_stack/2*/master.res")[0]
@@ -1048,10 +1050,10 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             act_end_date = max(valid_dates)
 
         # generate the water mask link
-        if out_parameters["depsi:depsi-settings:psc:do-water-mask"] == "yes":
+        if out_parameters["depsi_matlab:depsi_matlab-settings:psc:do-water-mask"] == "yes":
             filename_water_mask = (
                 f"{CONFIG_PARAMETERS['CAROLINE_WATER_MASK_DIRECTORY']}/water_mask_"
-                f"{out_parameters['depsi:general:AoI-name']}_"
+                f"{out_parameters['depsi_matlab:general:AoI-name']}_"
                 f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}.raw"
             )
         else:
@@ -1060,20 +1062,23 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         # #62 -> figure out the reference point
         key = f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
 
-        if not isinstance(out_parameters["depsi:depsi-settings:general:ref-cn"], dict):
+        if not isinstance(out_parameters["depsi_matlab:depsi_matlab-settings:general:ref-cn"], dict):
             print(
-                f"WARNING: Invalid value for ref-cn ({out_parameters['depsi:depsi-settings:general:ref-cn']}) "
+                "WARNING: Invalid value for ref-cn "
+                f"({out_parameters['depsi_matlab:depsi_matlab-settings:general:ref-cn']}) "
                 "encountered. Using mode 'constant'..."
             )
             mode = "constant"
 
-        if key not in out_parameters["depsi:depsi-settings:general:ref-cn"]:
-            if "all" not in out_parameters["depsi:depsi-settings:general:ref-cn"]:
-                raise ValueError(f"Cannot find {key} in ref-cn {out_parameters['depsi:depsi-settings:general:ref-cn']}")
+        if key not in out_parameters["depsi_matlab:depsi_matlab-settings:general:ref-cn"]:
+            if "all" not in out_parameters["depsi_matlab:depsi_matlab-settings:general:ref-cn"]:
+                raise ValueError(
+                    f"Cannot find {key} in ref-cn {out_parameters['depsi_matlab:depsi_matlab-settings:general:ref-cn']}"
+                )
             else:
-                mode = str(out_parameters["depsi:depsi-settings:general:ref-cn"]["all"])
+                mode = str(out_parameters["depsi_matlab:depsi_matlab-settings:general:ref-cn"]["all"])
         else:
-            mode = str(out_parameters["depsi:depsi-settings:general:ref-cn"][key])
+            mode = str(out_parameters["depsi_matlab:depsi_matlab-settings:general:ref-cn"][key])
 
         if mode in ["independent", "[]"]:
             ref_cn = "[]"
@@ -1092,7 +1097,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 for i in range(len(rev_order_runs)):  # loop in case one crashed. If all crashed,
                     # ref_cn is defined before the if/else, and we run on mode 'independent'
                     ref_file = (
-                        f"{rev_order_runs[i]}/psi/{out_parameters['depsi:general:AoI-name']}_"
+                        f"{rev_order_runs[i]}/psi/{out_parameters['depsi_matlab:general:AoI-name']}_"
                         f"{out_parameters['general:input-data:sensor'].lower()}_"
                         f"{asc_dsc[track]}_t{tracks[track]:0>3d}_ref_sel1.raw"
                     )  # this file saves the selected reference
@@ -1110,24 +1115,26 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         # write depsi.m
         write_run_file(
             save_path=f"{depsi_directory}/depsi.m",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/depsi.m",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi_matlab/depsi.m",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             other_parameters={
-                "geocoding_version": out_parameters["depsi:general:geocoding-directory"].split("/")[-1].rstrip(),
-                "depsi_version": out_parameters["depsi:general:depsi-code-directory"].split("/")[-1].rstrip(),
+                "geocoding_version": out_parameters["depsi_matlab:general:geocoding-directory"].split("/")[-1].rstrip(),
+                "depsi_version": out_parameters["depsi_matlab:general:depsi_matlab-code-directory"]
+                .split("/")[-1]
+                .rstrip(),
             },
         )
 
         # write depsi.sh
         write_run_file(
-            save_path=f"{depsi_directory}/depsi.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/depsi.sh",
+            save_path=f"{depsi_directory}/depsi_matlab.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi_matlab/depsi_matlab.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["depsi:general:AoI-name"],
+            parameter_file_parameters=["depsi_matlab:general:AoI-name"],
             config_parameters=["caroline_work_directory", "matlab_module"],
             other_parameters={"depsi_base_directory": depsi_directory, "track": tracks[track]},
         )
@@ -1136,77 +1143,77 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         #
         write_run_file(
             save_path=f"{depsi_directory}/param_file_depsi.txt",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/param_file.txt",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi_matlab/param_file.txt",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "depsi:general:AoI-name",
-                "depsi:depsi-settings:general:max-mem-buffer",
-                "depsi:depsi-settings:general:visible-plots",
-                "depsi:depsi-settings:general:detail-plots",
-                "depsi:depsi-settings:general:processing-groups",
-                "depsi:depsi-settings:general:run-mode",
+                "depsi_matlab:general:AoI-name",
+                "depsi_matlab:depsi_matlab-settings:general:max-mem-buffer",
+                "depsi_matlab:depsi_matlab-settings:general:visible-plots",
+                "depsi_matlab:depsi_matlab-settings:general:detail-plots",
+                "depsi_matlab:depsi_matlab-settings:general:processing-groups",
+                "depsi_matlab:depsi_matlab-settings:general:run-mode",
                 ["general:input-data:sensor", "lowercase"],
-                "depsi:depsi-settings:general:exclude-date",
-                "depsi:depsi-settings:general:az-spacing",
-                "depsi:depsi-settings:general:r-spacing",
-                "depsi:depsi-settings:general:slc-selection-input",
-                "depsi:depsi-settings:general:ifg-selection-input",
-                "depsi:depsi-settings:general:Ncv",
-                "depsi:depsi-settings:general:ps-method",
-                "depsi:depsi-settings:general:psc-model",
-                "depsi:depsi-settings:general:ps-model",
-                "depsi:depsi-settings:general:final-model",
-                "depsi:depsi-settings:general:breakpoint",
-                "depsi:depsi-settings:general:breakpoint2",
-                "depsi:depsi-settings:general:ens-coh-threshold",
-                "depsi:depsi-settings:general:varfac-threshold",
-                "depsi:depsi-settings:general:detrend-method",
-                "depsi:depsi-settings:general:output-format",
-                "depsi:depsi-settings:general:do-apriori-sidelobe-mask",
-                "depsi:depsi-settings:general:do-aposteriori-sidelobe-mask",
-                "depsi:depsi-settings:geocoding:ref-height",
-                "depsi:depsi-settings:psc:amplitude-calibration",
-                "depsi:depsi-settings:psc:psc-selection-method",
-                "depsi:depsi-settings:psc:psc-selection-gridsize",
-                "depsi:depsi-settings:psc:psc-threshold",
-                "depsi:depsi-settings:psc:max-arc-length",
-                "depsi:depsi-settings:psc:network-method",
-                "depsi:depsi-settings:psc:Ncon",
-                "depsi:depsi-settings:psc:Nparts",
-                "depsi:depsi-settings:psc:Npsc-selections",
-                "depsi:depsi-settings:psc:gamma-threshold",
-                "depsi:depsi-settings:psc:psc-distribution",
-                "depsi:depsi-settings:psc:weighted-unwrap",
-                "depsi:depsi-settings:psc:livetime-threshold",
-                "depsi:depsi-settings:psc:peak-tolerance",
-                "depsi:depsi-settings:psp:psp-selection-method",
-                "depsi:depsi-settings:psp:psp-threshold1",
-                "depsi:depsi-settings:psp:psp-threshold2",
-                "depsi:depsi-settings:psp:ps-eval-method",
-                "depsi:depsi-settings:psp:Namp-disp-bins",
-                "depsi:depsi-settings:psp:Ndens-iterations",
-                "depsi:depsi-settings:psp:densification-flag",
-                "depsi:depsi-settings:psp:ps-area-of-interest",
-                "depsi:depsi-settings:psp:dens-method",
-                "depsi:depsi-settings:psp:dens-check",
-                "depsi:depsi-settings:psp:Nest",
-                "depsi:depsi-settings:stochastic-model:defo-range",
-                "depsi:depsi-settings:stochastic-model:weighting",
-                "depsi:depsi-settings:stochastic-model:ts-atmo-filter",
-                "depsi:depsi-settings:stochastic-model:ts-atmo-filter-length",
-                "depsi:depsi-settings:stochastic-model:ts-noise-filter",
-                "depsi:depsi-settings:stochastic-model:ts-noise-filter-length",
-                "depsi:depsi-settings:bowl:defo-method",
-                "depsi:depsi-settings:bowl:xc0",
-                "depsi:depsi-settings:bowl:yc0",
-                "depsi:depsi-settings:bowl:zc0",
-                "depsi:depsi-settings:bowl:r0",
-                "depsi:depsi-settings:bowl:r10",
-                "depsi:depsi-settings:bowl:epoch",
-                ["depsi:depsi-settings:general:stc-min-max", "strip", "[] "],
-                ["depsi:depsi-settings:stochastic-model:std-param", "strip", "[] "],
+                "depsi_matlab:depsi_matlab-settings:general:exclude-date",
+                "depsi_matlab:depsi_matlab-settings:general:az-spacing",
+                "depsi_matlab:depsi_matlab-settings:general:r-spacing",
+                "depsi_matlab:depsi_matlab-settings:general:slc-selection-input",
+                "depsi_matlab:depsi_matlab-settings:general:ifg-selection-input",
+                "depsi_matlab:depsi_matlab-settings:general:Ncv",
+                "depsi_matlab:depsi_matlab-settings:general:ps-method",
+                "depsi_matlab:depsi_matlab-settings:general:psc-model",
+                "depsi_matlab:depsi_matlab-settings:general:ps-model",
+                "depsi_matlab:depsi_matlab-settings:general:final-model",
+                "depsi_matlab:depsi_matlab-settings:general:breakpoint",
+                "depsi_matlab:depsi_matlab-settings:general:breakpoint2",
+                "depsi_matlab:depsi_matlab-settings:general:ens-coh-threshold",
+                "depsi_matlab:depsi_matlab-settings:general:varfac-threshold",
+                "depsi_matlab:depsi_matlab-settings:general:detrend-method",
+                "depsi_matlab:depsi_matlab-settings:general:output-format",
+                "depsi_matlab:depsi_matlab-settings:general:do-apriori-sidelobe-mask",
+                "depsi_matlab:depsi_matlab-settings:general:do-aposteriori-sidelobe-mask",
+                "depsi_matlab:depsi_matlab-settings:geocoding:ref-height",
+                "depsi_matlab:depsi_matlab-settings:psc:amplitude-calibration",
+                "depsi_matlab:depsi_matlab-settings:psc:psc-selection-method",
+                "depsi_matlab:depsi_matlab-settings:psc:psc-selection-gridsize",
+                "depsi_matlab:depsi_matlab-settings:psc:psc-threshold",
+                "depsi_matlab:depsi_matlab-settings:psc:max-arc-length",
+                "depsi_matlab:depsi_matlab-settings:psc:network-method",
+                "depsi_matlab:depsi_matlab-settings:psc:Ncon",
+                "depsi_matlab:depsi_matlab-settings:psc:Nparts",
+                "depsi_matlab:depsi_matlab-settings:psc:Npsc-selections",
+                "depsi_matlab:depsi_matlab-settings:psc:gamma-threshold",
+                "depsi_matlab:depsi_matlab-settings:psc:psc-distribution",
+                "depsi_matlab:depsi_matlab-settings:psc:weighted-unwrap",
+                "depsi_matlab:depsi_matlab-settings:psc:livetime-threshold",
+                "depsi_matlab:depsi_matlab-settings:psc:peak-tolerance",
+                "depsi_matlab:depsi_matlab-settings:psp:psp-selection-method",
+                "depsi_matlab:depsi_matlab-settings:psp:psp-threshold1",
+                "depsi_matlab:depsi_matlab-settings:psp:psp-threshold2",
+                "depsi_matlab:depsi_matlab-settings:psp:ps-eval-method",
+                "depsi_matlab:depsi_matlab-settings:psp:Namp-disp-bins",
+                "depsi_matlab:depsi_matlab-settings:psp:Ndens-iterations",
+                "depsi_matlab:depsi_matlab-settings:psp:densification-flag",
+                "depsi_matlab:depsi_matlab-settings:psp:ps-area-of-interest",
+                "depsi_matlab:depsi_matlab-settings:psp:dens-method",
+                "depsi_matlab:depsi_matlab-settings:psp:dens-check",
+                "depsi_matlab:depsi_matlab-settings:psp:Nest",
+                "depsi_matlab:depsi_matlab-settings:stochastic-model:defo-range",
+                "depsi_matlab:depsi_matlab-settings:stochastic-model:weighting",
+                "depsi_matlab:depsi_matlab-settings:stochastic-model:ts-atmo-filter",
+                "depsi_matlab:depsi_matlab-settings:stochastic-model:ts-atmo-filter-length",
+                "depsi_matlab:depsi_matlab-settings:stochastic-model:ts-noise-filter",
+                "depsi_matlab:depsi_matlab-settings:stochastic-model:ts-noise-filter-length",
+                "depsi_matlab:depsi_matlab-settings:bowl:defo-method",
+                "depsi_matlab:depsi_matlab-settings:bowl:xc0",
+                "depsi_matlab:depsi_matlab-settings:bowl:yc0",
+                "depsi_matlab:depsi_matlab-settings:bowl:zc0",
+                "depsi_matlab:depsi_matlab-settings:bowl:r0",
+                "depsi_matlab:depsi_matlab-settings:bowl:r10",
+                "depsi_matlab:depsi_matlab-settings:bowl:epoch",
+                ["depsi_matlab:depsi_matlab-settings:general:stc-min-max", "strip", "[] "],
+                ["depsi_matlab:depsi_matlab-settings:stochastic-model:std-param", "strip", "[] "],
             ],
             other_parameters={
                 "crop_base_directory": crop_directory,
@@ -1222,7 +1229,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         )
 
         write_directory_contents(
-            depsi_directory, filename=f'dir_contents{JOB_DEFINITIONS["depsi"]["directory-contents-file-appendix"]}.txt'
+            depsi_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["depsi_matlab"]["directory-contents-file-appendix"]}.txt',
         )
 
 
@@ -1249,8 +1257,8 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
         "depsi_post:general:depsi_post-code-directory",
         "depsi_post:depsi_post-settings:defo-clim",
         "depsi_post:depsi_post-settings:height-clim",
-        "depsi:general:rdnaptrans-directory",
-        "depsi:general:geocoding-directory",
+        "depsi_matlab:general:rdnaptrans-directory",
+        "depsi_matlab:general:geocoding-directory",
         "general:workflow:filters:depsi_post-output",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
@@ -1304,7 +1312,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
                 "depsi_post:depsi_post-settings:drdx",
                 "depsi_post:depsi_post-settings:drdy",
                 "general:input-data:sensor",
-                "depsi:general:AoI-name",
+                "depsi_matlab:general:AoI-name",
                 "depsi_post:depsi_post-settings:proj",
                 "depsi_post:depsi_post-settings:ref-dheight",
                 "depsi_post:depsi_post-settings:posteriori-scale-factor",
@@ -1337,11 +1345,13 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
                 "depsi_post:depsi_post-settings:stc-clim",
             ],
             other_parameters={
-                "geocoding_version": out_parameters["depsi:general:geocoding-directory"].split("/")[-1].rstrip(),
+                "geocoding_version": out_parameters["depsi_matlab:general:geocoding-directory"].split("/")[-1].rstrip(),
                 "depsi_post_version": out_parameters["depsi_post:general:depsi_post-code-directory"]
                 .split("/")[-1]
                 .rstrip(),
-                "rdnaptrans_version": out_parameters["depsi:general:rdnaptrans-directory"].split("/")[-1].rstrip(),
+                "rdnaptrans_version": out_parameters["depsi_matlab:general:rdnaptrans-directory"]
+                .split("/")[-1]
+                .rstrip(),
                 "do_csv": do_csv,
                 "asc_dsc": asc_dsc[track],
                 "track": tracks[track],
@@ -1360,7 +1370,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["depsi:general:AoI-name"],
+            parameter_file_parameters=["depsi_matlab:general:AoI-name"],
             config_parameters=["caroline_work_directory", "matlab_module"],
             other_parameters={"track": tracks[track], "depsi_base_directory": depsi_directory},
         )
@@ -1665,7 +1675,7 @@ from:noreply@spider.surfsara.nl
 {body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {out_parameters['general:email:recipients']}""")
 
 
-def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_create_mrm(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and files for mrm creation, part of DePSI-post.
 
     Parameters
@@ -1712,7 +1722,7 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             )
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
         )
 
         # we need to run cpxfiddle first. This requires two parameters: n_lines, and the project ID
@@ -1733,13 +1743,13 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         )
 
         write_run_file(
-            save_path=f"{depsi_directory}/read_mrm.m",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/mrm/read_mrm.m",
+            save_path=f"{depsi_directory}/create_mrm.m",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/create_mrm/create_mrm.m",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "depsi:general:AoI-name",
+                "depsi_matlab:general:AoI-name",
                 ["general:input-data:sensor", "lowercase"],
             ],
             other_parameters={
@@ -1749,12 +1759,12 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         )
 
         write_run_file(
-            save_path=f"{depsi_directory}/read_mrm.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/mrm/read_mrm.sh",
+            save_path=f"{depsi_directory}/create_mrm.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/create_mrm/create_mrm.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["depsi:general:AoI-name"],
+            parameter_file_parameters=["depsi_matlab:general:AoI-name"],
             config_parameters=["caroline_work_directory", "matlab_module"],
             other_parameters={
                 "track": tracks[track],
@@ -1763,11 +1773,12 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
         )
 
         write_directory_contents(
-            depsi_directory, filename=f'dir_contents{JOB_DEFINITIONS["mrm"]["directory-contents-file-appendix"]}.txt'
+            depsi_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["create_mrm"]["directory-contents-file-appendix"]}.txt',
         )
 
 
-def prepare_portal_upload(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_set_portal_upload_flag(parameter_file: str, do_track: int | list | None = None) -> None:
     """Create the indication for a portal upload.
 
     Parameters
@@ -1796,7 +1807,7 @@ def prepare_portal_upload(parameter_file: str, do_track: int | list | None = Non
                 continue
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
         )
 
         # The parameter file already contains a datestamp so we don't need to redo that
@@ -2181,7 +2192,7 @@ def prepare_snap(parameter_file: str, do_track: int | list | None = None) -> Non
         )
 
 
-def prepare_stm_generation(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for STM generation.
 
     Parameters
@@ -2193,8 +2204,8 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
         the parameter file
     """
     search_parameters = [
-        "stm_generation:general:AoI-name",
-        "stm_generation:general:directory",
+        "generate_partitioned_stm:general:AoI-name",
+        "generate_partitioned_stm:general:directory",
         "general:tracks:track",
         "general:tracks:asc_dsc",
         "general:input-data:sensor",
@@ -2214,7 +2225,9 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
                 continue
 
         stm_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["stm_generation"], track=tracks[track]
+            parameter_file=parameter_file,
+            job_description=JOB_DEFINITIONS["generate_partitioned_stm"],
+            track=tracks[track],
         )
 
         # determine if we came from reduce_slc_python or merge_to_stack_python
@@ -2239,32 +2252,35 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
         reduce_slc_python_output_name = reduce_slc_python_directory.split("/")[-1]
 
         write_run_file(
-            save_path=f"{stm_directory}/generate-stm.py",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/stm-generation/generate-stm.py",
+            save_path=f"{stm_directory}/generate-partitioned-stm.py",
+            template_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/"
+                "generate-partitioned-stm/generate-partitioned-stm.py"
+            ),
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "stm_generation:stm_generation-settings:ps-selection:mode",
-                "stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:start-date",
-                "stm_generation:stm_generation-settings:ps-selection:initialization-mode-settings:initialization-length",
-                "stm_generation:stm_generation-settings:incremental-statistics:increment-mode",
-                "stm_generation:stm_generation-settings:incremental-statistics:recalibration-jump-size",
-                "stm_generation:stm_generation-settings:ps-selection:method",
-                "stm_generation:stm_generation-settings:ps-selection:threshold",
-                "stm_generation:stm_generation-settings:outlier-detection:do-outlier-detection",
-                "stm_generation:stm_generation-settings:outlier-detection:window-size",
-                "stm_generation:stm_generation-settings:outlier-detection:db-mode",
-                "stm_generation:stm_generation-settings:outlier-detection:n-sigma",
-                "stm_generation:stm_generation-settings:partitioning:do-partitioning",
-                "stm_generation:stm_generation-settings:partitioning:search-method",
-                "stm_generation:stm_generation-settings:partitioning:cost-function",
-                "stm_generation:stm_generation-settings:partitioning:db-mode",
-                "stm_generation:stm_generation-settings:partitioning:min-partition-length",
-                "stm_generation:stm_generation-settings:single-differences:mother",
-                "stm_generation:stm_generation-settings:extra-projection",
-                "stm_generation:stm_generation-settings:partitioning:undifferenced-output-layers",
-                "stm_generation:stm_generation-settings:partitioning:single-difference-output-layers",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:mode",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:start-date",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:initsettings:init-length",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:increment-mode",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:method",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:threshold",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:do-outlier-detection",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:window-size",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:db-mode",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:n-sigma",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:do-partitioning",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:search-method",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:cost-function",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:db-mode",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:min-partition-length",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:single-differences:mother",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:extra-projection",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:undifferenced-output-lyrs",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:single-difference-output-lyrs",
             ],
             other_parameters={
                 "reduce_slc_python_directory": reduce_slc_python_directory,
@@ -2276,13 +2292,13 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
 
         # generate stm-generation.sh
         write_run_file(
-            save_path=f"{stm_directory}/generate-stm.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/stm-generation/generate-stm.sh",
+            save_path=f"{stm_directory}/generate-partitioned-stm.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/generate-partitioned-stm/generate-partitioned-stm.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "stm_generation:general:AoI-name",
+                "generate_partitioned_stm:general:AoI-name",
                 "reduce_slc_python:general:depsi_group-code-directory",
             ],
             config_parameters=[
@@ -2296,11 +2312,11 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
 
         write_directory_contents(
             stm_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["stm_generation"]["directory-contents-file-appendix"]}.txt',
+            filename=f'dir_contents{JOB_DEFINITIONS["generate_partitioned_stm"]["directory-contents-file-appendix"]}.txt',
         )
 
 
-def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_create_tarball(parameter_file: str, do_track: int | list | None = None) -> None:
     """Create the tarball after DePSI-post.
 
     Parameters
@@ -2325,7 +2341,7 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
                 continue
 
         depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
         )
 
         project_id = depsi_directory.split("/")[-2].split("-")[0]

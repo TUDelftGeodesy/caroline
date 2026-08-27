@@ -1,0 +1,121 @@
+Input_file template for ps_analysis.m
+(See the function ps_readinput_parameters.m for more information)
+
+% General parameters
+% ----------------------------------------------------------------------
+
+max_mem_buffer = **depsi_matlab:depsi_matlab-settings:general:max-mem-buffer**
+visible_plots = '**depsi_matlab:depsi_matlab-settings:general:visible-plots**'
+detail_plots = '**depsi_matlab:depsi_matlab-settings:general:detail-plots**'
+processing_groups = **depsi_matlab:depsi_matlab-settings:general:processing-groups**
+run_mode = '**depsi_matlab:depsi_matlab-settings:general:run-mode**'
+
+
+% Project parameters
+% ----------------------------------------------------------------------
+
+project_id = '**depsi_matlab:general:AoI-name**_**general:input-data:sensor**_**asc_dsc**_t**track**'
+input_file = []
+processDir = '**crop_base_directory**/cropped_stack'
+startDate = '**start_date**'
+stopDate = '**stop_date**'
+excludeDate = '**depsi_matlab:depsi_matlab-settings:general:exclude-date**'
+ifgsVersion = '_srd'
+altimg = ''
+master = '**master_date**'
+swath_burst = []
+sensor = '**general:input-data:sensor**'
+orbit = '**asc_dsc_fmt**'
+crop = []
+processor = 'doris_flinsar'
+project = '**depsi_matlab:general:AoI-name**'
+
+az_spacing = **depsi_matlab:depsi_matlab-settings:general:az-spacing**
+r_spacing = **depsi_matlab:depsi_matlab-settings:general:r-spacing**
+slc_selection_input = **depsi_matlab:depsi_matlab-settings:general:slc-selection-input**
+ifg_selection_input = **depsi_matlab:depsi_matlab-settings:general:ifg-selection-input**
+ref_cn = **ref_cn**
+Ncv = **depsi_matlab:depsi_matlab-settings:general:Ncv**
+ps_method = '**depsi_matlab:depsi_matlab-settings:general:ps-method**'
+psc_model = **depsi_matlab:depsi_matlab-settings:general:psc-model**
+ps_model = **depsi_matlab:depsi_matlab-settings:general:ps-model**
+final_model = **depsi_matlab:depsi_matlab-settings:general:final-model**
+breakpoint = **depsi_matlab:depsi_matlab-settings:general:breakpoint**
+breakpoint2 = **depsi_matlab:depsi_matlab-settings:general:breakpoint2**
+ens_coh_threshold = **depsi_matlab:depsi_matlab-settings:general:ens-coh-threshold**
+varfac_threshold = **depsi_matlab:depsi_matlab-settings:general:varfac-threshold**
+detrend_method = '**depsi_matlab:depsi_matlab-settings:general:detrend-method**'
+output_format = **depsi_matlab:depsi_matlab-settings:general:output-format**
+stc_min_max = [**depsi_matlab:depsi_matlab-settings:general:stc-min-max**]
+do_apriori_sidelobe_mask = '**depsi_matlab:depsi_matlab-settings:general:do-apriori-sidelobe-mask**'
+do_aposteriori_sidelobe_mask = '**depsi_matlab:depsi_matlab-settings:general:do-aposteriori-sidelobe-mask**'
+
+
+% Geocoding parameters
+%----------------------------------------------------------------------
+
+master_res = 'slave.res'
+ref_height = **depsi_matlab:depsi_matlab-settings:geocoding:ref-height**
+demFile = 'dem_radar.raw'
+
+% Psc parameters
+%----------------------------------------------------------------------
+
+amplitude_calibration = '**depsi_matlab:depsi_matlab-settings:psc:amplitude-calibration**'
+psc_selection_method = '**depsi_matlab:depsi_matlab-settings:psc:psc-selection-method**'
+psc_selection_gridsize = **depsi_matlab:depsi_matlab-settings:psc:psc-selection-gridsize**
+psc_threshold = **depsi_matlab:depsi_matlab-settings:psc:psc-threshold**
+max_arc_length = **depsi_matlab:depsi_matlab-settings:psc:max-arc-length**
+network_method = '**depsi_matlab:depsi_matlab-settings:psc:network-method**'
+Ncon = **depsi_matlab:depsi_matlab-settings:psc:Ncon**
+Nparts = **depsi_matlab:depsi_matlab-settings:psc:Nparts**
+Npsc_selections = **depsi_matlab:depsi_matlab-settings:psc:Npsc-selections**
+filename_water_mask = **filename_water_mask**
+gamma_threshold = **depsi_matlab:depsi_matlab-settings:psc:gamma-threshold**
+psc_distribution = '**depsi_matlab:depsi_matlab-settings:psc:psc-distribution**'
+weighted_unwrap = '**depsi_matlab:depsi_matlab-settings:psc:weighted-unwrap**'
+
+% threshold is percentage of slc's that has an amplitude peak
+livetime_threshold = **depsi_matlab:depsi_matlab-settings:psc:livetime-threshold**;
+% include local near maxima 
+peak_tolerance = **depsi_matlab:depsi_matlab-settings:psc:peak-tolerance**;
+
+
+% Ps parameters
+% ----------------------------------------------------------------------
+
+psp_selection_method = '**depsi_matlab:depsi_matlab-settings:psp:psp-selection-method**'
+psp_threshold1 = **depsi_matlab:depsi_matlab-settings:psp:psp-threshold1**
+psp_threshold2 = **depsi_matlab:depsi_matlab-settings:psp:psp-threshold2**
+ps_eval_method = '**depsi_matlab:depsi_matlab-settings:psp:ps-eval-method**'
+Namp_disp_bins = **depsi_matlab:depsi_matlab-settings:psp:Namp-disp-bins**
+Ndens_iterations = **depsi_matlab:depsi_matlab-settings:psp:Ndens-iterations**
+densification_flag = '**depsi_matlab:depsi_matlab-settings:psp:densification-flag**'
+ps_area_of_interest = **depsi_matlab:depsi_matlab-settings:psp:ps-area-of-interest**
+dens_method = '**depsi_matlab:depsi_matlab-settings:psp:dens-method**'
+dens_check = '**depsi_matlab:depsi_matlab-settings:psp:dens-check**'
+Nest = **depsi_matlab:depsi_matlab-settings:psp:Nest**;
+
+
+% Stochastic model parameters
+% ----------------------------------------------------------------------
+
+std_param = [**depsi_matlab:depsi_matlab-settings:stochastic-model:std-param**];
+defo_range = **depsi_matlab:depsi_matlab-settings:stochastic-model:defo-range**
+weighting = '**depsi_matlab:depsi_matlab-settings:stochastic-model:weighting**'
+ts_atmo_filter = '**depsi_matlab:depsi_matlab-settings:stochastic-model:ts-atmo-filter**'
+ts_atmo_filter_length = **depsi_matlab:depsi_matlab-settings:stochastic-model:ts-atmo-filter-length**
+ts_noise_filter = '**depsi_matlab:depsi_matlab-settings:stochastic-model:ts-noise-filter**'
+ts_noise_filter_length = **depsi_matlab:depsi_matlab-settings:stochastic-model:ts-noise-filter-length**
+
+
+% Bowl parameters
+%-----------------------------------------------------------------------
+
+defo_method = **depsi_matlab:depsi_matlab-settings:bowl:defo-method**
+xc0 = **depsi_matlab:depsi_matlab-settings:bowl:xc0**
+yc0 = **depsi_matlab:depsi_matlab-settings:bowl:yc0**
+zc0 = **depsi_matlab:depsi_matlab-settings:bowl:zc0**
+r0 = **depsi_matlab:depsi_matlab-settings:bowl:r0**
+r10 = **depsi_matlab:depsi_matlab-settings:bowl:r10**
+epoch = **depsi_matlab:depsi_matlab-settings:bowl:epoch**

@@ -1,26 +1,26 @@
-# the default settings for the STM generation, running in the stm_generation job
+# the default settings for the partitioned STM generation, running in the generate_partitioned_stm job
 
-stm_generation:
+generate_partitioned_stm:
   general:
     AoI-name: "**AoI_name**"
     directory: '/project/caroline/Share/stms_zarr'
     partition: 'normal'
-    stm_generation-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'
+    depsi_group-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'
 
-  stm_generation-settings:
+  generate_partitioned_stm-settings:
 
     ps-selection:
       mode: 'full'  # initialization / full
-      initialization-mode-settings:  # ignored if mode is full
+      init-settings:  # settings for initialization mode, ignored if mode is full
         start-date: '2013-03-01'
-        initialization-length: 50
+        init-length: 50
 
       method: "nmad" # nmad / nad
       threshold: 0.35
 
     incremental-statistics:
       increment-mode: "incremental"  # incremental (every epoch) / recalibration (every jump-size epochs)
-      recalibration-jump-size: 10
+      recal-jump-size: 10
 
     single-differences:
       mother: "auto" # YYYY-MM-DD or auto, latter uses already existing mother
@@ -33,8 +33,8 @@ stm_generation:
       cost-function: 'l2'
       db-mode: 0
       min-partition-length: 27
-      undifferenced-output-layers: ['nmad', 'nad', 'quality_nmad_2sigma']
-      single-difference-output-layers: ['mad', 'amplitude_sigma', 'amplitude_mean', 'amplitude_median']
+      undifferenced-output-lyrs: ['nmad', 'nad', 'quality_nmad_2sigma']
+      single-difference-output-lyrs: ['mad', 'amplitude_sigma', 'amplitude_mean', 'amplitude_median']
 
     outlier-detection:
       do-outlier-detection: 1

@@ -1946,7 +1946,7 @@ def prepare_s1_download(parameter_file: str, do_track: int | list | None = None)
         exit(5)  # Make the code exit with a non-zero exit code so the next steps won't run
 
 
-def prepare_snap_permissions(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_snap_fix_permissions(parameter_file: str, do_track: int | list | None = None) -> None:
     """Change all the permissions for the SNAP output to 775.
 
     Parameters
@@ -1974,7 +1974,7 @@ def prepare_snap_permissions(parameter_file: str, do_track: int | list | None = 
                 continue
 
         snap_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
         )
 
         znaps = glob.glob(f"{snap_directory}/*-coreg.znap")
@@ -2103,7 +2103,7 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
         )
 
 
-def prepare_snap_run(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_snap(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for SNAP run.
 
     Parameters
@@ -2135,10 +2135,10 @@ def prepare_snap_run(parameter_file: str, do_track: int | list | None = None) ->
                 continue
 
         snap_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
         )
 
-        if "--constraint=rome" in JOB_DEFINITIONS["snap_run"]["sbatch-args"]:
+        if "--constraint=rome" in JOB_DEFINITIONS["snap"]["sbatch-args"]:
             rome_constrained = "1"
         else:
             rome_constrained = "0"
@@ -2169,7 +2169,7 @@ def prepare_snap_run(parameter_file: str, do_track: int | list | None = None) ->
 
         write_directory_contents(
             snap_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["snap_run"]["directory-contents-file-appendix"]}.txt',
+            filename=f'dir_contents{JOB_DEFINITIONS["snap"]["directory-contents-file-appendix"]}.txt',
         )
 
 
@@ -2358,7 +2358,7 @@ def prepare_znap_to_raw(parameter_file: str, do_track: int | list | None = None)
         )
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
         )
 
         os.makedirs(znap_to_raw_directory, exist_ok=True)
@@ -2439,7 +2439,7 @@ def prepare_znap_to_zarr(parameter_file: str, do_track: int | list | None = None
         )
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap_run"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
         )
 
         os.makedirs(znap_to_zarr_directory, exist_ok=True)

@@ -38,7 +38,7 @@ def jobarray_preparation_scheduler_hook(parameter_file: str, njobs_function: str
     return eval(f"{njobs_function}('{parameter_file}')")
 
 
-def njobs_snap_run(parameter_file: str) -> int:
+def njobs_snap(parameter_file: str) -> int:
     """Figure out how many jobs are necessary in the array to successfully run the job run_snap.
 
     Parameters

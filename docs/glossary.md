@@ -73,7 +73,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * output:
       * XML graphs to be processed by SNAP called `PROCESSID-<subjob-ID>-<motherEpoch>-<daughterEpoch>-graph.xml`, one for each mother/daughter combination to be processed (they will be processed by individual subjobs in `snap_run`, hence the subjob ID identifier).
       * A datestamped archive folder containing all previously present XML graphs in the processing folder
-- <b>snap_run</b>: this job uses SNAP to perform the basic interferometric Sentinel-1 procedure per image pair as a job array (one subjob per mother/daughter combination). This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
+- <b>snap</b>: this job uses SNAP to perform the basic interferometric Sentinel-1 procedure per image pair as a job array (one subjob per mother/daughter combination). This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
     * input:
       * XML graphs, one for each subjob 
     * output:
@@ -93,9 +93,9 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * product metadata
         * ground control points (empty)
         * pins (empty)
-- <b>snap_permissions</b>: this job sets the correct permissions on the `.znap` archives.
+- <b>snap_fix_permissions</b>: this job sets the correct permissions on the `.znap` archives.
     * input:
-      * The `.znap` archives outputted by `snap_run`
+      * The `.znap` archives outputted by `snap`
     * output:
       * `.znap`-archives, one per acquisition, with permissions `775`
 - <b>crop_to_raw</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `deinsar` or `doris` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.

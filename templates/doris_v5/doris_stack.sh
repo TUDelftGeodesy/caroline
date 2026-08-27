@@ -35,11 +35,11 @@ module load **python3_module** **gdal_module**
 source ~/.bashrc
 source **caroline_virtual_environment_directory**/bin/activate
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started doris_stack.sh (AoI **doris:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started doris_stack.sh (AoI **doris_v5:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
-source_path=**doris:general:code-directory**:**doris:general:code-directory**/doris/doris_stack/functions:**doris:general:code-directory**/doris/doris_stack/main_code
+source_path=**doris_v5:general:code-directory**:**doris_v5:general:code-directory**/doris/doris_stack/functions:**doris_v5:general:code-directory**/doris/doris_stack/main_code
 export PYTHONPATH=$source_path:$PYTHONPATH 
-export PATH=**doris:general:code-directory**:**doris:general:code-directory**/doris/doris_stack/functions:**doris:general:code-directory**/doris/doris_stack/main_code:/project/caroline/Software/snaphu:$PATH
-python3 **doris:general:code-directory**/doris/doris_stack/main_code/doris_main.py -p **coregistration_directory** || exit 5
+export PATH=**doris_v5:general:code-directory**:**doris_v5:general:code-directory**/doris/doris_stack/functions:**doris_v5:general:code-directory**/doris/doris_stack/main_code:/project/caroline/Software/snaphu:$PATH
+python3 **doris_v5:general:code-directory**/doris/doris_stack/main_code/doris_main.py -p **coregistration_directory** || exit 5
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished doris_stack.sh (AoI **doris:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished doris_stack.sh (AoI **doris_v5:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

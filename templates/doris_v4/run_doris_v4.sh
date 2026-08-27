@@ -33,11 +33,11 @@
 source /project/caroline/Software/bin/init.sh
 module load **python2_module** **gdal_module**
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started deinsar.sh (AoI **deinsar:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started run_doris_v4.sh (AoI **doris_v4:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
-export PYTHONPATH=**deinsar:general:deinsar-code-directory**
-export PATH=**deinsar:general:doris-v4-code-directory**:$PATH
+export PYTHONPATH=**doris_v4:general:deinsar-code-directory**
+export PATH=**doris_v4:general:doris_v4-code-directory**:$PATH
 export SAR_ODR_DIR=**orbit_directory**
-python **coregistration_base_directory**/run_deinsar.py || exit 5
+python **coregistration_base_directory**/run_doris_v4.py || exit 5
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished deinsar.sh (AoI **deinsar:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished run_doris_v4.sh (AoI **doris_v4:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

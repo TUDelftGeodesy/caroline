@@ -321,12 +321,12 @@ def prepare_reduce_slc_matlab(parameter_file: str, do_track: int | list | None =
 
         if out_parameters["general:input-data:sensor"] == "S1":
             coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v5"], track=tracks[track]
             )
 
         else:
             coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
             )
 
         os.makedirs(crop_directory, exist_ok=True)
@@ -392,7 +392,7 @@ def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None =
     Raises
     ------
     ValueError
-        If the mother image cannot be detected from doris_input.xml (S1) or deinsar.py (otherwise)
+        If the mother image cannot be detected from doris_input.xml (S1) or doris_v4.py (otherwise)
     """
     search_parameters = [
         "general:tracks:track",
@@ -417,12 +417,12 @@ def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None =
 
         if out_parameters["general:input-data:sensor"] == "S1":
             coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v5"], track=tracks[track]
             )
 
         else:
             coregistration_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
             )
 
         os.makedirs(reduce_slc_python_directory, exist_ok=True)
@@ -442,7 +442,7 @@ def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None =
                 raise ValueError(f"Failed to detect mother in {coregistration_directory}/doris_input.xml!")
 
         else:
-            f = open(f"{coregistration_directory}/run_deinsar.py")
+            f = open(f"{coregistration_directory}/run_doris_v4.py")
             data = f.read().split("\n")
             f.close()
             mother = None
@@ -452,7 +452,7 @@ def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None =
                     break
 
             if mother is None:
-                raise ValueError(f"Failed to detect mother in {coregistration_directory}/run_deinsar.py !")
+                raise ValueError(f"Failed to detect mother in {coregistration_directory}/run_doris_v4.py !")
 
         # generate crop-to-zarr.py
         reduce_slc_python_output_name = reduce_slc_python_directory.split("/")[-1]
@@ -505,8 +505,8 @@ def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None =
         )
 
 
-def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for DeInSAR.
+def prepare_doris_v4(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for doris_v4.
 
     Parameters
     ----------
@@ -527,7 +527,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         "general:tracks:track",
         "general:tracks:asc_dsc",
         "general:input-data:sensor",
-        "deinsar:input:data-directories",
+        "doris_v4:input:data-directories",
         "general:timeframe:start",
         "general:timeframe:end",
         "general:timeframe:mother",
@@ -536,7 +536,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         "general:dem:delta",
         "general:shape-file:directory",
         "general:shape-file:aoi-name",
-        "deinsar:deinsar-settings:finecoreg:finecoreg-mode",
+        "doris_v4:doris_v4-settings:finecoreg:finecoreg-mode",
         "default:input-data:polarisation",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
@@ -544,7 +544,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
     tracks = out_parameters["general:tracks:track"]
     asc_dsc = out_parameters["general:tracks:asc_dsc"]
 
-    datadirs = out_parameters["deinsar:input:data-directories"]
+    datadirs = out_parameters["doris_v4:input:data-directories"]
 
     start_date = eval(out_parameters["general:timeframe:start"].replace("-", ""))
     master_date = eval(out_parameters["general:timeframe:mother"].replace("-", ""))
@@ -572,33 +572,33 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             in datadirs.keys()
         ), (
             f"{out_parameters['general:input-data:sensor'].lower()}_"
-            f"{asc_dsc[track]}_t{tracks[track]:0>3d} is not in deinsar:input:data-directories!"
+            f"{asc_dsc[track]}_t{tracks[track]:0>3d} is not in doris_v4:input:data-directories!"
         )
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
         )
 
         # we need a process folder in the coregistration directory, so we can combine that command
         os.makedirs(f"{coregistration_directory}/process", exist_ok=True)
 
-        # generate deinsar.sh
+        # generate doris_v4.sh
         write_run_file(
-            save_path=f"{coregistration_directory}/run_deinsar.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/deinsar/run_deinsar.sh",
+            save_path=f"{coregistration_directory}/run_doris_v4.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/run_doris_v4.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "deinsar:general:deinsar-code-directory",
-                "deinsar:general:doris-v4-code-directory",
-                "deinsar:general:AoI-name",
+                "doris_v4:general:deinsar-code-directory",
+                "doris_v4:general:doris-v4-code-directory",
+                "doris_v4:general:AoI-name",
             ],
             config_parameters=["caroline_work_directory", "orbit_directory", "python2_module", "gdal_module"],
             other_parameters={"track": tracks[track], "coregistration_base_directory": coregistration_directory},
         )
 
-        # generate run_deinsar.py
+        # generate run_doris_v4.py
 
         # first search for the start, end, and master dates by parsing all data in the data directory,
         # which is different per sensor
@@ -635,39 +635,39 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         act_end_date = str(max([image for image in images if image <= end_date]))
         act_master_date = str(min([image for image in images if image >= master_date]))
 
-        # finally, write run_deinsar.py
+        # finally, write run_doris_v4.py
         write_run_file(
-            save_path=f"{coregistration_directory}/run_deinsar.py",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/deinsar/run_deinsar.py",
+            save_path=f"{coregistration_directory}/run_doris_v4.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/run_doris_v4.py",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                ["deinsar:input:data-directories", "dictionary"],
+                ["doris_v4:input:data-directories", "dictionary"],
                 "general:input-data:sensor",
                 "general:input-data:polarisation",
-                "deinsar:deinsar-settings:do-orbit",
-                "deinsar:deinsar-settings:do-crop",
-                "deinsar:deinsar-settings:do-tsx-deramp",
-                "deinsar:deinsar-settings:do-simamp",
-                "deinsar:deinsar-settings:do-mtiming",
-                "deinsar:deinsar-settings:do-ovs",
-                "deinsar:deinsar-settings:do-choose-master",
-                "deinsar:deinsar-settings:do-coarseorb",
-                "deinsar:deinsar-settings:do-coarsecorr",
-                "deinsar:deinsar-settings:finecoreg:do-finecoreg",
-                "deinsar:deinsar-settings:do-reltiming",
-                "deinsar:deinsar-settings:do-dembased",
-                "deinsar:deinsar-settings:do-coregpm",
-                "deinsar:deinsar-settings:do-comprefpha",
-                "deinsar:deinsar-settings:do-comprefdem",
-                "deinsar:deinsar-settings:do-resample",
-                "deinsar:deinsar-settings:do-tsx-reramp",
-                "deinsar:deinsar-settings:do-interferogram",
-                "deinsar:deinsar-settings:do-subtrrefpha",
-                "deinsar:deinsar-settings:do-subtrrefdem",
-                "deinsar:deinsar-settings:do-coherence",
-                "deinsar:deinsar-settings:do-geocoding",
+                "doris_v4:doris_v4-settings:do-orbit",
+                "doris_v4:doris_v4-settings:do-crop",
+                "doris_v4:doris_v4-settings:do-tsx-deramp",
+                "doris_v4:doris_v4-settings:do-simamp",
+                "doris_v4:doris_v4-settings:do-mtiming",
+                "doris_v4:doris_v4-settings:do-ovs",
+                "doris_v4:doris_v4-settings:do-choose-master",
+                "doris_v4:doris_v4-settings:do-coarseorb",
+                "doris_v4:doris_v4-settings:do-coarsecorr",
+                "doris_v4:doris_v4-settings:finecoreg:do-finecoreg",
+                "doris_v4:doris_v4-settings:do-reltiming",
+                "doris_v4:doris_v4-settings:do-dembased",
+                "doris_v4:doris_v4-settings:do-coregpm",
+                "doris_v4:doris_v4-settings:do-comprefpha",
+                "doris_v4:doris_v4-settings:do-comprefdem",
+                "doris_v4:doris_v4-settings:do-resample",
+                "doris_v4:doris_v4-settings:do-tsx-reramp",
+                "doris_v4:doris_v4-settings:do-interferogram",
+                "doris_v4:doris_v4-settings:do-subtrrefpha",
+                "doris_v4:doris_v4-settings:do-subtrrefdem",
+                "doris_v4:doris_v4-settings:do-coherence",
+                "doris_v4:doris_v4-settings:do-geocoding",
             ],
             other_parameters={"master": act_master_date, "startdate": act_start_date, "enddate": act_end_date},
         )
@@ -687,7 +687,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         ]:
             write_run_file(
                 save_path=f"{coregistration_directory}/process/{file}",
-                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/deinsar/input_files/{file}",
+                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/input_files/{file}",
                 asc_dsc=asc_dsc[track],
                 track=tracks[track],
                 parameter_file=parameter_file,
@@ -699,7 +699,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 write_run_file(
                     save_path=f"{coregistration_directory}/process/{file}{pol}",
                     template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                    f"templates/deinsar/input_files/{file}",
+                    f"templates/doris_v4/input_files/{file}",
                     asc_dsc=asc_dsc[track],
                     track=tracks[track],
                     parameter_file=parameter_file,
@@ -710,7 +710,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
         for file in ["input.comprefdem", "input.dembased", "input.simamp"]:
             write_run_file(
                 save_path=f"{coregistration_directory}/process/{file}",
-                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/deinsar/input_files/{file}",
+                template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v4/input_files/{file}",
                 asc_dsc=asc_dsc[track],
                 track=tracks[track],
                 parameter_file=parameter_file,
@@ -726,11 +726,11 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             )
 
         # finecoreg changes based on the fine coregistration mode
-        if out_parameters["deinsar:deinsar-settings:finecoreg:finecoreg-mode"] == "simple":
+        if out_parameters["doris_v4:doris_v4-settings:finecoreg:finecoreg-mode"] == "simple":
             write_run_file(
                 save_path=f"{coregistration_directory}/process/input.finecoreg_simple",
                 template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/deinsar/input_files/input.finecoreg",
+                f"templates/doris_v4/input_files/input.finecoreg",
                 asc_dsc=asc_dsc[track],
                 track=tracks[track],
                 parameter_file=parameter_file,
@@ -740,7 +740,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             write_run_file(
                 save_path=f"{coregistration_directory}/process/input.finecoreg",
                 template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/deinsar/input_files/input.finecoreg",
+                f"templates/doris_v4/input_files/input.finecoreg",
                 asc_dsc=asc_dsc[track],
                 track=tracks[track],
                 parameter_file=parameter_file,
@@ -754,7 +754,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 write_run_file(
                     save_path=f"{coregistration_directory}/process/input.porbit_ERS{satellite}",
                     template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                    f"templates/deinsar/input_files/input.porbit",
+                    f"templates/doris_v4/input_files/input.porbit",
                     asc_dsc=asc_dsc[track],
                     track=tracks[track],
                     parameter_file=parameter_file,
@@ -764,7 +764,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             write_run_file(
                 save_path=f"{coregistration_directory}/process/input.porbit",
                 template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/deinsar/input_files/input.porbit",
+                f"templates/doris_v4/input_files/input.porbit",
                 asc_dsc=asc_dsc[track],
                 track=tracks[track],
                 parameter_file=parameter_file,
@@ -831,7 +831,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
                 write_run_file(
                     save_path=f"{coregistration_directory}/process/input.crop{pol}",
                     template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                    f"templates/deinsar/input_files/input.crop",
+                    f"templates/doris_v4/input_files/input.crop",
                     asc_dsc=asc_dsc[track],
                     track=tracks[track],
                     parameter_file=parameter_file,
@@ -848,7 +848,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             write_run_file(
                 save_path=f"{coregistration_directory}/process/input.crop",
                 template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/deinsar/input_files/input.crop",
+                f"templates/doris_v4/input_files/input.crop",
                 asc_dsc=asc_dsc[track],
                 track=tracks[track],
                 parameter_file=parameter_file,
@@ -867,7 +867,7 @@ def prepare_deinsar(parameter_file: str, do_track: int | list | None = None) -> 
             write_run_file(
                 save_path=f"{coregistration_directory}/process/input.resample{pol}",
                 template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-                f"templates/deinsar/input_files/input.resample",
+                f"templates/doris_v4/input_files/input.resample",
                 asc_dsc=asc_dsc[track],
                 track=tracks[track],
                 parameter_file=parameter_file,
@@ -925,7 +925,7 @@ S_IN_LEA        leader.xml"""
         write_run_file(
             save_path=f"{coregistration_directory}/process/input.readfiles",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/"
-            f"templates/deinsar/input_files/input.readfiles",
+            f"templates/doris_v4/input_files/input.readfiles",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -934,7 +934,7 @@ S_IN_LEA        leader.xml"""
 
         write_directory_contents(
             coregistration_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["deinsar"]["directory-contents-file-appendix"]}.txt',
+            filename=f'dir_contents{JOB_DEFINITIONS["doris_v4"]["directory-contents-file-appendix"]}.txt',
         )
 
 
@@ -1371,7 +1371,7 @@ def prepare_depsi_post(parameter_file: str, do_track: int | list | None = None) 
         )
 
 
-def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_doris_v5(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for Doris v5.
 
     Parameters
@@ -1412,7 +1412,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
                 continue
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v5"], track=tracks[track]
         )
 
         # we need a process folder in the coregistration directory, so we can combine that command
@@ -1442,7 +1442,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
 
         # generate the input files
         input_files = glob.glob(
-            f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/" "doris/input_files/input.*"
+            f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v5/input_files/input.*"
         )
         for file in input_files:
             if file.split("/")[-1] in ["input.comprefdem", "input.dembased"]:
@@ -1477,30 +1477,30 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         # we need to transform all the 1/0 from the parameter file into Yes/No
         other_parameters = {}
         for parameter in [
-            "doris:doris-settings:do-coarse-orbits",
-            "doris:doris-settings:do-deramp",
-            "doris:doris-settings:do-reramp",
-            "doris:doris-settings:do-fake-fine-coreg-bursts",
-            "doris:doris-settings:do-dac-bursts",
-            "doris:doris-settings:do-fake-coreg-bursts",
-            "doris:doris-settings:do-fake-master-resample",
-            "doris:doris-settings:do-resample",
-            "doris:doris-settings:do-reramp2",
-            "doris:doris-settings:do-interferogram",
-            "doris:doris-settings:do-compref-phase",
-            "doris:doris-settings:do-compref-dem",
-            "doris:doris-settings:do-coherence",
-            "doris:doris-settings:do-esd",
-            "doris:doris-settings:do-network-esd",
-            "doris:doris-settings:do-ESD-correct",
-            "doris:doris-settings:do-combine-master",
-            "doris:doris-settings:do-combine-slave",
-            "doris:doris-settings:do-ref-phase",
-            "doris:doris-settings:do-ref-dem",
-            "doris:doris-settings:do-phasefilt",
-            "doris:doris-settings:do-calc-coordinates",
-            "doris:doris-settings:do-multilooking",
-            "doris:doris-settings:do-unwrap",
+            "doris_v5:doris_v5-settings:do-coarse-orbits",
+            "doris_v5:doris_v5-settings:do-deramp",
+            "doris_v5:doris_v5-settings:do-reramp",
+            "doris_v5:doris_v5-settings:do-fake-fine-coreg-bursts",
+            "doris_v5:doris_v5-settings:do-dac-bursts",
+            "doris_v5:doris_v5-settings:do-fake-coreg-bursts",
+            "doris_v5:doris_v5-settings:do-fake-master-resample",
+            "doris_v5:doris_v5-settings:do-resample",
+            "doris_v5:doris_v5-settings:do-reramp2",
+            "doris_v5:doris_v5-settings:do-interferogram",
+            "doris_v5:doris_v5-settings:do-compref-phase",
+            "doris_v5:doris_v5-settings:do-compref-dem",
+            "doris_v5:doris_v5-settings:do-coherence",
+            "doris_v5:doris_v5-settings:do-esd",
+            "doris_v5:doris_v5-settings:do-network-esd",
+            "doris_v5:doris_v5-settings:do-ESD-correct",
+            "doris_v5:doris_v5-settings:do-combine-master",
+            "doris_v5:doris_v5-settings:do-combine-slave",
+            "doris_v5:doris_v5-settings:do-ref-phase",
+            "doris_v5:doris_v5-settings:do-ref-dem",
+            "doris_v5:doris_v5-settings:do-phasefilt",
+            "doris_v5:doris_v5-settings:do-calc-coordinates",
+            "doris_v5:doris_v5-settings:do-multilooking",
+            "doris_v5:doris_v5-settings:do-unwrap",
         ]:
             value = read_parameter_file(parameter_file, [parameter])[parameter]
             if value == 1:
@@ -1546,7 +1546,7 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         # write doris_input.xml
         write_run_file(
             save_path=f"{coregistration_directory}/doris_input.xml",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris/doris_input.xml",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v5/doris_input.xml",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -1558,11 +1558,11 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
         # write doris_stack.sh
         write_run_file(
             save_path=f"{coregistration_directory}/doris_stack.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris/doris_stack.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/doris_v5/doris_stack.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["doris:general:AoI-name", "doris:general:code-directory"],
+            parameter_file_parameters=["doris_v5:general:AoI-name", "doris_v5:general:code-directory"],
             config_parameters=[
                 "caroline_work_directory",
                 "caroline_virtual_environment_directory",
@@ -1574,11 +1574,11 @@ def prepare_doris(parameter_file: str, do_track: int | list | None = None) -> No
 
         write_directory_contents(
             coregistration_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["doris"]["directory-contents-file-appendix"]}.txt',
+            filename=f'dir_contents{JOB_DEFINITIONS["doris_v5"]["directory-contents-file-appendix"]}.txt',
         )
 
 
-def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_doris_v5_cleanup(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the cleanup script to clean the directories produced by Doris v5.
 
     Parameters
@@ -1607,13 +1607,13 @@ def prepare_doris_cleanup(parameter_file: str, do_track: int | list | None = Non
                 continue
 
         coregistration_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_cleanup"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v5_cleanup"], track=tracks[track]
         )
 
         write_run_file(
             save_path=f"{coregistration_directory}/cleanup.sh",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/"
-            "doris/cleanup-doris-s1-stack.sh",
+            "doris_v5/cleanup-doris-s1-stack.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,

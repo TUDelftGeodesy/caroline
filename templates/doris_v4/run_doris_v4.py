@@ -46,7 +46,7 @@ from deinsar import (
 )
 
 # Parameters
-datadir = "**deinsar:input:data-directories**"
+datadir = "**doris_v4:input:data-directories**"
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 processdir = os.path.abspath("process")
 
@@ -61,28 +61,28 @@ polarisations = ["_" + pol for pol in polarisations]
 if "_HH" in polarisations:
     polarisations[polarisations.index("_HH")] = ""
 
-do_orbit = "**deinsar:deinsar-settings:do-orbit**"
-do_crop = "**deinsar:deinsar-settings:do-crop**"
-do_tsx_deramp = "**deinsar:deinsar-settings:do-tsx-deramp**"
-do_simamp = "**deinsar:deinsar-settings:do-simamp**"
-do_mtiming = "**deinsar:deinsar-settings:do-mtiming**"
-do_ovs = "**deinsar:deinsar-settings:do-ovs**"
-do_choose_master = "**deinsar:deinsar-settings:do-choose-master**"
-do_coarseorb = "**deinsar:deinsar-settings:do-coarseorb**"
-do_coarsecorr = "**deinsar:deinsar-settings:do-coarsecorr**"
-do_finecoreg = "**deinsar:deinsar-settings:finecoreg:do-finecoreg**"
-do_reltiming = "**deinsar:deinsar-settings:do-reltiming**"
-do_dembased = "**deinsar:deinsar-settings:do-dembased**"
-do_coregpm = "**deinsar:deinsar-settings:do-coregpm**"
-do_comprefpha = "**deinsar:deinsar-settings:do-comprefpha**"
-do_comprefdem = "**deinsar:deinsar-settings:do-comprefdem**"
-do_resample = "**deinsar:deinsar-settings:do-resample**"
-do_tsx_reramp = "**deinsar:deinsar-settings:do-tsx-reramp**"
-do_interferogram = "**deinsar:deinsar-settings:do-interferogram**"
-do_subtrrefpha = "**deinsar:deinsar-settings:do-subtrrefpha**"
-do_subtrrefdem = "**deinsar:deinsar-settings:do-subtrrefdem**"
-do_coherence = "**deinsar:deinsar-settings:do-coherence**"
-do_geocoding = "**deinsar:deinsar-settings:do-geocoding**"
+do_orbit = "**doris_v4:doris_v4-settings:do-orbit**"
+do_crop = "**doris_v4:doris_v4-settings:do-crop**"
+do_tsx_deramp = "**doris_v4:doris_v4-settings:do-tsx-deramp**"
+do_simamp = "**doris_v4:doris_v4-settings:do-simamp**"
+do_mtiming = "**doris_v4:doris_v4-settings:do-mtiming**"
+do_ovs = "**doris_v4:doris_v4-settings:do-ovs**"
+do_choose_master = "**doris_v4:doris_v4-settings:do-choose-master**"
+do_coarseorb = "**doris_v4:doris_v4-settings:do-coarseorb**"
+do_coarsecorr = "**doris_v4:doris_v4-settings:do-coarsecorr**"
+do_finecoreg = "**doris_v4:doris_v4-settings:finecoreg:do-finecoreg**"
+do_reltiming = "**doris_v4:doris_v4-settings:do-reltiming**"
+do_dembased = "**doris_v4:doris_v4-settings:do-dembased**"
+do_coregpm = "**doris_v4:doris_v4-settings:do-coregpm**"
+do_comprefpha = "**doris_v4:doris_v4-settings:do-comprefpha**"
+do_comprefdem = "**doris_v4:doris_v4-settings:do-comprefdem**"
+do_resample = "**doris_v4:doris_v4-settings:do-resample**"
+do_tsx_reramp = "**doris_v4:doris_v4-settings:do-tsx-reramp**"
+do_interferogram = "**doris_v4:doris_v4-settings:do-interferogram**"
+do_subtrrefpha = "**doris_v4:doris_v4-settings:do-subtrrefpha**"
+do_subtrrefdem = "**doris_v4:doris_v4-settings:do-subtrrefdem**"
+do_coherence = "**doris_v4:doris_v4-settings:do-coherence**"
+do_geocoding = "**doris_v4:doris_v4-settings:do-geocoding**"
 
 # Processing steps
 link_files(datadir, processdir, sensor)

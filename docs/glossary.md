@@ -4,9 +4,9 @@ This file details the definitions of terms used in the [CAROLINE architecture](#
 
 ## CAROLINE Architecture
 - <b>module</b>: a block in the CAROLINE [architecture](architecture.md). An example is the <i>autonomous stack building</i> module. A module has one or more submodules.
-- <b>submodule</b>: a component of a module. An example is <i>coregistration</i>, part of the <i>autonomous stack building</i> module. A submodule has one or more jobs.
-- <b>job</b>: a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>coregistration</i> submodule contains three jobs: <i>Doris v5</i> (Sentinel-1 coregistration), <i>Doris v5 cleanup</i>, and <i>DeInSAR</i> (for coregistration of other sensors). A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.
-- <b>job array</b>: a group of jobs running the same single program that achieves a clearly specified goal, where each individual subjob within the job array uses different parameter settings. The <i>snap_run</i> job is submitted as a job array. See the [SLURM documentation](https://slurm.schedmd.com/job_array.html) for more details on how this works.
+- <b>submodule</b>: a component of a module. An example is the <i>stack generation</i> submodule, part of the <i>autonomous stack building</i> module. A submodule has one or more jobs.
+- <b>job</b>: a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>stack generation</i> submodule contains 10 jobs: <i>Doris v5</i>, <i>Doris v5 cleanup</i>, <i>Doris v4</i>, <i>SNAP preparation</i>, <i>SNAP</i>, <i>SNAP fix permissions</i>, <i>reduce SLC matlab</i>, <i>reduce SLC python</i>, <i>merge to stack matlab</i>, and <i>merge to stcack python</i>. A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.
+- <b>job array</b>: a group of jobs running the same single program that achieves a clearly specified goal, where each individual subjob within the job array uses different parameter settings. The <i>SNAP</i> job is submitted as a job array. See the [SLURM documentation](https://slurm.schedmd.com/job_array.html) for more details on how this works.
 - <b>subjob</b>: one of the jobs running in a job array. They differentiate themselves from a job since they also have a task ID (e.g. 12345_1 instead of just 12345)
 - <b>function</b>: a Python function.
 - <b>plugin</b>: an external software package that is called by CAROLINE to execute a job. An example is the <i>Doris v5.0.4</i> plugin, used in the job <i>Doris v5</i> in the coregistration submodule.
@@ -34,7 +34,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * AoI in `.shp` format
     * output:
       * Original SLCs
-- <b>doris</b>: this job uses Doris v5 to perform the basic interferometric Sentinel-1 procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
+- <b>doris_v5</b>: this job uses Doris v5 to perform the basic interferometric Sentinel-1 procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
     * input:
       * Original SLCs
       * AoI in `.shp` format
@@ -98,7 +98,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * The `.znap` archives outputted by `snap`
     * output:
       * `.znap`-archives, one per acquisition, with permissions `775`
-- <b>reduce_slc_matlab</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `deinsar` or `doris` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
+- <b>reduce_slc_matlab</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)
     * Height-to-phase screens with the reference DEM subtracted (`h2ph_srd.raw`)

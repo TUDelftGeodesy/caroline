@@ -61,7 +61,7 @@ path_figure.mkdir(exist_ok=True)  # Make figure directory if not exists
 
 # Option 1: Initiate a new SLURMCluster
 # Uncomment the following part to setup a new Dask SLURMCluster
-N_WORKERS = JOB_DEFINITIONS["jobs"]["crop_to_zarr"]["bash-file"]["bash-file-slurm-cluster"][
+N_WORKERS = JOB_DEFINITIONS["jobs"]["reduce_slc_python"]["bash-file"]["bash-file-slurm-cluster"][
     "slurm-cluster-n-workers"
 ]  # Manual input: number of workers to spin-up
 FREE_SOCKET = get_free_port()  # Get a free port
@@ -71,7 +71,7 @@ cluster = SLURMCluster(
     cores=4,  # Number of cores per worker
     memory="30 GB",  # Total amount of memory per worker
     processes=1,  # Number of Python processes per worker
-    walltime=JOB_DEFINITIONS["jobs"]["crop_to_zarr"]["bash-file"]["bash-file-slurm-cluster"][
+    walltime=JOB_DEFINITIONS["jobs"]["reduce_slc_python"]["bash-file"]["bash-file-slurm-cluster"][
         "slurm-cluster-worker-time"
     ],  # Reserve each worker for X hour
     scheduler_options={
@@ -209,10 +209,10 @@ if __name__ == "__main__":
     )
     # Rechunk and write as zarr
     slcs_output = slcs_output.chunk(writing_chunks)
-    if not os.path.exists("**crop_to_zarr_output_filename**.zarr"):
-        slcs_output.to_zarr("**crop_to_zarr_output_filename**.zarr", mode="w")
+    if not os.path.exists("**reduce_slc_python_output_filename**.zarr"):
+        slcs_output.to_zarr("**reduce_slc_python_output_filename**.zarr", mode="w")
     else:
-        slcs_output.to_zarr("**crop_to_zarr_output_filename**.zarr", mode="w")
+        slcs_output.to_zarr("**reduce_slc_python_output_filename**.zarr", mode="w")
 
     logger.info("Finishing... Closing client.")
     # Close the client when finishing

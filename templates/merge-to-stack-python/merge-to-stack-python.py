@@ -16,7 +16,7 @@ JOB_DEFINITIONS = get_config(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/job
 logger = logging.getLogger(__name__)
 
 znap_output_path = "**snap-output-path**"
-zarr_output_path = "**znap_to_zarr_output_filename**.zarr"
+zarr_output_path = "**merge_to_stack_python_output_filename**.zarr"
 aoi_path = "**general:shape-file:directory**/**general:shape-file:aoi-name**_shape.shp"
 
 
@@ -33,7 +33,7 @@ def get_free_port():
 
 # Option 1: Initiate a new SLURMCluster
 # Uncomment the following part to setup a new Dask SLURMCluster
-N_WORKERS = JOB_DEFINITIONS["jobs"]["znap_to_zarr"]["bash-file"]["bash-file-slurm-cluster"][
+N_WORKERS = JOB_DEFINITIONS["jobs"]["merge_to_stack_python"]["bash-file"]["bash-file-slurm-cluster"][
     "slurm-cluster-n-workers"
 ]  # Manual input: number of workers to spin-up
 FREE_SOCKET = get_free_port()  # Get a free port
@@ -43,7 +43,7 @@ cluster = SLURMCluster(
     cores=4,  # Number of cores per worker
     memory="30 GB",  # Total amount of memory per worker
     processes=1,  # Number of Python processes per worker
-    walltime=JOB_DEFINITIONS["jobs"]["znap_to_zarr"]["bash-file"]["bash-file-slurm-cluster"][
+    walltime=JOB_DEFINITIONS["jobs"]["merge_to_stack_python"]["bash-file"]["bash-file-slurm-cluster"][
         "slurm-cluster-worker-time"
     ],  # Reserve each worker for X hour
     scheduler_options={

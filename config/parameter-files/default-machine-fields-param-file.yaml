@@ -9,10 +9,10 @@ general:
   steps:
     do-s1_download: 0
     do-coregistration: 0
-    do-crop_to_raw: 0
-    do-znap_to_raw: 0
-    do-crop_to_zarr: 0
-    do-znap_to_zarr: 0
+    do-reduce_slc_matlab: 0
+    do-merge_to_stack_matlab: 0
+    do-reduce_slc_python: 0
+    do-merge_to_stack_python: 0
     do-stm_generation: 0
     do-depsi: 0
     do-depsi_post: 0

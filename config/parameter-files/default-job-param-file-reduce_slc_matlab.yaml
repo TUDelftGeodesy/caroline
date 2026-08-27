@@ -1,6 +1,6 @@
-# the default settings for crop_to_raw, running in the crop_to_raw job
+# the default settings for reduce_slc_matlab, running in the reduce_slc_matlab job
 
-crop_to_raw:
+reduce_slc_matlab:
   general:
     AoI-name: "**AoI_name**"
     directory: '/project/caroline/Share/crops'

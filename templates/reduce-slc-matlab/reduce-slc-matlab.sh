@@ -30,8 +30,8 @@
 
 module --ignore-cache load **matlab_module**
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started crop-to-raw.sh (AoI **crop_to_raw:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started reduce-slc-matlab.sh (AoI **reduce_slc_matlab:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
-srun matlab -nodisplay -nosplash -nodesktop -r "run('**crop_base_directory**/crop_to_raw.m');exit;" || exit 5
+srun matlab -nodisplay -nosplash -nodesktop -r "run('**crop_base_directory**/reduce_slc_matlab.m');exit;" || exit 5
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished crop-to-raw.sh (AoI **crop_to_raw:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished reduce-slc-matlab.sh (AoI **reduce_slc_matlab:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

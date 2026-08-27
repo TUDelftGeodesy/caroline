@@ -1,0 +1,8 @@
+# the default settings for reduce_slc_python, running in the reduce_slc_python job
+
+reduce_slc_python:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/stacks_zarr'
+    partition: 'normal'
+    depsi_group-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'

@@ -11,7 +11,7 @@ This file details the definitions of terms used in the [CAROLINE architecture](#
 - <b>function</b>: a Python function.
 - <b>plugin</b>: an external software package that is called by CAROLINE to execute a job. An example is the <i>Doris v5.0.4</i> plugin, used in the job <i>Doris v5</i> in the coregistration submodule.
 - <b>patch</b>: an amendment to a plugin, where the original plugin code does not function as intended for CAROLINE. All patches are located in the `patches` directory, using the exact same folder structure as will be generated in the directory read from the `CAROLINE_PLUGINS_DIRECTORY` setting.
-- <b>workflow</b>: the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a coregistered stack, the workflow is `crop_to_raw` > `DePSI` > `mrm` > `DePSI_post` > `portal upload`
+- <b>workflow</b>: the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a Doris v5-reduced SLC stack, the workflow is `reduce_slc_matlab` > `DePSI` > `mrm` > `DePSI_post` > `portal upload`
 
 - <b>status file</b>: a file detailing the status, progress, and errors of a job, produced by the job itself (so not the command line output). 
 
@@ -98,7 +98,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * The `.znap` archives outputted by `snap`
     * output:
       * `.znap`-archives, one per acquisition, with permissions `775`
-- <b>crop_to_raw</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `deinsar` or `doris` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
+- <b>reduce_slc_matlab</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `deinsar` or `doris` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)
     * Height-to-phase screens with the reference DEM subtracted (`h2ph_srd.raw`)
@@ -114,7 +114,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * Height-to-phase screens with reference DEM subtracted cropped to the AoI (`h2ph_srd.raw`)
     * Reduced SLCs with reference DEM subtracted cropped to the AoI (`slc_srd.raw`)
     * Line and pixel specification of the crop (`nlines_crop.txt` and `npixels_crop.txt`)
-- <b>python_preparation</b>: this job converts the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. Finally, it creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
+- <b>reduce_slc_python</b>: this job converts the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. Finally, it creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)
     * Height-to-phase screens with the reference DEM subtracted (`h2ph_srd.raw`)
@@ -135,7 +135,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * `lat`: latitude coordinates cropped to the AoI
         * `lon`: longitude coordinates cropped to the AoI
         * `time`: epochs of the acquisitions
-- <b>znap_to_raw</b>: this job crops the output SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) complex interferograms from the cropped SLCs and the mother SLC, before writing everything to `.raw` format
+- <b>merge_to_stack_matlab</b>: this job crops the output SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) complex interferograms from the cropped SLCs and the mother SLC, before writing everything to `.raw` format
   * input:
     * `.znap`-archives, one per acquisition, with permissions `775`
     * AoI in `.shp` format
@@ -146,7 +146,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * Height-to-phase screens with reference DEM subtracted cropped to the AoI (`h2ph_srd.raw`)
     * Reduced SLCs with reference DEM subtracted cropped to the AoI (`slc_srd.raw`)
     * Line and pixel specification of the crop (`nlines_crop.txt` and `npixels_crop.txt`)
-- <b>znap_to_zarr</b>: this job converts the output  SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI.
+- <b>merge_to_stack_python</b>: this job converts the output  SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI.
   * input:
     * `.znap`-archives, one per acquisition, with permissions `775`
     * AoI in `.shp` format
@@ -209,7 +209,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       - optional coordinates:
         * `rd_x` / `epsg:xxx_x`: x coordinate of requested projection from variable `stm_extra_projection`
         * `rd_y` / `epsg:xxx_y`: y coordinate of requested projection from variable `stm_extra_projection`
-- <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `crop_to_raw`.
+- <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `reduce_slc_matlab`.
     * input:
       * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)
       * Geocoded pixel coordinates cropped to the AoI (`lam.raw` and `phi.raw`)

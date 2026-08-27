@@ -37,7 +37,7 @@ def get_free_port():
 
 # Option 1: Initiate a new SLURMCluster
 # Uncomment the following part to setup a new Dask SLURMCluster
-N_WORKERS = JOB_DEFINITIONS["jobs"]["znap_to_raw"]["bash-file"]["bash-file-slurm-cluster"][
+N_WORKERS = JOB_DEFINITIONS["jobs"]["merge_to_stack_matlab"]["bash-file"]["bash-file-slurm-cluster"][
     "slurm-cluster-n-workers"
 ]  # Manual input: number of workers to spin-up
 FREE_SOCKET = get_free_port()  # Get a free port
@@ -47,7 +47,7 @@ cluster = SLURMCluster(
     cores=4,  # Number of cores per worker
     memory="30 GB",  # Total amount of memory per worker
     processes=1,  # Number of Python processes per worker
-    walltime=JOB_DEFINITIONS["jobs"]["znap_to_raw"]["bash-file"]["bash-file-slurm-cluster"][
+    walltime=JOB_DEFINITIONS["jobs"]["merge_to_stack_matlab"]["bash-file"]["bash-file-slurm-cluster"][
         "slurm-cluster-worker-time"
     ],  # Reserve each worker for X hour
     scheduler_options={

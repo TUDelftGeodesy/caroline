@@ -30,10 +30,8 @@ There are nine modules:
 ### Autonomous coregistered stack building module
 - Download submodule
   - Goal: download radar data from all satellites.
-- Coregistration submodule
-  - Goal: perform the basic interferometric procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
-- Cropping submodule
-  - Goal: create reduced SLCs of the AoI, and crop as preparation for the Recursive parameter estimation module.
+- Stack generation submodule
+  - Goal: perform the basic interferometric procedure per image pair, and create a stack of reduced SLCs. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
 
 ### Recursive parameter estimation module
 - PSI batch submodule

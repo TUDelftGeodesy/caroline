@@ -69,7 +69,7 @@ Required fields for any AoI are marked with a bold **R**
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
 - `general:shape-file:directory` (machine field)
   - Function: specify the base directory where the shapefile should be stored. 
-  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Software/roi/<first step that will be run out of stacks / crops / depsi>/<country_code>_<region_of_interest>'`, where `stacks` indicates `coregistration` and `crops` indicates `crop_to_raw`.
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Software/roi/<first step that will be run out of stacks / crops / depsi>/<country_code>_<region_of_interest>'`, where `stacks` indicates `coregistration` and `crops` indicates `reduce_slc_matlab`.
 - **R** `general:shape-file:shape-file-link`
   - Function: provide a link to a predetermined shapefile. If this field is provided, the `rectangular-shape-file` keys are ignored
   - Possible values: `''` for rectangular AoI generation, or `string` with any valid path to a shapefile on Spider, including the name of the shapefile itself ending in `.shp`. It is assumed the corresponding `.dbf`, `.prj` and `.shx` also exist with the same name (except the format) in the same directory.
@@ -128,37 +128,37 @@ Required fields for any AoI are marked with a bold **R**
   - Function: specify which jobs should run, linked to the step keys in [job-definitions.yaml](../config/job-definitions.yaml)
 
 
-## Crop_to_raw parameters
+## reduce_slc_matlab parameters
 
-These parameters are used in the job `crop_to_raw`. Defaults in [the default crop_to_raw config file](../config/parameter-files/default-job-param-file-crop_to_raw.yaml).
+These parameters are used in the job `reduce_slc_matlab`. Defaults in [the default reduce_slc_matlab config file](../config/parameter-files/default-job-param-file-reduce_slc_matlab.yaml).
 
 
-- `crop_to_raw:general:AoI-name`: 
-  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `crop_to_raw`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+- `reduce_slc_matlab:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `reduce_slc_matlab`. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
-- `crop_to_raw:general:directory`
-  - Function: specify the base directory where the [job](glossary.md#jobs) `crop_to_raw` should run. 
-  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
-- `crop_to_raw:general:partition`
-  - Function: specify the partition on which the [job](glossary.md#jobs) `crop_to_raw` should be run
-  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
+- `reduce_slc_matlab:general:directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `reduce_slc_matlab` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/crops'`
+- `reduce_slc_matlab:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `reduce_slc_matlab` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (30 day time limit)
   
-## Crop_to_zarr parameters
+## reduce_slc_python parameters
 
-These parameters are used in the job `crop_to_zarr`. Defaults in [the default crop_to_zarr config file](../config/parameter-files/default-job-param-file-crop_to_zarr.yaml).
+These parameters are used in the job `reduce_slc_python`. Defaults in [the default reduce_slc_python config file](../config/parameter-files/default-job-param-file-reduce_slc_python.yaml).
 
 
-- `crop_to_zarr:general:AoI-name`: 
-  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `crop_to_zarr`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+- `reduce_slc_python:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `reduce_slc_python`. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
-- `crop_to_zarr:general:directory`
-  - Function: specify the base directory where the [job](glossary.md#jobs) `crop_to_zarr` should run. 
-  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
-- `crop_to_zarr:general:partition`
-  - Function: specify the partition on which the [job](glossary.md#jobs) `crop_to_zarr` should be run
-  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `crop_to_zarr:general:crop_to_zarr-code-directory`
-  - Function: specify where the DePSI_group code is, containing the functionality for `crop_to_zarr`
+- `reduce_slc_python:general:directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `reduce_slc_python` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks_zarr'`
+- `reduce_slc_python:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `reduce_slc_python` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (30 day time limit)
+- `reduce_slc_python:general:depsi_group-code-directory`
+  - Function: specify where the DePSI_group code is, containing the functionality for `reduce_slc_python`
   - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
 
 ## DeInSAR parameters
@@ -473,39 +473,39 @@ These parameters are used in the job `stm_generation`. Defaults in [the default 
   - Possible values: any positive `float` (advised 3)
 
 
-## znap_to_raw parameters
+## merge_to_stack_matlab parameters
 
-These parameters are used in the job `znap_to_raw`. Defaults in [the default znap_to_raw config file](../config/parameter-files/default-job-param-file-znap_to_raw.yaml).
+These parameters are used in the job `merge_to_stack_matlab`. Defaults in [the default merge_to_stack_matlab config file](../config/parameter-files/default-job-param-file-merge_to_stack_matlab.yaml).
 
 
-- `znap_to_raw:general:AoI-name`: 
-  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `znap_to_raw`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+- `merge_to_stack_matlab:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `merge_to_stack_matlab`. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
-- `znap_to_raw:general:directory`
-  - Function: specify the base directory where the [job](glossary.md#jobs) `znap_to_raw` should run. 
-  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
-- `znap_to_raw:general:partition`
-  - Function: specify the partition on which the [job](glossary.md#jobs) `znap_to_raw` should be run
-  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `znap_to_raw:general:znap_to_raw-code-directory`
-  - Function: specify where the DePSI_group code is, containing the functionality for `znap_to_raw`
+- `merge_to_stack_matlab:general:directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `merge_to_stack_matlab` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/crops'`
+- `merge_to_stack_matlab:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `merge_to_stack_matlab` should be run
+  - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (30 day time limit)
+- `merge_to_stack_matlab:general:depsi_group-code-directory`
+  - Function: specify where the DePSI_group code is, containing the functionality for `merge_to_stack_matlab`
   - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
 
-## znap_to_zarr parameters
+## merge_to_stack_python parameters
 
-These parameters are used in the job `znap_to_zarr`. Defaults in [the default znap_to_zarr config file](../config/parameter-files/default-job-param-file-znap_to_zarr.yaml).
+These parameters are used in the job `merge_to_stack_python`. Defaults in [the default merge_to_stack_python config file](../config/parameter-files/default-job-param-file-merge_to_stack_python.yaml).
 
 
-- `znap_to_zarr:general:AoI-name`: 
-  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `znap_to_zarr`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+- `merge_to_stack_python:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `merge_to_stack_python`. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
-- `znap_to_zarr:general:directory`
-  - Function: specify the base directory where the [job](glossary.md#jobs) `znap_to_zarr` should run. 
-  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks'`
-- `znap_to_zarr:general:partition`
-  - Function: specify the partition on which the [job](glossary.md#jobs) `znap_to_zarr` should be run
+- `merge_to_stack_python:general:directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `merge_to_stack_python` should run. 
+  - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stacks_zarr'`
+- `merge_to_stack_python:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `merge_to_stack_python` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `znap_to_zarr:general:znap_to_zarr-code-directory`
-  - Function: specify where the DePSI_group code is, containing the functionality for `znap_to_zarr`
+- `merge_to_stack_python:general:depsi_group-code-directory`
+  - Function: specify where the DePSI_group code is, containing the functionality for `merge_to_stack_python`
   - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
 

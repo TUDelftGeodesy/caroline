@@ -286,7 +286,7 @@ def finish_installation() -> None:
             os.system(f"rm -rf {download_config}")
 
 
-def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_reduce_slc_matlab(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for cropping.
 
     Parameters
@@ -316,7 +316,7 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
                 continue
 
         crop_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_matlab"], track=tracks[track]
         )
 
         if out_parameters["general:input-data:sensor"] == "S1":
@@ -344,19 +344,23 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
         # generate crop.sh
         write_run_file(
             save_path=f"{crop_directory}/crop-to-raw.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop-to-raw/crop-to-raw.sh",
+            template_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-matlab/reduce-slc-matlab.sh"
+            ),
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
-            parameter_file_parameters=["crop_to_raw:general:AoI-name"],
+            parameter_file_parameters=["reduce_slc_matlab:general:AoI-name"],
             config_parameters=["caroline_work_directory", "matlab_module"],
             other_parameters={"track": tracks[track], "crop_base_directory": crop_directory},
         )
 
         # generate crop.m
         write_run_file(
-            save_path=f"{crop_directory}/crop_to_raw.m",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop-to-raw/crop-to-raw.m",
+            save_path=f"{crop_directory}/reduce_slc_matlab.m",
+            template_path=(
+                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-matlab/reduce_slc_matlab.m"
+            ),
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -370,12 +374,12 @@ def prepare_crop_to_raw(parameter_file: str, do_track: int | list | None = None)
 
         write_directory_contents(
             crop_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["crop_to_raw"]["directory-contents-file-appendix"]}.txt',
+            filename=f'dir_contents{JOB_DEFINITIONS["reduce_slc_matlab"]["directory-contents-file-appendix"]}.txt',
         )
 
 
-def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for crop_to_zarr.
+def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for reduce_slc_python.
 
     Parameters
     ----------
@@ -407,8 +411,8 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
             if tracks[track] not in do_track:
                 continue
 
-        crop_to_zarr_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
+        reduce_slc_python_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_python"], track=tracks[track]
         )
 
         if out_parameters["general:input-data:sensor"] == "S1":
@@ -421,7 +425,7 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
                 parameter_file=parameter_file, job_description=JOB_DEFINITIONS["deinsar"], track=tracks[track]
             )
 
-        os.makedirs(crop_to_zarr_directory, exist_ok=True)
+        os.makedirs(reduce_slc_python_directory, exist_ok=True)
 
         # detect the mother image
         if out_parameters["general:input-data:sensor"].lower() == "s1":
@@ -451,11 +455,11 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
                 raise ValueError(f"Failed to detect mother in {coregistration_directory}/run_deinsar.py !")
 
         # generate crop-to-zarr.py
-        crop_to_zarr_output_name = crop_to_zarr_directory.split("/")[-1]
+        reduce_slc_python_output_name = reduce_slc_python_directory.split("/")[-1]
 
         write_run_file(
-            save_path=f"{crop_to_zarr_directory}/crop-to-zarr.py",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop-to-zarr/crop-to-zarr.py",
+            save_path=f"{reduce_slc_python_directory}/reduce-slc-python.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-python/reduce-slc-python.py",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -471,20 +475,20 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
                 "mother_slc_name": "slave_rsmp_reramped.raw"
                 if out_parameters["general:input-data:sensor"] == "S1"
                 else "slave_rsmp.raw",
-                "crop_to_zarr_output_filename": crop_to_zarr_output_name,
+                "reduce_slc_python_output_filename": reduce_slc_python_output_name,
             },
         )
 
         # generate crop-to-zarr.sh
         write_run_file(
-            save_path=f"{crop_to_zarr_directory}/crop-to-zarr.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/crop-to-zarr/crop-to-zarr.sh",
+            save_path=f"{reduce_slc_python_directory}/reduce-slc-python.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-python/reduce-slc-python.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "crop_to_zarr:general:AoI-name",
-                "crop_to_zarr:general:crop_to_zarr-code-directory",
+                "reduce_slc_python:general:AoI-name",
+                "reduce_slc_python:general:depsi_group-code-directory",
             ],
             config_parameters=[
                 "caroline_work_directory",
@@ -496,8 +500,8 @@ def prepare_crop_to_zarr(parameter_file: str, do_track: int | list | None = None
         )
 
         write_directory_contents(
-            crop_to_zarr_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["crop_to_zarr"]["directory-contents-file-appendix"]}.txt',
+            reduce_slc_python_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["reduce_slc_python"]["directory-contents-file-appendix"]}.txt',
         )
 
 
@@ -985,17 +989,19 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
         )
 
-        # determine if we came from crop_to_raw or znap_to_raw
+        # determine if we came from reduce_slc_matlab or merge_to_stack_matlab
         if (
             out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
             or out_parameters["general:input-data:sensor"].lower() != "s1"
         ):
             crop_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_matlab"], track=tracks[track]
             )
         else:
             crop_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_raw"], track=tracks[track]
+                parameter_file=parameter_file,
+                job_description=JOB_DEFINITIONS["merge_to_stack_matlab"],
+                track=tracks[track],
             )
 
         # we need a psi and boxes folder in the depsi directory
@@ -1690,17 +1696,19 @@ def prepare_mrm(parameter_file: str, do_track: int | list | None = None) -> None
             if tracks[track] not in do_track:
                 continue
 
-        # determine if we came from crop_to_raw or znap_to_raw
+        # determine if we came from reduce_slc_matlab or merge_to_stack_matlab
         if (
             out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
             or out_parameters["general:input-data:sensor"].lower() != "s1"
         ):
             crop_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_raw"], track=tracks[track]
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_matlab"], track=tracks[track]
             )
         else:
             crop_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_raw"], track=tracks[track]
+                parameter_file=parameter_file,
+                job_description=JOB_DEFINITIONS["merge_to_stack_matlab"],
+                track=tracks[track],
             )
 
         depsi_directory = format_process_folder(
@@ -2209,24 +2217,26 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["stm_generation"], track=tracks[track]
         )
 
-        # determine if we came from crop_to_zarr or znap_to_zarr
+        # determine if we came from reduce_slc_python or merge_to_stack_python
         if (
             out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
             or out_parameters["general:input-data:sensor"].lower() != "s1"
         ):
-            crop_to_zarr_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["crop_to_zarr"], track=tracks[track]
+            reduce_slc_python_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_python"], track=tracks[track]
             )
         else:
-            crop_to_zarr_directory = format_process_folder(
-                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_zarr"], track=tracks[track]
+            reduce_slc_python_directory = format_process_folder(
+                parameter_file=parameter_file,
+                job_description=JOB_DEFINITIONS["merge_to_stack_python"],
+                track=tracks[track],
             )
 
         os.makedirs(stm_directory, exist_ok=True)
 
         # generate stm-generation.py
         stm_output_name = stm_directory.split("/")[-1]
-        crop_to_zarr_output_name = crop_to_zarr_directory.split("/")[-1]
+        reduce_slc_python_output_name = reduce_slc_python_directory.split("/")[-1]
 
         write_run_file(
             save_path=f"{stm_directory}/generate-stm.py",
@@ -2257,8 +2267,8 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
                 "stm_generation:stm_generation-settings:partitioning:single-difference-output-layers",
             ],
             other_parameters={
-                "crop_to_zarr_directory": crop_to_zarr_directory,
-                "crop_to_zarr_output_name": crop_to_zarr_output_name,
+                "reduce_slc_python_directory": reduce_slc_python_directory,
+                "reduce_slc_python_output_name": reduce_slc_python_output_name,
                 "stm_output_directory": stm_directory,
                 "stm_output_name": stm_output_name,
             },
@@ -2273,7 +2283,7 @@ def prepare_stm_generation(parameter_file: str, do_track: int | list | None = No
             parameter_file=parameter_file,
             parameter_file_parameters=[
                 "stm_generation:general:AoI-name",
-                "crop_to_zarr:general:crop_to_zarr-code-directory",
+                "reduce_slc_python:general:depsi_group-code-directory",
             ],
             config_parameters=[
                 "caroline_work_directory",
@@ -2325,8 +2335,8 @@ def prepare_tarball(parameter_file: str, do_track: int | list | None = None) -> 
         )
 
 
-def prepare_znap_to_raw(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for znap_to_raw.
+def prepare_merge_to_stack_matlab(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for merge_to_stack_matlab.
 
     Parameters
     ----------
@@ -2353,20 +2363,20 @@ def prepare_znap_to_raw(parameter_file: str, do_track: int | list | None = None)
             if tracks[track] not in do_track:
                 continue
 
-        znap_to_raw_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_raw"], track=tracks[track]
+        merge_to_stack_matlab_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["merge_to_stack_matlab"], track=tracks[track]
         )
 
         coregistration_directory = format_process_folder(
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
         )
 
-        os.makedirs(znap_to_raw_directory, exist_ok=True)
+        os.makedirs(merge_to_stack_matlab_directory, exist_ok=True)
 
         # generate znap-to-raw.py
         write_run_file(
-            save_path=f"{znap_to_raw_directory}/znap-to-raw.py",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-raw/znap-to-raw.py",
+            save_path=f"{merge_to_stack_matlab_directory}/merge-to-stack-matlab.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/merge-to-stack-matlab/merge-to-stack-matlab.py",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -2376,20 +2386,20 @@ def prepare_znap_to_raw(parameter_file: str, do_track: int | list | None = None)
             ],
             other_parameters={
                 "snap-output-path": coregistration_directory,
-                "raw-output-path": znap_to_raw_directory,
+                "raw-output-path": merge_to_stack_matlab_directory,
             },
         )
 
         # generate znap-to-raw.sh
         write_run_file(
-            save_path=f"{znap_to_raw_directory}/znap-to-raw.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-raw/znap-to-raw.sh",
+            save_path=f"{merge_to_stack_matlab_directory}/merge-to-stack-matlab.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/merge-to-stack-matlab/merge-to-stack-matlab.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "znap_to_raw:general:AoI-name",
-                "znap_to_raw:general:znap_to_raw-code-directory",
+                "merge_to_stack_matlab:general:AoI-name",
+                "merge_to_stack_matlab:general:depsi_group-code-directory",
             ],
             config_parameters=[
                 "caroline_work_directory",
@@ -2401,13 +2411,13 @@ def prepare_znap_to_raw(parameter_file: str, do_track: int | list | None = None)
         )
 
         write_directory_contents(
-            znap_to_raw_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["znap_to_raw"]["directory-contents-file-appendix"]}.txt',
+            merge_to_stack_matlab_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["merge_to_stack_matlab"]["directory-contents-file-appendix"]}.txt',
         )
 
 
-def prepare_znap_to_zarr(parameter_file: str, do_track: int | list | None = None) -> None:
-    """Set up the directories and run files for znap_to_zarr.
+def prepare_merge_to_stack_python(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and run files for merge_to_stack_python.
 
     Parameters
     ----------
@@ -2434,22 +2444,22 @@ def prepare_znap_to_zarr(parameter_file: str, do_track: int | list | None = None
             if tracks[track] not in do_track:
                 continue
 
-        znap_to_zarr_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["znap_to_zarr"], track=tracks[track]
+        merge_to_stack_python_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["merge_to_stack_python"], track=tracks[track]
         )
 
         coregistration_directory = format_process_folder(
             parameter_file=parameter_file, job_description=JOB_DEFINITIONS["snap"], track=tracks[track]
         )
 
-        os.makedirs(znap_to_zarr_directory, exist_ok=True)
+        os.makedirs(merge_to_stack_python_directory, exist_ok=True)
 
         # generate crop-to-zarr.py
-        znap_to_zarr_output_name = znap_to_zarr_directory.split("/")[-1]
+        merge_to_stack_python_output_name = merge_to_stack_python_directory.split("/")[-1]
 
         write_run_file(
-            save_path=f"{znap_to_zarr_directory}/znap-to-zarr.py",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-zarr/znap-to-zarr.py",
+            save_path=f"{merge_to_stack_python_directory}/merge-to-stack-python.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/merge-to-stack-python/merge-to-stack-python.py",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -2459,20 +2469,20 @@ def prepare_znap_to_zarr(parameter_file: str, do_track: int | list | None = None
             ],
             other_parameters={
                 "snap-output-path": coregistration_directory,
-                "znap_to_zarr_output_filename": znap_to_zarr_output_name,
+                "merge_to_stack_python_output_filename": merge_to_stack_python_output_name,
             },
         )
 
         # generate crop-to-zarr.sh
         write_run_file(
-            save_path=f"{znap_to_zarr_directory}/znap-to-zarr.sh",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-zarr/znap-to-zarr.sh",
+            save_path=f"{merge_to_stack_python_directory}/znap-to-zarr.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/merge-to-stack-python/merge-to-stack-python.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "znap_to_zarr:general:AoI-name",
-                "znap_to_zarr:general:znap_to_zarr-code-directory",
+                "merge_to_stack_python:general:AoI-name",
+                "merge_to_stack_python:general:depsi_group-code-directory",
             ],
             config_parameters=[
                 "caroline_work_directory",
@@ -2484,8 +2494,8 @@ def prepare_znap_to_zarr(parameter_file: str, do_track: int | list | None = None
         )
 
         write_directory_contents(
-            znap_to_zarr_directory,
-            filename=f'dir_contents{JOB_DEFINITIONS["znap_to_zarr"]["directory-contents-file-appendix"]}.txt',
+            merge_to_stack_python_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["merge_to_stack_python"]["directory-contents-file-appendix"]}.txt',
         )
 
 

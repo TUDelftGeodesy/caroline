@@ -10,7 +10,7 @@ from caroline.utils import extract_all_values_and_paths_from_dictionary
 CONFIG_PARAMETERS = get_config()
 # Only in the following list of keys, new keys in the configuration are allowed (as here tracks can be added)
 # The ':' character is used as a split between keys to allow for going deeper into the dictionaries
-NEW_CONFIG_KEYS_ALLOWED = ["deinsar:input:data-directories", "depsi:depsi-settings:general:ref-cn"]
+NEW_CONFIG_KEYS_ALLOWED = ["doris_v4:input:data-directories", "depsi_matlab:depsi_matlab-settings:general:ref-cn"]
 
 
 def generate_full_parameter_file(

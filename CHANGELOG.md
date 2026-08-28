@@ -25,6 +25,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
+## [v4.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (28-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...main))
+
+### Changed
+- `crop_to_raw` has been renamed to `reduce_SLC_matlab` (abbr. `RM`)
+- `crop_to_zarr` has been renamed to `reduce_SLC_python` (abbr. `RP`)
+- `znap_to_raw` has been renamed to `merge_to_stack_matlab` (abbr. `MM`)
+- `znap_to_zarr` has been renamed to `merge_to_stack_python` (abbr. `MP`)
+- `doris` has been renamed to `doris_v5` 
+- `deinsar` has been renamed to `doris_v4`
+- `doris_cleanup` has been renamed to `doris_v5_cleanup`
+- `snap_run` has been renamed to `snap` (abbr. `SN`)
+- `snap_permissions` has been renamed to `snap_fix_permissions` (abbr. `SF`)
+- `depsi` has been renamed to `depsi_matlab` (abbr. `DM`)
+- `stm_generation` has been renamed to `generate_partitioned_stm` (abbr. `GS`)
+- `mrm` has been renamed to `create_mrm` (abbr. `CM`)
+- `tarball` has been renamed to `create_tarball` (abbr. `CT`)
+- `portal_upload` has been renamed to `set_portal_upload_flag`
+- The Coregistration submodule and Cropping submodule have been merged into the Stack Generation submodule
+
 ## [v3.2.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (07-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...main))
 
 ### Fixed

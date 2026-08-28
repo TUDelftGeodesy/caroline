@@ -81,7 +81,7 @@ def remove_incomplete_sentinel1_images(parameter_file: str) -> None:
 
     doris_job_definition = get_config(
         f'{CONFIG_PARAMETERS["CAROLINE_INSTALL_DIRECTORY"]}/config/job-definitions.yaml', flatten=False
-    )["jobs"]["doris"]
+    )["jobs"]["doris_v5"]
 
     for track in range(len(tracks)):
         base_folder = format_process_folder(
@@ -666,6 +666,9 @@ def identify_s1_orbits_in_aoi(shp_filename: str) -> tuple[list[str], dict]:
         except (asf.exceptions.ASFSearch5xxError, asf.exceptions.ASFSearchError, TimeoutError):
             counter += 1
             os.system(f'''echo "ASF encountered an internal error. Retrying... (#{counter})"''')
+        if counter > 5:
+            os.system('''echo "ASF encountered an internal error more than 5 times. Continuing without results..."''')
+            return [], {}  # return empty lists
 
     orbits = [
         f"s1_{slc.properties['flightDirection'].lower().replace('e', '')[:3]}_t{slc.properties['pathNumber']:0>3d}"

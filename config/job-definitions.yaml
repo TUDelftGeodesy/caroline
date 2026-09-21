@@ -163,7 +163,7 @@ jobs:
       status-file-search-key:
     bash-file:
       bash-file-name: "cleanup.sh"
-      bash-file-base-directory: "doris"
+      bash-file-base-directory: "doris_v5"
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:

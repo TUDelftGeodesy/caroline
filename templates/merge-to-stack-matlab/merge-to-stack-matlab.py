@@ -141,7 +141,7 @@ for i in range(len(data.time.values)):
 
         write_run_file(
             save_path=f"{write_path}/{filename}",
-            template_path=f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/templates/znap-to-raw/master.res",
+            template_path=f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/templates/merge-to-stack-matlab/master.res",
             asc_dsc=None,
             track=None,
             parameter_file=None,

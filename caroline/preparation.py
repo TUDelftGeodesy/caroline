@@ -1863,7 +1863,7 @@ def prepare_merge_to_stack_python(parameter_file: str, do_track: int | list | No
 
         # generate crop-to-zarr.sh
         write_run_file(
-            save_path=f"{merge_to_stack_python_directory}/znap-to-zarr.sh",
+            save_path=f"{merge_to_stack_python_directory}/merge-to-stack-python.sh",
             template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/merge-to-stack-python/merge-to-stack-python.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
@@ -1944,7 +1944,7 @@ def prepare_reduce_slc_matlab(parameter_file: str, do_track: int | list | None =
 
         # generate crop.sh
         write_run_file(
-            save_path=f"{crop_directory}/crop-to-raw.sh",
+            save_path=f"{crop_directory}/reduce-slc-matlab.sh",
             template_path=(
                 f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/reduce-slc-matlab/reduce-slc-matlab.sh"
             ),

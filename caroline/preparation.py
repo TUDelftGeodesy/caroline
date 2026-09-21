@@ -1665,7 +1665,7 @@ def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list |
             parameter_file_parameters=[
                 "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:mode",
                 "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:start-date",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:initsettings:init-length",
+                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:init-length",
                 "generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:increment-mode",
                 "generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size",
                 "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:method",

@@ -51,6 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The parameter `stm_generation:stm_generation-settings:partitioning:single-difference-output-layers` has been renamed to `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:single-difference-output-lyrs`
 - The parameter `stm_generation:stm_generation-settings:incremental-statistics:recalibration-jump-size` has been renamed to `generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size`
 
+### Fixed
+- Separate `create_mrm` and `depsi_post` on one side, and `set_portal_upload_flag` on the other side into different step machine fields, so that it is possible to run `depsi_post` without pushing to the portal
+
 
 ## [v3.2.3](https://github.com/TUDelftGeodesy/caroline/tree/888f022ba797e4cb63b5904854efacbdc4cc9f6c) (28-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/e46493f87582bfbdb2a8ae17dd46da4879538b27...888f022ba797e4cb63b5904854efacbdc4cc9f6c))
 

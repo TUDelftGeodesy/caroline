@@ -398,7 +398,7 @@ jobs:
     sbatch-args: "--ntasks=1 --cpus-per-task=1"
     directory-contents-file-appendix: "_portalupload"
     email:
-      include-in-email: True
+      include-in-email: True  # this one also generates the link to the portal into the email
       status-file-search-key:
     bash-file:
     job-array:

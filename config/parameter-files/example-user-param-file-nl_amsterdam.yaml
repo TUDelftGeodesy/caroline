@@ -14,7 +14,9 @@ general:
     dependency:
       aoi-name: 'nl_veenweiden'
       input-step: 'doris_v5'
-    output-steps: ["stm_generation", "portal_upload"]
+    output-steps: ["generate_partitioned_stm", "set_portal_upload_flag"]
+    filters:
+      coregistration-mode: "doris"
 
   shape-file:
     rectangular-shape-file:

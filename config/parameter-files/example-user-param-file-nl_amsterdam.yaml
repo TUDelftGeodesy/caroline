@@ -13,8 +13,10 @@ general:
   workflow:
     dependency:
       aoi-name: 'nl_veenweiden'
-      input-step: 'doris'
-    output-steps: ["stm_generation", "portal_upload"]
+      input-step: 'doris_v5'
+    output-steps: ["generate_partitioned_stm", "set_portal_upload_flag"]
+    filters:
+      coregistration-mode: "doris"
 
   shape-file:
     rectangular-shape-file:
@@ -26,7 +28,7 @@ general:
   email:
     recipients: "s.a.n.vandiepen@tudelft.nl,y.wang-29@tudelft.nl,w.s.brouwer@tudelft.nl,r.f.hanssen@tudelft.nl"
 
-doris:
+doris_v5:
   general:
     AoI-name: "nl_veenweiden"
 

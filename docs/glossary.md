@@ -4,14 +4,14 @@ This file details the definitions of terms used in the [CAROLINE architecture](#
 
 ## CAROLINE Architecture
 - <b>module</b>: a block in the CAROLINE [architecture](architecture.md). An example is the <i>autonomous stack building</i> module. A module has one or more submodules.
-- <b>submodule</b>: a component of a module. An example is <i>coregistration</i>, part of the <i>autonomous stack building</i> module. A submodule has one or more jobs.
-- <b>job</b>: a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>coregistration</i> submodule contains three jobs: <i>Doris v5</i> (Sentinel-1 coregistration), <i>Doris v5 cleanup</i>, and <i>DeInSAR</i> (for coregistration of other sensors). A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.
-- <b>job array</b>: a group of jobs running the same single program that achieves a clearly specified goal, where each individual subjob within the job array uses different parameter settings. The <i>snap_run</i> job is submitted as a job array. See the [SLURM documentation](https://slurm.schedmd.com/job_array.html) for more details on how this works.
+- <b>submodule</b>: a component of a module. An example is the <i>stack generation</i> submodule, part of the <i>autonomous stack building</i> module. A submodule has one or more jobs.
+- <b>job</b>: a single program that achieves a clearly specified goal, that is individually submitted to the SLURM manager. The <i>stack generation</i> submodule contains 10 jobs: <i>Doris v5</i>, <i>Doris v5 cleanup</i>, <i>Doris v4</i>, <i>SNAP preparation</i>, <i>SNAP</i>, <i>SNAP fix permissions</i>, <i>reduce SLC matlab</i>, <i>reduce SLC python</i>, <i>merge to stack matlab</i>, and <i>merge to stcack python</i>. A job consists of exactly one function call to a preparation function, and optionally one bash script to be executed.
+- <b>job array</b>: a group of jobs running the same single program that achieves a clearly specified goal, where each individual subjob within the job array uses different parameter settings. The <i>SNAP</i> job is submitted as a job array. See the [SLURM documentation](https://slurm.schedmd.com/job_array.html) for more details on how this works.
 - <b>subjob</b>: one of the jobs running in a job array. They differentiate themselves from a job since they also have a task ID (e.g. 12345_1 instead of just 12345)
 - <b>function</b>: a Python function.
 - <b>plugin</b>: an external software package that is called by CAROLINE to execute a job. An example is the <i>Doris v5.0.4</i> plugin, used in the job <i>Doris v5</i> in the coregistration submodule.
 - <b>patch</b>: an amendment to a plugin, where the original plugin code does not function as intended for CAROLINE. All patches are located in the `patches` directory, using the exact same folder structure as will be generated in the directory read from the `CAROLINE_PLUGINS_DIRECTORY` setting.
-- <b>workflow</b>: the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a coregistered stack, the workflow is `crop_to_raw` > `DePSI` > `mrm` > `DePSI_post` > `portal upload`
+- <b>workflow</b>: the string of consecutive jobs required to reach a specific outcome. E.g., for a psi_batch portal layer starting from a Doris v5-reduced SLC stack, the workflow is `reduce_slc_matlab` > `DePSI` > `mrm` > `DePSI_post` > `portal upload`
 
 - <b>status file</b>: a file detailing the status, progress, and errors of a job, produced by the job itself (so not the command line output). 
 
@@ -34,7 +34,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * AoI in `.shp` format
     * output:
       * Original SLCs
-- <b>doris</b>: this job uses Doris v5 to perform the basic interferometric Sentinel-1 procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
+- <b>doris_v5</b>: this job uses Doris v5 to perform the basic interferometric Sentinel-1 procedure per image pair. This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
     * input:
       * Original SLCs
       * AoI in `.shp` format
@@ -73,7 +73,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * output:
       * XML graphs to be processed by SNAP called `PROCESSID-<subjob-ID>-<motherEpoch>-<daughterEpoch>-graph.xml`, one for each mother/daughter combination to be processed (they will be processed by individual subjobs in `snap_run`, hence the subjob ID identifier).
       * A datestamped archive folder containing all previously present XML graphs in the processing folder
-- <b>snap_run</b>: this job uses SNAP to perform the basic interferometric Sentinel-1 procedure per image pair as a job array (one subjob per mother/daughter combination). This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
+- <b>snap</b>: this job uses SNAP to perform the basic interferometric Sentinel-1 procedure per image pair as a job array (one subjob per mother/daughter combination). This includes orbit corrections, coregistration, resampling, burst merging, interferogram generation, reference phase and DEM (including reference ellipsoid) subtraction, geocoding, and coherence estimation.
     * input:
       * XML graphs, one for each subjob 
     * output:
@@ -93,12 +93,12 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * product metadata
         * ground control points (empty)
         * pins (empty)
-- <b>snap_permissions</b>: this job sets the correct permissions on the `.znap` archives.
+- <b>snap_fix_permissions</b>: this job sets the correct permissions on the `.znap` archives.
     * input:
-      * The `.znap` archives outputted by `snap_run`
+      * The `.znap` archives outputted by `snap`
     * output:
       * `.znap`-archives, one per acquisition, with permissions `775`
-- <b>crop_to_raw</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `deinsar` or `doris` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
+- <b>reduce_slc_matlab</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)
     * Height-to-phase screens with the reference DEM subtracted (`h2ph_srd.raw`)
@@ -114,7 +114,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * Height-to-phase screens with reference DEM subtracted cropped to the AoI (`h2ph_srd.raw`)
     * Reduced SLCs with reference DEM subtracted cropped to the AoI (`slc_srd.raw`)
     * Line and pixel specification of the crop (`nlines_crop.txt` and `npixels_crop.txt`)
-- <b>python_preparation</b>: this job converts the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. Finally, it creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
+- <b>reduce_slc_python</b>: this job converts the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. Finally, it creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
     * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)
     * Height-to-phase screens with the reference DEM subtracted (`h2ph_srd.raw`)
@@ -135,7 +135,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * `lat`: latitude coordinates cropped to the AoI
         * `lon`: longitude coordinates cropped to the AoI
         * `time`: epochs of the acquisitions
-- <b>znap_to_raw</b>: this job crops the output SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) complex interferograms from the cropped SLCs and the mother SLC, before writing everything to `.raw` format
+- <b>merge_to_stack_matlab</b>: this job crops the output SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) complex interferograms from the cropped SLCs and the mother SLC, before writing everything to `.raw` format
   * input:
     * `.znap`-archives, one per acquisition, with permissions `775`
     * AoI in `.shp` format
@@ -146,7 +146,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * Height-to-phase screens with reference DEM subtracted cropped to the AoI (`h2ph_srd.raw`)
     * Reduced SLCs with reference DEM subtracted cropped to the AoI (`slc_srd.raw`)
     * Line and pixel specification of the crop (`nlines_crop.txt` and `npixels_crop.txt`)
-- <b>znap_to_zarr</b>: this job converts the output  SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI.
+- <b>merge_to_stack_python</b>: this job converts the output  SLCs, height-to-phase screens, geocoded coordinates and mother SLC of `snap_permissions` into a [sarxarray](https://github.com/TUDelftGeodesy/sarxarray) stack. It then crops all data to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI.
   * input:
     * `.znap`-archives, one per acquisition, with permissions `775`
     * AoI in `.shp` format
@@ -209,7 +209,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       - optional coordinates:
         * `rd_x` / `epsg:xxx_x`: x coordinate of requested projection from variable `stm_extra_projection`
         * `rd_y` / `epsg:xxx_y`: y coordinate of requested projection from variable `stm_extra_projection`
-- <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `crop_to_raw`.
+- <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `reduce_slc_matlab`.
     * input:
       * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)
       * Geocoded pixel coordinates cropped to the AoI (`lam.raw` and `phi.raw`)

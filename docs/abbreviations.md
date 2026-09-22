@@ -12,22 +12,19 @@ and `NNN` the three-letter area of interest abbreviation.
 
 - `SD`: Sentinel-1 Download (for one-time full-period downloads, periodic downloads of the last month are managed by [manage-s1-download.sh](../scripts/manage-s1-download.sh))
 
-#### Coregistration submodule
+#### Stack generation submodule
 
-- `D4`: DeInSAR
+- `D4`: Doris v4
 - `D5`: Doris v5
 - `DC`: Doris v5 cleanup
-- `SE`: SNAP-permissions
+- `MM`: merge-to-stack-matlab
+- `MP`: merge-to-stack-python
+- `RM`: reduce-slc-matlab
+- `RP`: reduce-slc-python
+- `SF`: SNAP-fix permissions
+- `SN`: SNAP
 - `SP`: SNAP Preparation
-- `SR`: SNAP-run
 
-#### Cropping submodule
-
-- `CR`: crop-to-raw
-- `CZ`: crop-to-zarr
-- `RE`: Re-SLC (deprecated)
-- `ZR`: znap-to-raw
-- `ZZ`: znap-to-zarr
 
 ### AAA Job Definition module
 
@@ -41,8 +38,8 @@ None yet, managed by [contextual-data-definitions.yaml](../config/contextual-dat
 
 #### PSI-batch submodule
 
-- `DE`: DePSI
-- `SG`: STM_generation
+- `DM`: DePSI_matlab
+- `GS`: generate_partitioned_STM
 
 ### Autonomous Analysis module
 
@@ -56,10 +53,11 @@ None yet
 
 #### PSI-batch submodule
 
+- `CM`: Create mrm
+- `CT`: Create tarball
 - `DP`: DePSI-post
-- `MR`: Read mrm
-- `PU`: Portal upload preparation (the actual upload is managed by [manage-portal-upload.sh](../scripts/manage-portal-upload.sh))
-- `TB`: Tarball creation
+- `PU`: Set portal upload flag (the actual upload is managed by [manage-portal-upload.sh](../scripts/manage-portal-upload.sh))
+
 
 ### Push module
 

@@ -1,0 +1,10 @@
+# the default settings for merge_to_stack_matlab, running in the merge_to_stack_matlab job
+
+merge_to_stack_matlab:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/crops'
+    partition: 'normal'
+    depsi_group-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'
+
+

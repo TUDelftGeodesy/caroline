@@ -1,0 +1,9 @@
+# the default settings for reduce_slc_matlab, running in the reduce_slc_matlab job
+
+reduce_slc_matlab:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/crops'
+    partition: 'normal'
+
+

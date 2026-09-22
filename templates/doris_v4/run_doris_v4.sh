@@ -7,7 +7,7 @@
 #SBATCH --partition=normal
 
 # The default Quality of Service is the 'short' QoS (maximum run time: 4 hours)
-#SBATCH --qos=long 
+#SBATCH --qos=long
 
 # The default run (wall-clock) time is 1 minute
 #SBATCH --time=4-00:00:00
@@ -17,7 +17,7 @@
 
 # Request 1 CPU per active thread of your program (assume 1 unless you specifically set this)
 # The default number of CPUs per task is 1 (note: CPUs are always allocated per 2)
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=8
 
 # The default memory per node is 1024 megabytes (1GB) (for multiple tasks, specify --mem-per-cpu instead)
 #SBATCH --mem-per-cpu=8000
@@ -29,15 +29,15 @@
 # Uncomment these lines when your job requires this software
 # Uncomment these lines when your job requires this software
 
-#module use /opt/insy/modulefiles
-#module load matlab/R2020a
+# source /etc/profile.d/modules.sh
+source /project/caroline/Software/bin/init.sh
+module load **python2_module** **gdal_module**
 
-module --ignore-cache load **matlab_module**
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started run_doris_v4.sh (AoI **doris_v4:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started depsi_post.sh (AoI **depsi_matlab:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
+export PYTHONPATH=**doris_v4:general:deinsar-code-directory**
+export PATH=**doris_v4:general:doris_v4-code-directory**:$PATH
+export SAR_ODR_DIR=**orbit_directory**
+python **coregistration_base_directory**/run_doris_v4.py || exit 5
 
-srun matlab -nodisplay -nosplash -nodesktop -r "run('**depsi_base_directory**/depsi_post.m');exit;" || exit 5
-
-echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished depsi_post.sh (AoI **depsi_matlab:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
-
-
+echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished run_doris_v4.sh (AoI **doris_v4:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

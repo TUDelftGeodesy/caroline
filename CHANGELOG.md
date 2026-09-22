@@ -44,6 +44,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `portal_upload` has been renamed to `set_portal_upload_flag`
 - The Coregistration submodule and Cropping submodule have been merged into the Stack Generation submodule
 - `asf_search` dependency version bumped to `v13.0.0` to avoid an error being thrown during `utils.identify_s1_orbits_in_aoi`
+- All instances of job names in variable names have been replaced by their new names
+- The parameter group `stm_generation:stm_generation-settings:ps-selection:initialization-settings` has been renamed to `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings`
+- The parameter `stm_generation:stm_generation-settings:ps-selection:initialization-settings:initialization-length` has been renamed to `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:init-length`
+- The parameter `stm_generation:stm_generation-settings:partitioning:undifferenced-output-layers` has been renamed to `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:undifferenced-output-lyrs`
+- The parameter `stm_generation:stm_generation-settings:partitioning:single-difference-output-layers` has been renamed to `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:single-difference-output-lyrs`
+- The parameter `stm_generation:stm_generation-settings:incremental-statistics:recalibration-jump-size` has been renamed to `generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size`
+
 
 ## [v3.2.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (07-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...main))
 

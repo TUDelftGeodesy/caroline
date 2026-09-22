@@ -290,7 +290,7 @@ def _generate_email(parameter_file: str) -> str:
                 else:
                     directory = CONFIG_PARAMETERS["SLURM_OUTPUT_DIRECTORY"]
                 if check["successful_finish"]:
-                    if job == "portal_upload":
+                    if job == "set_portal_upload_flag":
                         status_checks += (
                             "NOTE: it can take a few hours for the results to show up in the portal.\n"
                             + "The DePSI-post results can be accessed at "

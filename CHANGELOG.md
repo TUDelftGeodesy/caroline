@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v4.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (22-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...main))
+## [v4.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (22-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/888f022ba797e4cb63b5904854efacbdc4cc9f6c...main))
 
 ### Changed
 - `crop_to_raw` has been renamed to `reduce_SLC_matlab` (abbr. `RM`)
@@ -52,7 +52,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The parameter `stm_generation:stm_generation-settings:incremental-statistics:recalibration-jump-size` has been renamed to `generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size`
 
 
-## [v3.2.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (07-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...main))
+## [v3.2.3](https://github.com/TUDelftGeodesy/caroline/tree/888f022ba797e4cb63b5904854efacbdc4cc9f6c) (28-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/e46493f87582bfbdb2a8ae17dd46da4879538b27...888f022ba797e4cb63b5904854efacbdc4cc9f6c))
+
+### Changed
+- `snap_run` now runs on 12 cores instead of 8
+
+## [v3.2.2](https://github.com/TUDelftGeodesy/caroline/tree/e46493f87582bfbdb2a8ae17dd46da4879538b27) (07-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...e46493f87582bfbdb2a8ae17dd46da4879538b27))
 
 ### Fixed
 - The scheduler no longer crashes if it encounters a half-downloaded raw SLC zipfile without a corresponding json file

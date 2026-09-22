@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v4.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (28-Aug-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...main))
+## [v4.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (22-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d7a236c3a1a1464d77e26d7f1a37f4ef833818ad...main))
 
 ### Changed
 - `crop_to_raw` has been renamed to `reduce_SLC_matlab` (abbr. `RM`)

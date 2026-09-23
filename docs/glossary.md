@@ -162,7 +162,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * `lat`: latitude coordinates cropped to the AoI
         * `lon`: longitude coordinates cropped to the AoI
         * `time`: epochs of the acquisitions
-- <b>stm_generation</b>: this job identifies PS in a `.zarr`-archive with a stack of coregistered, resampled, reduced SLCs.
+- <b>generate_stm</b>: this job selects PS in a `.zarr`-archive with a stack of coregistered, resampled, reduced SLCs, and then selects partitions per PS based on amplitude behavior.
   * input:
     * `.zarr` archive with the following fields:
       - variables:
@@ -175,6 +175,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * `lat`: latitude coordinates cropped to the AoI
         * `lon`: longitude coordinates cropped to the AoI
         * `time`: epochs of the acquisitions
+    * Selection criteria based on user-defined settings in the [CAROLINE parameter file](parameter-file.md) 
   * output:
     * `.zarr` archive with the following fields (note: this is in STM format, not in gridded format):
       - variables:
@@ -209,7 +210,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
       - optional coordinates:
         * `rd_x` / `epsg:xxx_x`: x coordinate of requested projection from variable `stm_extra_projection`
         * `rd_y` / `epsg:xxx_y`: y coordinate of requested projection from variable `stm_extra_projection`
-- <b>depsi</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `reduce_slc_matlab`.
+- <b>depsi_matlab</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `reduce_slc_matlab`.
     * input:
       * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)
       * Geocoded pixel coordinates cropped to the AoI (`lam.raw` and `phi.raw`)
@@ -220,7 +221,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
     * output:
       * Estimated time series of identified persistent scatterers with respect to a reference point provided in `<AoI_name>_ref_sel1.raw`
       * Multi-image Reflectivity Map (MRM) of the AoI (`<AoI_name>_mrm.raw`)
-- <b>mrm_to_ras</b>: this job converts the MRM produced by `depsi` into `.ras` format for usage in `depsi_post`.
+- <b>create_mrm</b>: this job converts the MRM produced by `depsi` into `.ras` format for usage in `depsi_post`.
     * input:
       * Multi-image Reflectivity Map (MRM) of the AoI (`<AoI_name>_mrm.raw`) as produced by `depsi`
     * output:

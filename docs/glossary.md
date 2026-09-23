@@ -98,9 +98,9 @@ All jobs run on a single AoI on a single track. The following specifications wil
       * The `.znap` archives outputted by `snap`
     * output:
       * `.znap`-archives, one per acquisition, with permissions `775`
-- <b>reduce_slc_matlab</b>: this job crops the output complex interferograms, height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. It then creates the (now resampled and reference DEM-subtracted, i.e.,  _reduced_) SLCs from the cropped complex interferograms and the mother SLC.
+- <b>reduce_slc_matlab</b>: this job does two things. First, it crops the output complex interferograms (that are already resampled and reference DEM-subtracted), height-to-phase screens, geocoded coordinates and mother SLC of `doris_v4` or `doris_v5` to a provided AoI. The crop is taken to be the smallest rectangle in line/pixel coordinates that completely encloses the AoI. Second, it creates the _reduced_ (i.e., resampled and reference DEM-subtracted) SLCs from the cropped complex interferograms and the mother SLC.
   * input:
-    * Complex interferograms with reference DEM subtracted (`cint_srd.raw`)
+    * Complex interferograms, resampled and with reference DEM subtracted (`cint_srd.raw`)
     * Height-to-phase screens with the reference DEM subtracted (`h2ph_srd.raw`)
     * Logs of operations performed (`master.res`/`slave.res`)
     * Geocoded pixel coordinates (`lam.raw` and `phi.raw`)

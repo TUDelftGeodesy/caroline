@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v4.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (22-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/888f022ba797e4cb63b5904854efacbdc4cc9f6c...main))
+## [v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (28-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...main))
+
+### Fixed
+- AoI name is read in properly again into `depsi_post` output generation
+
+## [v4.0.0](https://github.com/TUDelftGeodesy/caroline/tree/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2) (22-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/888f022ba797e4cb63b5904854efacbdc4cc9f6c...c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2))
 
 ### Changed
 - `crop_to_raw` has been renamed to `reduce_SLC_matlab` (abbr. `RM`)

@@ -14,8 +14,8 @@ source **caroline_virtual_environment_directory**/bin/activate
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started reduce-slc-python.sh (AoI **reduce_slc_python:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
-export PATH="**reduce_slc_python:general:depsi_group-code-directory**:$PATH"
-export PYTHONPATH="**reduce_slc_python:general:depsi_group-code-directory**:$PYTHONPATH"
+export PATH="**reduce_slc_python:general:depsi-code-directory**:$PATH"
+export PYTHONPATH="**reduce_slc_python:general:depsi-code-directory**:$PYTHONPATH"
 
 python3 reduce-slc-python.py || exit 5
 

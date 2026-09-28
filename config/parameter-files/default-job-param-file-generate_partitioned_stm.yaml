@@ -5,7 +5,7 @@ generate_partitioned_stm:
     AoI-name: "**AoI_name**"
     directory: '/project/caroline/Share/stms_zarr'
     partition: 'normal'
-    depsi_group-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'
+    depsi-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI'
 
   generate_partitioned_stm-settings:
 

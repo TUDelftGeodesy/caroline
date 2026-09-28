@@ -1704,7 +1704,7 @@ def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list |
             parameter_file=parameter_file,
             parameter_file_parameters=[
                 "generate_partitioned_stm:general:AoI-name",
-                "reduce_slc_python:general:depsi_group-code-directory",
+                "reduce_slc_python:general:depsi-code-directory",
             ],
             config_parameters=[
                 "caroline_work_directory",
@@ -1787,7 +1787,7 @@ def prepare_merge_to_stack_matlab(parameter_file: str, do_track: int | list | No
             parameter_file=parameter_file,
             parameter_file_parameters=[
                 "merge_to_stack_matlab:general:AoI-name",
-                "merge_to_stack_matlab:general:depsi_group-code-directory",
+                "merge_to_stack_matlab:general:depsi-code-directory",
             ],
             config_parameters=[
                 "caroline_work_directory",
@@ -1870,7 +1870,7 @@ def prepare_merge_to_stack_python(parameter_file: str, do_track: int | list | No
             parameter_file=parameter_file,
             parameter_file_parameters=[
                 "merge_to_stack_python:general:AoI-name",
-                "merge_to_stack_python:general:depsi_group-code-directory",
+                "merge_to_stack_python:general:depsi-code-directory",
             ],
             config_parameters=[
                 "caroline_work_directory",
@@ -2089,7 +2089,7 @@ def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None =
             parameter_file=parameter_file,
             parameter_file_parameters=[
                 "reduce_slc_python:general:AoI-name",
-                "reduce_slc_python:general:depsi_group-code-directory",
+                "reduce_slc_python:general:depsi-code-directory",
             ],
             config_parameters=[
                 "caroline_work_directory",

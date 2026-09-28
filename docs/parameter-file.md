@@ -157,9 +157,9 @@ These parameters are used in the job `reduce_slc_python`. Defaults in [the defau
 - `reduce_slc_python:general:partition`
   - Function: specify the partition on which the [job](glossary.md#jobs) `reduce_slc_python` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (30 day time limit)
-- `reduce_slc_python:general:depsi_group-code-directory`
-  - Function: specify where the DePSI_group code is, containing the functionality for `reduce_slc_python`
-  - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
+- `reduce_slc_python:general:depsi-code-directory`
+  - Function: specify where the depsi code is, containing the functionality for `reduce_slc_python`
+  - Possible values: `string` with the absolute path to the base directory of `depsi`
 
 ## doris_v4 parameters
 
@@ -407,9 +407,9 @@ These parameters are used in the job `generate_partitioned_stm`. Defaults in [th
 - `generate_partitioned_stm:general:partition`
   - Function: specify the partition on which the [job](glossary.md#jobs) `generate_partitioned_stm` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `generate_partitioned_stm:general:depsi_group-code-directory`
-  - Function: specify where the DePSI_group code is, containing the functionality for `generate_partitioned_stm`
-  - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
+- `generate_partitioned_stm:general:depsi-code-directory`
+  - Function: specify where the depsi code is, containing the functionality for `generate_partitioned_stm`
+  - Possible values: `string` with the absolute path to the base directory of `depsi`
 
 - `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:mode`
   - Function: specify the mode to be used for the time frame selection during the PS selection
@@ -427,7 +427,7 @@ These parameters are used in the job `generate_partitioned_stm`. Defaults in [th
   - Function: set the threshold for when a point is considered a PS (all PS below the threshold are accepted)
   - Possible values: any positive `float` 
 - `generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:increment-mode`
-  - Function: specify the mode to add either the [incremental or recalibration](https://github.com/TUDelftGeodesy/DePSI_group/blob/dev/depsi/point_quality.py#L148) NAD or NMAD (based on `stm_ps_selection_method`)
+  - Function: specify the mode to add either the [incremental or recalibration](https://github.com/TUDelftGeodesy/DePSI/blob/caroline-clone-branch/depsi/point_quality.py#L148) NAD or NMAD (based on `stm_ps_selection_method`)
   - Possible values: `'incremental'` (update every epoch), `'recalibration'` (update every `stm_nad_nmad_recalibration_jump_size` epochs)
 - `generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size`
   - Function: specify the jump size to be used for `recalibration` mode for the updating NAD or NMAD
@@ -487,9 +487,9 @@ These parameters are used in the job `merge_to_stack_matlab`. Defaults in [the d
 - `merge_to_stack_matlab:general:partition`
   - Function: specify the partition on which the [job](glossary.md#jobs) `merge_to_stack_matlab` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (30 day time limit)
-- `merge_to_stack_matlab:general:depsi_group-code-directory`
-  - Function: specify where the DePSI_group code is, containing the functionality for `merge_to_stack_matlab`
-  - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
+- `merge_to_stack_matlab:general:depsi-code-directory`
+  - Function: specify where the depsi code is, containing the functionality for `merge_to_stack_matlab`
+  - Possible values: `string` with the absolute path to the base directory of `depsi`
 
 ## merge_to_stack_python parameters
 
@@ -505,7 +505,7 @@ These parameters are used in the job `merge_to_stack_python`. Defaults in [the d
 - `merge_to_stack_python:general:partition`
   - Function: specify the partition on which the [job](glossary.md#jobs) `merge_to_stack_python` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `merge_to_stack_python:general:depsi_group-code-directory`
-  - Function: specify where the DePSI_group code is, containing the functionality for `merge_to_stack_python`
-  - Possible values: `string` with the absolute path to the base directory of `DePSI_group`
+- `merge_to_stack_python:general:depsi-code-directory`
+  - Function: specify where the depsi code is, containing the functionality for `merge_to_stack_python`
+  - Possible values: `string` with the absolute path to the base directory of `depsi`
 

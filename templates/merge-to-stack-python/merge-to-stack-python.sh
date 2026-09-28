@@ -14,8 +14,8 @@ source **caroline_virtual_environment_directory**/bin/activate
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started merge-to-stack-python.sh (AoI **merge_to_stack_python:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 
-export PATH="**merge_to_stack_python:general:depsi_group-code-directory**:$PATH"
-export PYTHONPATH="**merge_to_stack_python:general:depsi_group-code-directory**:$PYTHONPATH"
+export PATH="**merge_to_stack_python:general:depsi-code-directory**:$PATH"
+export PYTHONPATH="**merge_to_stack_python:general:depsi-code-directory**:$PYTHONPATH"
 
 python3 merge-to-stack-python.py || exit 5
 

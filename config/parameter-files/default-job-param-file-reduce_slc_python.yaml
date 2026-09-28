@@ -5,4 +5,4 @@ reduce_slc_python:
     AoI-name: "**AoI_name**"
     directory: '/project/caroline/Share/stacks_zarr'
     partition: 'normal'
-    depsi_group-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'
+    depsi-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI'

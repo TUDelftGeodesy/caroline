@@ -82,10 +82,51 @@ For any changes to the repository (including AoI changes), the following steps a
    2. For documentation updates: `X.Y.Z` -> `X.Y.Z` (e.g. `2.0.12` -> `2.0.12`)
    3. For job additions (see [Adding a new job](#adding-a-new-job)): `X.Y.Z` -> `X.Y+1.0` (e.g. `2.0.12` -> `2.1.0`)
    4. For major architecture changes: `X.Y.Z` -> `X+1.0.0` (e.g. `2.0.12` -> `3.0.0`)
-6. Update the documentation (if necessary) and [Changelog](../CHANGELOG.md) (always necessary)
-7. Create a pull request, and ensure the ruff check passes.
-8. Pass the code review, and merge the pull request.
-9. Ask the [Admins](../README.md#contacts) to update the live installation on Spider (See [Installing on Spider](../README.md#installation-on-spider---live-version))
+6. Update the documentation (if necessary)
+7. Update the [Changelog](../CHANGELOG.md) (always necessary). This is slightly tricky, so here's a step-by-step guide:
+   1. Currently, the relevant part of the changelog looks like this:
+   ```text
+   ## [v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (28-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...main))
+   
+   ### Fixed
+   ...
+    ```
+   2. Here:
+      1. `[v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main)` is a direct link to the **current** version `v4.0.1` (currently on the hash `main`)
+      2. `[diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...main)` intends to show the difference between this version (`v4.0.1`, hash `main`) with the previous version (`v4.0.0`, hash `c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2`)
+      3. `28-Sep-2026` is the date that this commit was merged into the main branch
+   3. For the sake of the example, let us say in step 5 we determined the next version is `v4.1.0`. We want to achieve the following format for our changelog edit:
+   ```text
+   ## [v4.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (<DD-mmm-YYYY>, [diff](https://github.com/TUDelftGeodesy/caroline/compare/<HASHv4.0.1>...main))
+   
+   ### Added
+   ...
+   
+   ### Changed
+   ...
+   
+   ### Fixed
+   ...
+   
+   ### Removed
+   ...
+
+   ## [v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/<HASHv4.0.1>) (28-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...<HASHv4.0.1>))
+   
+   ### Fixed
+   ...
+    ```
+   4. Here:
+      1. All our changes in this version with respect to the previous version are categorized in the correct category: added, changed, fixed, or removed.
+      2. Empty categories can be removed.
+      3. We need to fill in the date that we merge this into the main branch in the spot labeled `<DD-mmm-YYYY>`, in the format `08-Sep-2026`
+      4. In the ***three*** spots labeled `<HASHv4.0.1>`, we need to put the hash of `v4.0.1`. Note that we could not previously get this, as this hash is only set when the changes are merged into the main branch. To get the hash of the previous version:
+         1. Go to https://github.com/TUDelftGeodesy/caroline/commits/main/
+         2. On the most recent commit, click the `copy` button next to the shortened 7-character hash. This will copy the 40-character hash of `v4.0.1` to the clipboard
+         3. Paste this hash in the ***three*** labeled spots (the direct link to `v4.0.1`, the difference between `v4.0.1` and `v4.0.0`, and the difference between `v4.1.0` and `v4.0.1`)
+8. Create a pull request, and ensure the ruff check passes.
+9. Pass the code review, and merge the pull request.
+10. Ask the [Admins](../README.md#contacts) to update the live installation on Spider (See [Installing on Spider](../README.md#installation-on-spider---live-version))
 
 ## Running tests
 Due to the nature of Caroline, tests can generally not be done on a local installation as a SLURM-manager is required. Caroline should therefore be tested on the HPC. Before running a test, make sure you have a personal testing installation of Caroline on Spider (See [Installing on Spider - personal testing version](../README.md#installation-on-spider---personal-testing-version)).
@@ -119,7 +160,7 @@ Once this command completes, your jobs are visible using the command `squeue --m
    - All parameters in the `General` section (Sentinel-1 tracks will be automatically detected but can be force-included or force-excluded, for other sensors all tracks need to be specified)
    - The DEM, especially if not processing in the Netherlands. If no DEM is available in your AoI, follow the steps in [#67](https://github.com/TUDelftGeodesy/caroline/issues/67) to generate the DEM (just the DEM part) (NOTE: with [#248](https://github.com/TUDelftGeodesy/caroline/issues/248) the DEM generation will be deprecated).
    - Note that stacks are all stored in `/project/caroline/Share/stacks`, crops in `/project/caroline/Share/crops`, zarr stacks in `/project/caroline/Share/stacks_zarr`, DePSI runs in `/project/caroline/Share/projects/<country_code>_<region_of_interest>/depsi`, and shapefiles in `/project/caroline/Software/roi/<first step that will be run out of stacks / crops / depsi>/<country_code>_<region_of_interest>` for consistency.
-6. Follow steps 5-9 of the [general GitHub management](https://github.com/TUDelftGeodesy/caroline-parameter-files/blob/main/docs/development.md#general-github-management). Once complete, your new AoI will be live.
+6. Follow steps 5-10 of the [general GitHub management](https://github.com/TUDelftGeodesy/caroline-parameter-files/blob/main/docs/development.md#general-github-management). Once complete, your new AoI will be live.
 7. After installation, the detected tracks (for Sentinel-1) will be shown in a KML in https://public.spider.surfsara.nl/project/caroline/caroline/caroline-aoi-extents. Verify that these are indeed all tracks you intend to run, and no small corners of tracks you do not intend to process are included. If they are, follow the [general GitHub management](https://github.com/TUDelftGeodesy/caroline-parameter-files/blob/main/docs/development.md#general-github-management) to create a new issue to resolve this (the relevant parameters are in `include_tracks` and `exclude_tracks` in the [general](parameter-file.md#general-parameters) section of the parameter file).
 
 A few notes:
@@ -129,6 +170,8 @@ A few notes:
   - The first job that is run is `s1_download`, which will per track download all SLC zip files in the period you specified before continuing to coregistration.
 - If `s1_download` is the _only_ step that is run, no `area-track-list` is generated and the AoI will never be started by [run-caroline.sh](../scripts/run-caroline.sh), as it is assumed this AoI is only to trigger the periodic download (e.g. the `be_lu_nl_benelux` AoI).
 - Download configurations are removed when an AoI is [deactivated](management.md#activating--deactivating-an-aoi).
+
+
 ## Adding a new job
 
 
@@ -271,5 +314,45 @@ In order to fully integrate a new job into CAROLINE, the following steps need to
    3. `<bash-file-base-directory>:general:directory`, the directory in which the job should run
 11. In the [parameter file repository](https://github.com/TUDelftGeodesy/caroline-parameter-files), add the new job to all workflows where you want it to be active (following the GitHub management)
 12. Update the version on line 7 of [pyproject.toml](../pyproject.toml) from `X.Y.Z` to `X.Y+1.0` (e.g. `2.0.12` to `2.1.0`)
-13. Update the [changelog](../CHANGELOG.md) with the new version
+13. Update the [Changelog](../CHANGELOG.md). This is slightly tricky, so here's a step-by-step guide:
+    1. Currently, the relevant part of the changelog looks like this:
+    ```text
+    ## [v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (28-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...main))
+   
+    ### Fixed
+    ...
+    ```
+    2. Here:
+       1. `[v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main)` is a direct link to the **current** version `v4.0.1` (currently on the hash `main`)
+       2. `[diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...main)` intends to show the difference between this version (`v4.0.1`, hash `main`) with the previous version (`v4.0.0`, hash `c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2`)
+       3. `28-Sep-2026` is the date that this commit was merged into the main branch
+    3. For the sake of the example, let us say in step 5 we determined the next version is `v4.1.0`. We want to achieve the following format for our changelog edit:
+    ```text
+    ## [v4.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (<DD-mmm-YYYY>, [diff](https://github.com/TUDelftGeodesy/caroline/compare/<HASHv4.0.1>...main))
+    
+    ### Added
+    ...
+    
+    ### Changed
+    ...
+    
+    ### Fixed
+    ...
+    
+    ### Removed
+    ...  
+
+    ## [v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/<HASHv4.0.1>) (28-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...<HASHv4.0.1>))
+   
+    ### Fixed
+    ...
+    ```
+    4. Here:
+       1. All our changes in this version with respect to the previous version are categorized in the correct category: added, changed, fixed, or removed.
+       2. Empty categories can be removed.
+       3. We need to fill in the date that we merge this into the main branch in the spot labeled `<DD-mmm-YYYY>`, in the format `08-Sep-2026`
+       4. In the ***three*** spots labeled `<HASHv4.0.1>`, we need to put the hash of `v4.0.1`. Note that we could not previously get this, as this hash is only set when the changes are merged into the main branch. To get the hash of the previous version:
+          1. Go to https://github.com/TUDelftGeodesy/caroline/commits/main/
+          2. On the most recent commit, click the `copy` button next to the shortened 7-character hash. This will copy the 40-character hash of `v4.0.1` to the clipboard
+          3. Paste this hash in the ***three*** labeled spots (the direct link to `v4.0.1`, the difference between `v4.0.1` and `v4.0.0`, and the difference between `v4.1.0` and `v4.0.1`)
 14. Update the documentation (at the very least [architecture.md](architecture.md) and the [glossary](glossary.md), likely more)

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--
 ## Example template!! (For the newest version, NEWHASH = main. Don't forget to update the previous versions hash too)
-( The hash can be accessed from https://github.com/TUDelftGeodesy/caroline/network by clicking on the latest merge into main, it shows up in the URL)
+( The hash can be accessed from https://github.com/TUDelftGeodesy/caroline/commits/main by clicking on the copy button next to the hash of the latest commit )
 
 ## [version](https://github.com/TUDelftGeodesy/caroline/tree/NEWHASH) (DD-MMM-YYYY, [diff](https://github.com/TUDelftGeodesy/caroline/compare/OLDHASH...NEWHASH))
 
@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -->
 ## [v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (28-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...main))
+
+### Added
+- Documentation on how to update the changelog
 
 ### Fixed
 - AoI name is read in properly again into `depsi_post` output generation

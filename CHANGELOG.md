@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v4.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (29-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/116e9fc9beec8dc57165fc2c096da0b60ce7415c...main))
+## [v4.1.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (29-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/dabf402171cf01887f4c8d32b3f33e7bc8d57138...main))
+
+### Changed
+- `snap` now runs on 16 CPUs instead of 12
+
+## [v4.1.0](https://github.com/TUDelftGeodesy/caroline/tree/dabf402171cf01887f4c8d32b3f33e7bc8d57138) (29-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/116e9fc9beec8dc57165fc2c096da0b60ce7415c...dabf402171cf01887f4c8d32b3f33e7bc8d57138))
 
 ### Added
 - Dependency on the public repository [DePSI](https://github.com/TUDelftGeodesy/DePSI), on the branch `caroline-clone-branch`

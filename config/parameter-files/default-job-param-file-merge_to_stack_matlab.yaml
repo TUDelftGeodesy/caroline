@@ -5,6 +5,6 @@ merge_to_stack_matlab:
     AoI-name: "**AoI_name**"
     directory: '/project/caroline/Share/crops'
     partition: 'normal'
-    depsi_group-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group'
+    depsi-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI'
 
 

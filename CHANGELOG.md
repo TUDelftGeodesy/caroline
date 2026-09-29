@@ -25,7 +25,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (28-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...main))
+## [v4.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (29-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/116e9fc9beec8dc57165fc2c096da0b60ce7415c...main))
+
+### Added
+- Dependency on the public repository [DePSI](https://github.com/TUDelftGeodesy/DePSI), on the branch `caroline-clone-branch`
+
+### Changed
+- Parameter `merge_to_stack_python:depsi_group-code-directory` renamed to `merge_to_stack_python:depsi-code-directory`
+- Parameter `merge_to_stack_matlab:depsi_group-code-directory` renamed to `merge_to_stack_matlab:depsi-code-directory`
+- Parameter `reduce_slc_python:depsi_group-code-directory` renamed to `reduce_slc_python:depsi-code-directory`
+- Parameter `generate_partitioned_stm:depsi_group-code-directory` renamed to `generate_partitioned_stm:depsi-code-directory`
+- Default for parameter `merge_to_stack_python:depsi-code-directory` changed from `**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group` to `**CAROLINE_PLUGINS_DIRECTORY**/DePSI`
+- Default for parameter `merge_to_stack_matlab:depsi-code-directory` changed from `**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group` to `**CAROLINE_PLUGINS_DIRECTORY**/DePSI`
+- Default for parameter `reduce_slc_python:depsi-code-directory` changed from `**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group` to `**CAROLINE_PLUGINS_DIRECTORY**/DePSI`
+- Default for parameter `generate_partitioned_stm:depsi-code-directory` changed from `**CAROLINE_PLUGINS_DIRECTORY**/DePSI_group` to `**CAROLINE_PLUGINS_DIRECTORY**/DePSI`
+
+### Removed
+- Dependency on the private repository DePSI_group, replaced by the public repository [DePSI](https://github.com/TUDelftGeodesy/DePSI)
+- Optional `plugins` dependency on `scipy` and `ruptures`, as these are already requested through the dependency on [DePSI](https://github.com/TUDelftGeodesy/DePSI)
+
+## [v4.0.1](https://github.com/TUDelftGeodesy/caroline/tree/116e9fc9beec8dc57165fc2c096da0b60ce7415c) (28-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2...116e9fc9beec8dc57165fc2c096da0b60ce7415c))
 
 ### Added
 - Documentation on how to update the changelog

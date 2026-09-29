@@ -15,8 +15,8 @@ github:
     repo: "git@bitbucket.org:grsradartudelft/deinsar.git"
     tag: "v0.3.4"
 
-  DePSI_group:
-    repo: "git@github.com:TUDelftGeodesy/DePSI_group.git"
+  DePSI:
+    repo: "git@github.com:TUDelftGeodesy/DePSI.git"
     branch: "caroline-clone-branch"
 
   snap_toolbox:

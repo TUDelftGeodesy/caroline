@@ -4,7 +4,7 @@ depsi_post:
   general:  # this job runs in the DePSI directories
     partition: 'normal'
     depsi_post-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/depsi_post_v2.1.4.0'
-    cpxfiddle-directory: '**CAROLINE_PLUGINS_DIRECTORY**/cpxfiddle'
+    cpxfiddle-directory: '**CAROLINE_PLUGINS_DIRECTORY**/cpxfiddle/cpxfiddle'
 
   depsi_post-settings:
     dlat: 0

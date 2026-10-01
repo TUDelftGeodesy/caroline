@@ -25,7 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v4.1.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (29-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/dabf402171cf01887f4c8d32b3f33e7bc8d57138...main))
+## [v4.1.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (01-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/96e2f91d169598311129f271d3faf1eff36da917...main))
+
+### Changed
+- Plugins `cpxfiddle`, `depsi_v2.2.1.1`, `geocoding_v0.9`, `rdnaptrans` moved from `tarball` plugin to `github` plugin, with each in their own private repository within `TUDelftGeodesy`
+- Parameter `depsi_post:general:cpxfiddle-directory`: default changed from `'**CAROLINE_PLUGINS_DIRECTORY**/cpxfiddle'` to `'**CAROLINE_PLUGINS_DIRECTORY**/cpxfiddle/cpxfiddle'` to reflect new repository state
+
+### Fixed
+- Installation no longer crashes if no `github` or `tarball` plugins exist
+
+## [v4.1.1](https://github.com/TUDelftGeodesy/caroline/tree/96e2f91d169598311129f271d3faf1eff36da917) (29-Sep-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/dabf402171cf01887f4c8d32b3f33e7bc8d57138...96e2f91d169598311129f271d3faf1eff36da917))
 
 ### Changed
 - `snap` now runs on 16 CPUs instead of 12

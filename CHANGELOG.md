@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v4.1.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (01-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/96e2f91d169598311129f271d3faf1eff36da917...main))
+## [v4.1.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (01-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/e7af2070b621e803104e70c088d069d3c2fb5e2d...main))
+
+### Removed
+- Patches to `depsi_v2.2.1.1` and `depsi_post_v2.1.4.0` (merged into their respective repositories)
+
+## [v4.1.2](https://github.com/TUDelftGeodesy/caroline/tree/e7af2070b621e803104e70c088d069d3c2fb5e2d) (01-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/96e2f91d169598311129f271d3faf1eff36da917...e7af2070b621e803104e70c088d069d3c2fb5e2d))
 
 ### Changed
 - Plugins `cpxfiddle`, `depsi_v2.2.1.1`, `geocoding_v0.9`, `rdnaptrans` moved from `tarball` plugin to `github` plugin, with each in their own private repository within `TUDelftGeodesy`

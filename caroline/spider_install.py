@@ -11,7 +11,12 @@ def _get_plugins() -> tuple[dict, dict]:
     plugins = get_config(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/plugin-definitions.yaml", flatten=False)
 
     github_plugins = plugins["github"]
+    if github_plugins is None:
+        github_plugins = {}
+
     tarball_plugins = plugins["tarball"]
+    if tarball_plugins is None:
+        tarball_plugins = {}
     for plugin in tarball_plugins.keys():
         if "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**" in tarball_plugins[plugin]:
             tarball_plugins[plugin] = tarball_plugins[plugin].replace(

@@ -23,8 +23,20 @@ github:
     repo: "git@github.com:TUDelftGeodesy/snap-coregistration.git"
     branch: "caroline-clone-branch"
 
+  cpxfiddle:
+    repo: "git@github.com:TUDelftGeodesy/cpxfiddle.git"
+    branch: "main"
+
+  depsi_v2.2.1.1:
+    repo: "git@github.com:TUDelftGeodesy/caroline-matlab-depsi.git"
+    branch: "main"
+
+  geocoding_v0.9:
+    repo: "git@github.com:TUDelftGeodesy/caroline-matlab-geocoding.git"
+    branch: "main"
+
+  rdnaptrans:
+    repo: "git@github.com:TUDelftGeodesy/caroline-matlab-RDNAPtrans.git"
+    branch: "main"
+
 tarball:
-  cpxfiddle: "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**/cpxfiddle.tar.gz"
-  depsi_v2.2.1.1: "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**/depsi_v2.2.1.1.tar.gz"
-  geocoding_v0.9: "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**/geocoding_v0.9.tar.gz"
-  rdnaptrans: "**CAROLINE_PLUGINS_ARCHIVE_DIRECTORY**/rdnaptrans.tar.gz"

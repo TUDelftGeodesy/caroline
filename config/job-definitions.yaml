@@ -204,7 +204,7 @@ jobs:
             coregistration-mode: "doris"
 
   merge_to_stack_matlab:
-    requirement: "snap_fix_permissions"
+    requirement: "snap_cleanup"
     two-letter-id: "MM"
     parameter-file-step-key: "general:steps:do-merge_to_stack_matlab"
     partition: "merge_to_stack_matlab:general:partition"
@@ -231,7 +231,7 @@ jobs:
             coregistration-mode: "snap"
 
   merge_to_stack_python:
-    requirement: "snap_fix_permissions"
+    requirement: "snap_cleanup"
     two-letter-id: "MP"
     parameter-file-step-key: "general:steps:do-merge_to_stack_python"
     partition: "merge_to_stack_python:general:partition"

@@ -25,6 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
+## [v5.0.0](https://github.com/TUDelftGeodesy/caroline/tree/c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2) (05-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/888f022ba797e4cb63b5904854efacbdc4cc9f6c...c9f7b7d368cc1b0305c6808d4ff0e7759df7f8b2))
+
+### Changed
+- `generate_partitioned_stm` has been renamed to `generate_stm`
+- `snap_fix_permissions` has been renamed to `snap_cleanup` (abbr. `SC`)
+
 ## [v4.1.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (05-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/e7af2070b621e803104e70c088d069d3c2fb5e2d...main))
 
 ### Added

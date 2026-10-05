@@ -2355,7 +2355,7 @@ def prepare_snap(parameter_file: str, do_track: int | list | None = None) -> Non
         )
 
 
-def prepare_snap_fix_permissions(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_snap_cleanup(parameter_file: str, do_track: int | list | None = None) -> None:
     """Change all the permissions for the SNAP output to 775.
 
     Parameters

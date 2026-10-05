@@ -9,7 +9,7 @@ github:
 
   depsi_post_v2.1.4.0:
     repo: "git@bitbucket.org:grsradartudelft/depsipost.git"
-    tag: "v2.1.4.0"
+    tag: "v2.1.4.1"
 
   deinsar_v0.3.4:
     repo: "git@bitbucket.org:grsradartudelft/deinsar.git"

@@ -284,19 +284,19 @@ jobs:
           filters:
             coregistration-mode: "doris"
 
-  generate_partitioned_stm:
+  generate_stm:
     requirement: ["reduce_slc_python", "merge_to_stack_python"]
     two-letter-id: "GS"
-    parameter-file-step-key: "general:steps:do-generate_partitioned_stm"
-    partition: "generate_partitioned_stm:general:partition"
+    parameter-file-step-key: "general:steps:do-generate_stm"
+    partition: "generate_stm:general:partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --nodes=1"
     directory-contents-file-appendix: ""
     email:
       include-in-email: True
       status-file-search-key:
     bash-file:
-      bash-file-name: "generate-partitioned-stm.sh"
-      bash-file-base-directory: "generate_partitioned_stm"
+      bash-file-name: "generate-stm.sh"
+      bash-file-base-directory: "generate_stm"
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:

@@ -1594,7 +1594,7 @@ from:noreply@spider.surfsara.nl
 {body}" | {CONFIG_PARAMETERS['SENDMAIL_EXECUTABLE']} {out_parameters['general:email:recipients']}""")
 
 
-def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list | None = None) -> None:
+def prepare_generate_stm(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and run files for STM generation.
 
     Parameters
@@ -1606,8 +1606,8 @@ def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list |
         the parameter file
     """
     search_parameters = [
-        "generate_partitioned_stm:general:AoI-name",
-        "generate_partitioned_stm:general:directory",
+        "generate_stm:general:AoI-name",
+        "generate_stm:general:directory",
         "general:tracks:track",
         "general:tracks:asc_dsc",
         "general:input-data:sensor",
@@ -1628,7 +1628,7 @@ def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list |
 
         stm_directory = format_process_folder(
             parameter_file=parameter_file,
-            job_description=JOB_DEFINITIONS["generate_partitioned_stm"],
+            job_description=JOB_DEFINITIONS["generate_stm"],
             track=tracks[track],
         )
 
@@ -1654,35 +1654,32 @@ def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list |
         reduce_slc_python_output_name = reduce_slc_python_directory.split("/")[-1]
 
         write_run_file(
-            save_path=f"{stm_directory}/generate-partitioned-stm.py",
-            template_path=(
-                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/"
-                "generate-partitioned-stm/generate-partitioned-stm.py"
-            ),
+            save_path=f"{stm_directory}/generate-stm.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/generate-stm/generate-stm.py",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:mode",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:start-date",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:init-length",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:increment-mode",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:method",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:threshold",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:do-outlier-detection",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:window-size",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:db-mode",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:n-sigma",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:do-partitioning",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:search-method",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:cost-function",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:db-mode",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:min-partition-length",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:single-differences:mother",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:extra-projection",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:undifferenced-output-lyrs",
-                "generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:single-difference-output-lyrs",
+                "generate_stm:generate_stm-settings:ps-selection:mode",
+                "generate_stm:generate_stm-settings:ps-selection:init-settings:start-date",
+                "generate_stm:generate_stm-settings:ps-selection:init-settings:init-length",
+                "generate_stm:generate_stm-settings:incremental-statistics:increment-mode",
+                "generate_stm:generate_stm-settings:incremental-statistics:recal-jump-size",
+                "generate_stm:generate_stm-settings:ps-selection:method",
+                "generate_stm:generate_stm-settings:ps-selection:threshold",
+                "generate_stm:generate_stm-settings:outlier-detection:do-outlier-detection",
+                "generate_stm:generate_stm-settings:outlier-detection:window-size",
+                "generate_stm:generate_stm-settings:outlier-detection:db-mode",
+                "generate_stm:generate_stm-settings:outlier-detection:n-sigma",
+                "generate_stm:generate_stm-settings:partitioning:do-partitioning",
+                "generate_stm:generate_stm-settings:partitioning:search-method",
+                "generate_stm:generate_stm-settings:partitioning:cost-function",
+                "generate_stm:generate_stm-settings:partitioning:db-mode",
+                "generate_stm:generate_stm-settings:partitioning:min-partition-length",
+                "generate_stm:generate_stm-settings:single-differences:mother",
+                "generate_stm:generate_stm-settings:extra-projection",
+                "generate_stm:generate_stm-settings:partitioning:undifferenced-output-lyrs",
+                "generate_stm:generate_stm-settings:partitioning:single-difference-output-lyrs",
             ],
             other_parameters={
                 "reduce_slc_python_directory": reduce_slc_python_directory,
@@ -1694,17 +1691,14 @@ def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list |
 
         # generate stm-generation.sh
         write_run_file(
-            save_path=f"{stm_directory}/generate-partitioned-stm.sh",
-            template_path=(
-                f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/generate-partitioned-stm/"
-                "generate-partitioned-stm.sh"
-            ),
+            save_path=f"{stm_directory}/generate-stm.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/generate-stm/generate-stm.sh",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
             parameter_file_parameters=[
-                "generate_partitioned_stm:general:AoI-name",
-                "reduce_slc_python:general:depsi-code-directory",
+                "generate_stm:general:AoI-name",
+                "generate_stm:general:depsi-code-directory",
             ],
             config_parameters=[
                 "caroline_work_directory",
@@ -1717,9 +1711,7 @@ def prepare_generate_partitioned_stm(parameter_file: str, do_track: int | list |
 
         write_directory_contents(
             stm_directory,
-            filename=(
-                f'dir_contents{JOB_DEFINITIONS["generate_partitioned_stm"]["directory-contents-file-appendix"]}.txt'
-            ),
+            filename=(f'dir_contents{JOB_DEFINITIONS["generate_stm"]["directory-contents-file-appendix"]}.txt'),
         )
 
 

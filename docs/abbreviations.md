@@ -39,7 +39,7 @@ None yet, managed by [contextual-data-definitions.yaml](../config/contextual-dat
 #### PSI-batch submodule
 
 - `DM`: DePSI_matlab
-- `GS`: generate_partitioned_STM
+- `GS`: generate_stm
 
 ### Autonomous Analysis module
 

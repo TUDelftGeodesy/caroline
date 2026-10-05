@@ -394,81 +394,81 @@ These parameters are used in the job `doris_v5`. Defaults in [the default doris_
   - Possible values: `0`, `1`
 
 
-## generate_partitioned_stm parameters
-These parameters are used in the job `generate_partitioned_stm`. Defaults in [the default generate_partitioned_stm config file](../config/parameter-files/default-job-param-file-generate_partitioned_stm.yaml).
+## generate_stm parameters
+These parameters are used in the job `generate_stm`. Defaults in [the default generate_stm config file](../config/parameter-files/default-job-param-file-generate_stm.yaml).
 
 
-- `generate_partitioned_stm:general:AoI-name`: 
-  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `generate_partitioned_stm`. For cross-AoI dependencies, specify the same AoI name as the dependency.
+- `generate_stm:general:AoI-name`: 
+  - Function: specify the AoI name for the directory naming in the [job](glossary.md#jobs) `generate_stm`. For cross-AoI dependencies, specify the same AoI name as the dependency.
   - Possible values: any `string` containing lowercase letters and underscores, typically matching the AoI name itself
-- `generate_partitioned_stm:general:directory`
-  - Function: specify the base directory where the [job](glossary.md#jobs) `generate_partitioned_stm` should run. 
+- `generate_stm:general:directory`
+  - Function: specify the base directory where the [job](glossary.md#jobs) `generate_stm` should run. 
   - Possible values: `string` with any valid path on Spider. If it does not exist, it will be created. Default is `'/project/caroline/Share/stms_zarr'`
-- `generate_partitioned_stm:general:partition`
-  - Function: specify the partition on which the [job](glossary.md#jobs) `generate_partitioned_stm` should be run
+- `generate_stm:general:partition`
+  - Function: specify the partition on which the [job](glossary.md#jobs) `generate_stm` should be run
   - Possible values: `'short'` (10h time limit, max 2 jobs), `'normal'` (5 day time limit), `'infinite'` (12 day time limit)
-- `generate_partitioned_stm:general:depsi-code-directory`
-  - Function: specify where the depsi code is, containing the functionality for `generate_partitioned_stm`
+- `generate_stm:general:depsi-code-directory`
+  - Function: specify where the depsi code is, containing the functionality for `generate_stm`
   - Possible values: `string` with the absolute path to the base directory of `depsi`
 
-- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:mode`
+- `generate_stm:generate_stm-settings:ps-selection:mode`
   - Function: specify the mode to be used for the time frame selection during the PS selection
   - Possible values: `'full'` (full time series), `'initialization'` (using part of the time series defined by `stm_start_date_ps_selection` and `stm_initialization_length`)
-- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:start-date`
+- `generate_stm:generate_stm-settings:ps-selection:init-settings:start-date`
   - Function: specify the start date of the time frame to be used for PS selection in `initialization` mode
   - Possible values: `'YYYY-MM-DD'`
-- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:initialization-length`
+- `generate_stm:generate_stm-settings:ps-selection:init-settings:initialization-length`
   - Function: specify the length of the time frame to be used for PS selection in `initialization` mode
   - Possible values: any positive integer (# of epochs), or `'YYYY-MM-DD'` (end date)
-- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:method`
+- `generate_stm:generate_stm-settings:ps-selection:method`
   - Function: specify the method to be used for the PS selection
   - Possible values: `'nmad'`, `'nad'` 
-- `generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:threshold`
+- `generate_stm:generate_stm-settings:ps-selection:threshold`
   - Function: set the threshold for when a point is considered a PS (all PS below the threshold are accepted)
   - Possible values: any positive `float` 
-- `generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:increment-mode`
+- `generate_stm:generate_stm-settings:incremental-statistics:increment-mode`
   - Function: specify the mode to add either the [incremental or recalibration](https://github.com/TUDelftGeodesy/DePSI/blob/caroline-clone-branch/depsi/point_quality.py#L148) NAD or NMAD (based on `stm_ps_selection_method`)
   - Possible values: `'incremental'` (update every epoch), `'recalibration'` (update every `stm_nad_nmad_recalibration_jump_size` epochs)
-- `generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size`
+- `generate_stm:generate_stm-settings:incremental-statistics:recal-jump-size`
   - Function: specify the jump size to be used for `recalibration` mode for the updating NAD or NMAD
   - Possible values: any positive integer
-- `generate_partitioned_stm:generate_partitioned_stm-settings:single-differences:mother`
+- `generate_stm:generate_stm-settings:single-differences:mother`
   - Function: specify the mother epoch for single difference computations
   - Possible values: `'auto'` (uses the mother from the input `.zarr` archive), `'YYYY-MM-DD'`
-- `generate_partitioned_stm:generate_partitioned_stm-settings:extra-projection`
+- `generate_stm:generate_stm-settings:extra-projection`
   - Function: specify an extra projection to project the geolocation coordinates into
   - Possible values: `'RD'` (Dutch Rijksdriehoek, Netherlands only), `'EPSG:###'` (any code works), `''` (no new projection)
-- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:do-partitioning`
+- `generate_stm:generate_stm-settings:partitioning:do-partitioning`
   - Function: switch to do or not do partitioning in time
   - Possible values: `0`, `1`
-- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:search-method`
+- `generate_stm:generate_stm-settings:partitioning:search-method`
   - Function: specify the method to search for the partitions
   - Possible values: `'pelt'`, `'binseg'`
-- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:cost-function`
+- `generate_stm:generate_stm-settings:partitioning:cost-function`
   - Function: specify the cost function in the partition search
   - Possible values: `'l2'`
-- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:db-mode`
+- `generate_stm:generate_stm-settings:partitioning:db-mode`
   - Function: specify whether or not to do the partition search on the Decibel scale
   - Possible values: `0` (advised), `1`
-- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:min-partition-length`
+- `generate_stm:generate_stm-settings:partitioning:min-partition-length`
   - Function: specify the minimum number of acquisitions per partition
   - Possible values: any positive integer
-- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:undifferenced-output-lyrs`
+- `generate_stm:generate_stm-settings:partitioning:undifferenced-output-lyrs`
   - Function: specify the output data layers per partition using the undifferenced input data
   - Possible values: `list` containing a subset of the following: `'nad'`, `'nmad'`, `mad`, `'quality_nmad_2sigma'`, `'quality_nmad_mean'`, `'quality_nad_2sigma'`, `'quality_nad_mean'`, `'amplitude_mean'`, `'amplitude_sigma'`, `'amplitude_median'`.
-- `generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:single-difference-output-lyrs`
+- `generate_stm:generate_stm-settings:partitioning:single-difference-output-lyrs`
   - Function: specify the output data layers per partition using the input data with a single difference in time with respect to `stm_single_difference_mother`
   - Possible values: `list` containing a subset of the following: `'nad'`, `'nmad'`, `mad`, `'quality_nmad_2sigma'`, `'quality_nmad_mean'`, `'quality_nad_2sigma'`, `'quality_nad_mean'`, `'amplitude_mean'`, `'amplitude_sigma'`, `'amplitude_median'`.
-- `generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:do-outlier-detection`
+- `generate_stm:generate_stm-settings:outlier-detection:do-outlier-detection`
   - Function: switch to do or not do outlier detection in time
   - Possible values: `0`, `1`
-- `generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:window-size`
+- `generate_stm:generate_stm-settings:outlier-detection:window-size`
   - Function: specify the size of the rolling window across which the statistics are computed to determine whether or not an observation is an outlier
   - Possible values: any positive integer
-- `generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:db-mode`
+- `generate_stm:generate_stm-settings:outlier-detection:db-mode`
   - Function: specify whether or not to do outlier detection on the Decibel scale
   - Possible values: `0`, `1` (advised)
-- `generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:n-sigma`
+- `generate_stm:generate_stm-settings:outlier-detection:n-sigma`
   - Function: specify the minimum number of sigma deviation from the median of the observations in the window before an observation is considered an outlier
   - Possible values: any positive `float` (advised 3)
 

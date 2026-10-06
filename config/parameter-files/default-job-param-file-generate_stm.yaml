@@ -1,4 +1,4 @@
-# the default settings for the partitioned STM generation, running in the generate_partitioned_stm job
+# the default settings for the STM generation, running in the generate_stm job
 
 generate_stm:
   general:

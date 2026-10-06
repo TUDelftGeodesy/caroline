@@ -78,13 +78,13 @@ jobs:
           filters:
             coregistration-mode: "snap"
 
-  snap_fix_permissions:
+  snap_cleanup:
     requirement: "snap"
-    two-letter-id: "SF"
+    two-letter-id: "SC"
     parameter-file-step-key: "general:steps:do-coregistration"
     partition: "short"
     sbatch-args: "--ntasks=1 --cpus-per-task=1"
-    directory-contents-file-appendix: "_permissions"
+    directory-contents-file-appendix: "_cleanup"
     email:
       include-in-email: False
       status-file-search-key:
@@ -204,7 +204,7 @@ jobs:
             coregistration-mode: "doris"
 
   merge_to_stack_matlab:
-    requirement: "snap_fix_permissions"
+    requirement: "snap_cleanup"
     two-letter-id: "MM"
     parameter-file-step-key: "general:steps:do-merge_to_stack_matlab"
     partition: "merge_to_stack_matlab:general:partition"
@@ -231,7 +231,7 @@ jobs:
             coregistration-mode: "snap"
 
   merge_to_stack_python:
-    requirement: "snap_fix_permissions"
+    requirement: "snap_cleanup"
     two-letter-id: "MP"
     parameter-file-step-key: "general:steps:do-merge_to_stack_python"
     partition: "merge_to_stack_python:general:partition"
@@ -284,19 +284,19 @@ jobs:
           filters:
             coregistration-mode: "doris"
 
-  generate_partitioned_stm:
+  generate_stm:
     requirement: ["reduce_slc_python", "merge_to_stack_python"]
     two-letter-id: "GS"
-    parameter-file-step-key: "general:steps:do-generate_partitioned_stm"
-    partition: "generate_partitioned_stm:general:partition"
+    parameter-file-step-key: "general:steps:do-generate_stm"
+    partition: "generate_stm:general:partition"
     sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8 --nodes=1"
     directory-contents-file-appendix: ""
     email:
       include-in-email: True
       status-file-search-key:
     bash-file:
-      bash-file-name: "generate-partitioned-stm.sh"
-      bash-file-base-directory: "generate_partitioned_stm"
+      bash-file-name: "generate-stm.sh"
+      bash-file-base-directory: "generate_stm"
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: True
       bash-file-slurm-cluster:

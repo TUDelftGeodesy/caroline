@@ -35,76 +35,50 @@ slc_path = "**reduce_slc_python_directory**/**reduce_slc_python_output_name**.za
 stm_save_path = "**stm_output_directory**/**stm_output_name**.zarr"
 
 # PS Selection based on initialization
-ps_selection_mode = "**generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:mode**"
+ps_selection_mode = "**generate_stm:generate_stm-settings:ps-selection:mode**"
 if ps_selection_mode == "initialization":
-    start_date_ps_selection = (
-        "**generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:start-date**".replace(
-            "-", ""
-        )
+    start_date_ps_selection = "**generate_stm:generate_stm-settings:ps-selection:init-settings:start-date**".replace(
+        "-", ""
     )
-    initialization_length = int(
-        "**generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:init-settings:init-length**"
-    )
+    initialization_length = int("**generate_stm:generate_stm-settings:ps-selection:init-settings:init-length**")
 else:
     start_date_ps_selection = None
     initialization_length = None
 
 # Recalibrated NAD and NMAD settings
-increment_mode = "**generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:increment-mode**"
-recalibration_jump_size = eval(
-    "**generate_partitioned_stm:generate_partitioned_stm-settings:incremental-statistics:recal-jump-size**"
-)
+increment_mode = "**generate_stm:generate_stm-settings:incremental-statistics:increment-mode**"
+recalibration_jump_size = eval("**generate_stm:generate_stm-settings:incremental-statistics:recal-jump-size**")
 
 # PS selection method
-ps_selection_method = "**generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:method**"
-threshold = eval("**generate_partitioned_stm:generate_partitioned_stm-settings:ps-selection:threshold**")
+ps_selection_method = "**generate_stm:generate_stm-settings:ps-selection:method**"
+threshold = eval("**generate_stm:generate_stm-settings:ps-selection:threshold**")
 chunks_ps_selection = 1000
 
 # Input variables for the outlier detection
 do_ps_outlier_detection = (
-    True
-    if "**generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:do-outlier-detection**" == "1"
-    else False
+    True if "**generate_stm:generate_stm-settings:outlier-detection:do-outlier-detection**" == "1" else False
 )
-ps_window_size_outliers = int(
-    "**generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:window-size**"
-)
-ps_outlier_detection_db = (
-    True if "**generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:db-mode**" == "1" else False
-)
-ps_n_sigma_outliers = int("**generate_partitioned_stm:generate_partitioned_stm-settings:outlier-detection:n-sigma**")
+ps_window_size_outliers = int("**generate_stm:generate_stm-settings:outlier-detection:window-size**")
+ps_outlier_detection_db = True if "**generate_stm:generate_stm-settings:outlier-detection:db-mode**" == "1" else False
+ps_n_sigma_outliers = int("**generate_stm:generate_stm-settings:outlier-detection:n-sigma**")
 
 # Input variables for the partitioning
-do_ps_partitioning = (
-    True
-    if "**generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:do-partitioning**" == "1"
-    else False
-)
-ps_partitioning_search_method = (
-    "**generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:search-method**"
-)
-ps_partitioning_cost_function = (
-    "**generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:cost-function**"
-)
-ps_db_partitioning = (
-    True if "**generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:db-mode**" == "1" else False
-)
-ps_min_obs_partition = int(
-    "**generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:min-partition-length**"
-)
+do_ps_partitioning = True if "**generate_stm:generate_stm-settings:partitioning:do-partitioning**" == "1" else False
+ps_partitioning_search_method = "**generate_stm:generate_stm-settings:partitioning:search-method**"
+ps_partitioning_cost_function = "**generate_stm:generate_stm-settings:partitioning:cost-function**"
+ps_db_partitioning = True if "**generate_stm:generate_stm-settings:partitioning:db-mode**" == "1" else False
+ps_min_obs_partition = int("**generate_stm:generate_stm-settings:partitioning:min-partition-length**")
 partitioning_output_layers = tuple(
-    eval("**generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:undifferenced-output-lyrs**")
+    eval("**generate_stm:generate_stm-settings:partitioning:undifferenced-output-lyrs**")
 )
 partitioning_sd_output_layers = tuple(
-    eval("**generate_partitioned_stm:generate_partitioned_stm-settings:partitioning:single-difference-output-lyrs**")
+    eval("**generate_stm:generate_stm-settings:partitioning:single-difference-output-lyrs**")
 )
 
 # Compute temporal differences
-ps_mother_epoch_sd = "**generate_partitioned_stm:generate_partitioned_stm-settings:single-differences:mother**".replace(
-    "-", ""
-)
+ps_mother_epoch_sd = "**generate_stm:generate_stm-settings:single-differences:mother**".replace("-", "")
 
-projection = "**generate_partitioned_stm:generate_partitioned_stm-settings:extra-projection**"
+projection = "**generate_stm:generate_stm-settings:extra-projection**"
 do_projection = False
 if projection not in ["", "None"]:
     do_projection = True
@@ -123,7 +97,7 @@ def get_free_port():
     return freesock
 
 
-N_WORKERS = JOB_DEFINITIONS["jobs"]["generate_partitioned_stm"]["bash-file"]["bash-file-slurm-cluster"][
+N_WORKERS = JOB_DEFINITIONS["jobs"]["generate_stm"]["bash-file"]["bash-file-slurm-cluster"][
     "slurm-cluster-n-workers"
 ]  # Manual input: number of workers to spin-up
 FREE_SOCKET = get_free_port()  # Get a free port
@@ -133,7 +107,7 @@ cluster = SLURMCluster(
     cores=4,  # Number of cores per worker
     memory="30 GB",  # Total amount of memory per worker
     processes=1,  # Number of Python processes per worker
-    walltime=JOB_DEFINITIONS["jobs"]["generate_partitioned_stm"]["bash-file"]["bash-file-slurm-cluster"][
+    walltime=JOB_DEFINITIONS["jobs"]["generate_stm"]["bash-file"]["bash-file-slurm-cluster"][
         "slurm-cluster-worker-time"
     ],  # Reserve each worker for X hour
     scheduler_options={"dashboard_address": f":{FREE_SOCKET}"},  # Host Dashboard in a free socket

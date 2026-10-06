@@ -1,13 +1,13 @@
-# the default settings for the partitioned STM generation, running in the generate_partitioned_stm job
+# the default settings for the STM generation, running in the generate_stm job
 
-generate_partitioned_stm:
+generate_stm:
   general:
     AoI-name: "**AoI_name**"
     directory: '/project/caroline/Share/stms_zarr'
     partition: 'normal'
     depsi-code-directory: '**CAROLINE_PLUGINS_DIRECTORY**/DePSI'
 
-  generate_partitioned_stm-settings:
+  generate_stm-settings:
 
     ps-selection:
       mode: 'full'  # initialization / full

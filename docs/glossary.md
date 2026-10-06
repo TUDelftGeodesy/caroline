@@ -93,7 +93,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * product metadata
         * ground control points (empty)
         * pins (empty)
-- <b>snap_fix_permissions</b>: this job sets the correct permissions on the `.znap` archives.
+- <b>snap_cleanup</b>: this job sets the correct permissions on the `.znap` archives.
     * input:
       * The `.znap` archives outputted by `snap`
     * output:

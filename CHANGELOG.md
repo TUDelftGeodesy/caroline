@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v4.1.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (05-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/e7af2070b621e803104e70c088d069d3c2fb5e2d...main))
+## [v5.0.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (06-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d65b06d237101e9412b06498a4ea2c519878d6b8...main))
+
+### Changed
+- `generate_partitioned_stm` has been renamed to `generate_stm`
+- `snap_fix_permissions` has been renamed to `snap_cleanup` (abbr. `SC`)
+
+## [v4.1.3](https://github.com/TUDelftGeodesy/caroline/tree/d65b06d237101e9412b06498a4ea2c519878d6b8) (05-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/e7af2070b621e803104e70c088d069d3c2fb5e2d...d65b06d237101e9412b06498a4ea2c519878d6b8))
 
 ### Added
 - [README](patches/README.md) in the patches directory with the dual purpose of explaining how the directory works and the directory not being empty, thus not causing a crash when copying

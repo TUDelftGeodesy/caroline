@@ -21,7 +21,7 @@ and `NNN` the three-letter area of interest abbreviation.
 - `MP`: merge-to-stack-python
 - `RM`: reduce-slc-matlab
 - `RP`: reduce-slc-python
-- `SF`: SNAP-fix permissions
+- `SC`: SNAP Cleanup
 - `SN`: SNAP
 - `SP`: SNAP Preparation
 
@@ -39,7 +39,7 @@ None yet, managed by [contextual-data-definitions.yaml](../config/contextual-dat
 #### PSI-batch submodule
 
 - `DM`: DePSI_matlab
-- `GS`: generate_partitioned_STM
+- `GS`: generate_stm
 
 ### Autonomous Analysis module
 

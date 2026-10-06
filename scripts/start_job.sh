@@ -39,7 +39,7 @@ else
 fi
 
 # workers always have 12 GB per core since they aren't constrained to Rome cluster
-if [[ ${JOB_TYPE} != "snap" ]]
+if [[ ${JOB_TYPE} != "snap" ]]; then
   ulimit -Sv $((($SLURM_JOB_CPUS_PER_NODE * $MEM_PER_CPU + 4 * $SLURM_CLUSTER_NODES * 12)  * 1024 * 1024))
 fi
 
@@ -49,7 +49,7 @@ if [[ ${SLURM_CLUSTER_SBATCHARGS} == *"--constraint=rome"* ]]; then
   echo "CPUS requested on Rome cluster, allowing for 16GB per CPU"
 fi
 echo "Number of cluster workers: ${SLURM_CLUSTER_NODES}"
-if [[ ${JOB_TYPE} != "snap" ]]
+if [[ ${JOB_TYPE} != "snap" ]]; then
   echo "Setting virtual memory limit to $(($SLURM_JOB_CPUS_PER_NODE * $MEM_PER_CPU + 4 * $SLURM_CLUSTER_NODES * 12))GB"
 else
   echo "Leaving virtual memory limit infinite since Java crashes because of ulimit"

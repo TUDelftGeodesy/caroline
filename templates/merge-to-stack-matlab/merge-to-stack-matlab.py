@@ -139,6 +139,11 @@ for i in range(len(data.time.values)):
             )
         orbit_grid = orbit_grid.strip("\n")
 
+        if cropped_data.metadata_mother["first_range_time"] is None:
+            first_range_time = min(np.array(cropped_data.metadata_mother["first_range_time_burstwise"]).flatten())
+        else:
+            first_range_time = cropped_data.metadata_mother["first_range_time"]
+
         write_run_file(
             save_path=f"{write_path}/{filename}",
             template_path=f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/templates/merge-to-stack-matlab/master.res",
@@ -159,7 +164,7 @@ for i in range(len(data.time.values)):
                 "PRF_hz": cropped_data.metadata_mother["pulse_repetition_frequency"],
                 "azimuth_time_interval_s": cropped_data.metadata_mother["azimuth_time_interval"],
                 "azimuth_bandwidth_hz": cropped_data.metadata_mother["total_azimuth_bandwidth"],
-                "range_2way_time_to_first_pixel_ms": cropped_data.metadata_mother["first_range_time"] * 1_000,
+                "range_2way_time_to_first_pixel_ms": first_range_time * 1_000,
                 "range_sampling_rate_mhz": cropped_data.metadata_mother["range_sampling_rate"] / 1_000_000,
                 "range_bandwidth_mhz": cropped_data.metadata_mother["total_range_bandwidth"] / 1_000_000,
                 "first_range": cropped_data.range.values[0],

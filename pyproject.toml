@@ -57,7 +57,14 @@ plugins = [
 ]
 
 [tool.setuptools]
-packages = ["caroline"]
+packages = ["caroline", "caroline.config"]
+include-package-data = true
+
+[tool.setuptools.package-dir]
+"caroline.config" = "config"
+
+[tool.setuptools.package-data]
+"caroline.config" = ["*", "**/*"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

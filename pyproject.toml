@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Caroline"
-version = "5.0.0"
+version = "5.0.1"
 requires-python = ">=3.10"
 dependencies = [
     "apache-airflow",
@@ -12,7 +12,7 @@ dependencies = [
     "geopandas",
     "matplotlib",
     "psycopg2-binary",
-    "sarxarray>=1.4.0b2",
+    "sarxarray>=1.4.1",
     "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc2",
     "snap-run@git+ssh://git@github.com/TUDelftGeodesy/snap-coregistration.git@caroline-clone-branch",
     "depsi@git+https://git@github.com/TUDelftGeodesy/DePSI.git@caroline-clone-branch",

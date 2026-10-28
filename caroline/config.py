@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 
 import yaml
 
@@ -40,7 +41,7 @@ def get_config(config_file: str | None = None, flatten: bool = True) -> dict:
         if "**" in config_file:
             # This instance of Caroline is not installed on Spider. We can still run, but need to fix the configuration
             # path to wherever this instance is actually installed.
-            current_install_directory = os.getcwd()
+            current_install_directory = str(Path(__file__).resolve().parent)
             config_file = f"{current_install_directory}/config/spider-config.yaml"
             installed_on_spider = False
 

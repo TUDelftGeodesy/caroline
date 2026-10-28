@@ -14,7 +14,6 @@ dependencies = [
     "psycopg2-binary",
     "sarxarray>=1.4.0b2",
     "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc2",
-    "snap-run@git+ssh://git@github.com/TUDelftGeodesy/snap-coregistration.git@caroline-clone-branch",
     "depsi@git+https://git@github.com/TUDelftGeodesy/DePSI.git@caroline-clone-branch",
     "asf_search>=13.0.0"
 ]
@@ -54,6 +53,9 @@ docs = [
 plugins = [
     "gdal==3.4.1", # necessary for Doris v5, version 3.4.1 since that reflects the status of libgdal on Spider
     "dask_jobqueue", # necessary for reduce_slc_python
+]
+private = [
+    "snap-run@git+ssh://git@github.com/TUDelftGeodesy/snap-coregistration.git@caroline-clone-branch",
 ]
 
 [tool.setuptools]

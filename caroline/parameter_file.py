@@ -67,6 +67,20 @@ def generate_full_parameter_file(
     )
 
     # set the correct step parameters:
+    if "NEEDS_VALUE" in [
+        general_user_settings["general"]["workflow"]["dependency"]["input-step"],
+        general_user_settings["general"]["workflow"]["dependency"]["aoi-name"],
+        general_user_settings["general"]["workflow"]["output-steps"],
+    ]:
+        raise ValueError(
+            "The workflow settings have not been set correctly. One or more of the following variables have not been"
+            "specified: general:workflow:dependency:input-step="
+            f'{general_user_settings["general"]["workflow"]["dependency"]["input-step"]}, '
+            f'general:workflow:dependency:aoi-name='
+            f'{general_user_settings["general"]["workflow"]["dependency"]["input-step"]}, '
+            f'general:workflow:output-steps='
+            f'{general_user_settings["general"]["workflow"]["output-steps"]}. Cannot proceed, aborting...'
+        )
     dependency = general_user_settings["general"]["workflow"]["dependency"]["input-step"]
     for output in general_user_settings["general"]["workflow"]["output-steps"]:
         general_user_settings["general"]["steps"][

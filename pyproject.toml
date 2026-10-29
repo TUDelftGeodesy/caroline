@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Caroline"
-version = "5.0.1"
-requires-python = ">=3.10"
+version = "5.0.2"
+requires-python = ">=3.11"
 dependencies = [
     "apache-airflow",
     "fiona",
@@ -14,7 +14,6 @@ dependencies = [
     "psycopg2-binary",
     "sarxarray>=1.4.1",
     "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc2",
-    "snap-run@git+ssh://git@github.com/TUDelftGeodesy/snap-coregistration.git@caroline-clone-branch",
     "depsi@git+https://git@github.com/TUDelftGeodesy/DePSI.git@caroline-clone-branch",
     "asf_search>=13.0.0"
 ]
@@ -55,9 +54,19 @@ plugins = [
     "gdal==3.4.1", # necessary for Doris v5, version 3.4.1 since that reflects the status of libgdal on Spider
     "dask_jobqueue", # necessary for reduce_slc_python
 ]
+private = [
+    "snap-run@git+ssh://git@github.com/TUDelftGeodesy/snap-coregistration.git@caroline-clone-branch",
+]
 
 [tool.setuptools]
-packages = ["caroline"]
+packages = ["caroline", "caroline.config"]
+include-package-data = true
+
+[tool.setuptools.package-dir]
+"caroline.config" = "config"
+
+[tool.setuptools.package-data]
+"caroline.config" = ["*", "**/*"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

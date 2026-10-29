@@ -25,7 +25,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.0.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (28-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/f70e7319b2a95ba2c4269523c712b6bc68a12c9e...main))
+## [v5.0.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (29-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6a3f707b64836bc7fdd80e8573e14d49c236e60c...main))
+
+### Added
+- [Configuration directory](config) is now retained during `pip install`
+
+### Changed
+- Dependency on `snap-run` is now an optional dependency added during installation, so that the repository is installable
+- If Caroline is installed through `pip install` instead of through [spider_install.sh](spider-install.sh), the configuration detects this and figures out the correct installation location instead
+
+### Removed
+- Support for Python 3.10, as dependency sarxarray does not support Python 3.10 any more
+
+## [v5.0.1](https://github.com/TUDelftGeodesy/caroline/tree/6a3f707b64836bc7fdd80e8573e14d49c236e60c) (29-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/f70e7319b2a95ba2c4269523c712b6bc68a12c9e...6a3f707b64836bc7fdd80e8573e14d49c236e60c))
 
 ### Added
 - Automatically generated `--mem=XXG` to all submitted jobs, taking into account the Rome cluster

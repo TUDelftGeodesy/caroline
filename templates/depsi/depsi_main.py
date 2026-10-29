@@ -33,78 +33,97 @@ from depsi.viewing_geometry import add_local_viewing_geometry
 
 start_at_checkpoint = 0  # 0 from start, 1 post atmosphere estimation, 2 post densification, 3 for output generation
 
-slc_path = "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_zarr/nl_amsterdam_s1_dsc_t037_base.zarr"
+slc_path = "**zarr_directory**/**zarr_filename**.zarr"
 
 # Crop in space
-aoi_file = "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_zarr/shape/nl_amsterdam_shape.shp"
+aoi_file = "**general:shape-file:directory**/**general:shape-file:aoi-name**_shape.shp"
 
 # metadata
-metadata_path = "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_zarr/nl_amsterdam_s1_dsc_t037.res"
-satellite = "s1"
-track = 37
-direction = "dsc"
+metadata_path = "**metadata_file**"
+metadata_type = "**metadata_driver**"
+satellite = "**general:input-data:sensor**".lower()
+track = int("**track**")
+direction = "**asc_dsc**"
 
 # Crop in time
-first_date = datetime(2014, 12, 19)
-last_date = datetime(2025, 10, 22)
+first_date = datetime(int("**start_date_year**"), int("**start_date_month**"), int("**start_date_day**"))
+last_date = datetime(int("**end_date_year**"), int("**end_date_month**"), int("**end_date_day**"))
 
-mother_epoch = datetime(2020, 3, 28)
-reference_point_index = None
+mother_epoch = datetime(int("**mother_date_year**"), int("**mother_date_month**"), int("**mother_date_day**"))
+reference_point_index = "**reference_point_index**"
+if reference_point_index == "None":
+    reference_point_index = None
+else:
+    reference_point_index = int(reference_point_index)
 
 # PS selection method
-ps_selection_method = "nad"
-threshold = 0.5
-chunks_ps_selection = 5000
-start_date_ps_selection = None
-end_date_ps_selection = None
+ps_selection_method = "**depsi:depsi-settings:ps-selection:method**"
+threshold = int("**depsi:depsi-settings:ps-selection:threshold**")
+chunks_ps_selection = int("**depsi:depsi-settings:ps-selection:chunk-size**")
+ps_selection_mode = "**depsi:depsi-settings:ps-selection:mode**"
+if ps_selection_mode == "initialization":
+    start_date_ps_selection = "**depsi:depsi-settings:ps-selection:init-settings:start-date**"
+    end_date_ps_selection = int("**depsi:depsi-settings:ps-selection:init-settings:init-length**")
+else:
+    start_date_ps_selection = None
+    end_date_ps_selection = None
 
 # Sidelobes
-do_sidelobe_detection = False
-max_pixel_dist = 2
-min_correlation = 0.90
+do_sidelobe_detection = True if "**depsi:depsi-settings:sidelobe-detection:do-sidelobe-detection**" == "True" else False
+max_pixel_dist = int("**depsi:depsi-settings:sidelobe-detection:maximum-pixel-distance**")
+min_correlation = float("**depsi:depsi-settings:sidelobe-detection:minimum-correlation**")
 
 # Network formation
-network_crs = "radar"
-network_x_crds = "azimuth"
-network_y_crds = "range"
-min_point_distance = 100  # meters
-max_arc_length = 0.045  # degrees (lat/lon)
-network_formation_method = "redundant"
-min_network_links = 16
-network_partition_number = 8
-network_dphase_method = "subtract"
-min_periodogram_iterations = 10
-arc_quality_threshold = 0.5  # ensemble coherence
-model_types = ["offset", "velocity", "height"]
-
+network_crs = "**depsi:depsi-settings:network-formation:coordinate-reference-system:type**"
+network_x_crds = "**depsi:depsi-settings:network-formation:coordinate-reference-system:x-label**"
+network_y_crds = "**depsi:depsi-settings:network-formation:coordinate-reference-system:y-label**"
+min_point_distance = int("**depsi:depsi-settings:network-formation:arc-settings:minimum-length**")  # meters
+max_arc_length = float("**depsi:depsi-settings:network-formation:arc-settings:maximum-length**")  # degrees (lat/lon)
+network_formation_method = "**depsi:depsi-settings:network-formation:network-settings:method**"
+min_network_links = int("**depsi:depsi-settings:network-formation:network-settings:minimum-links**")
+network_partition_number = int("**depsi:depsi-settings:network-formation:network-settings:partition-number**")
+network_dphase_method = "**depsi:depsi-settings:network-formation:network-settings:dphase-method**"
+min_periodogram_iterations = int("**depsi:depsi-settings:network-formation:periodogram-settings:minimum-iterations**")
+arc_quality_threshold = float("**depsi:depsi-settings:network-formation:arc-settings:quality-threshold**")
+model_types = "**depsi:depsi-settings:models**".split(",")
 
 # atmosphere
-euclidean_epsg_code_number = 28992  # 28992 is Dutch RD, for other AoIs visit https://epsg.io/ , units must be meters
-atmo_unmodeled_displacement_filter_length = 1
-atmo_unmodeled_displacement_sampling_rate = 1000
-atmo_unmodeled_displacement_filter_type = "gaussian"
+euclidean_epsg_code_number = int("**depsi:depsi-settings:euclidean-reference-frame-epsg-number**")
+atmo_unmodeled_displacement_filter_length = int(
+    "**depsi:depsi-settings:atmosphere:unmodeled-displacement:filter-length**"
+)
+atmo_unmodeled_displacement_sampling_rate = int(
+    "**depsi:depsi-settings:atmosphere:unmodeled-displacement:sampling-rate**"
+)
+atmo_unmodeled_displacement_filter_type = "**depsi:depsi-settings:atmosphere:unmodeled-displacement:filter-type**"
 
-atmo_kriging_n_nearest_neighbours = None
-atmo_kriging_backend = "vectorized"
+atmo_kriging_n_nearest_neighbours = "**depsi:depsi-settings:atmosphere:kriging:n-nearest-neighbours**"
+if atmo_kriging_n_nearest_neighbours == "None":
+    atmo_kriging_n_nearest_neighbours = None
+else:
+    atmo_kriging_n_nearest_neighbours = int(atmo_kriging_n_nearest_neighbours)
+atmo_kriging_backend = "**depsi:depsi-settings:atmosphere:kriging:backend**"
 
-atmo_empirical_variogram_method = "standard"
-atmo_empirical_variogram_nlags = 50
-atmo_empirical_variogram_cutoff_distance = 10000.0
+atmo_empirical_variogram_method = "**depsi:depsi-settings:atmosphere:empirical-variogram:method**"
+atmo_empirical_variogram_nlags = int("**depsi:depsi-settings:atmosphere:empirical-variogram:number-of-lags**")
+atmo_empirical_variogram_cutoff_distance = float(
+    "**depsi:depsi-settings:atmosphere:empirical-variogram:cutoff-distance**"
+)
 
-atmo_variogram_model = "gaussian"
-atmo_variogram_drift_terms = "regional_linear"
+atmo_variogram_model = "**depsi:depsi-settings:atmosphere:variogram:model**"
+atmo_variogram_drift_terms = "**depsi:depsi-settings:atmosphere:variogram:drift-terms**"
 
 # Densification
-n_densification_connections = 1
+n_densification_connections = int("**depsi:depsi-settings:densification:number-of-connections**")
 
 # Spatio-temporal consistency
-stc_min_dist = 30  # meters
-stc_max_dist = 100  # meters
+stc_min_dist = int("**depsi:depsi-settings:spatiotemporal-consistency:minimum-distance**")  # meters
+stc_max_dist = int("**depsi:depsi-settings:spatiotemporal-consistency:maximum-distance**")  # meters
 
 # Viewing geometry
-orbit_mode = "IWS"
-orbit_resolution = 0.01
-orbit_file = "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/GitHub_repos/DePSI_group/config/drama/S1_XTI.cfg"
+orbit_mode = "**depsi:depsi-settings:viewing-geometry:orbit:mode**"
+orbit_resolution = float("**depsi:depsi-settings:viewing-geometry:orbit:resolution**")
+orbit_file = "**caroline_plugins_directory**/DePSI/**depsi:depsi-settings:viewing-geometry:orbit:filename**"
 
 # output settings
 filter_dict = {"h": [-2000, 2000]}
@@ -136,7 +155,7 @@ chull_projection = "RD"  # RD or WGS84
 stm_save_path = "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_zarr/nl_amsterdam_s1_dsc_t037_{}.zarr"
 
 print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Reading Metadata...")
-metadata = sarxarray.read_metadata(metadata_path, driver="doris5")
+metadata = sarxarray.read_metadata(metadata_path, driver=metadata_type)
 
 if start_at_checkpoint < 1:
     # 1. Project setup

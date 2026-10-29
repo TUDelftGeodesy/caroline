@@ -1,0 +1,83 @@
+# the default settings for DePSI, running in the depsi_matlab job
+
+depsi:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/projects/**AoI_name**/depsi'
+    partition: 'normal'
+
+  depsi-settings:
+    models: ["offset", "velocity", "height"]
+    euclidean-reference-frame-epsg-number: 28992  # Dutch RD, for other AoIs visit https://epsg.io/ , units must be meters
+
+
+    ps-selection:
+      method: "nad"  # nad / nmad
+      threshold: 0.5
+      chunk-size: 5000
+      mode: 'full'  # initialization / full
+      init-settings: # settings for initialization mode, ignored if mode is full
+        start-date: '2013-03-01'
+        init-length: 50
+
+    sidelobe-detection:
+      do-sidelobe-detection: False
+      maximum-pixel-distance: 2
+      minimum-correlation: 0.9
+
+    network-formation:
+      coordinate-reference-system:
+        type: "radar"
+        x-label: "azimuth"
+        y-label: "range"
+
+      network-settings:
+        method: "redundant"
+        minimum-links: 16
+        partition-number: 8
+        dphase-method: "subtract"
+
+      arc-settings:
+        minimum-length: 100 # meters
+        maximum-length: 0.045 # degrees lat/lon (yes I don't like this either)
+        quality-threshold: 0.5 # ensemble coherence
+
+      periodogram-settings:
+        minimum-iterations: 10
+
+    atmosphere:
+      unmodeled-displacement:
+        filter-length: 1
+        sampling-rate: 1000
+        filter-type: "gaussian"
+
+      kriging:
+        n-nearest-neighbours: "None"
+        backend: "vectorized"
+
+      empirical-variogram:
+        method: "standard"
+        number-of-lags: 50
+        cutoff-distance: 10000
+
+      variogram:
+        model: "gaussian"
+        drift-terms: "regional_linear"
+
+    densification:
+      number-of-connections: 1
+
+    spatiotemporal-consistency:
+      minimum-distance: 30  # meters
+      maximum-distance: 100  # meters
+
+    viewing-geometry:
+      orbit:
+        mode: "IWS"
+        resolution: 0.01
+        filename: "config/drama/S1_XTI.cfg"
+
+
+
+
+

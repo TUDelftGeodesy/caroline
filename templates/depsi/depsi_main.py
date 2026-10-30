@@ -85,10 +85,10 @@ network_partition_number = int("**depsi:depsi-settings:network-formation:network
 network_dphase_method = "**depsi:depsi-settings:network-formation:network-settings:dphase-method**"
 min_periodogram_iterations = int("**depsi:depsi-settings:network-formation:periodogram-settings:minimum-iterations**")
 arc_quality_threshold = float("**depsi:depsi-settings:network-formation:arc-settings:quality-threshold**")
-model_types = "**depsi:depsi-settings:models**".split(",")
+model_types = "**depsi:depsi-settings:general:models**".strip("[] ").split(",")
 
 # atmosphere
-euclidean_epsg_code_number = int("**depsi:depsi-settings:euclidean-reference-frame-epsg-number**")
+euclidean_epsg_code_number = int("**depsi:depsi-settings:general:euclidean-reference-frame-epsg-number**")
 atmo_unmodeled_displacement_filter_length = int(
     "**depsi:depsi-settings:atmosphere:unmodeled-displacement:filter-length**"
 )

@@ -307,6 +307,33 @@ jobs:
       njobs-in-array-function:
     filters:
 
+  depsi:
+    requirement: ["reduce_slc_python", "merge_to_stack_python"]
+    two-letter-id: "DE"
+    parameter-file-step-key: "general:steps:do-depsi"
+    partition: "depsi:general:partition"
+    sbatch-args: "--qos=long --ntasks=1 --cpus-per-task=8"
+    directory-contents-file-appendix: ""
+    email:
+      include-in-email: True
+      status-file-search-key:
+    bash-file:
+      bash-file-name: "depsi.sh"
+      bash-file-base-directory: "depsi"
+      bash-file-directory-appendix: ""
+      bash-file-directory-is-reusable: False
+      bash-file-slurm-cluster:
+        slurm-cluster-n-workers: 12
+        slurm-cluster-worker-time: "4-00:00:00"
+    job-array:
+      run-as-array: False
+      njobs-in-array-function:
+    filters:
+      general:
+        workflow:
+          filters:
+            depsi-codebase: "python"
+
   depsi_matlab:
     requirement: ["reduce_slc_matlab", "merge_to_stack_matlab"]
     two-letter-id: "DM"
@@ -327,6 +354,10 @@ jobs:
       run-as-array: False
       njobs-in-array-function:
     filters:
+      general:
+        workflow:
+          filters:
+            depsi-codebase: "matlab"
 
   create_mrm:
     requirement: "depsi_matlab"
@@ -348,6 +379,10 @@ jobs:
       run-as-array: False
       njobs-in-array-function:
     filters:
+      general:
+        workflow:
+          filters:
+            depsi-codebase: "matlab"
 
   depsi_post:
     requirement: "create_mrm"
@@ -369,6 +404,10 @@ jobs:
       run-as-array: False
       njobs-in-array-function:
     filters:
+      general:
+        workflow:
+          filters:
+            depsi-codebase: "matlab"
 
   create_tarball:
     requirement: "depsi_post"
@@ -389,9 +428,10 @@ jobs:
         workflow:
           filters:
             depsi_post-output: "tarball"
+            depsi-codebase: "matlab"
 
   set_portal_upload_flag:
-    requirement: "depsi_post"
+    requirement: ["depsi", "depsi_post"]
     two-letter-id: "PU"
     parameter-file-step-key: "general:steps:do-set_portal_upload_flag"
     partition: "short"

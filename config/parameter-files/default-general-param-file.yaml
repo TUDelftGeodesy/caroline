@@ -27,6 +27,7 @@ general:
     filters:
       coregistration-mode: "doris"  # doris (all sensors) / snap (S1 only)
       depsi_post-output: "csv"  # csv / tarball
+      depsi-codebase: "matlab"  # matlab / python
 
   portal:
     skygeo-customer: "caroline"

@@ -126,33 +126,43 @@ orbit_resolution = float("**depsi:depsi-settings:viewing-geometry:orbit:resoluti
 orbit_file = "**caroline_plugins_directory**/DePSI/**depsi:depsi-settings:viewing-geometry:orbit:filename**"
 
 # output settings
-filter_dict = {"h": [-2000, 2000]}
-output_types = ["csv_web_portal", "csv", "shapefile", "convex_hull"]
-# csv, csv_web_portal, shapefile, convex_hull, zarr
+filter_dict = eval("**constructed_filtering_dictionary**")
+output_types = []
+if "**depsi:depsi-settings:output:csv:produce-csv**" == "1":
+    output_types.append("csv")
+
+if "**depsi:depsi-settings:output:csv-web-portal:produce-csv-web-portal**" == "1":
+    output_types.append("csv_web_portal")
+
+if "**depsi:depsi-settings:output:shapefile:produce-shapefile**" == "1":
+    output_types.append("shapefile")
+
+if "**depsi:depsi-settings:output:convex-hull:produce-convex-hull**" == "1":
+    output_types.append("convex_hull")
 
 # csv export
-csv_save_path = "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_zarr/nl_amsterdam_s1_dsc_t037.csv"
-csv_ts_proj = "los"
-csv_point_annotation_label = f"nl_amsterdam_{satellite}_{direction}_t{track:0>3d}"
+csv_save_path = f"**output_path**/**depsi:general:AoI-name**_{satellite.lower()}_{direction}_t{track:0>3d}.csv"
+csv_ts_proj = "**depsi:depsi-settings:output:csv:timeseries-projection**"
+csv_point_annotation_label = f"**depsi:general:AoI-name**_{satellite}_{direction}_t{track:0>3d}"
 
 # csv web portal export
 csv_web_save_path = (
-    "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_zarr/nl_amsterdam_s1_dsc_t037_portal_val.csv"
+    f"**output_path**/**depsi:general:AoI-name**_{satellite.lower()}_{direction}_{track:0>3d}_portal.csv"
 )
-csv_web_ts_proj = "los"
-csv_web_point_annotation_label = f"nl_amsterdam_{satellite}_{direction}_t{track:0>3d}"
+csv_web_ts_proj = "**depsi:depsi-settings:output:csv-web-portal:timeseries-projection**"
+csv_web_point_annotation_label = f"**depsi:general:AoI-name**_{satellite}_{direction}_t{track:0>3d}"
 
 # shapefile export
-shape_save_path = "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_zarr/nl_amsterdam_s1_dsc_t037.shp"
-shape_projection = "RD"  # RD or WGS84
-shape_point_annotation_label = f"nl_amsterdam_{satellite}_{direction}_t{track:0>3d}"
+shape_save_path = f"**output_path**/**depsi:general:AoI-name**_{satellite.lower()}_{direction}_{track:0>3d}.shp"
+shape_projection = "**depsi:depsi-settings:output:shapefile:projection**"  # RD or WGS84
+shape_point_annotation_label = f"**depsi:general:AoI-name**_{satellite}_{direction}_t{track:0>3d}"
 
 # convex hull export
-chull_save_path = "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_zarr/nl_amsterdam_s1_dsc_t037_chull.shp"
-chull_projection = "RD"  # RD or WGS84
+chull_save_path = f"**output_path**/**depsi:general:AoI-name**_{satellite.lower()}_{direction}_{track:0>3d}_chull.shp"
+chull_projection = "**depsi:depsi-settings:output:convex-hull:projection**"  # RD or WGS84
 
 # zarr export & checkpoints (NEEDS {}!)
-stm_save_path = "/Users/sanvandiepen/PycharmProjects/workingEnvironment2/test_zarr/nl_amsterdam_s1_dsc_t037_{}.zarr"
+stm_save_path = f"**output_path**/**depsi:general:AoI-name**_{satellite.lower()}_{direction}_{track:0>3d}" + "_{}.zarr"
 
 print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Reading Metadata...")
 metadata = sarxarray.read_metadata(metadata_path, driver=metadata_type)

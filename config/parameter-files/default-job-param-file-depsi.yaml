@@ -1,4 +1,5 @@
-# the default settings for DePSI, running in the depsi_matlab job
+# the default settings for DePSI, running in the depsi job
+# THESE SETTINGS ARE FOR THE PYTHON VERSION OF DEPSI, NOT THE MATLAB VERSION!!!
 
 depsi:
   general:
@@ -76,6 +77,29 @@ depsi:
         mode: "IWS"
         resolution: 0.01
         filename: "config/drama/S1_XTI.cfg"
+
+    filtering:  # add filters like filter-1 below, naming them filter-2, filter-3, and so on
+      filter-1:
+        layer-name: "h"
+        minimum-value: -2000
+        maximum-value: 2000
+
+    output:
+      csv:
+        produce-csv: 0
+        timeseries-projection: "los"
+
+      csv-web-portal:
+        produce-csv-web-portal: 1
+        timeseries-projection: "los"
+
+      shapefile:
+        produce-shapefile: 0
+        projection: "RD"
+
+      convex-hull:
+        produce-convex-hull: 0
+        projection: "RD"
 
 
 

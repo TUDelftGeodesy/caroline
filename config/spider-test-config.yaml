@@ -9,7 +9,7 @@ directories:
   CAROLINE_PLUGINS_ARCHIVE_DIRECTORY: "/project/caroline/Software/archives/caroline_plugins"
   CAROLINE_PLUGINS_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/caroline-plugins"
   CAROLINE_PUBLIC_LOG_DIRECTORY: "/project/caroline/Public/caroline-admin/caroline/logs"
-  CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/venv/caroline"
+  CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/venv/caroline_python314"
   CAROLINE_WATER_MASK_DIRECTORY: "/project/caroline/Software/config/caroline-water-masks"
   CAROLINE_WORK_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/run/caroline/work"
   FROZEN_PARAMETER_FILE_DIRECTORY: "/project/caroline/Share/users/caroline-admin/caroline-test/run/caroline/frozen-parameter-files"
@@ -24,7 +24,7 @@ modules:
   GDAL_MODULE: "gdal/3.4.1-alma9-2"
   MATLAB_MODULE: "matlab/R2021b"
   PYTHON2_MODULE: "python/2.7.15"
-  PYTHON3_MODULE: "python/3.10.4"
+  PYTHON3_MODULE: "python/3.14.10"
   SNAP_MODULE: "snap/13.0.0"
 run:
   RUN_MODE: "TEST"

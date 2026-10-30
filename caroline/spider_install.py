@@ -196,11 +196,12 @@ def _update_virtualenvironment() -> None:
 
 def _setup_esa_snappy() -> None:
     """Set the correct paths for ESA-snappy after installation."""
+    python_version = ".".join(CONFIG["PYTHON3_MODULE"].split("/")[-1].split(".")[:-1])
     os.system('''echo "Setting the correct esa-snappy environment variables..."''')
     os.system(
         f"source {CONFIG['CAROLINE_INSTALL_DIRECTORY']}/scripts/imports.sh; "
         f"source {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
-        f"cd {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/lib/python3.10/site-packages/esa_snappy; "
+        f"cd {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/lib/python{python_version}/site-packages/esa_snappy; "
         f"python snappyutil.py --snap_home /project/caroline/Software/{CONFIG['SNAP_MODULE']} "
         f"--java_module /project/caroline/Software/{CONFIG['SNAP_MODULE']}/esasnappy/modules/eu-esa-snap-esa-snappy.jar"
         " --jvm_max_mem 32G "

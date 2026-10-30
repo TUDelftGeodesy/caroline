@@ -25,7 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.0.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (29-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6a3f707b64836bc7fdd80e8573e14d49c236e60c...main))
+## [v5.0.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (30-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/47d6f6b46c57dc25d9e0846c91eaf204e0f8a28c...main))
+
+### Changed
+- Python3 module used is now 3.14.10 after support for 3.10.X was dropped
+  - This has been adapted in [spider-config.yaml](config/spider-config.yaml), [spider-test-config.yaml](config/spider-test-config.yaml), and [imports.sh](scripts/imports.sh)
+- The default values for `CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY` in [spider-config.yaml](config/spider-config.yaml) and [spider-test-config.yaml](config/spider-test-config.yaml) have been renamed to specify the Python version used
+
+### Fixed
+- `_setup_esa_snappy` in [spider_install.sh](caroline/spider_install.py) no longer assumes Python 3.10, and instead reads from the environment variables
+
+## [v5.0.2](https://github.com/TUDelftGeodesy/caroline/tree/47d6f6b46c57dc25d9e0846c91eaf204e0f8a28c) (29-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6a3f707b64836bc7fdd80e8573e14d49c236e60c...47d6f6b46c57dc25d9e0846c91eaf204e0f8a28c))
 
 ### Added
 - [Configuration directory](config) is now retained during `pip install`

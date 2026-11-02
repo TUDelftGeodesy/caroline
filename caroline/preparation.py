@@ -424,6 +424,213 @@ def prepare_create_tarball(parameter_file: str, do_track: int | list | None = No
         )
 
 
+def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> None:
+    """Set up the directories and files for DePSI matlab.
+
+    Parameters
+    ----------
+    parameter_file: str
+        Absolute path to the parameter file.
+    do_track: int | list | None, optional
+        Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
+        the parameter file
+
+    Raises
+    ------
+    AssertionError
+        If a dictionary is passed to `ref_cn` in the parameter file, but the track key is missing
+    ValueError
+        If an invalid mode is passed to `ref_cn` in the parameter file
+    """
+    search_parameters = [
+        "general:tracks:track",
+        "general:tracks:asc_dsc",
+        "general:input-data:sensor",
+        "general:timeframe:start",
+        "general:timeframe:end",
+        "depsi:depsi-settings:general:ref-cn",
+        "depsi:general:AoI-name",
+        "general:workflow:filters:coregistration-mode",
+        "reduce_slc_python:general:AoI-name",
+        "merge_to_stack_python:general:AoI-name",
+    ]
+    out_parameters = read_parameter_file(parameter_file, search_parameters)
+
+    tracks = out_parameters["general:tracks:track"]
+    asc_dsc = out_parameters["general:tracks:asc_dsc"]
+    start_date = out_parameters["general:timeframe:start"].replace("-", "")
+    end_date = out_parameters["general:timeframe:end"].replace("-", "")
+
+    for track in range(len(tracks)):
+        if isinstance(do_track, int):
+            if tracks[track] != do_track:
+                continue
+        elif isinstance(do_track, list):
+            if tracks[track] not in do_track:
+                continue
+
+        depsi_directory = format_process_folder(
+            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
+        )
+
+        # determine if we came from reduce_slc_matlab or merge_to_stack_matlab
+        if (
+            out_parameters["general:workflow:filters:coregistration-mode"] == "doris"
+            or out_parameters["general:input-data:sensor"].lower() != "s1"
+        ):
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["reduce_slc_python"], track=tracks[track]
+            )
+            zarr_name = (
+                f"{out_parameters['reduce_slc_python:general:AoI-name']}_"
+                f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc}_{track:0>3d}"
+            )
+            # detect the mother and dem_radar from the mother
+            metadata_file = glob.glob(f"{crop_directory}/*cropped_stack/2*/master.res")[0]
+            # cut off master.res, and add dem_radar.raw
+            mother_date = metadata_file.split("/")[-2]
+            metadata_driver = "doris5"
+            available_dates = [date.split("/")[-1] for date in glob.glob(f"{crop_directory}/*cropped_stack/2*")]
+        else:
+            crop_directory = format_process_folder(
+                parameter_file=parameter_file,
+                job_description=JOB_DEFINITIONS["merge_to_stack_python"],
+                track=tracks[track],
+            )
+            zarr_name = (
+                f"{out_parameters['merge_to_stack_python:general:AoI-name']}_"
+                f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc}_{track:0>3d}"
+            )
+
+            snap_directory = format_process_folder(
+                parameter_file=parameter_file,
+                job_description=JOB_DEFINITIONS["snap"],
+                track=tracks[track],
+            )
+            elevation_layer = glob.glob(f"{snap_directory}/*-coreg.znap/elevation*")[0]
+            mother_date = elevation_layer.split("-coreg.znap")[0].split("/")[-1]
+            metadata_file = f"{snap_directory}/{mother_date}-coreg.znap/SNAP/product_metadata.json"
+            metadata_driver = "snap"
+            available_dates = [
+                date.split("/")[-1].split("-coreg.znap")[0] for date in glob.glob(f"{snap_directory}/*-coreg.znap")
+            ]
+
+        valid_dates = [date for date in available_dates if start_date <= date <= end_date]
+
+        if len(valid_dates) == 0:
+            # From #77 , not doing this will cause the following in multi-track starts:
+            # Looping over A,B,C,D , if C has no valid_dates, the parameter file for D will not be generated
+            # as the generation in C will throw an error with the min/max below
+            print(
+                "WARNING: Did not identify any properly cropped images! Cannot determine start and "
+                "end date for DePSI, setting to None. This will crash DePSI."
+            )
+            act_start_date = None
+            act_end_date = None
+        else:
+            act_start_date = min(valid_dates)
+            act_end_date = max(valid_dates)
+        start_date_year = act_start_date[:4]
+        start_date_month = act_start_date[4:6]
+        start_date_day = act_start_date[6:]
+        end_date_year = act_end_date[:4]
+        end_date_month = act_end_date[4:6]
+        end_date_day = act_end_date[6:]
+        mother_date_year = mother_date[:4]
+        mother_date_month = mother_date[4:6]
+        mother_date_day = mother_date[6:]
+
+        ## REFERENCE POINT STUFF
+
+        # Generate the directory and files
+        # we need a psi folder in the depsi directory
+        os.makedirs(f"{depsi_directory}", exist_ok=True)
+
+        write_run_file(
+            save_path=f"{depsi_directory}/param_file_depsi.txt",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi_matlab/param_file.txt",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=[
+                ["general:input-data:sensor", "lowercase"],
+                "depsi:depsi-settings:ps-selection:method",
+                "depsi:depsi-settings:ps-selection:threshold",
+                "depsi:depsi-settings:ps-selection:chunk-size",
+                "depsi:depsi-settings:ps-selection:mode",
+                "depsi:depsi-settings:ps-selection:init-settings:start-date",
+                "depsi:depsi-settings:ps-selection:init-settings:init-length",
+                "depsi:depsi-settings:sidelobe-detection:do-sidelobe-detection",
+                "depsi:depsi-settings:sidelobe-detection:maximum-pixel-distance",
+                "depsi:depsi-settings:sidelobe-detection:minimum-correlation",
+                "depsi:depsi-settings:network-formation:coordinate-reference-system:type",
+                "depsi:depsi-settings:network-formation:coordinate-reference-system:x-label",
+                "depsi:depsi-settings:network-formation:coordinate-reference-system:y-label",
+                "depsi:depsi-settings:network-formation:arc-settings:minimum-length",
+                "depsi:depsi-settings:network-formation:arc-settings:maximum-length",
+                "depsi:depsi-settings:network-formation:network-settings:method",
+                "depsi:depsi-settings:network-formation:network-settings:minimum-links",
+                "depsi:depsi-settings:network-formation:network-settings:partition-number",
+                "depsi:depsi-settings:network-formation:network-settings:dphase-method",
+                "depsi:depsi-settings:network-formation:periodogram-settings:minimum-iterations",
+                "depsi:depsi-settings:network-formation:arc-settings:quality-threshold",
+                ["depsi:depsi-settings:general:models", "strip", "[] "],
+                "depsi:depsi-settings:general:euclidean-reference-frame-epsg-number",
+                "depsi:depsi-settings:atmosphere:unmodeled-displacement:filter-length",
+                "depsi:depsi-settings:atmosphere:unmodeled-displacement:sampling-rate",
+                "depsi:depsi-settings:atmosphere:unmodeled-displacement:filter-type",
+                "depsi:depsi-settings:atmosphere:kriging:n-nearest-neighbours",
+                "depsi:depsi-settings:atmosphere:kriging:backend",
+                "depsi:depsi-settings:atmosphere:empirical-variogram:method",
+                "depsi:depsi-settings:atmosphere:empirical-variogram:number-of-lags",
+                "depsi:depsi-settings:atmosphere:empirical-variogram:cutoff-distance",
+                "depsi:depsi-settings:atmosphere:variogram:model",
+                "depsi:depsi-settings:atmosphere:variogram:drift-terms",
+                "depsi:depsi-settings:densification:number-of-connections",
+                "depsi:depsi-settings:spatiotemporal-consistency:minimum-distance",
+                "depsi:depsi-settings:spatiotemporal-consistency:maximum-distance",
+                "depsi:depsi-settings:viewing-geometry:orbit:mode",
+                "depsi:depsi-settings:viewing-geometry:orbit:resolution",
+                "depsi:depsi-settings:viewing-geometry:orbit:filename",
+                "depsi:depsi-settings:output:csv:produce-csv",
+                "depsi:depsi-settings:output:csv-web-portal:produce-csv-web-portal",
+                "depsi:depsi-settings:output:shapefile:produce-shapefile",
+                "depsi:depsi-settings:output:convex-hull:produce-convex-hull",
+                "depsi:general:AoI-name",
+                "depsi:depsi-settings:output:csv:timeseries-projection",
+                "depsi:depsi-settings:output:csv-web-portal:timeseries-projection",
+                "depsi:depsi-settings:output:shapefile:projection",
+                "depsi:depsi-settings:output:convex-hull:projection",
+            ],
+            config_parameters=["caroline_plugins_directory"],
+            other_parameters={
+                "zarr_directory": crop_directory,
+                "zarr_filename": zarr_name,
+                "track": f"{tracks[track]:0>3d}",
+                "asc_dsc": asc_dsc[track],
+                "start_date_year": start_date_year,
+                "start_date_month": start_date_month,
+                "start_date_day": start_date_day,
+                "end_date_year": end_date_year,
+                "end_date_month": end_date_month,
+                "end_date_day": end_date_day,
+                "mother_date_year": mother_date_year,
+                "mother_date_month": mother_date_month,
+                "mother_date_day": mother_date_day,
+                "reference_point_index": None,
+                "metadata_file": metadata_file,
+                "metadata_driver": metadata_driver,
+                "constructed_filtering_dictionary": None,
+                "output_path": depsi_directory,
+            },
+        )
+
+        write_directory_contents(
+            depsi_directory,
+            filename=f'dir_contents{JOB_DEFINITIONS["depsi"]["directory-contents-file-appendix"]}.txt',
+        )
+
+
 def prepare_depsi_matlab(parameter_file: str, do_track: int | list | None = None) -> None:
     """Set up the directories and files for DePSI matlab.
 

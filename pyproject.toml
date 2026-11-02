@@ -54,6 +54,7 @@ docs = [
 plugins = [
     "gdal==3.4.1", # necessary for Doris v5, version 3.4.1 since that reflects the status of libgdal on Spider
     "dask_jobqueue", # necessary for reduce_slc_python
+    "jpy", # necessary for SNAP
 ]
 private = [
     "snap-run@git+ssh://git@github.com/TUDelftGeodesy/snap-coregistration.git@caroline-clone-branch",

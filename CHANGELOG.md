@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 ## [v5.0.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (30-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/47d6f6b46c57dc25d9e0846c91eaf204e0f8a28c...main))
 
+### Added
+- Explicit dependency on `jpy` in the `plugins` optional dependency group
+
 ### Changed
 - Python3 module used is now 3.14.10 after support for 3.10.X was dropped
   - This has been adapted in [spider-config.yaml](config/spider-config.yaml), [spider-test-config.yaml](config/spider-test-config.yaml), and [imports.sh](scripts/imports.sh)

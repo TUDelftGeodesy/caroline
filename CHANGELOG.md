@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `_setup_esa_snappy` in [spider_install.sh](caroline/spider_install.py) no longer assumes Python 3.10, and instead reads from the environment variables
+- [config.py](caroline/config.py) can now return the virtual environment directory without the package `yaml` (as this package is contained in the virtual environment, and was erroneously assumed to be part of the base distribution)
 
 ## [v5.0.2](https://github.com/TUDelftGeodesy/caroline/tree/47d6f6b46c57dc25d9e0846c91eaf204e0f8a28c) (29-Oct-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/6a3f707b64836bc7fdd80e8573e14d49c236e60c...47d6f6b46c57dc25d9e0846c91eaf204e0f8a28c))
 

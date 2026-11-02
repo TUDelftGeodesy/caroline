@@ -1,7 +1,12 @@
 import os
 import sys
+from pathlib import Path
 
-import yaml
+try:
+    import yaml
+    has_yaml = True
+except ModuleNotFoundError:
+    has_yaml = False
 
 
 def config_db():
@@ -31,18 +36,35 @@ def get_config(config_file: str | None = None, flatten: bool = True) -> dict:
         Dictionary with as arguments the path configurations, as values the paths.
 
     """
+    installed_on_spider = True
+    current_install_directory = None
     if config_file is None:
         # NOTE: This variable is overwritten during the installation in spider-install._link_default_config_file .
         # Please do not change it
         config_file = "**CAROLINE_INSTALL_DIRECTORY**/config/installation-config.yaml"
         if "**" in config_file:
-            raise ValueError("You have not installed CAROLINE on Spider. Please run spider-install.sh first.")
+            # This instance of Caroline is not installed on Spider. We can still run, but need to fix the configuration
+            # path to wherever this instance is actually installed.
+            current_install_directory = str(Path(__file__).resolve().parent)
+            config_file = f"{current_install_directory}/config/spider-config.yaml"
+            installed_on_spider = False
 
     assert config_file.split(".")[-1] == "yaml", f"Expected a .yaml configuration file, got {config_file}!"
 
     with open(config_file) as f:
-        paths = yaml.safe_load(f)
-
+        if has_yaml:
+            paths = yaml.safe_load(f)
+            if not installed_on_spider:  # overwrite the installation location to the actual location
+                paths["directories"]["CAROLINE_INSTALL_DIRECTORY"] = current_install_directory
+        else:
+            assert config_file.split("/")[-1] in ["installation-config.yaml", "spider-config.yaml"], (
+                "YAML module is not initialized, please activate the virtual environment first!"
+            )
+            # In this case we will only return the virtual environment directory
+            output = os.popen(f'''grep "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY" {config_file}''').read()
+            paths = {
+                "directories": {"CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY": output.split(":")[-1].strip('''\n '"''')}
+            }
     if not flatten:
         return paths
 

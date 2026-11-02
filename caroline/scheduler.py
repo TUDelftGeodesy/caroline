@@ -23,6 +23,11 @@ TIME_LIMITS = {
     "infinite": "30-00:00:00",
 }
 
+MEMORY_LIMITS = {
+    "non-rome": 12,
+    "rome": 16,
+}
+
 
 def scheduler(new_tracks: dict, force_tracks: list) -> list:
     """Create a list of processes to be scheduled given a set of new tracks.
@@ -323,9 +328,19 @@ def submit_processes(sorted_processes: list) -> None:
         else:
             array_args = ""
 
+        ncores = int(job_definitions[job]["sbatch-args"].split("--cpus-per-task=")[1].split(" ")[0])
+        if "--constraint=rome" in job_definitions[job]["sbatch-args"]:
+            memory_limit = MEMORY_LIMITS["rome"] * ncores
+        else:
+            memory_limit = MEMORY_LIMITS["non-rome"] * ncores
+        if "--mem=" in job_definitions[job]["sbatch-args"]:
+            memory_string = " "
+        else:
+            memory_string = f" --mem={memory_limit}G "
+
         # finally, combine everything
         sbatch_arguments = (
-            f"{array_args}--partition={partition} --job-name={job_name} "
+            f"{array_args}--partition={partition} --job-name={job_name}{memory_string}"
             f"--time={TIME_LIMITS[partition]}{dependency_string}{job_definitions[job]['sbatch-args']}"
         )
 

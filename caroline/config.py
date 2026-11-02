@@ -62,7 +62,9 @@ def get_config(config_file: str | None = None, flatten: bool = True) -> dict:
             )
             # In this case we will only return the virtual environment directory
             output = os.popen(f'''grep "CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY" {config_file}''').read()
-            paths = {"directories": {"CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY": output.split(":")[-1].strip('''\n '"''')}}
+            paths = {
+                "directories": {"CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY": output.split(":")[-1].strip('''\n '"''')}
+            }
     if not flatten:
         return paths
 

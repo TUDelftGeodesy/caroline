@@ -320,7 +320,7 @@ jobs:
     bash-file:
       bash-file-name: "depsi_main.sh"
       bash-file-base-directory: "depsi"
-      bash-file-directory-appendix: ""
+      bash-file-directory-appendix: "/pypsi"
       bash-file-directory-is-reusable: False
       bash-file-slurm-cluster:
         slurm-cluster-n-workers: 12

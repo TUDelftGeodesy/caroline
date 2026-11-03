@@ -79,7 +79,7 @@ else:
 
 # PS selection method
 ps_selection_method = "**depsi:depsi-settings:ps-selection:method**"
-threshold = int("**depsi:depsi-settings:ps-selection:threshold**")
+threshold = float("**depsi:depsi-settings:ps-selection:threshold**")
 chunks_ps_selection = int("**depsi:depsi-settings:ps-selection:chunk-size**")
 ps_selection_mode = "**depsi:depsi-settings:ps-selection:mode**"
 if ps_selection_mode == "initialization":

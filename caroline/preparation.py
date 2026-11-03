@@ -2540,6 +2540,7 @@ def prepare_set_portal_upload_flag(parameter_file: str, do_track: int | list | N
         "general:tracks:track",
         "general:portal:skygeo-customer",
         "general:portal:skygeo-viewer",
+        "general:workflow:filters:depsi-codebase",
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -2553,9 +2554,14 @@ def prepare_set_portal_upload_flag(parameter_file: str, do_track: int | list | N
             if tracks[track] not in do_track:
                 continue
 
-        depsi_directory = format_process_folder(
-            parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
-        )
+        if out_parameters["general:workflow:filters:depsi-codebase"] == "matlab":
+            depsi_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi_matlab"], track=tracks[track]
+            )
+        else:
+            depsi_directory = format_process_folder(
+                parameter_file=parameter_file, job_description=JOB_DEFINITIONS["depsi"], track=tracks[track]
+            )
 
         # The parameter file already contains a datestamp so we don't need to redo that
         portal_upload_file = (

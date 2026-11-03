@@ -50,11 +50,16 @@ first_date = datetime(int("**start_date_year**"), int("**start_date_month**"), i
 last_date = datetime(int("**end_date_year**"), int("**end_date_month**"), int("**end_date_day**"))
 
 mother_epoch = datetime(int("**mother_date_year**"), int("**mother_date_month**"), int("**mother_date_day**"))
-reference_point_index = "**reference_point_index**"
-if reference_point_index == "None":
-    reference_point_index = None
+reference_point_index_az = "**reference_point_index_azimuth**"
+reference_point_index_r = "**reference_point_index_range**"
+if reference_point_index_az == "None":
+    reference_point_index_az = None
 else:
-    reference_point_index = int(reference_point_index)
+    reference_point_index_az = int(reference_point_index_az)
+if reference_point_index_r == "None":
+    reference_point_index_r = None
+else:
+    reference_point_index_r = int(reference_point_index_r)
 
 # PS selection method
 ps_selection_method = "**depsi:depsi-settings:ps-selection:method**"
@@ -188,6 +193,20 @@ if start_at_checkpoint < 1:
         mem_persist=False,
     )
     print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Selected {len(stm.space)} PS.")
+
+    azimuth = stm.azimuth.values
+    rnge = stm.range.values
+    if reference_point_index_az is not None and reference_point_index_r is not None:
+        ref_pt_mask = (azimuth == reference_point_index_az) * (rnge == reference_point_index_r)
+        if sum(ref_pt_mask) == 0:
+            raise ValueError(
+                f"Requested reference point [{reference_point_index_az}, {reference_point_index_r}] has"
+                "been filtered out of the dataset, aborting..."
+            )
+        else:
+            reference_point_index = np.where(ref_pt_mask)[0][0]
+    else:
+        reference_point_index = None
 
     print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Computing single differences and temporal baseline...")
     stm = stm_compute_single_time_differences(stm, single_difference_mother=mother_epoch)

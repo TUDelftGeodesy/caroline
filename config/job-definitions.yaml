@@ -318,7 +318,7 @@ jobs:
       include-in-email: True
       status-file-search-key:
     bash-file:
-      bash-file-name: "depsi.sh"
+      bash-file-name: "depsi_main.sh"
       bash-file-base-directory: "depsi"
       bash-file-directory-appendix: ""
       bash-file-directory-is-reusable: False

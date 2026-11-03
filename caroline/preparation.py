@@ -5,6 +5,7 @@ import sys
 import zipfile
 
 import numpy as np
+import xarray as xr
 
 from caroline.config import get_config
 from caroline.io import create_shapefile, link_shapefile, read_parameter_file, read_shp_extent, write_run_file
@@ -453,6 +454,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         "general:workflow:filters:coregistration-mode",
         "reduce_slc_python:general:AoI-name",
         "merge_to_stack_python:general:AoI-name",
+        "depsi:depsi-settings:filtering",  # returns a dictionary
     ]
     out_parameters = read_parameter_file(parameter_file, search_parameters)
 
@@ -540,15 +542,76 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         mother_date_month = mother_date[4:6]
         mother_date_day = mother_date[6:]
 
-        ## REFERENCE POINT STUFF
+        # Figure out the reference point
+        key = f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
+        ref_cn_az = None
+        ref_cn_r = None
+
+        if not isinstance(out_parameters["depsi:depsi-settings:general:ref-cn"], dict):
+            print(
+                "WARNING: Invalid value for ref-cn "
+                f"({out_parameters['depsi_matlab:depsi_matlab-settings:general:ref-cn']}) "
+                "encountered. Using mode 'constant'..."
+            )
+            mode = "constant"
+
+        if key not in out_parameters["depsi:depsi-settings:general:ref-cn"]:
+            if "all" not in out_parameters["depsi:depsi-settings:general:ref-cn"]:
+                raise ValueError(f"Cannot find {key} in ref-cn {out_parameters['depsi:depsi-settings:general:ref-cn']}")
+            else:
+                mode = str(out_parameters["depsi:depsi-settings:general:ref-cn"]["all"])
+        else:
+            mode = str(out_parameters["depsi:depsi-settings:general:ref-cn"][key])
+
+        if mode == "independent":
+            pass
+        elif mode[0] == "[":  # hardcoded
+            ref_cn_az = eval(mode.split(",")[0].split("[")[-1].strip())
+            ref_cn_r = eval(mode.split(",")[1].split("]")[0].strip())
+        elif mode == "constant":
+            # find the old runs
+            directories = glob.glob(f"{'-'.join(depsi_directory.split('-')[:-1])}-*")
+            if len(directories) == 0:
+                # no old runs are present, so we run on mode 'independent' for the initialization
+                pass
+            else:
+                # sort and reverse them to find the most recent one
+                rev_order_runs = list(sorted(directories))[::-1]
+                for i in range(len(rev_order_runs)):  # loop in case one crashed. If all crashed,
+                    # ref_cn is defined before the if/else, and we run on mode 'independent'
+                    ref_file = (
+                        f"{rev_order_runs[i]}/psi/{out_parameters['depsi:general:AoI-name']}_"
+                        f"{out_parameters['general:input-data:sensor'].lower()}_"
+                        f"{asc_dsc[track]}_t{tracks[track]:0>3d}_1.zarr"
+                    )  # this file saves the selected reference
+                    if os.path.exists(ref_file):
+                        stm = xr.open_zarr(ref_file)
+                        ref_point_idx = [stm.idx_refpnt]
+                        ref_pt_coords = [
+                            [int(stm.azimuth.sel(space=point).values), int(stm.range.sel(space=point).values)]
+                            for point in ref_point_idx
+                        ][0]
+                        ref_cn_az = ref_pt_coords[0]
+                        ref_cn_r = ref_pt_coords[1]
+                        break  # we found one, so we can stop
+
+        # Construct the filtering dictionary
+        filter_dict = {}
+        for key in list(sorted(list(out_parameters["depsi:depsi-settings:filtering"].keys()))):
+            if "layer-name" in key:
+                filter_number = key.split("-layer")[0]
+                filter_dict[out_parameters["depsi:depsi-settings:filtering"][key]] = [
+                    out_parameters["depsi:depsi-settings:filtering"][f"{filter_number}-minimum-value"],
+                    out_parameters["depsi:depsi-settings:filtering"][f"{filter_number}-maximum-value"],
+                ]
 
         # Generate the directory and files
         # we need a psi folder in the depsi directory
         os.makedirs(f"{depsi_directory}", exist_ok=True)
 
         write_run_file(
-            save_path=f"{depsi_directory}/param_file_depsi.txt",
-            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi_matlab/param_file.txt",
+            save_path=f"{depsi_directory}/depsi_main.py",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/depsi_main.py",
             asc_dsc=asc_dsc[track],
             track=tracks[track],
             parameter_file=parameter_file,
@@ -617,12 +680,29 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 "mother_date_year": mother_date_year,
                 "mother_date_month": mother_date_month,
                 "mother_date_day": mother_date_day,
-                "reference_point_index": None,
+                "reference_point_index_azimuth": ref_cn_az,
+                "reference_point_index_range": ref_cn_r,
                 "metadata_file": metadata_file,
                 "metadata_driver": metadata_driver,
-                "constructed_filtering_dictionary": None,
+                "constructed_filtering_dictionary": str(filter_dict),
                 "output_path": depsi_directory,
             },
+        )
+
+        write_run_file(
+            save_path=f"{depsi_directory}/depsi_main.sh",
+            template_path=f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/templates/depsi/depsi_main.sh",
+            asc_dsc=asc_dsc[track],
+            track=tracks[track],
+            parameter_file=parameter_file,
+            parameter_file_parameters=["depsi:general:AoI-name"],
+            config_parameters=[
+                "caroline_virtual_environment_directory",
+                "python3_module",
+                "gdal_module",
+                "caroline_work_directory",
+            ],
+            other_parameters={"track": tracks[track]},
         )
 
         write_directory_contents(

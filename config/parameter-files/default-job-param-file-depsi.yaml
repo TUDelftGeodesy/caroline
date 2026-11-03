@@ -15,7 +15,6 @@ depsi:
       # ref_cn specifies the reference point of the CAROLINE DePSI analyses. The following options are available:
       # ref_cn = 'independent'   -> DePSI chooses the reference point itself (one of the nodes of the arc with the lowest amplitude dispersion),
       #                             this can be different between consecutive runs on the same track.
-      # ref_cn = []              -> same as 'independent'
       # ref_cn = 'constant'      -> keep the reference point constant between runs on the same track. If no runs exist,
       #                             the first run will run on mode 'independent'
       # ref_cn = [azimuth,range] -> force the reference point to this coordinate regardless of what is there. If the reference point is not selected
@@ -93,10 +92,9 @@ depsi:
         filename: "config/drama/S1_XTI.cfg"
 
     filtering:  # add filters like filter-1 below, naming them filter-2, filter-3, and so on
-      filter-1:
-        layer-name: "h"
-        minimum-value: -2000
-        maximum-value: 2000
+      filter-1-layer-name: "h"  # this filter is an example and should not do anything by default
+      filter-1-minimum-value: -2000
+      filter-1-maximum-value: 15000
 
     output:
       csv:

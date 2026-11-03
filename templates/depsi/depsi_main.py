@@ -1,10 +1,14 @@
 """Run the original PS DePSI workflow as originally implemented in Matlab."""
 
+import logging
+import socket
 from datetime import datetime
 
 import numpy as np
 import sarxarray
 import xarray
+from dask.distributed import Client
+from dask_jobqueue import SLURMCluster
 from depsi.arc_estimation import periodogram
 from depsi.atmosphere_estimation import estimate_atmosphere_phase
 from depsi.classification import network_stm_selection, ps_selection
@@ -28,6 +32,18 @@ from depsi.utils import (
     stm_compute_single_time_differences,
 )
 from depsi.viewing_geometry import add_local_viewing_geometry
+
+from caroline.config import get_config
+
+CONFIG = get_config()
+JOB_DEFINITIONS = get_config(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
+
+# Make a logger to log the stages of processing
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+ch = logging.StreamHandler()  # create console handler
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
 
 # ############## INPUT VARIABLES
 
@@ -169,20 +185,48 @@ chull_projection = "**depsi:depsi-settings:output:convex-hull:projection**"  # R
 # zarr export & checkpoints (NEEDS {}!)
 stm_save_path = f"**output_path**/**depsi:general:AoI-name**_{satellite.lower()}_{direction}_{track:0>3d}" + "_{}.zarr"
 
-print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Reading Metadata...")
+logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Reading Metadata...")
 metadata = sarxarray.read_metadata(metadata_path, driver=metadata_type)
+
+
+def get_free_port():
+    """Get a non-occupied port number."""
+    sock = socket.socket()
+    sock.bind(("", 0))  # Bind a port, it will be busy now
+    freesock = sock.getsockname()[1]  # get the port number
+    sock.close()  # Free the port, so it can be used later
+    return freesock
+
+
+N_WORKERS = JOB_DEFINITIONS["jobs"]["depsi"]["bash-file"]["bash-file-slurm-cluster"]["slurm-cluster-n-workers"]
+FREE_SOCKET = get_free_port()  # Get a free port
+cluster = SLURMCluster(
+    name="dask-worker",  # Name of the Slurm job
+    queue="normal",  # Name of the node partition on your SLURM system
+    cores=4,  # Number of cores per worker
+    memory="30 GB",  # Total amount of memory per worker
+    processes=1,  # Number of Python processes per worker
+    walltime=JOB_DEFINITIONS["jobs"]["depsi"]["bash-file"]["bash-file-slurm-cluster"]["slurm-cluster-worker-time"],
+    scheduler_options={
+        "dashboard_address": f":{FREE_SOCKET}",  # Host Dashboard in a free socket
+    },
+)
+cluster.scheduler.no_workers_timeout = 3 * 60 * 60  # If no workers are detected for 3 hours, terminate (#208)
+ADDRESS = None
+cluster.scale(jobs=N_WORKERS)
+client = Client(cluster)
 
 if start_at_checkpoint < 1:
     # 1. Project setup
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Reading SLC stack...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Reading SLC stack...")
     slcs = read_slc_stack(slc_path)
 
     # 2. Scatterer selection
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Start cropping...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Start cropping...")
     cropped_slcs = crop_slc_spacetime(slcs, aoi_filename=aoi_file, start_date=first_date, end_date=last_date)
 
     # ######## POINT SELECTION WITH THE PARAMETERS ABOVE ############
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting PS selection...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting PS selection...")
     stm = ps_selection(
         cropped_slcs,
         method=ps_selection_method,
@@ -192,7 +236,7 @@ if start_at_checkpoint < 1:
         output_chunks=chunks_ps_selection,
         mem_persist=False,
     )
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Selected {len(stm.space)} PS.")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Selected {len(stm.space)} PS.")
 
     azimuth = stm.azimuth.values
     rnge = stm.range.values
@@ -208,7 +252,7 @@ if start_at_checkpoint < 1:
     else:
         reference_point_index = None
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Computing single differences and temporal baseline...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Computing single differences and temporal baseline...")
     stm = stm_compute_single_time_differences(stm, single_difference_mother=mother_epoch)
     stm = add_stm_time_deltas(stm)
     stm = stm.assign(
@@ -221,7 +265,7 @@ if start_at_checkpoint < 1:
     )
 
     # sidelobe removal
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Removing sidelobes...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Removing sidelobes...")
     if do_sidelobe_detection:
         side_lobes_array, _ = detect_side_lobes(
             stm, max_pixel_dist, min_correlation, "sd_complex", "sd_amplitude_unnormalized"
@@ -231,18 +275,18 @@ if start_at_checkpoint < 1:
         mask_sidelobes[side_lobes_array] = False
 
     else:
-        print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Skipping sidelobe detection...")
+        logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Skipping sidelobe detection...")
         mask_sidelobes = np.ones(len(stm.space), dtype=bool)
 
     stm = stm.isel(space=mask_sidelobes)
 
-    print(
+    logger.info(
         f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Removed {np.sum(~mask_sidelobes)} sidelobes from the STM, "
         f"{len(stm.space)} remain."
     )
 
     # 6a. Geocoding
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting geocoding...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting geocoding...")
     stm = stm.assign_attrs({"wavelength": metadata["wavelength"]})
 
     latlonh = radar_to_latlonh(
@@ -258,7 +302,7 @@ if start_at_checkpoint < 1:
 
     # Add Euclidean coords in preparation for atmosphere estimation
     # (here so it is also present in the first order network)
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Adding Euclidean coordinates...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Adding Euclidean coordinates...")
     crd_x, crd_y = convert_geographic_coords_to_euclidean(
         stm["lon"].values, stm["lat"].values, target_crs=f"EPSG:{euclidean_epsg_code_number}"
     )
@@ -270,13 +314,13 @@ if start_at_checkpoint < 1:
     )
 
     # 3a. Network construction
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Removing mother from network STM...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Removing mother from network STM...")
     mother_epoch_index = np.where(stm.time.values == stm.sel(time=stm.ps_sd_mother).time.values)[0][0]
     non_mother = [True] * len(stm.time.values)
     non_mother[mother_epoch_index] = False
     stm_without_mother_epoch = stm.isel(time=non_mother)
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Selecting first-order network points...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Selecting first-order network points...")
     stm_network_pnts = network_stm_selection(
         stm=stm_without_mother_epoch,
         min_dist=min_point_distance,
@@ -289,7 +333,7 @@ if start_at_checkpoint < 1:
         include_index=None,
     )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Forming first-order network...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Forming first-order network...")
     stm_network_arcs = form_network(
         stm_network_pnts,
         key_phase="sd_phase",
@@ -304,12 +348,12 @@ if start_at_checkpoint < 1:
         dphase_method=network_dphase_method,
     )
 
-    print(
+    logger.info(
         f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Formed first-order network with {len(stm_network_pnts.space)} "
         f"points and {len(stm_network_arcs.space)} arcs."
     )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating ambiguities through periodogram...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating ambiguities through periodogram...")
     _, ambiguities, _, _, ens_coh = periodogram(
         stm_network_arcs,
         key_dphase="d_phase",
@@ -320,11 +364,11 @@ if start_at_checkpoint < 1:
     stm_network_arcs["ambiguities"] = ambiguities
     stm_network_arcs["temp_coh"] = ens_coh
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Computing periodogram output...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Computing periodogram output...")
     stm_network_pnts = stm_network_pnts.compute()
     stm_network_arcs = stm_network_arcs.compute()
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Integrating the spatial network...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Integrating the spatial network...")
     _, stm_pnts_output = spatial_integration(
         stm_network_pnts,
         stm_network_arcs,
@@ -334,7 +378,7 @@ if start_at_checkpoint < 1:
     )
 
     # 4. Atmosphere estimation
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating the mother atmosphere...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating the mother atmosphere...")
     stm_pnts_output, _ = estimate_model_params(
         stm=stm_pnts_output,
         models=model_types,
@@ -351,7 +395,9 @@ if start_at_checkpoint < 1:
     # Rename the space dimension since it will otherwise clash with the space dimension of the predicted coordinates
     stm_pnts_output = stm_pnts_output.rename_dims({"space": "space_fon"})
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Creating the atmosphere prediction coordinate dataset...")
+    logger.info(
+        f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Creating the atmosphere prediction coordinate dataset..."
+    )
     atmosphere_prediction_coords = xarray.Dataset(
         coords={
             f"x_euclidean_proj_epsg{euclidean_epsg_code_number}": (
@@ -365,7 +411,7 @@ if start_at_checkpoint < 1:
         }
     )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating the atmospheric phase screens...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating the atmospheric phase screens...")
     # import pdb; pdb.set_trace()
     atmospheric_phase_screens = estimate_atmosphere_phase(
         stm=stm_pnts_output,
@@ -421,17 +467,18 @@ if start_at_checkpoint < 1:
     stm["atmosphere_predicted"] = atmosphere["atmosphere_predicted"].transpose("space", "time")
     stm["atmosphere_sigmasq"] = atmosphere["atmosphere_sigmasq"].transpose("space", "time")
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Removing the atmospheric phase screens...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Removing the atmospheric phase screens...")
     stm["sd_phase_minus_atmo"] = (stm["sd_phase"] - stm["atmosphere_predicted"] + np.pi) % (2 * np.pi) - np.pi
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 1: saving to zarr...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 1: saving to zarr...")
     stm = stm.chunk({"time": -1, "space": "auto"})
     stm.to_zarr(stm_save_path.format("4atmo"), mode="w")
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 1: Saved! Reloading...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 1: Saved! Reloading...")
 
 if start_at_checkpoint < 2:
     stm = xarray.open_zarr(stm_save_path.format("4atmo"))
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 1: Re-loaded!")
+    reference_point_index = stm.idx_refpnt
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 1: Re-loaded!")
 
     # 3b. Network construction
     mother_epoch_index = np.where(stm.time.values == stm.sel(time=stm.ps_sd_mother).time.values)[0][0]
@@ -440,7 +487,7 @@ if start_at_checkpoint < 2:
     stm_atmo_corr_without_mother_epoch = stm.isel(time=non_mother)
     stm_atmo_corr_without_mother_epoch = stm_atmo_corr_without_mother_epoch.chunk({"time": -1})
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Selecting first-order network points...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Selecting first-order network points...")
     stm_network_pnts = network_stm_selection(
         stm=stm_atmo_corr_without_mother_epoch,
         min_dist=min_point_distance,
@@ -453,7 +500,7 @@ if start_at_checkpoint < 2:
         include_index=None,
     )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Forming first-order network...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Forming first-order network...")
     stm_network_arcs = form_network(
         stm_network_pnts,
         key_phase="sd_phase_minus_atmo",
@@ -468,12 +515,12 @@ if start_at_checkpoint < 2:
         dphase_method=network_dphase_method,
     )
 
-    print(
+    logger.info(
         f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Formed first-order network with {len(stm_network_pnts.space)} "
         f"points and {len(stm_network_arcs.space)} arcs."
     )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating ambiguities through periodogram...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating ambiguities through periodogram...")
     _, ambiguities, _, _, ens_coh = periodogram(
         stm_network_arcs,
         key_dphase="d_phase",
@@ -484,12 +531,12 @@ if start_at_checkpoint < 2:
     stm_network_arcs["ambiguities"] = ambiguities
     stm_network_arcs["temp_coh"] = ens_coh
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Computing periodogram output...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Computing periodogram output...")
 
     stm_network_pnts = stm_network_pnts.compute()
     stm_network_arcs = stm_network_arcs.compute()
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Integrating the spatial network...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Integrating the spatial network...")
     _, stm_firstordernetwork = spatial_integration(
         stm_network_pnts,
         stm_network_arcs,
@@ -500,7 +547,7 @@ if start_at_checkpoint < 2:
     )
 
     # 5. Densification
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting densification...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting densification...")
     stm_densified = densification(
         stm_atmo_corr_without_mother_epoch,
         stm_firstordernetwork,
@@ -511,7 +558,7 @@ if start_at_checkpoint < 2:
         key_Btemporal="temporal_baseline",
     )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating the model parameters...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Estimating the model parameters...")
     stm_densified, model_parameter_layer_names = estimate_model_params(
         stm=stm_densified,
         models=model_types,
@@ -520,14 +567,15 @@ if start_at_checkpoint < 2:
         key_time="temporal_baseline",
     )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 2: saving to zarr...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 2: saving to zarr...")
     stm_densified = stm_densified.chunk({"time": 100, "space": "auto"})
     stm_densified.to_zarr(stm_save_path.format("5dens"), mode="w")
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 2: Saved! Reloading...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 2: Saved! Reloading...")
 
 if start_at_checkpoint < 3:
     stm_densified = xarray.open_zarr(stm_save_path.format("5dens"))
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 2: Re-loaded!")
+    reference_point_index = stm_densified.idx_refpnt
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 2: Re-loaded!")
 
     # re-get model parameter layer names if necessary
     if start_at_checkpoint > 1:
@@ -540,7 +588,7 @@ if start_at_checkpoint < 3:
             model_parameter_layer_names.extend(MODEL_NAMES_PARAMS[model])
 
     # 6b. Geocoding
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting geocoding...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting geocoding...")
     latlonh = radar_to_latlonh(
         azimuth_coords=stm_densified.azimuth.values,
         range_coords=stm_densified.range.values,
@@ -553,10 +601,10 @@ if start_at_checkpoint < 3:
     stm_densified["h"].data = latlonh[2].flatten()
 
     # 7. STC Calculation
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Calculating the unwrapped phase timeseries...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Calculating the unwrapped phase timeseries...")
     stm_densified["unwrapped_phase"].data = stm_densified["unwrapped_phase"].values
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Calculating spatiotemporal consistency...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Calculating spatiotemporal consistency...")
     stm_densified = compute_spatiotemporal_consistency(
         stm_densified,
         min_dist=stc_min_dist,
@@ -567,7 +615,7 @@ if start_at_checkpoint < 3:
     )
 
     # 8. Scatterer filtering
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Filtering scatterers...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Filtering scatterers...")
     for layer in filter_dict.keys():
         stm_densified = stm_point_filter(
             stm=stm_densified,
@@ -578,7 +626,7 @@ if start_at_checkpoint < 3:
         )
 
     # 9. Output generation
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Adding viewing geometry...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Adding viewing geometry...")
     stm_densified = add_local_viewing_geometry(
         stm=stm_densified,
         orbit_config_file=orbit_file,
@@ -587,7 +635,7 @@ if start_at_checkpoint < 3:
         orbit=f"{satellite}_{direction}_t{track:0>3d}",
     )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Projecting phases and models onto the vertical...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Projecting phases and models onto the vertical...")
     stm_densified["unwrapped_phase_pov"] = stm_densified["unwrapped_phase"] / np.cos(
         np.radians(stm_densified["local_incidence_angle"])
     )
@@ -597,14 +645,15 @@ if start_at_checkpoint < 3:
             np.radians(stm_densified["local_incidence_angle"])
         )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 3. Exporting to zarr...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 3. Exporting to zarr...")
     stm_densified = stm_densified.chunk({"time": 100, "space": "auto"})
     stm_densified.to_zarr(stm_save_path.format("result"), mode="w")
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 3: Saved! Reloading...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 3: Saved! Reloading...")
 
 if start_at_checkpoint < 4:
     stm_densified = xarray.open_zarr(stm_save_path.format("result"))
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 3: Re-loaded!")
+    reference_point_index = stm_densified.idx_refpnt
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 3: Re-loaded!")
 
     # re-get model parameter layer names if necessary
     if start_at_checkpoint > 1:
@@ -616,9 +665,9 @@ if start_at_checkpoint < 4:
         for model in models:
             model_parameter_layer_names.extend(MODEL_NAMES_PARAMS[model])
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting export...")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting export...")
     if "csv" in output_types:
-        print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Exporting to CSV...")
+        logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Exporting to CSV...")
         export_to_csv(
             stm=stm_densified,
             save_path=csv_save_path,
@@ -628,7 +677,7 @@ if start_at_checkpoint < 4:
         )
 
     if "csv_web_portal" in output_types:
-        print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Exporting to Portal CSV...")
+        logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Exporting to Portal CSV...")
         export_to_skygeo_portal(
             stm=stm_densified,
             save_path=csv_web_save_path,
@@ -643,7 +692,7 @@ if start_at_checkpoint < 4:
         )
 
     if "shapefile" in output_types:
-        print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Exporting to shapefile...")
+        logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Exporting to shapefile...")
         export_to_shapefile(
             stm=stm_densified,
             save_path=shape_save_path,
@@ -653,11 +702,11 @@ if start_at_checkpoint < 4:
         )
 
     if "convex_hull" in output_types:
-        print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Exporting to convex hull...")
+        logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Exporting to convex hull...")
         export_convex_hull_to_shapefile(
             stm=stm_densified,
             save_path=chull_save_path,
             projection=chull_projection,
         )
 
-    print(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Finished!")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Finished!")

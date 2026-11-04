@@ -79,7 +79,7 @@ cropped_data = cropped_data.drop_vars(["complex"])
 cropped_data.attrs = {}
 
 logger.info("Writing...")
-cropped_data.to_zarr(zarr_output_path, mode="w")
+cropped_data.to_zarr(zarr_output_path, mode="w", zarr_format=2)
 
 logger.info("Finished! Closing client...")
 client.close()

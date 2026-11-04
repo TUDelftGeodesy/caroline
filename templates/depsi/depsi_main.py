@@ -12,6 +12,7 @@ from dask_jobqueue import SLURMCluster
 from depsi.arc_estimation import periodogram
 from depsi.atmosphere_estimation import estimate_atmosphere_phase
 from depsi.classification import network_stm_selection, ps_selection
+from depsi.constants import SPEED_OF_LIGHT
 from depsi.densification import densification
 from depsi.io import (
     export_convex_hull_to_shapefile,
@@ -37,7 +38,6 @@ from caroline.config import get_config
 
 CONFIG = get_config()
 JOB_DEFINITIONS = get_config(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
-SPEED_OF_LIGHT = 299_792_458
 
 # Make a logger to log the stages of processing
 logger = logging.getLogger(__name__)

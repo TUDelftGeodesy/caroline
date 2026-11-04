@@ -485,7 +485,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             )
             zarr_name = (
                 f"{out_parameters['reduce_slc_python:general:AoI-name']}_"
-                f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc}_{track:0>3d}"
+                f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
             )
             # detect the mother and dem_radar from the mother
             metadata_file = glob.glob(f"{crop_directory}/*cropped_stack/2*/master.res")[0]
@@ -501,7 +501,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             )
             zarr_name = (
                 f"{out_parameters['merge_to_stack_python:general:AoI-name']}_"
-                f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc}_{track:0>3d}"
+                f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
             )
 
             snap_directory = format_process_folder(

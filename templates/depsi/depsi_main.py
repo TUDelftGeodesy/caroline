@@ -108,6 +108,7 @@ network_dphase_method = "**depsi:depsi-settings:network-formation:network-settin
 min_periodogram_iterations = int("**depsi:depsi-settings:network-formation:periodogram-settings:minimum-iterations**")
 arc_quality_threshold = float("**depsi:depsi-settings:network-formation:arc-settings:quality-threshold**")
 model_types = "**depsi:depsi-settings:general:models**".strip("[] ").split(",")
+model_types = [m.strip(""""' """) for m in model_types]
 
 # atmosphere
 euclidean_epsg_code_number = int("**depsi:depsi-settings:general:euclidean-reference-frame-epsg-number**")

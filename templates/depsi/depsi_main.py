@@ -37,6 +37,7 @@ from caroline.config import get_config
 
 CONFIG = get_config()
 JOB_DEFINITIONS = get_config(f"{CONFIG['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
+SPEED_OF_LIGHT = 299_792_458
 
 # Make a logger to log the stages of processing
 logger = logging.getLogger(__name__)
@@ -187,6 +188,13 @@ stm_save_path = f"**output_path**/**depsi:general:AoI-name**_{satellite.lower()}
 
 logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Reading Metadata...")
 metadata = sarxarray.read_metadata(metadata_path, driver=metadata_type)
+
+if isinstance(metadata["wavelength"], float):
+    pass
+elif isinstance(metadata["radar_frequency"], float):
+    metadata["wavelength"] = SPEED_OF_LIGHT / metadata["radar_frequency"]
+else:
+    raise ValueError("wavelength is missing from metadata and cannot be reconstructed from frequency!")
 
 
 def get_free_port():

@@ -617,6 +617,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             parameter_file=parameter_file,
             parameter_file_parameters=[
                 ["general:input-data:sensor", "lowercase"],
+                "general:shape-file:directory",
+                "general:shape-file:aoi-name",
                 "depsi:depsi-settings:ps-selection:method",
                 "depsi:depsi-settings:ps-selection:threshold",
                 "depsi:depsi-settings:ps-selection:chunk-size",

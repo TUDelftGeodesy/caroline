@@ -58,7 +58,7 @@ aoi_file = "**general:shape-file:directory**/**general:shape-file:aoi-name**_sha
 metadata_path = "**metadata_file**"
 metadata_type = "**metadata_driver**"
 satellite = "**general:input-data:sensor**".lower()
-track = int("**track**")
+track = int("**track**".lstrip("0"))
 direction = "**asc_dsc**"
 
 # Crop in time

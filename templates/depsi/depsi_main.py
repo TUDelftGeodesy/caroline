@@ -474,6 +474,7 @@ if start_at_checkpoint < 1:
     # Add the atmosphere into the original STM
     stm["atmosphere_predicted"] = atmosphere["atmosphere_predicted"].transpose("space", "time")
     stm["atmosphere_sigmasq"] = atmosphere["atmosphere_sigmasq"].transpose("space", "time")
+    stm = stm.assign_attrs({"idx_refpnt": stm_pnts_output.idx_refpnt})
 
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Removing the atmospheric phase screens...")
     stm["sd_phase_minus_atmo"] = (stm["sd_phase"] - stm["atmosphere_predicted"] + np.pi) % (2 * np.pi) - np.pi

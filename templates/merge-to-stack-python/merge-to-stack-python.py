@@ -3,6 +3,7 @@ import logging
 import socket
 
 import dask.array as da
+import numpy as np
 import sarxarray as sxr
 from dask.distributed import Client
 from dask_jobqueue import SLURMCluster
@@ -78,8 +79,16 @@ cropped_data = cropped_data.drop_vars(["complex"])
 # removing the metadata to be able to write to zarr again
 cropped_data.attrs = {}
 
+# Fix the encoding to ensure legit zeroes are not overwritten
+cropped_data = cropped_data.drop_encoding()
+encoding = {
+    name: {"_FillValue": np.nan}
+    for name, var in cropped_data.variables.items()
+    if np.issubdtype(var.dtype, np.floating)
+}
+
 logger.info("Writing...")
-cropped_data.to_zarr(zarr_output_path, mode="w", zarr_format=2)
+cropped_data.to_zarr(zarr_output_path, mode="w", zarr_format=2, encoding=encoding)
 
 logger.info("Finished! Closing client...")
 client.close()

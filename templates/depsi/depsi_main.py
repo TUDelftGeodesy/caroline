@@ -480,7 +480,7 @@ if start_at_checkpoint < 1:
 
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 1: saving to zarr...")
     stm = stm.chunk({"time": -1, "space": "auto"})
-    stm.to_zarr(stm_save_path.format("4atmo"), mode="w")
+    stm.to_zarr(stm_save_path.format("4atmo"), mode="w", zarr_format=2)
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 1: Saved! Reloading...")
 
 if start_at_checkpoint < 2:
@@ -577,7 +577,7 @@ if start_at_checkpoint < 2:
 
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 2: saving to zarr...")
     stm_densified = stm_densified.chunk({"time": 100, "space": "auto"})
-    stm_densified.to_zarr(stm_save_path.format("5dens"), mode="w")
+    stm_densified.to_zarr(stm_save_path.format("5dens"), mode="w", zarr_format=2)
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 2: Saved! Reloading...")
 
 if start_at_checkpoint < 3:
@@ -655,7 +655,7 @@ if start_at_checkpoint < 3:
 
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 3. Exporting to zarr...")
     stm_densified = stm_densified.chunk({"time": 100, "space": "auto"})
-    stm_densified.to_zarr(stm_save_path.format("result"), mode="w")
+    stm_densified.to_zarr(stm_save_path.format("result"), mode="w", zarr_format=2)
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Checkpoint 3: Saved! Reloading...")
 
 if start_at_checkpoint < 4:

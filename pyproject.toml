@@ -12,9 +12,9 @@ dependencies = [
     "geopandas",
     "matplotlib",
     "psycopg2-binary",
-    "sarxarray>=1.4.1",
+    "sarxarray>=1.4.2",
     "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc2",
-    "depsi@git+https://git@github.com/TUDelftGeodesy/DePSI.git@caroline-clone-branch",
+    "depsi@git+https://git@github.com/TUDelftGeodesy/DePSI.git@v0.2.0",
     "asf_search>=13.0.0"
 ]
 description = "End-to-end processing of Interferometric Synthetic Aperture Radar (InSAR) data"

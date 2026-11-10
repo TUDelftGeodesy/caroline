@@ -25,10 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (04-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c1e6cce950ad9b71998393c1a69bdffaca52fc5d...main))
+## [v5.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (10-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c1e6cce950ad9b71998393c1a69bdffaca52fc5d...main))
 
 ### Added
 - `depsi` job, running [Python DePSI](https://github.com/TUDelftGeodesy/DePSI)
+
+### Changed
+- The default path is now to run Python DePSI instead of Matlab DePSI
+
+### Fixed
+- Reverted memory requirement for non-Rome jobs back to 8GB from 12GB to reflect cluster status
 
 ## [v5.0.3](https://github.com/TUDelftGeodesy/caroline/tree/c1e6cce950ad9b71998393c1a69bdffaca52fc5d) (03-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/47d6f6b46c57dc25d9e0846c91eaf204e0f8a28c...c1e6cce950ad9b71998393c1a69bdffaca52fc5d))
 

@@ -24,7 +24,7 @@ TIME_LIMITS = {
 }
 
 MEMORY_LIMITS = {
-    "non-rome": 12,
+    "non-rome": 8,
     "rome": 16,
 }
 

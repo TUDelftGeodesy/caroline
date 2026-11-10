@@ -24,8 +24,8 @@ TIME_LIMITS = {
 }
 
 MEMORY_LIMITS = {
-    "non-rome": 8,
-    "rome": 16,
+    "non-rome": 7.9,
+    "rome": 15.9,
 }
 
 
@@ -336,7 +336,7 @@ def submit_processes(sorted_processes: list) -> None:
         if "--mem=" in job_definitions[job]["sbatch-args"]:
             memory_string = " "
         else:
-            memory_string = f" --mem={memory_limit}G "
+            memory_string = f" --mem={int(memory_limit)}G "
 
         # finally, combine everything
         sbatch_arguments = (

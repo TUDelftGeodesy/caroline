@@ -38,6 +38,7 @@ None yet, managed by [contextual-data-definitions.yaml](../config/contextual-dat
 
 #### PSI-batch submodule
 
+- `DE`: DePSI
 - `DM`: DePSI_matlab
 - `GS`: generate_stm
 

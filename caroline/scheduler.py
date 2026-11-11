@@ -24,7 +24,7 @@ TIME_LIMITS = {
 }
 
 MEMORY_LIMITS = {
-    "non-rome": 12,
+    "non-rome": 8,
     "rome": 16,
 }
 
@@ -328,15 +328,14 @@ def submit_processes(sorted_processes: list) -> None:
         else:
             array_args = ""
 
-        ncores = int(job_definitions[job]["sbatch-args"].split("--cpus-per-task=")[1].split(" ")[0])
         if "--constraint=rome" in job_definitions[job]["sbatch-args"]:
-            memory_limit = MEMORY_LIMITS["rome"] * ncores
+            memory_limit = MEMORY_LIMITS["rome"]
         else:
-            memory_limit = MEMORY_LIMITS["non-rome"] * ncores
-        if "--mem=" in job_definitions[job]["sbatch-args"]:
+            memory_limit = MEMORY_LIMITS["non-rome"]
+        if "--mem=" in job_definitions[job]["sbatch-args"] or "--mem-per-cpu=" in job_definitions[job]["sbatch-args"]:
             memory_string = " "
         else:
-            memory_string = f" --mem={memory_limit}G "
+            memory_string = f" --mem-per-cpu={int(memory_limit*1000)} "
 
         # finally, combine everything
         sbatch_arguments = (

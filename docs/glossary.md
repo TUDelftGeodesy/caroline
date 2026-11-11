@@ -210,6 +210,23 @@ All jobs run on a single AoI on a single track. The following specifications wil
       - optional coordinates:
         * `rd_x` / `epsg:xxx_x`: x coordinate of requested projection from variable `stm_extra_projection`
         * `rd_y` / `epsg:xxx_y`: y coordinate of requested projection from variable `stm_extra_projection`
+- <b>depsi</b>: this job runs the Python implementation of [Delft Persistent Scatterer Interferometry (DePSI)](https://github.com/TUDelftGeodesy/DePSI) on the output of `merge_to_stack_python` or `reduce_slc_python`.
+  * input:
+    * `.zarr` archive with the following fields:
+      - variables:
+        * `h2ph`: height-to-phase screen with the reference DEM subtracted cropped to the AoI
+        * `imag`: imaginary component of the reduced SLCs cropped to the AoI
+        * `real`: real component of the reduced SLCs cropped to the AoI
+      - coordinates:
+        * `azimuth`: azimuth coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `range`: range coordinates cropped to the AoI (the original origin of the input is retained throughout the crop)
+        * `lat`: latitude coordinates cropped to the AoI
+        * `lon`: longitude coordinates cropped to the AoI
+        * `time`: epochs of the acquisitions
+    * Selection criteria based on user-defined settings in the [CAROLINE parameter file](parameter-file.md) 
+  * output:
+    * Estimated time series of identified persistent scatterers with respect to a reference point, saved in `<AoI_name>_result.zarr`
+    * If requested: portal upload csv and json of the above estimated time series
 - <b>depsi_matlab</b>: this job runs [Delft Persistent Scatterer Interferometry (DePSI)](https://repository.tudelft.nl/record/uuid:5dba48d7-ee26-4449-b674-caa8df93e71e) on the output of `reduce_slc_matlab`.
     * input:
       * Radarcoded DEM cropped to the AoI (`dem_radar.raw`)

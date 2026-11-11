@@ -1,0 +1,119 @@
+# the default settings for DePSI, running in the depsi job
+# THESE SETTINGS ARE FOR THE PYTHON VERSION OF DEPSI, NOT THE MATLAB VERSION!!!
+
+depsi:
+  general:
+    AoI-name: "**AoI_name**"
+    directory: '/project/caroline/Share/projects/**AoI_name**/depsi'
+    partition: 'normal'
+
+  depsi-settings:
+    general:
+      models: ["offset", "velocity", "height"]
+      euclidean-reference-frame-epsg-number: 28992  # Dutch RD, for other AoIs visit https://epsg.io/ , units must be meters
+
+      # ref_cn specifies the reference point of the CAROLINE DePSI analyses. The following options are available:
+      # ref_cn = 'independent'   -> DePSI chooses the reference point itself (one of the nodes of the arc with the lowest amplitude dispersion),
+      #                             this can be different between consecutive runs on the same track.
+      # ref_cn = 'constant'      -> keep the reference point constant between runs on the same track. If no runs exist,
+      #                             the first run will run on mode 'independent'
+      # ref_cn = [azimuth,range] -> force the reference point to this coordinate regardless of what is there. If the reference point is not selected
+      #                             as PS point, DePSI will throw an error
+      # ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300]} -> different behaviours for different tracks. If this option is chosen,
+      #                                                                   a mode for all tracks in the .dat file must exist.
+      ref-cn:
+        all: 'constant'  # the default for all tracks. Adding different tracks will overwrite the 'all' mode for those specific tracks
+
+
+    ps-selection:
+      method: "nad"  # nad / nmad
+      threshold: 0.5
+      chunk-size: 5000
+      mode: 'full'  # initialization / full
+      init-settings: # settings for initialization mode, ignored if mode is full
+        start-date: '2013-03-01'
+        init-length: 50
+
+    sidelobe-detection:
+      do-sidelobe-detection: False
+      maximum-pixel-distance: 2
+      minimum-correlation: 0.9
+
+    network-formation:
+      coordinate-reference-system:
+        type: "radar"
+        x-label: "azimuth"
+        y-label: "range"
+
+      network-settings:
+        method: "redundant"
+        minimum-links: 16
+        partition-number: 8
+        dphase-method: "subtract"
+
+      arc-settings:
+        minimum-length: 100 # meters
+        maximum-length: 0.045 # degrees lat/lon (yes I don't like this either)
+        quality-threshold: 0.5 # ensemble coherence
+
+      periodogram-settings:
+        minimum-iterations: 10
+
+    atmosphere:
+      unmodeled-displacement:
+        filter-length: 1
+        sampling-rate: 1000
+        filter-type: "gaussian"
+
+      kriging:
+        n-nearest-neighbours: "None"
+        backend: "vectorized"
+
+      empirical-variogram:
+        method: "standard"
+        number-of-lags: 50
+        cutoff-distance: 10000
+
+      variogram:
+        model: "gaussian"
+        drift-terms: "regional_linear"
+
+    densification:
+      number-of-connections: 1
+
+    spatiotemporal-consistency:
+      minimum-distance: 30  # meters
+      maximum-distance: 100  # meters
+
+    viewing-geometry:
+      orbit:
+        mode: "IWS"
+        resolution: 0.01
+        filename: "config/drama/S1_XTI.cfg"
+
+    filtering:  # add filters like filter-1 below, naming them filter-2, filter-3, and so on
+      filter-1-layer-name: "h"  # this filter is an example and should not do anything by default
+      filter-1-minimum-value: -2000
+      filter-1-maximum-value: 15000
+
+    output:
+      csv:
+        produce-csv: 0
+        timeseries-projection: "los"
+
+      csv-web-portal:
+        produce-csv-web-portal: 1
+        timeseries-projection: "los"
+
+      shapefile:
+        produce-shapefile: 0
+        projection: "RD"
+
+      convex-hull:
+        produce-convex-hull: 0
+        projection: "RD"
+
+
+
+
+

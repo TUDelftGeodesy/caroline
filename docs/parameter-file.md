@@ -254,6 +254,208 @@ These parameters are used in the job `doris_v4`. Defaults in [the default doris_
   - Function: specify whether the step `geocoding` should be run
   - Possible values: `0`, `1`
 
+## DePSI parameters
+
+These parameters are used in the job `depsi` (the **Python** implementation of DePSI, not `depsi_matlab`). The values below correspond to the default DePSI configuration. YAML layers are separated by `:` in the parameter names.
+
+### General parameters
+
+* `depsi:general:AoI-name`
+  * Function: specify the AoI name used for the DePSI processing directory.
+  * Possible values: any AoI name as a `string`, typically matching the name used elsewhere in CAROLINE.
+* `depsi:general:directory`
+  * Function: specify the base directory for DePSI processing.
+  * Possible values: an absolute directory path as a `string`; default `'/project/caroline/Share/projects/**AoI_name**/depsi'` (with the AoI placeholder replaced).
+* `depsi:general:partition`
+  * Function: specify the SLURM partition on which the `depsi` job runs.
+  * Possible values: a valid partition name as a `string`; default `'normal'`.
+
+### DePSI settings: general
+
+* `depsi:depsi-settings:general:models`
+  * Function: specify the deformation and elevation model components to estimate.
+  * Possible values: a `list` of supported model names; default `['offset', 'velocity', 'height']`.
+* `depsi:depsi-settings:general:euclidean-reference-frame-epsg-number`
+  * Function: specify the EPSG code of the projected coordinate reference system used for Euclidean coordinates. Its units must be meters.
+  * Possible values: an `integer` EPSG code for a suitable meter-based projected CRS; default `28992` (Dutch RD). See [epsg.io](https://epsg.io/) for other regions.
+* `depsi:depsi-settings:general:ref-cn`
+  * Function: specify how the DePSI reference point is selected, either for all tracks or separately for individual tracks.
+  * Possible values: a mapping containing `all` and optionally track-specific keys (e.g., `s1_asc_t088`). Each value can be:
+    * `'independent'`: choose a reference point independently for each run, from the nodes of the arc with the lowest amplitude dispersion.
+    * `'constant'`: reuse the reference point across consecutive runs of the same track. If no previous run exists, select the first reference point using `'independent'` mode.
+    * `[azimuth, range]`: force the reference point to the specified radar pixel coordinates. DePSI raises an error if that point is not selected as a persistent scatterer.
+  * Example: `{'all': 'constant', 's1_dsc_t110': [100, 300]}`. Track-specific settings override `all`; default `{'all': 'constant'}`.
+
+### PS selection
+
+* `depsi:depsi-settings:ps-selection:method`
+  * Function: select the metric used for persistent scatterer (PS) selection.
+  * Possible values: `'nad'`, `'nmad'`; default `'nad'`.
+* `depsi:depsi-settings:ps-selection:threshold`
+  * Function: set the threshold for the selected PS-selection metric.
+  * Possible values: a numeric value; default `0.5`.
+* `depsi:depsi-settings:ps-selection:chunk-size`
+  * Function: specify the chunk size used during PS selection.
+  * Possible values: a positive `integer`; default `5000`.
+* `depsi:depsi-settings:ps-selection:mode`
+  * Function: choose between initialization and full PS selection.
+  * Possible values: `'initialization'`, `'full'`; default `'full'`.
+* `depsi:depsi-settings:ps-selection:init-settings:start-date`
+  * Function: specify the start date for initialization-mode PS selection. Ignored when `mode` is `'full'`.
+  * Possible values: a date `string` in `'YYYY-MM-DD'` format; default `'2013-03-01'`.
+* `depsi:depsi-settings:ps-selection:init-settings:init-length`
+  * Function: specify the length of the initialization period in number of acquisitions. Ignored when `mode` is `'full'`.
+  * Possible values: a positive `integer`; default `50`.
+
+### Sidelobe detection
+
+* `depsi:depsi-settings:sidelobe-detection:do-sidelobe-detection`
+  * Function: enable or disable sidelobe detection.
+  * Possible values: `True`, `False`; default `False`.
+* `depsi:depsi-settings:sidelobe-detection:maximum-pixel-distance`
+  * Function: specify the maximum pixel separation considered in sidelobe detection.
+  * Possible values: a nonnegative number; default `2`.
+* `depsi:depsi-settings:sidelobe-detection:minimum-correlation`
+  * Function: specify the minimum correlation required to flag a potential sidelobe.
+  * Possible values: a number between `0` and `1`; default `0.9`.
+
+### Network formation
+
+* `depsi:depsi-settings:network-formation:coordinate-reference-system:type`
+  * Function: specify the coordinate system used for network formation.
+  * Possible values: `'radar'` (the configured default); other supported types depend on the DePSI implementation.
+* `depsi:depsi-settings:network-formation:coordinate-reference-system:x-label`
+  * Function: specify the name of the first coordinate dimension.
+  * Possible values: a coordinate-label `string`; default `'azimuth'`.
+* `depsi:depsi-settings:network-formation:coordinate-reference-system:y-label`
+  * Function: specify the name of the second coordinate dimension.
+  * Possible values: a coordinate-label `string`; default `'range'`.
+* `depsi:depsi-settings:network-formation:network-settings:method`
+  * Function: specify the network formation method.
+  * Possible values: `'redundant'` (the configured default); other methods, if supported, depend on the DePSI implementation.
+* `depsi:depsi-settings:network-formation:network-settings:minimum-links`
+  * Function: specify the minimum number of links used when forming the redundant network.
+  * Possible values: a positive `integer`; default `16`.
+* `depsi:depsi-settings:network-formation:network-settings:partition-number`
+  * Function: specify the number of network partitions.
+  * Possible values: a positive `integer`; default `8`.
+* `depsi:depsi-settings:network-formation:network-settings:dphase-method`
+  * Function: specify how differential phase is computed between network points.
+  * Possible values: `'subtract'` (the configured default); other supported methods depend on the DePSI implementation.
+* `depsi:depsi-settings:network-formation:arc-settings:minimum-length`
+  * Function: specify the minimum allowed arc length.
+  * Possible values: a nonnegative number in meters; default `100`.
+* `depsi:depsi-settings:network-formation:arc-settings:maximum-length`
+  * Function: specify the maximum allowed arc length.
+  * Possible values: a positive number in degrees of latitude/longitude; default `0.045`.
+* `depsi:depsi-settings:network-formation:arc-settings:quality-threshold`
+  * Function: specify the arc quality threshold based on ensemble coherence.
+  * Possible values: a number between `0` and `1`; default `0.5`.
+* `depsi:depsi-settings:network-formation:periodogram-settings:minimum-iterations`
+  * Function: specify the minimum number of iterations for periodogram estimation.
+  * Possible values: a positive `integer`; default `10`.
+
+### Atmospheric estimation
+
+* `depsi:depsi-settings:atmosphere:unmodeled-displacement:filter-length`
+  * Function: specify the filter length for unmodeled displacement.
+  * Possible values: a positive `integer`; default `1` year.
+* `depsi:depsi-settings:atmosphere:unmodeled-displacement:sampling-rate`
+  * Function: specify the sampling rate used for filtering unmodeled displacement.
+  * Possible values: a positive `integer`; default `1000`.
+* `depsi:depsi-settings:atmosphere:unmodeled-displacement:filter-type`
+  * Function: specify the filter applied to unmodeled displacement.
+  * Possible values: `'gaussian'` (the configured default); other supported filters depend on the DePSI implementation.
+* `depsi:depsi-settings:atmosphere:kriging:n-nearest-neighbours`
+  * Function: specify the number of nearest neighbours used in kriging, or leave the neighbour count unspecified.
+  * Possible values: a positive integer or the string `'None'`; default `'None'`.
+* `depsi:depsi-settings:atmosphere:kriging:backend`
+  * Function: specify the kriging computation backend.
+  * Possible values: `'vectorized'` (the configured default); other supported backends depend on the DePSI implementation.
+* `depsi:depsi-settings:atmosphere:empirical-variogram:method`
+  * Function: select the empirical variogram estimation method.
+  * Possible values: `'standard'` (the configured default); other supported methods depend on the DePSI implementation.
+* `depsi:depsi-settings:atmosphere:empirical-variogram:number-of-lags`
+  * Function: specify the number of lag bins used to estimate the empirical variogram.
+  * Possible values: a positive `integer`; default `50`.
+* `depsi:depsi-settings:atmosphere:empirical-variogram:cutoff-distance`
+  * Function: specify the maximum separation distance included in empirical variogram estimation.
+  * Possible values: a positive number; default `10000` meters.
+* `depsi:depsi-settings:atmosphere:variogram:model`
+  * Function: specify the theoretical variogram model used in atmospheric estimation.
+  * Possible values: `'gaussian'` (the configured default); other supported models depend on the DePSI implementation.
+* `depsi:depsi-settings:atmosphere:variogram:drift-terms`
+  * Function: specify the drift terms included in the spatial model.
+  * Possible values: `'regional_linear'` (the configured default); other supported terms depend on the DePSI implementation.
+
+### Densification
+
+* `depsi:depsi-settings:densification:number-of-connections`
+  * Function: specify the number of connections used when incorporating additional points into the network.
+  * Possible values: a positive `integer`; default `1`. Currently maximum `1` (DePSI v0.2.0)
+
+### Spatiotemporal consistency
+
+* `depsi:depsi-settings:spatiotemporal-consistency:minimum-distance`
+  * Function: specify the minimum spatial distance for selecting neighbouring points in the spatiotemporal consistency assessment.
+  * Possible values: a nonnegative number in meters; default `30`.
+* `depsi:depsi-settings:spatiotemporal-consistency:maximum-distance`
+  * Function: specify the maximum spatial distance for selecting neighbouring points in the spatiotemporal consistency assessment.
+  * Possible values: a positive number in meters; default `100`.
+
+### Viewing geometry
+
+* `depsi:depsi-settings:viewing-geometry:orbit:mode`
+  * Function: specify the acquisition mode used for orbit-based viewing geometry calculations.
+  * Possible values: `'IWS'` (the configured default)
+* `depsi:depsi-settings:viewing-geometry:orbit:resolution`
+  * Function: specify the resolution used in the orbit-based viewing geometry calculation.
+  * Possible values: a positive number; default `0.01`.
+* `depsi:depsi-settings:viewing-geometry:orbit:filename`
+  * Function: specify the orbit configuration file.
+  * Possible values: a path `string`; default `'config/drama/S1_XTI.cfg'`.
+
+### Filtering
+
+Filters are numbered consecutively (`filter-1`, `filter-2`, etc.). Each filter specifies a layer and a minimum and maximum accepted value. The default filter is an example intended not to exclude points under normal circumstances.
+
+* `depsi:depsi-settings:filtering:filter-N-layer-name`
+  * Function: specify the output layer to which filter `N` is applied.
+  * Possible values: a valid output-layer name as a `string`; default for `filter-1` is `'h'`.
+* `depsi:depsi-settings:filtering:filter-N-minimum-value`
+  * Function: specify the lower accepted value of the selected layer.
+  * Possible values: a numeric value; default for `filter-1` is `-2000`.
+* `depsi:depsi-settings:filtering:filter-N-maximum-value`
+  * Function: specify the upper accepted value of the selected layer.
+  * Possible values: a numeric value greater than or equal to the minimum; default for `filter-1` is `15000`.
+
+### Output
+
+* `depsi:depsi-settings:output:csv:produce-csv`
+  * Function: enable or disable standard CSV output.
+  * Possible values: `0`, `1`; default `0`.
+* `depsi:depsi-settings:output:csv:timeseries-projection`
+  * Function: specify the projection of displacement time series in standard CSV output.
+  * Possible values: `'los'` (line of sight; configured default); `'vertical'`
+* `depsi:depsi-settings:output:csv-web-portal:produce-csv-web-portal`
+  * Function: enable or disable CSV output formatted for the web portal.
+  * Possible values: `0`, `1`; default `1`.
+* `depsi:depsi-settings:output:csv-web-portal:timeseries-projection`
+  * Function: specify the projection of displacement time series in web-portal CSV output.
+  * Possible values: `'los'` (line of sight; configured default); `'vertical'`
+* `depsi:depsi-settings:output:shapefile:produce-shapefile`
+  * Function: enable or disable shapefile output.
+  * Possible values: `0`, `1`; default `0`.
+* `depsi:depsi-settings:output:shapefile:projection`
+  * Function: specify the coordinate projection used for shapefile output.
+  * Possible values: `'RD'` (Dutch national grid; configured default); `'WGS84'`
+* `depsi:depsi-settings:output:convex-hull:produce-convex-hull`
+  * Function: enable or disable convex-hull output.
+  * Possible values: `0`, `1`; default `0`.
+* `depsi:depsi-settings:output:convex-hull:projection`
+  * Function: specify the coordinate projection used for convex-hull output.
+  * Possible values: `'RD'` (Dutch national grid; configured default); `'WGS84'`
+
 
 ## DePSI_matlab parameters
 
@@ -508,4 +710,3 @@ These parameters are used in the job `merge_to_stack_python`. Defaults in [the d
 - `merge_to_stack_python:general:depsi-code-directory`
   - Function: specify where the depsi code is, containing the functionality for `merge_to_stack_python`
   - Possible values: `string` with the absolute path to the base directory of `depsi`
-

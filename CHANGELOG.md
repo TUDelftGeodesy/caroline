@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (11-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c1e6cce950ad9b71998393c1a69bdffaca52fc5d...main))
+## [v5.1.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (12-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/aea6ba1937772a2cfd93a6b4c41af182fa615d4b...main))
+
+### Changed
+- gdal module is now `gdal/3.4.1-alma9` instead of `gdal/3.4.1-alma9-2` because of clash with Python 3.14
+
+## [v5.1.0](https://github.com/TUDelftGeodesy/caroline/tree/aea6ba1937772a2cfd93a6b4c41af182fa615d4b) (11-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c1e6cce950ad9b71998393c1a69bdffaca52fc5d...aea6ba1937772a2cfd93a6b4c41af182fa615d4b))
 
 ### Added
 - `depsi` job, running [Python DePSI](https://github.com/TUDelftGeodesy/DePSI)

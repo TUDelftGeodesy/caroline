@@ -26,5 +26,6 @@ modules:
   PYTHON2_MODULE: "python/2.7.15"
   PYTHON3_MODULE: "python/3.14.10"
   SNAP_MODULE: "snap/13.0.0"
+  PROJ_MODULE: "proj/8.2.1"
 run:
   RUN_MODE: "TEST"

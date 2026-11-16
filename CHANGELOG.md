@@ -25,8 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
+## [v5.1.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (16-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/cbce18adaf4e44f50a6f641e52d3f1478a256018...main))
 
-## [v5.1.2](https://github.com/TUDelftGeodesy/caroline/tree/main) (16-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9a23fc2240e43415af87e19605c703a46f62f55...main))
+### Added
+- Explicit loading of `proj/8.2.1`
+- `modules:PROJ_MODULE` in the [spider-config.yaml](config/spider-config.yaml) and [spider-test-config.yaml](config/spider-test-config.yaml)
+
+
+## [v5.1.2](https://github.com/TUDelftGeodesy/caroline/tree/cbce18adaf4e44f50a6f641e52d3f1478a256018) (16-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9a23fc2240e43415af87e19605c703a46f62f55...cbce18adaf4e44f50a6f641e52d3f1478a256018))
 
 ### Changed
 - Default DEM changed to `/project/caroline/Share/dem/netherlands_srtm_extended_filled/netherlands_SRTM_extended_filled.raw`

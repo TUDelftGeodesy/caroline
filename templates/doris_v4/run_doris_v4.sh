@@ -31,7 +31,7 @@
 
 # source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
-module load **python2_module** **gdal_module**
+module load **python2_module** **gdal_module** **proj_module**
 
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has started run_doris_v4.sh (AoI **doris_v4:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log
 

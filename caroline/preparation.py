@@ -702,6 +702,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 "caroline_virtual_environment_directory",
                 "python3_module",
                 "gdal_module",
+                "proj_module",
                 "caroline_work_directory",
             ],
             other_parameters={"track": tracks[track]},
@@ -1245,7 +1246,13 @@ def prepare_doris_v4(parameter_file: str, do_track: int | list | None = None) ->
                 "doris_v4:general:doris-v4-code-directory",
                 "doris_v4:general:AoI-name",
             ],
-            config_parameters=["caroline_work_directory", "orbit_directory", "python2_module", "gdal_module"],
+            config_parameters=[
+                "caroline_work_directory",
+                "orbit_directory",
+                "python2_module",
+                "gdal_module",
+                "proj_module",
+            ],
             other_parameters={"track": tracks[track], "coregistration_base_directory": coregistration_directory},
         )
 
@@ -1786,6 +1793,7 @@ def prepare_doris_v5(parameter_file: str, do_track: int | list | None = None) ->
                 "caroline_virtual_environment_directory",
                 "python3_module",
                 "gdal_module",
+                "proj_module",
             ],
             other_parameters={"track": tracks[track], "coregistration_directory": coregistration_directory},
         )
@@ -1994,6 +2002,7 @@ def prepare_generate_stm(parameter_file: str, do_track: int | list | None = None
                 "caroline_virtual_environment_directory",
                 "python3_module",
                 "gdal_module",
+                "proj_module",
             ],
             other_parameters={"track": tracks[track]},
         )
@@ -2075,6 +2084,7 @@ def prepare_merge_to_stack_matlab(parameter_file: str, do_track: int | list | No
                 "caroline_virtual_environment_directory",
                 "python3_module",
                 "gdal_module",
+                "proj_module",
             ],
             other_parameters={"track": tracks[track]},
         )
@@ -2158,6 +2168,7 @@ def prepare_merge_to_stack_python(parameter_file: str, do_track: int | list | No
                 "caroline_virtual_environment_directory",
                 "python3_module",
                 "gdal_module",
+                "proj_module",
             ],
             other_parameters={"track": tracks[track]},
         )
@@ -2377,6 +2388,7 @@ def prepare_reduce_slc_python(parameter_file: str, do_track: int | list | None =
                 "caroline_virtual_environment_directory",
                 "python3_module",
                 "gdal_module",
+                "proj_module",
             ],
             other_parameters={"track": tracks[track]},
         )
@@ -2636,6 +2648,7 @@ def prepare_snap(parameter_file: str, do_track: int | list | None = None) -> Non
                 "python3_module",
                 "gdal_module",
                 "snap_module",
+                "proj_module",
             ],
             other_parameters={
                 "track": tracks[track],
@@ -2797,6 +2810,7 @@ def prepare_snap_preparation(parameter_file: str, do_track: int | list | None = 
                 "python3_module",
                 "gdal_module",
                 "snap_module",
+                "proj_module",
             ],
             other_parameters=other_parameters,
         )

@@ -31,7 +31,7 @@
 
 source /etc/profile.d/modules.sh
 source /project/caroline/Software/bin/init.sh
-module load **python3_module** **gdal_module**
+module load **python3_module** **gdal_module** **proj_module**
 source ~/.bashrc
 source **caroline_virtual_environment_directory**/bin/activate
 

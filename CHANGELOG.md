@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.0](https://github.com/TUDelftGeodesy/caroline/tree/main) (11-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c1e6cce950ad9b71998393c1a69bdffaca52fc5d...main))
+## [v5.1.1](https://github.com/TUDelftGeodesy/caroline/tree/main) (11-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9a23fc2240e43415af87e19605c703a46f62f55...main))
+
+
+### Changed
+- Default DEM changed to `/project/caroline/Share/dem/netherlands_srtm_extended_filled/netherlands_SRTM_extended_filled.raw`
+
+## [v5.1.0](https://github.com/TUDelftGeodesy/caroline/tree/c9a23fc2240e43415af87e19605c703a46f62f55) (11-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c1e6cce950ad9b71998393c1a69bdffaca52fc5d...c9a23fc2240e43415af87e19605c703a46f62f55))
 
 ### Added
 - `depsi` job, running [Python DePSI](https://github.com/TUDelftGeodesy/DePSI)

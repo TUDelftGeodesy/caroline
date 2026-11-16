@@ -54,9 +54,9 @@ general:
     recipients: "NEEDS_VALUE"
 
   dem:
-    file: '/project/caroline/Share/dem/netherlands_srtm_extended/netherlands_SRTM_extended.raw'  # for the Netherlands
+    file: '/project/caroline/Share/dem/netherlands_srtm_extended_filled/netherlands_SRTM_extended_filled.raw'  # for the Netherlands
     format: 'r4'
     size: [14400, 25200]
     delta: [0.00027778, 0.00027778]
     upperleft: [54, 2]
-    nodata: -32768
+    nodata: -3.40282e+38

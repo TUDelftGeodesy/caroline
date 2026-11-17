@@ -13,7 +13,7 @@ dependencies = [
     "matplotlib",
     "psycopg2-binary",
     "sarxarray>=1.4.2",
-    "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc2",
+    "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc3",
     "depsi@git+https://git@github.com/TUDelftGeodesy/DePSI.git@v0.2.0",
     "asf_search>=13.0.0",
     "scipy>=1.16,<1.17",

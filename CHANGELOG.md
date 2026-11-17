@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Explicit loading of `proj/8.2.1`
 - `modules:PROJ_MODULE` in the [spider-config.yaml](config/spider-config.yaml) and [spider-test-config.yaml](config/spider-test-config.yaml)
 
+### Changed
+- Dependency on `caroline-download` is now on v0.2.0rc3
+
 
 ## [v5.1.2](https://github.com/TUDelftGeodesy/caroline/tree/cbce18adaf4e44f50a6f641e52d3f1478a256018) (16-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c9a23fc2240e43415af87e19605c703a46f62f55...cbce18adaf4e44f50a6f641e52d3f1478a256018))
 

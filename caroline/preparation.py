@@ -487,12 +487,49 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 f"{out_parameters['reduce_slc_python:general:AoI-name']}_"
                 f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
             )
-            # detect the mother and dem_radar from the mother
-            metadata_file = glob.glob(f"{crop_directory}/*cropped_stack/2*/master.res")[0]
-            # cut off master.res, and add dem_radar.raw
-            mother_date = metadata_file.split("/")[-2]
-            metadata_driver = "doris5"
-            available_dates = [date.split("/")[-1] for date in glob.glob(f"{crop_directory}/*cropped_stack/2*")]
+
+            if out_parameters["general:input-data:sensor"] == "S1":
+                coregistration_directory = format_process_folder(
+                    parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v5"], track=tracks[track]
+                )
+
+            else:
+                coregistration_directory = format_process_folder(
+                    parameter_file=parameter_file, job_description=JOB_DEFINITIONS["doris_v4"], track=tracks[track]
+                )
+
+            # detect the mother image
+            if out_parameters["general:input-data:sensor"].lower() == "s1":
+                metadata_driver = "doris5"
+                f = open(f"{coregistration_directory}/doris_input.xml")
+                data = f.read().split("\n")
+                f.close()
+                mother_date = None
+                for line in data:
+                    if "<master_date>" in line:
+                        mother_date = line.split(">")[1].split("<")[0].replace("-", "")
+                        break
+
+                if mother_date is None:
+                    raise ValueError(f"Failed to detect mother in {coregistration_directory}/doris_input.xml!")
+                metadata_file = f"{coregistration_directory}/stack/{mother_date}/master.res"
+                available_dates = [date.split("/")[-1] for date in glob.glob(f"{coregistration_directory}/stack/2*")]
+
+            else:
+                metadata_driver = "doris4"
+                f = open(f"{coregistration_directory}/run_doris_v4.py")
+                data = f.read().split("\n")
+                f.close()
+                mother_date = None
+                for line in data:
+                    if "master = " in line:
+                        mother_date = line.split('"')[1]
+                        break
+
+                if mother_date is None:
+                    raise ValueError(f"Failed to detect mother in {coregistration_directory}/run_doris_v4.py !")
+                metadata_file = f"{coregistration_directory}/process/master.res"
+                available_dates = [date.split("/")[-1] for date in glob.glob(f"{coregistration_directory}/process/2*")]
         else:
             crop_directory = format_process_folder(
                 parameter_file=parameter_file,

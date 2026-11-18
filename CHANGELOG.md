@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.3](https://github.com/TUDelftGeodesy/caroline/tree/main) (16-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/cbce18adaf4e44f50a6f641e52d3f1478a256018...main))
+## [v5.1.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (18-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c6066f1dd3fe3d4f62b76686e3d3ea82014895b5...main))
+
+### Fixed
+- `preparation.prepare_depsi` now properly reads out the mother epoch and res files from Doris v5 and Doris v4
+
+## [v5.1.3](https://github.com/TUDelftGeodesy/caroline/tree/c6066f1dd3fe3d4f62b76686e3d3ea82014895b5) (16-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/cbce18adaf4e44f50a6f641e52d3f1478a256018...c6066f1dd3fe3d4f62b76686e3d3ea82014895b5))
 
 ### Added
 - Explicit loading of `proj/8.2.1`

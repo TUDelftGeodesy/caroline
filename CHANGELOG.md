@@ -25,7 +25,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.5](https://github.com/TUDelftGeodesy/caroline/tree/main) (19-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d28040f9b66480dcd6905a6d7abb644182667863...main))
+## [v5.1.6](https://github.com/TUDelftGeodesy/caroline/tree/main) (19-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/35f6e4b758e537b95c50b57dabe7adcb36fec81f...main))
+
+### Added
+- `gdal-prep` dependency group
+
+### Changed
+- During installation the virtual environment is now updated twice, once to prepare for gdal and once with gdal
+- `sarxarray` dependency is temporarily linked to GitHub repo instead of pypi due to syncing issues
+
+### Fixed
+- GDAL now compiles properly with the presence of `setuptools` and `wheel`
+
+
+
+## [v5.1.5](https://github.com/TUDelftGeodesy/caroline/tree/35f6e4b758e537b95c50b57dabe7adcb36fec81f) (19-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d28040f9b66480dcd6905a6d7abb644182667863...35f6e4b758e537b95c50b57dabe7adcb36fec81f))
 
 ### Added
 - Plugin installer now updates remote refs to the repositories

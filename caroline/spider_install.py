@@ -175,10 +175,14 @@ def _update_virtualenvironment() -> None:
     This function assumes a virtual environment already exists at the location specified in the configuration.
     """
     os.system('''echo "Updating the Virtual environment..."''')
+    gdal_version = CONFIG["GDAL_MODULE"].split("/")[-1].split("-")[0]
     os.system(
         f"source {CONFIG['CAROLINE_INSTALL_DIRECTORY']}/scripts/imports.sh; "
         f"source {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
-        f"pip install {CONFIG['CAROLINE_INSTALL_DIRECTORY']}[plugins,private]"
+        f"pip install {CONFIG['CAROLINE_INSTALL_DIRECTORY']}[private,gdal-prep]; "  # first gdal-prep
+        f"pip install {CONFIG['CAROLINE_INSTALL_DIRECTORY']}[plugins]; "  # then gdal and the other plugins
+        "python -m pip install --force-reinstall --no-cache-dir "
+        f'--no-build-isolation --no-binary=GDAL "GDAL=={gdal_version}"'  # then build gdal properly
     )
     os.system('''echo "Finished updating the virtual environment!"''')
 

@@ -12,7 +12,7 @@ dependencies = [
     "geopandas",
     "matplotlib",
     "psycopg2-binary",
-    "sarxarray>=1.4.2",
+    "sarxarray@git+https://github.com/TUDelftGeodesy/sarxarray.git@1.4.2",
     "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc3",
     "depsi@git+https://git@github.com/TUDelftGeodesy/DePSI.git@v0.2.0",
     "asf_search>=13.0.0",
@@ -54,7 +54,7 @@ docs = [
 ]
 gdal-prep = [  # gdal needs these to compile
     "setuptools",
-    "wheels",
+    "wheel",
 ]
 plugins = [
     "gdal==3.4.1", # necessary for Doris v5, version 3.4.1 since that reflects the status of libgdal on Spider

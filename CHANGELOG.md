@@ -32,9 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - During installation the virtual environment is now updated twice, once to prepare for gdal and once with gdal
+- `sarxarray` dependency is temporarily linked to GitHub repo instead of pypi due to syncing issues
 
 ### Fixed
-- GDAL now compiles properly with the presence of `setuptools` and `wheels`
+- GDAL now compiles properly with the presence of `setuptools` and `wheel`
 
 
 

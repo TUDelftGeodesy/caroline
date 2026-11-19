@@ -12,7 +12,7 @@ dependencies = [
     "geopandas",
     "matplotlib",
     "psycopg2-binary",
-    "sarxarray@git+https://github.com/TUDelftGeodesy/sarxarray.git@1.4.2",
+    "sarxarray@git+https://github.com/TUDelftGeodesy/sarxarray.git@v1.4.2",
     "caroline-download@git+https://github.com/TUDelftGeodesy/caroline-download.git@v0.2.0rc3",
     "depsi@git+https://git@github.com/TUDelftGeodesy/DePSI.git@v0.2.0",
     "asf_search>=13.0.0",

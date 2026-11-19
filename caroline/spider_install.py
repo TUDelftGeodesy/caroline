@@ -178,7 +178,8 @@ def _update_virtualenvironment() -> None:
     os.system(
         f"source {CONFIG['CAROLINE_INSTALL_DIRECTORY']}/scripts/imports.sh; "
         f"source {CONFIG['CAROLINE_VIRTUAL_ENVIRONMENT_DIRECTORY']}/bin/activate; "
-        f"pip install {CONFIG['CAROLINE_INSTALL_DIRECTORY']}[plugins,private]"
+        f"pip install {CONFIG['CAROLINE_INSTALL_DIRECTORY']}[private,gdal-prep]; "  # first gdal-prep
+        f"pip install {CONFIG['CAROLINE_INSTALL_DIRECTORY']}[plugins]"  # then gdal
     )
     os.system('''echo "Finished updating the virtual environment!"''')
 

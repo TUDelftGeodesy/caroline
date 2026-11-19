@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plugin installer now updates remote refs to the repositories
 
 ### Changed
-- Bitbucket dependencies now request from `sss.bitbucket.org` instead of `bitbucket.org`
+- Bitbucket dependencies now request from `ssh.bitbucket.org` instead of `bitbucket.org`
 
 
 ## [v5.1.4](https://github.com/TUDelftGeodesy/caroline/tree/d28040f9b66480dcd6905a6d7abb644182667863) (18-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c6066f1dd3fe3d4f62b76686e3d3ea82014895b5...d28040f9b66480dcd6905a6d7abb644182667863))

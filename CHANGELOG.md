@@ -25,7 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.4](https://github.com/TUDelftGeodesy/caroline/tree/main) (18-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c6066f1dd3fe3d4f62b76686e3d3ea82014895b5...main))
+## [v5.1.5](https://github.com/TUDelftGeodesy/caroline/tree/main) (19-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/d28040f9b66480dcd6905a6d7abb644182667863...main))
+
+### Added
+- Plugin installer now updates remote refs to the repositories
+
+### Changed
+- Bitbucket dependencies now request from `sss.bitbucket.org` instead of `bitbucket.org`
+
+
+## [v5.1.4](https://github.com/TUDelftGeodesy/caroline/tree/d28040f9b66480dcd6905a6d7abb644182667863) (18-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/c6066f1dd3fe3d4f62b76686e3d3ea82014895b5...d28040f9b66480dcd6905a6d7abb644182667863))
 
 ### Fixed
 - `preparation.prepare_depsi` now properly reads out the mother epoch and res files from Doris v5 and Doris v4

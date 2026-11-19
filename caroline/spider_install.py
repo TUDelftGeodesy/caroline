@@ -147,32 +147,21 @@ def _install_plugins() -> None:
     # then the github repositories
     for dependency in github_plugins.keys():
         os.system(f'''echo "{dependency}..."''')
-        if os.path.exists(f"{CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}"):
-            # if the path exists, the directory has already been cloned once before. We need to sync with git pull
-            # to the right branch. This is one command as we need to change directories
-            if "branch" in github_plugins[dependency].keys():
-                os.system(
-                    f"cd {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}; git fetch origin; "
-                    f"git checkout {github_plugins[dependency]['branch']}; git pull"
-                )
-            else:  # we're dealing with a tag, so we need to fetch
-                os.system(
-                    f"cd {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}; git fetch origin; "
-                    f"git checkout {github_plugins[dependency]['tag']}"
-                )
+        plugin = github_plugins[dependency]
+        plugin_dir = f"{CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}"
 
-        else:
-            # if it does not exist, simply clone the right branch into the plugins directory
-            if "branch" in github_plugins[dependency].keys():
-                os.system(
-                    f"git clone -b {github_plugins[dependency]['branch']} "
-                    f"{github_plugins[dependency]['repo']} {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}"
-                )
+        if os.path.exists(plugin_dir):
+            # Synchronize the existing repository URL with the configuration.
+            os.system(f"cd {plugin_dir}; git remote set-url origin {plugin['repo']}")
+
+            if "branch" in plugin:
+                os.system(f"cd {plugin_dir}; git fetch origin; git checkout {plugin['branch']}; git pull")
             else:
-                os.system(
-                    f"git clone -b {github_plugins[dependency]['tag']} "
-                    f"{github_plugins[dependency]['repo']} {CONFIG['CAROLINE_PLUGINS_DIRECTORY']}/{dependency}"
-                )
+                os.system(f"cd {plugin_dir}; git fetch origin; git checkout {plugin['tag']}")
+        else:
+            # Clone the configured branch or tag.
+            ref = plugin.get("branch", plugin.get("tag"))
+            os.system(f"git clone -b {ref} {plugin['repo']} {plugin_dir}")
 
     os.system('''echo "Applying patches to the modules..."''')
     # finally, apply the patches

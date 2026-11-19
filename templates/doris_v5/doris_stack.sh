@@ -42,4 +42,7 @@ export PYTHONPATH=$source_path:$PYTHONPATH
 export PATH=**doris_v5:general:code-directory**:**doris_v5:general:code-directory**/doris/doris_stack/functions:**doris_v5:general:code-directory**/doris/doris_stack/main_code:/project/caroline/Software/snaphu:$PATH
 python3 **doris_v5:general:code-directory**/doris/doris_stack/main_code/doris_main.py -p **coregistration_directory** || exit 5
 
+# Fix permissions to allow everyone to edit and update
+chmod -R u+rwX **coregistration_directory**
+
 echo "$(date '+%Y-%m-%dT%H:%M:%S'): $(whoami) in $(pwd) has finished doris_stack.sh (AoI **doris_v5:general:AoI-name**, track **track**) with slurm-ID $SLURM_JOB_ID)" >> **caroline_work_directory**/submitted_jobs.log

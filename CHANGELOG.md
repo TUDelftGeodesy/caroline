@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.6](https://github.com/TUDelftGeodesy/caroline/tree/main) (19-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/35f6e4b758e537b95c50b57dabe7adcb36fec81f...main))
+## [v5.1.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (19-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/1de1fc6c7a258553b0caccc4becba017e48e3036...main))
+
+### Fixed
+- Doris v5 result directories are now editable by non-creator accounts as well
+
+
+## [v5.1.6](https://github.com/TUDelftGeodesy/caroline/tree/1de1fc6c7a258553b0caccc4becba017e48e3036) (19-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/35f6e4b758e537b95c50b57dabe7adcb36fec81f...1de1fc6c7a258553b0caccc4becba017e48e3036))
 
 ### Added
 - `gdal-prep` dependency group

@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.8](https://github.com/TUDelftGeodesy/caroline/tree/main) (20-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ca1a78ef1be33c56dfe28d12aa29849a0bf6a8c8...main))
+## [v5.1.9](https://github.com/TUDelftGeodesy/caroline/tree/main) (20-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/709073f730b65d4aac3708dfe4f46d221d773e7d...main))
+
+### Fixed
+- KML no longer loads an entire SNAP stack into memory
+
+## [v5.1.8](https://github.com/TUDelftGeodesy/caroline/tree/709073f730b65d4aac3708dfe4f46d221d773e7d) (20-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ca1a78ef1be33c56dfe28d12aa29849a0bf6a8c8...709073f730b65d4aac3708dfe4f46d221d773e7d))
 
 ### Changed
 - Email text is now cleaner

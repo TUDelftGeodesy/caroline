@@ -5,7 +5,7 @@ A template DAG for the countinous production of inteferograms in the Caroline Sy
 
 The purpose of this DAG is to be used as part of the implementation of the *monitoring mode* in Caroline. The monitoring mode focuses on the production of new products whenever new Sentinel-1 datasets are made available by the data providers for an specific region. 
 
-The [interferogram.py](../airflow/dags/interferogram.py) DAG defines the workflow illustrated below:
+The [interferogram.py](../../airflow/dags/interferogram.py) DAG defines the workflow illustrated below:
 
 ![Components overview](assets/img/interferogram-template.png)
 
@@ -210,7 +210,7 @@ The tasks *download_precise_orbits* and *download_radar_datasets* are run in par
 
 ## Runing the DAG
 
-The template DAG [interferogram.py](../airflow/dags/interferogram.py) can be run from the Airflow UI by using the option **Trigger DAG w/config** and passing the following JSON-formatted values. The values 
+The template DAG [interferogram.py](../../airflow/dags/interferogram.py) can be run from the Airflow UI by using the option **Trigger DAG w/config** and passing the following JSON-formatted values. The values 
 
 
 ```json

@@ -196,7 +196,7 @@ All jobs run on a single AoI on a single track. The following specifications wil
         * if `stm_do_partitioning=1`:
           * `breakpoints`: boolean array with `True` if that epoch is selected as a breakpoint (i.e., at that epoch a new partition starts)
           * `partition_id`: unique identifier of each partition
-          * other output layers prefixed with `partition` are defined by the [settings](parameter-file.md#stmgeneration-parameters) `stm_partitioning_undifferenced_output_layers` and `stm_partitioning_single_difference_output_layers`, and yield their respective values per partition (constant across each partition)
+          * other output layers prefixed with `partition` are defined by the [settings](parameter-file.md#generatestm-parameters) `stm_partitioning_undifferenced_output_layers` and `stm_partitioning_single_difference_output_layers`, and yield their respective values per partition (constant across each partition)
         * if `stm_do_outlier_detection=1`:
           * `outliers`: boolean array with `True` if that epoch is identified as an outlier
       - coordinates:

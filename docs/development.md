@@ -64,7 +64,7 @@ We use `mkdocs` for documentation.
 To check the documentation at local, use the following command in the root directory of the repository:
 
 ```bash
-mkdocs serve
+bash scripts/serve-docs.sh
 ```
 
 This will build and render the documentation at a local server. Follow the link provided in the terminal to view the documentation in the browser.
@@ -169,7 +169,7 @@ A few notes:
   - [run-caroline.sh](../scripts/run-caroline.sh) will detect the new SLC zip files and start your new AoI
   - The first job that is run is `s1_download`, which will per track download all SLC zip files in the period you specified before continuing to coregistration.
 - If `s1_download` is the _only_ step that is run, no `area-track-list` is generated and the AoI will never be started by [run-caroline.sh](../scripts/run-caroline.sh), as it is assumed this AoI is only to trigger the periodic download (e.g. the `be_lu_nl_benelux` AoI).
-- Download configurations are removed when an AoI is [deactivated](management.md#activating--deactivating-an-aoi).
+- Download configurations are removed when an AoI is [deactivated](management.md#activating-or-deactivating-an-aoi).
 
 
 ## Adding a new job

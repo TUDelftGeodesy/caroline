@@ -12,8 +12,8 @@
 - Read access to the [TUDelftGeodesy](https://github.com/TUDelftGeodesy) repositories (both public and private)
 - A working installation of [Doris v5.0.4](http://doris.tudelft.nl/) and [Doris v4.13.1](http://doris.tudelft.nl/)
 
-## Activating / Deactivating an AoI
-In each parameter file, at the very top there is a parameter `active`. If `1`, the parameter file is active and processed. If `0`, the parameter file is inactive and not processed. This also affect the periodic download setup. 
+## Activating or Deactivating an AoI
+In each parameter file, at the very top there is a parameter `general:active`. If `1`, the parameter file is active and processed. If `0`, the parameter file is inactive and not processed. This also affect the periodic download setup. 
 When changing a parameter file, do not forget to follow [the GitHub management](development.md#general-github-management).
 
 

@@ -1,0 +1,20 @@
+site_name: CAROLINE
+site_description: Documentation for the CAROLINE InSAR processing system
+site_url: https://tudelftgeodesy.github.io/caroline/
+repo_url: https://github.com/TUDelftGeodesy/caroline
+
+theme:
+  name: material
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+      slugify: !!python/name:docs_hooks.github_slugify
+  - tables
+
+hooks:
+  - docs_hooks.py

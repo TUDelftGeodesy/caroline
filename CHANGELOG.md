@@ -25,7 +25,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.9](https://github.com/TUDelftGeodesy/caroline/tree/main) (20-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/709073f730b65d4aac3708dfe4f46d221d773e7d...main))
+## [v5.1.10](https://github.com/TUDelftGeodesy/caroline/tree/main) (20-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/768ab91bd2e18f6e70d0f042ed3c3fec90c209a0...main))
+
+### Added
+- [scripts/serve-docs.sh](scripts/serve-docs.sh) to easily serve the documentation to a local server
+- Documentation hooks to allow for linking outside the `docs` folder
+
+### Changed
+- Instead of manually building the docs and then serving them, this is now compiled into one script: [scripts/serve-docs.sh](scripts/serve-docs.sh). The documentation has been updated accordingly
+
+### Fixed
+- `mkdocs serve` command works again
+- Broken links in (deprecated) documentation have been fixed
+- `mkdocs` now uses the same handling as GitHub of underscores in section header labels (i.e., ignore them)
+
+## [v5.1.9](https://github.com/TUDelftGeodesy/caroline/tree/768ab91bd2e18f6e70d0f042ed3c3fec90c209a0) (20-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/709073f730b65d4aac3708dfe4f46d221d773e7d...768ab91bd2e18f6e70d0f042ed3c3fec90c209a0))
 
 ### Fixed
 - KML no longer loads an entire SNAP stack into memory

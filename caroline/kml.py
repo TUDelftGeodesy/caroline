@@ -592,16 +592,12 @@ def add_coregistered_stack_folder(kml: KML) -> KML:
                 kml.close_folder()
 
             else:  # SNAP or empty
+                geo_znaps = {os.path.dirname(path) for path in glob.glob(f"{stack_folder}/*-coreg.znap/latitude_*")}
                 znaps = glob.glob(f"{stack_folder}/*-coreg.znap")
 
-                if len(znaps) > 0:  # we have SNAP
-                    before = dict(os.environ)
-                    snap_data = sxr.from_znap(znaps)
-                    after = dict(os.environ)
+                if len(geo_znaps) > 0:  # we have SNAP
+                    snap_data = sxr.from_znap([sorted(geo_znaps)[0]])
 
-                    for k in sorted(after):
-                        if before.get(k) != after.get(k):
-                            print(k, before.get(k), "->", after[k])
                     if {"latitude", "longitude"}.issubset([k for k in snap_data.data_vars.keys()]):
                         with dask.config.set(scheduler="synchronous"):
                             bbox = [

@@ -177,7 +177,7 @@ def find_slurm_job_id(parameter_file: str, job: str) -> int:
     return eval(job_id)
 
 
-def _generate_email(parameter_file: str) -> str:
+def _generate_email(parameter_file: str) -> tuple[str, bool]:
     """Generate the CAROLINE email.
 
     Parameters
@@ -187,8 +187,8 @@ def _generate_email(parameter_file: str) -> str:
 
     Returns
     -------
-    str
-        The message that will be emailed.
+    tuple[str, bool]
+        The message that will be emailed, and whether the process finished properly
     """
     jobs = get_config(f"{CONFIG_PARAMETERS['CAROLINE_INSTALL_DIRECTORY']}/config/job-definitions.yaml", flatten=False)
 
@@ -234,6 +234,7 @@ def _generate_email(parameter_file: str) -> str:
     os.makedirs(f"{log_folder_name}/overview")
 
     status_checks = ""
+    full_run_successful = True
     for job in jobs["jobs"].keys():
         if job_schedule_check(parameter_file, job, jobs["jobs"]):  # it has run
             job_id = find_slurm_job_id(parameter_file, job)
@@ -267,6 +268,7 @@ def _generate_email(parameter_file: str) -> str:
                     os.system(
                         f"""echo "{job} did not finish properly" >> {log_folder_name}/overview/STATUS-overview.txt"""
                     )
+                    full_run_successful = False
                 for i in range(len(check["slurm_file"])):
                     os.system(
                         f"cp -p {check['slurm_file'][i]} "
@@ -280,6 +282,7 @@ def _generate_email(parameter_file: str) -> str:
                 f = open(f"{log_folder_name}/{job}/STATUS-job-did-not-start.log", "w")
                 f.close()
                 os.system(f"""echo "{job} did not start" >> {log_folder_name}/overview/STATUS-overview.txt""")
+                full_run_successful = False
 
             if jobs["jobs"][job]["email"]["include-in-email"]:
                 if jobs["jobs"][job]["bash-file"] is not None:
@@ -299,14 +302,16 @@ def _generate_email(parameter_file: str) -> str:
                             + f"{out_parameters['general:portal:skygeo-viewer']} .\n\n"
                         )
                     else:
-                        status_checks += f"{job}: {tracks_formatted} finished properly! (located in {directory} )\n\n"
+                        status_checks += (
+                            f"{job}: {tracks_formatted} finished properly, and is located in {directory} \n\n"
+                        )
                 elif check["successful_start"]:
                     status_checks += (
-                        f"!!! {job}: {tracks_formatted} did not finish properly! " f"(located in {directory} )\n\n"
+                        f"!!! {job}: {tracks_formatted} did not finish properly, and is located in {directory} \n\n"
                     )
                 else:
                     status_checks += (
-                        f"!!! {job}: {tracks_formatted} did not start properly! " f"(located in {directory} )\n\n"
+                        f"!!! {job}: {tracks_formatted} did not start properly, and is located in {directory} \n\n"
                     )
 
     os.system(f"chmod -R 777 {log_folder_name}")  # to make everything downloadable by everyone
@@ -318,23 +323,17 @@ Objective: {out_parameters['general:project:objective']}
 Notes: {out_parameters['general:project:notes']}
 """
 
-    message = f"""Dear radargroup,
-    
-A new CAROLINE run has just finished on run {run_id}! 
+    message = f"""CAROLINE AoI {run_id} has just finished a run
     
 {project_characteristics}
 Run characteristics:
-Track(s): {tracks_formatted}
+Track: {tracks_formatted}
 Sensor: {out_parameters['general:input-data:sensor']}
     
 The following steps were run:
 {status_checks}
     
 In case of questions, please contact Niels at n.h.jansen@tudelft.nl or Simon at s.a.n.vandiepen@tudelft.nl
-    
-Kind regards,
-The CAROLINE development team,
-Freek, Niels, and Simon
     
 =======================================
 ===========DEBUG info==================
@@ -344,7 +343,7 @@ https://public.spider.surfsara.nl{log_folder_name.replace("Public/", "")} .
 
 """
 
-    return message
+    return message, full_run_successful
 
 
 def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
@@ -458,7 +457,7 @@ def proper_finish_check(parameter_file: str, job: str, job_id: int) -> dict:
     return output
 
 
-def _failed_email_generation(error: Exception) -> str:
+def _failed_email_generation(error: Exception) -> tuple[str, bool]:
     """Generate the notification that email generation failed.
 
     Parameters
@@ -468,8 +467,8 @@ def _failed_email_generation(error: Exception) -> str:
 
     Returns
     -------
-    str
-        The message to notify that the email generation failed.
+    tuple[str, bool]
+        The message to notify that the email generation failed, and a failure indication
     """
     message = f"""Dear radargroup,
 
@@ -486,15 +485,11 @@ Please add the labels Priority-0 and bug, and assign Simon.
 
 Thank you in advance, and sorry for the inconvenience.
 
-Kind regards,
-The CAROLINE development team,
-Freek, Niels, and Simon
-
 """
-    return message
+    return message, False
 
 
-def generate_email(parameter_file: str) -> str:
+def generate_email(parameter_file: str) -> tuple[str, bool]:
     """Generate the CAROLINE email.
 
     Parameters
@@ -504,15 +499,15 @@ def generate_email(parameter_file: str) -> str:
 
     Returns
     -------
-    str
-        The message that will be emailed.
+    tuple[str, bool]
+        The message that will be emailed, and an indication on whether the process succeeded
     """
     try:
-        message = _generate_email(parameter_file)
+        message, successful_run = _generate_email(parameter_file)
     except Exception as error:
-        message = _failed_email_generation(error)
+        message, successful_run = _failed_email_generation(error)
 
-    return message
+    return message, successful_run
 
 
 def detect_sensor_pixelsize(sensor: str) -> tuple[int, int]:

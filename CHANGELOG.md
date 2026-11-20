@@ -25,7 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.7](https://github.com/TUDelftGeodesy/caroline/tree/main) (19-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/1de1fc6c7a258553b0caccc4becba017e48e3036...main))
+## [v5.1.8](https://github.com/TUDelftGeodesy/caroline/tree/main) (20-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ca1a78ef1be33c56dfe28d12aa29849a0bf6a8c8...main))
+
+### Changed
+- Email text is now cleaner
+- Email header now indicates whether or not a run failed
+
+## [v5.1.7](https://github.com/TUDelftGeodesy/caroline/tree/ca1a78ef1be33c56dfe28d12aa29849a0bf6a8c8) (19-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/1de1fc6c7a258553b0caccc4becba017e48e3036...ca1a78ef1be33c56dfe28d12aa29849a0bf6a8c8))
 
 ### Fixed
 - Doris v5 result directories are now editable by non-creator accounts as well

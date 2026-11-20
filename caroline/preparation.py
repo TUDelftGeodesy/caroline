@@ -1895,7 +1895,7 @@ def prepare_email(parameter_file: str, do_track: int | list | None = None) -> No
         Track number, or list of track numbers, of the track(s) to prepare. `None` (default) prepares all tracks in
         the parameter file
     """
-    body = generate_email(parameter_file)
+    body, successful_run = generate_email(parameter_file)
 
     search_parameters = [
         "general:tracks:track",
@@ -1921,7 +1921,8 @@ def prepare_email(parameter_file: str, do_track: int | list | None = None) -> No
             track_csv += f"{out_parameters['general:input-data:sensor']}_{asc_dsc[track]}_t{tracks[track]:0>3d},"
 
     track_csv = track_csv.strip(",")
-    header = f"CAROLINE: {out_parameters['general:input-data:sensor']}/{area_name}/{track_csv}"
+    caroline_naming = "CAROLINE" if successful_run else "FAILED!! CAROLINE"
+    header = f"{caroline_naming}: {out_parameters['general:input-data:sensor']}/{area_name}/{track_csv}"
     os.system(f"""echo "Subject: {header}
 from:noreply@spider.surfsara.nl
 

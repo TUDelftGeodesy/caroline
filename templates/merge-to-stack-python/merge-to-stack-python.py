@@ -66,7 +66,7 @@ data = data.rename({"latitude": "lat", "longitude": "lon", "elevation": "h"})
 logger.info("Cropping...")
 cropped_data = crop_slc_spacetime(data, aoi_filename=aoi_path)
 
-cropped_data = cropped_data.chunk({"azimuth": 4000, "range": 4000, "time": 1})
+cropped_data = cropped_data.chunk({"azimuth": 400, "range": 800, "time": 50})
 
 cropped_data = cropped_data.assign(
     {
@@ -75,7 +75,7 @@ cropped_data = cropped_data.assign(
     }
 )
 
-cropped_data = cropped_data.drop_vars(["complex"])
+cropped_data = cropped_data.drop_vars(["complex", "amplitude", "phase"])
 # removing the metadata to be able to write to zarr again
 cropped_data.attrs = {}
 

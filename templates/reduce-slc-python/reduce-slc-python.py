@@ -52,7 +52,7 @@ sensor = "**general:input-data:sensor**"
 
 # Output config
 overwrite_zarr = False  # Flag for zarr overwrite
-writing_chunks = {"azimuth": 4000, "range": 4000, "time": 1}  # Writing chunks to zarr, (azimuth, range, time)
+writing_chunks = {"azimuth": 400, "range": 800, "time": 50}  # Writing chunks to zarr, (azimuth, range, time)
 path_figure = Path("./figure")  # Output path for figure
 path_figure.mkdir(exist_ok=True)  # Make figure directory if not exists
 

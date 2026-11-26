@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `merge_to_stack_python` no longer writes `amplitude` and `phase` layers as `real` and `imag` are also readily available
+- `.zarr` encoding is now uniformly in version 2
 
 ## [v5.1.10](https://github.com/TUDelftGeodesy/caroline/tree/ebce9ffacc7bd0832d7ee200a1aecdd7a65b0acf) (20-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/768ab91bd2e18f6e70d0f042ed3c3fec90c209a0...ebce9ffacc7bd0832d7ee200a1aecdd7a65b0acf))
 

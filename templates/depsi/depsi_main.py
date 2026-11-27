@@ -69,6 +69,7 @@ last_date = datetime(int("**end_date_year**"), int("**end_date_month**"), int("*
 mother_epoch = datetime(int("**mother_date_year**"), int("**mother_date_month**"), int("**mother_date_day**"))
 reference_point_index_az = "**reference_point_index_azimuth**"
 reference_point_index_r = "**reference_point_index_range**"
+reference_point_mode = "**reference_point_mode**"
 if reference_point_index_az == "None":
     reference_point_index_az = None
 else:
@@ -232,6 +233,12 @@ if start_at_checkpoint < 1:
     # 2. Scatterer selection
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Start cropping...")
     cropped_slcs = crop_slc_spacetime(slcs, aoi_filename=aoi_file, start_date=first_date, end_date=last_date)
+
+    if reference_point_mode == "relative" and reference_point_index_r is not None:
+        az0 = cropped_slcs.azimuth.values[0]
+        r0 = cropped_slcs.range.values[0]
+        reference_point_index_az = reference_point_index_az + az0 - 1
+        reference_point_index_r = reference_point_index_r + r0 - 1  # minus 1 to account for Matlab/Python indexing
 
     # ######## POINT SELECTION WITH THE PARAMETERS ABOVE ############
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Starting PS selection...")

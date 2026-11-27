@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 -->
-## [v5.1.11](https://github.com/TUDelftGeodesy/caroline/tree/main) (20-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ebce9ffacc7bd0832d7ee200a1aecdd7a65b0acf...main))
+## [v5.1.12](https://github.com/TUDelftGeodesy/caroline/tree/main) (27-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/586c7c6adeb5f3fb01e0dfe5c0d302b7cc7eefcb...main))
+
+### Fixed
+- Reference points in DePSI now have an indicator on whether they're absolute radar coordinates or relative radar coordinates (with respect to the corner of the crop, which is (1, 1) by Matlab convention)
+
+## [v5.1.11](https://github.com/TUDelftGeodesy/caroline/tree/586c7c6adeb5f3fb01e0dfe5c0d302b7cc7eefcb) (27-Nov-2026, [diff](https://github.com/TUDelftGeodesy/caroline/compare/ebce9ffacc7bd0832d7ee200a1aecdd7a65b0acf...586c7c6adeb5f3fb01e0dfe5c0d302b7cc7eefcb))
 
 ### Changed
 - Dependency on `sarxarray` is now on `v1.4.3`

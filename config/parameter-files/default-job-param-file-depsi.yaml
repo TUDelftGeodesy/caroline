@@ -17,10 +17,12 @@ depsi:
       #                             this can be different between consecutive runs on the same track.
       # ref_cn = 'constant'      -> keep the reference point constant between runs on the same track. If no runs exist,
       #                             the first run will run on mode 'independent'
-      # ref_cn = [azimuth,range] -> force the reference point to this coordinate regardless of what is there. If the reference point is not selected
-      #                             as PS point, DePSI will throw an error
-      # ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300]} -> different behaviours for different tracks. If this option is chosen,
-      #                                                                   a mode for all tracks in the .dat file must exist.
+      # ref_cn = [azimuth,range,mode] -> force the reference point to this coordinate regardless of what is there. If the reference point is not
+      #                             selected as PS point, DePSI will throw an error. mode is either 'relative' or 'absolute',
+      #                             'absolute' meaning in proper radar coordinates and 'relative' meaning relative to the crop
+      # ref_cn = {'s1_asc_t088': 'constant', 's1_dsc_t110': [100,300, 'relative']} -> different behaviours for different tracks. If this option is
+      #                                                                   chosen, a mode for all tracks in the .dat file must exist. 'all' key is
+      #                                                                   allowed and used for remaining unspecified keys
       ref-cn:
         all: 'constant'  # the default for all tracks. Adding different tracks will overwrite the 'all' mode for those specific tracks
 

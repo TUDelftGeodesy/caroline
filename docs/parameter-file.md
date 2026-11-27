@@ -283,8 +283,8 @@ These parameters are used in the job `depsi` (the **Python** implementation of D
   * Possible values: a mapping containing `all` and optionally track-specific keys (e.g., `s1_asc_t088`). Each value can be:
     * `'independent'`: choose a reference point independently for each run, from the nodes of the arc with the lowest amplitude dispersion.
     * `'constant'`: reuse the reference point across consecutive runs of the same track. If no previous run exists, select the first reference point using `'independent'` mode.
-    * `[azimuth, range]`: force the reference point to the specified radar pixel coordinates. DePSI raises an error if that point is not selected as a persistent scatterer.
-  * Example: `{'all': 'constant', 's1_dsc_t110': [100, 300]}`. Track-specific settings override `all`; default `{'all': 'constant'}`.
+    * `[azimuth, range, mode]`: force the reference point to the specified radar pixel coordinates. In `'relative'` mode, coordinates are interpreted relative to the first line/pixel of the crop (corner `(1, 1)`), in `'absolute'` mode they are interpreted in the burst radar coordinate frame that the zarr is in. DePSI raises an error if that point is not selected as a persistent scatterer.
+  * Example: `{'all': 'constant', 's1_dsc_t110': [100, 300, 'relative']}`. Track-specific settings override `all`; default `{'all': 'constant'}`.
 
 ### PS selection
 

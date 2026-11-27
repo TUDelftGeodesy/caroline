@@ -583,6 +583,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
         key = f"{out_parameters['general:input-data:sensor'].lower()}_{asc_dsc[track]}_t{tracks[track]:0>3d}"
         ref_cn_az = None
         ref_cn_r = None
+        ref_cn_mode = "absolute"
 
         if not isinstance(out_parameters["depsi:depsi-settings:general:ref-cn"], dict):
             print(
@@ -604,7 +605,8 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
             pass
         elif mode[0] == "[":  # hardcoded
             ref_cn_az = eval(mode.split(",")[0].split("[")[-1].strip())
-            ref_cn_r = eval(mode.split(",")[1].split("]")[0].strip())
+            ref_cn_r = eval(mode.split(",")[1].strip())
+            ref_cn_mode = mode.split(",")[2].split("]")[0].strip().strip('"').strip("'").strip()
         elif mode == "constant":
             # find the old runs
             directories = glob.glob(f"{'-'.join(depsi_directory.split('-')[:-1])}-*")
@@ -721,6 +723,7 @@ def prepare_depsi(parameter_file: str, do_track: int | list | None = None) -> No
                 "mother_date_day": mother_date_day,
                 "reference_point_index_azimuth": ref_cn_az,
                 "reference_point_index_range": ref_cn_r,
+                "reference_point_mode": ref_cn_mode,
                 "metadata_file": metadata_file,
                 "metadata_driver": metadata_driver,
                 "constructed_filtering_dictionary": str(filter_dict),

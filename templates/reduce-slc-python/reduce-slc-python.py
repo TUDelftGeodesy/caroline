@@ -52,7 +52,7 @@ sensor = "**general:input-data:sensor**"
 
 # Output config
 overwrite_zarr = False  # Flag for zarr overwrite
-writing_chunks = {"azimuth": 4000, "range": 4000, "time": 1}  # Writing chunks to zarr, (azimuth, range, time)
+writing_chunks = {"azimuth": 400, "range": 800, "time": 50}  # Writing chunks to zarr, (azimuth, range, time)
 path_figure = Path("./figure")  # Output path for figure
 path_figure.mkdir(exist_ok=True)  # Make figure directory if not exists
 
@@ -207,12 +207,19 @@ if __name__ == "__main__":
     slcs_output = crop_slc_spacetime(
         slcs_output, aoi_filename="**general:shape-file:directory**/**general:shape-file:aoi-name**_shape.shp"
     )
-    # Rechunk and write as zarr
+    # Rechunk, drop encoding and write as zarr v2
     slcs_output = slcs_output.chunk(writing_chunks)
+    slcs_output = slcs_output.drop_encoding()
+    encoding = {
+        name: {"_FillValue": np.nan}
+        for name, var in slcs_output.variables.items()
+        if np.issubdtype(var.dtype, np.floating)
+    }
+
     if not os.path.exists("**reduce_slc_python_output_filename**.zarr"):
-        slcs_output.to_zarr("**reduce_slc_python_output_filename**.zarr", mode="w")
+        slcs_output.to_zarr("**reduce_slc_python_output_filename**.zarr", mode="w", zarr_format=2, encoding=encoding)
     else:
-        slcs_output.to_zarr("**reduce_slc_python_output_filename**.zarr", mode="w")
+        slcs_output.to_zarr("**reduce_slc_python_output_filename**.zarr", mode="w", zarr_format=2, encoding=encoding)
 
     logger.info("Finishing... Closing client.")
     # Close the client when finishing

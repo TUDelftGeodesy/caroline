@@ -228,6 +228,7 @@ if start_at_checkpoint < 1:
     # 1. Project setup
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Reading SLC stack...")
     slcs = read_slc_stack(slc_path)
+    slcs = slcs.drop_encoding()
 
     # 2. Scatterer selection
     logger.info(f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')} Start cropping...")
